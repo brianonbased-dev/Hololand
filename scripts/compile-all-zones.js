@@ -22,6 +22,7 @@ const REPO_ROOT = process.cwd();
 
 function usage() {
   return `Usage: node scripts/compile-all-zones.js [options]
+       node scripts/compile-all-zones.js <file.holo> <target>
 
 Options:
   --targets=unity,babylon        Targets to compile. Default real mode: unity.
@@ -37,6 +38,7 @@ Options:
 }
 
 function parseArgs(argv = process.argv.slice(2)) {
+  const positionals = [];
   const options = {
     allZones: false,
     demoPlaceholders: false,
@@ -71,16 +73,34 @@ function parseArgs(argv = process.argv.slice(2)) {
       options.receipt = argv[++index] || options.receipt;
     } else if (arg === '--holoscript-root') {
       options.holoscriptRoot = argv[++index] || options.holoscriptRoot;
+    } else if (!arg.startsWith('-')) {
+      positionals.push(arg);
     } else {
       throw new Error(`Unknown argument: ${arg}`);
     }
   }
 
+  applyPositionals(options, positionals);
   options.targets = options.targets || (options.demoPlaceholders ? TARGETS : DEFAULT_REAL_TARGETS);
   for (const target of options.targets) {
     if (!TARGETS.includes(target)) throw new Error(`Unsupported target: ${target}`);
   }
   return options;
+}
+
+function applyPositionals(options, positionals) {
+  for (const value of positionals) {
+    if (TARGETS.includes(value)) {
+      if (options.targets && options.targets.length && !options.targets.includes(value)) {
+        throw new Error(`Conflicting target arguments: ${options.targets.join(',')} and ${value}`);
+      }
+      options.targets = [value];
+    } else if (/\.holo$/i.test(value)) {
+      options.explicitSources.push(value);
+    } else {
+      throw new Error(`Unknown positional argument: ${value}`);
+    }
+  }
 }
 
 function splitList(value) {
@@ -334,6 +354,7 @@ function writeReceipt(options, sources, results) {
 }
 
 function assertSelfTest() {
+  const positional = parseArgs(['apps/holoshell/source/holoshell-shell-world.holo', 'webgpu']);
   const demo = {
     mode: 'demo-placeholder',
     outputContainsPlaceholderTodo: true,
@@ -352,6 +373,10 @@ function assertSelfTest() {
   const realSummary = summarize([realViolation], { demoPlaceholders: false, targets: ['unity'] });
   const note = generateCompilationNote('demo.holo', 'unity');
   const failures = [];
+  if (positional.explicitSources[0] !== 'apps/holoshell/source/holoshell-shell-world.holo') {
+    failures.push('positional .holo source should map to --sources');
+  }
+  if (positional.targets[0] !== 'webgpu') failures.push('positional target should map to --targets');
   if (demoSummary.status !== 'pass') failures.push('demo placeholder mode should allow placeholder TODOs');
   if (realSummary.todoViolationCount !== 1 || realSummary.status !== 'failed') failures.push('real mode must fail placeholder TODOs');
   if (!note.includes('Mode: demo-placeholder')) failures.push('demo output must distinguish placeholder mode');
@@ -409,6 +434,7 @@ main().catch((error) => {
 });
 
 module.exports = {
+  applyPositionals,
   generateCompilationNote,
   hasPlaceholderTodo,
   parseArgs,
