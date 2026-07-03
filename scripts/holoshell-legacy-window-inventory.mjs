@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const SCHEMA_VERSION = 'hololand.holoshell.legacy-window-inventory.v0.1.0';
 const REPO_ROOT = path.resolve(new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
@@ -176,6 +177,53 @@ function syntheticWindows() {
   ];
 }
 
+export function compactPowerShellEnv(env = process.env) {
+  const keepNames = [
+    'ALLUSERSPROFILE',
+    'APPDATA',
+    'COMPUTERNAME',
+    'ComSpec',
+    'HOME',
+    'HOMEDRIVE',
+    'HOMEPATH',
+    'LOCALAPPDATA',
+    'NUMBER_OF_PROCESSORS',
+    'PATHEXT',
+    'PROCESSOR_ARCHITECTURE',
+    'PROCESSOR_IDENTIFIER',
+    'PROCESSOR_LEVEL',
+    'PROCESSOR_REVISION',
+    'ProgramData',
+    'ProgramFiles',
+    'ProgramFiles(x86)',
+    'ProgramW6432',
+    'PSModulePath',
+    'PUBLIC',
+    'SystemDrive',
+    'SystemRoot',
+    'TEMP',
+    'TMP',
+    'USERDOMAIN',
+    'USERNAME',
+    'USERPROFILE',
+    'windir',
+  ];
+  const compact = {};
+  const pathKey = Object.keys(env).find((key) => key.toLowerCase() === 'path');
+  if (pathKey) compact[pathKey] = env[pathKey];
+  for (const name of keepNames) {
+    if (env[name] !== undefined) compact[name] = env[name];
+  }
+  return compact;
+}
+
+export function envBlockUtf16Bytes(env = process.env) {
+  const entries = Object.entries(env)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `${key}=${value}`);
+  return (entries.join('\0').length + 2) * 2;
+}
+
 function powershellWindowProbe(timeoutMs) {
   const script = `
 $ErrorActionPreference = 'Stop'
@@ -224,6 +272,7 @@ $items | ConvertTo-Json -Compress -Depth 4
 `;
   const result = spawnSync('powershell', ['-NoProfile', '-NonInteractive', '-Command', script], {
     cwd: REPO_ROOT,
+    env: compactPowerShellEnv(),
     encoding: 'utf8',
     timeout: timeoutMs,
     windowsHide: true,
@@ -469,9 +518,11 @@ function main() {
   }
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(`holoshell-legacy-window-inventory failed: ${error.message}`);
-  process.exit(1);
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  try {
+    main();
+  } catch (error) {
+    console.error(`holoshell-legacy-window-inventory failed: ${error.message}`);
+    process.exit(1);
+  }
 }

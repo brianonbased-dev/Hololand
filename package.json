@@ -46,6 +46,7 @@
     "test:holoshell-brittney-operator-chat-browser-receipt": "node scripts/__tests__/holoshell-brittney-operator-chat-browser-receipt.test.mjs",
     "test:holoshell-browser-terminal-coupling": "node scripts/__tests__/holoshell-browser-terminal-coupling.test.mjs",
     "test:holoshell-laptop-receipt-freshness": "node scripts/__tests__/holoshell-laptop-receipt-freshness.test.mjs",
+    "test:holoshell-legacy-window-inventory-env": "node scripts/__tests__/holoshell-legacy-window-inventory-env.test.mjs",
     "test:holoshell-jetson-deploy-wrapper": "node scripts/__tests__/holoshell-jetson-deploy-wrapper.test.mjs",
     "test:holoshell-laptop-reasoning": "node scripts/__tests__/holoshell-brittney-laptop-reasoning.test.mjs && node scripts/__tests__/holoshell-laptop-reasoning-worker.test.mjs && node scripts/__tests__/holoshell-laptop-reasoning-bridge.test.mjs && node scripts/__tests__/holoshell-laptop-reasoning-bridge-service.test.mjs && node scripts/__tests__/holoshell-live-feed-laptop-reasoning.test.mjs && node scripts/__tests__/holoshell-brittney-laptop-result-ingestion.test.mjs",
     "test:holoshell-laptop-reasoning-bridge-service": "node scripts/__tests__/holoshell-laptop-reasoning-bridge-service.test.mjs",
