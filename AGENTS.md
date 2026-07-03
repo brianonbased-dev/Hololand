@@ -17,6 +17,22 @@ rendered, interacted with, and receipted on real hardware. HoloScript is the
 upstream source of truth for language, traits, compilers, validation, runtime
 primitives, and world semantics.
 
+## HoloScript Tool Integration
+
+- HoloScript source/tool surface: author source-of-truth behavior in `.holo`,
+  `.hsplus`, or `.hs`, then validate through HoloScript tools before HoloLand
+  consumes it as a runtime proof.
+- HoloKey/x402 custody: preserve HoloKey, x402, and seat wallet provenance for
+  any credentialed publish, receipt, agent, or registry action.
+- Umbrella/routeTask routing: use the HoloMesh room board and `routeTask`
+  umbrella to decide whether work belongs in HoloLand, HoloScript, or the
+  orchestrator.
+- Triads/uAAL: run unclear world/runtime changes through the
+  competitor-paper-codebase triad and uAAL lens before building local
+  substitutes.
+- HoloGate note: HoloGate is a docs umbrella term only; it does not replace
+  concrete HoloKey, routeTask, triad/uAAL, MCP, or source-level proof.
+
 Do not add product behavior here as a TypeScript-only canonical implementation.
 Do not revive stale HoloLand package graphs for their own sake. Legacy R3F, AR,
 platform, and example packages are debt unless they directly support the active
