@@ -684,6 +684,7 @@ try {
   assert.match(source, /laptopReceiptFreshnessAdapter: "scripts\/holoshell-laptop-receipt-freshness\.mjs"/);
   assert.match(source, /laptopReceiptFreshnessCommand: "pnpm run holoshell:laptop-receipt-freshness -- --watch --interval-ms 60000 --timeout-ms 60000 --json"/);
   assert.match(source, /receiptFreshnessWatchLog: "\.tmp\/holoshell\/laptop-receipt-freshness-watch\.log"/);
+  assert.match(source, /receiptFreshnessWatchLogWriteMode: "append_preserve_existing_evidence"/);
   assert.match(source, /OneSessionTwoSurfaces/);
   assert.match(source, /TerminalCannotBypassHoloGate/);
   assert.match(source, /NativeTerminalBrowserSymbiosis/);
@@ -703,6 +704,8 @@ try {
   assert.match(launcher, /node scripts\\holoshell-laptop-receipt-freshness\.mjs --watch --interval-ms 60000 --timeout-ms 60000 --json/);
   assert.match(launcher, /pnpm run holoshell:laptop-receipt-freshness -- --watch --interval-ms 60000 --timeout-ms 60000 --json/);
   assert.match(launcher, /laptop-receipt-freshness-watch\.log/);
+  assert.match(launcher, /\*>> \.tmp\\holoshell\\laptop-receipt-freshness-watch\.log/);
+  assert.doesNotMatch(launcher, /\*> \.tmp\\holoshell\\laptop-receipt-freshness-watch\.log/);
   assert.match(launcher, /node scripts\\holoshell-operator-terminal\.mjs/);
   assert.match(launcher, /pnpm run holoshell:operator-terminal/);
   assert.match(launcher, /-WindowStyle Hidden/);

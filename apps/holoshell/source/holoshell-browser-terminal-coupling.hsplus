@@ -36,6 +36,7 @@ composition "HoloShell Browser Terminal Coupling" {
     terminalRefreshCommand: "pnpm run holoshell:operator-terminal -- --agent --json"
     laptopReceiptFreshnessCommand: "pnpm run holoshell:laptop-receipt-freshness -- --watch --interval-ms 60000 --timeout-ms 60000 --json"
     receiptFreshnessWatchLog: ".tmp/holoshell/laptop-receipt-freshness-watch.log"
+    receiptFreshnessWatchLogWriteMode: "append_preserve_existing_evidence"
     receiptRequired: true
   }
 

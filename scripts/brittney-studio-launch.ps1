@@ -93,7 +93,8 @@ if (-not $Headless) { Start-Process $JetsonSurface }
 
 # 4) Keep the paired read-only laptop receipts fresh. This stays hidden by default so desktop
 #    shortcuts and agent-triggered launches do not create surprise terminal windows. A visible,
-#    persistent operator terminal is still available with -OperatorTerminal.
+#    persistent operator terminal is still available with -OperatorTerminal. Append watcher
+#    output so repeat launches preserve verifier history instead of flattening the receipt log.
 $RefreshOperatorReceipt = (-not $Headless) -and (-not $NoTerminal)
 $ShowOperatorTerminal = $RefreshOperatorReceipt -and $OperatorTerminal
 if ($OperatorTerminal -and $NoTerminal) {
@@ -107,12 +108,12 @@ Set-Location $repo
 New-Item -ItemType Directory -Force .tmp\holoshell | Out-Null
 Write-Host '[Brittney Studio] starting read-only receipt freshness watcher...'
 if ((Test-Path (Join-Path (Get-Location) 'scripts\holoshell-laptop-receipt-freshness.mjs')) -and (Get-Command node -ErrorAction SilentlyContinue)) {
-  node scripts\holoshell-laptop-receipt-freshness.mjs --watch --interval-ms 60000 --timeout-ms 60000 --json *> .tmp\holoshell\laptop-receipt-freshness-watch.log
+  node scripts\holoshell-laptop-receipt-freshness.mjs --watch --interval-ms 60000 --timeout-ms 60000 --json *>> .tmp\holoshell\laptop-receipt-freshness-watch.log
 } elseif (Get-Command pnpm -ErrorAction SilentlyContinue) {
   `$env:CI = 'true'
-  pnpm run holoshell:laptop-receipt-freshness -- --watch --interval-ms 60000 --timeout-ms 60000 --json *> .tmp\holoshell\laptop-receipt-freshness-watch.log
+  pnpm run holoshell:laptop-receipt-freshness -- --watch --interval-ms 60000 --timeout-ms 60000 --json *>> .tmp\holoshell\laptop-receipt-freshness-watch.log
 } else {
-  corepack pnpm run holoshell:laptop-receipt-freshness -- --watch --interval-ms 60000 --timeout-ms 60000 --json *> .tmp\holoshell\laptop-receipt-freshness-watch.log
+  corepack pnpm run holoshell:laptop-receipt-freshness -- --watch --interval-ms 60000 --timeout-ms 60000 --json *>> .tmp\holoshell\laptop-receipt-freshness-watch.log
 }
 "@
   Start-Process powershell.exe -WorkingDirectory $Hololand -WindowStyle Hidden -ArgumentList @(

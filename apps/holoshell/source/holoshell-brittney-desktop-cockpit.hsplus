@@ -468,6 +468,7 @@ composition "HoloShell Brittney Desktop Cockpit" {
     hiddenReceiptRefreshDefault: true
     hiddenReceiptRefreshIntervalMs: 60000
     receiptFreshnessWatchLog: ".tmp/holoshell/laptop-receipt-freshness-watch.log"
+    receiptFreshnessWatchLogWriteMode: "append_preserve_existing_evidence"
     legacyUiMayNotOwnBehavior: true
     legacyUiRole: "adapter_projection_only"
     canonicalBehaviorSource: "apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus"
