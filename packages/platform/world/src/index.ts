@@ -36,6 +36,16 @@ export { setHololandWorldLogger, resetLogger, type HololandWorldLogger } from '.
 // Systems & Managers
 export { NPCSystem, type NPCTrait } from './systems/NPCSystem';
 export { DialogManager, type DialogNode, type DialogOption } from './managers/DialogManager';
+export {
+  CorpusRecorder,
+  buildCorpusRow,
+  defaultRedact,
+  CORPUS_SCHEMA,
+  type CorpusRow,
+  type CorpusSink,
+  type CorpusEventType,
+  type CorpusRecorderConfig,
+} from './managers/CorpusRecorder';
 export { HoloScriptLoader } from './utils/HoloScriptLoader';
 
 // Composition Loader (NEW - loads .holo files)
