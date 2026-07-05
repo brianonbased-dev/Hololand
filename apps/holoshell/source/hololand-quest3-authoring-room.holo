@@ -1,0 +1,285 @@
+// HoloLand Quest 3 In-World Authoring Room
+//
+// Source-owned minimum for building inside a headset: voice creates a
+// HoloScript patch, gesture binds the target and trait, preview proves the
+// patch before commit, and a receipt records the authoring action.
+
+composition "HoloLand Quest 3 In World Authoring Room" {
+  metadata {
+    title: "Quest 3 In-World Authoring"
+    product: "HoloLand"
+    sourceLayer: "HoloScript"
+    behavior_source: "apps/holoshell/source/hololand-quest3-authoring-policy.hsplus"
+    spec_source: "docs/specs/QUEST3_IN_WORLD_AUTHORING_LOOP.md"
+    voice_bridge: "packages/brittney/ai-bridge/src/VoiceMCPPipeline.ts"
+    ai_bridge: "packages/brittney/ai-bridge/src/HololandAIBridge.ts"
+    spatial_bridge: "packages/spatial-builder/src/services/SpatialBridgeService.ts"
+    tracking_bindings: "packages/ar/tracking/src/holoscript/bindings.ts"
+    quest_viewer_source: "apps/holoshell/source/hololand-quest-browser-webxr-viewer.holo"
+    checkCommand: "pnpm run check:hololand-quest3-authoring-loop"
+    adapterRole: "projection_only"
+    scope: "voice_to_world_and_gesture_to_trait_minimum"
+  }
+
+  environment {
+    theme: "quest3_in_world_authoring"
+    render_mode: "quest_browser_webxr"
+    ambient_light: 0.56
+    camera_mode: "headset_first"
+    receipt_underlay: true
+    preview_ghosts_enabled: true
+  }
+
+  state {
+    authoringState: "idle"
+    currentWorldId: ""
+    selectedObjectId: ""
+    activeTranscript: ""
+    voiceIntentState: "waiting"
+    gestureState: "waiting"
+    traitSuggestionState: "waiting"
+    sourcePatchState: "unbuilt"
+    previewState: "not_rendered"
+    parserState: "unknown"
+    questBudgetState: "unknown"
+    commitState: "not_committed"
+    receiptStatus: "pending"
+    collaborationBoundary: "single_user_minimum"
+  }
+
+  spatial_group "Quest3AuthoringChannels" {
+    object "VoiceIntentChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:quest3-authoring:voice-intent"
+      channel_type: "append_only"
+      priority: "high"
+      description: "Transcript, intent, target world, target object, confidence, and source context hash"
+    }
+
+    object "GestureTraitChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:quest3-authoring:gesture-trait"
+      channel_type: "append_only"
+      priority: "high"
+      description: "Point, pinch, wrist, palm, draw, cup, and save gestures mapped to trait intent packets"
+    }
+
+    object "SourcePatchChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:quest3-authoring:source-patch"
+      channel_type: "append_only"
+      priority: "high"
+      description: "Generated HoloScript patch, parser result, preview state, and source hash delta"
+    }
+
+    object "AuthoringReceiptChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:quest3-authoring:receipt"
+      channel_type: "append_only"
+      priority: "high"
+      description: "Authoring receipt for voice intent, gesture binding, preview, commit, and unresolved parity gaps"
+    }
+  }
+
+  template "AuthoringPanel" {
+    type: "quest3_authoring_panel"
+    mesh: "rounded_panel"
+    material: "liquid_glass"
+    color: "#101b24"
+    active_color: "#73daca"
+    warning_color: "#e0af68"
+    blocked_color: "#f7768e"
+    inspectable: true
+    receipt_required: true
+    source_owned_by_holoscript: true
+  }
+
+  template "AuthoringAction" {
+    type: "quest3_authoring_action"
+    mesh: "rounded_button"
+    material: "hologram"
+    color: "#243244"
+    active_color: "#7dcfff"
+    disabled_color: "#4b5563"
+    receipt_required: true
+    source_owned_by_holoscript: true
+  }
+
+  template "AuthoringToken" {
+    type: "quest3_authoring_token"
+    mesh: "sphere"
+    material: "hologram"
+    radius: 0.12
+    grabbable: true
+    receipt_required: true
+  }
+
+  spatial_group "Quest3AuthoringLoop" {
+    label: "In-World Authoring"
+    userQuestion: "What did I say, what did I gesture at, and what HoloScript patch will commit?"
+    visualForm: "headset_authoring_loop"
+    liveFeed: "hololand:quest3-authoring:source-patch"
+
+    object "VoiceWorldIntentPanel" using "AuthoringPanel" {
+      label: "Voice Intent"
+      position: [-2.2, 1.82, -1.65]
+      scale: [1.55, 0.62, 0.08]
+      state_binding: "voiceIntentState"
+      source_binding: "packages/brittney/ai-bridge/src/VoiceMCPPipeline.ts"
+      required_semantics: ["transcript", "intent", "target_world", "target_object", "confidence", "source_context_hash"]
+      empty_copy: "Say a world edit. Nothing commits until the patch parses and previews."
+    }
+
+    object "GestureTraitBindingPanel" using "AuthoringPanel" {
+      label: "Gesture Binding"
+      position: [-0.72, 1.82, -1.65]
+      scale: [1.55, 0.62, 0.08]
+      state_binding: "gestureState"
+      source_binding: "packages/ar/tracking/src/holoscript/bindings.ts"
+      required_gestures: ["point_select", "pinch_grab", "wrist_rotate", "two_hand_scale", "palm_inspect", "air_draw", "cup_spawn", "wrist_save"]
+      required_keypoints: ["left_wrist", "right_wrist"]
+      empty_copy: "Point or pinch to bind the voice intent to a target and trait."
+    }
+
+    object "TraitSuggestionPanel" using "AuthoringPanel" {
+      label: "Trait Suggestion"
+      position: [0.72, 1.82, -1.65]
+      scale: [1.55, 0.62, 0.08]
+      state_binding: "traitSuggestionState"
+      source_binding: "packages/spatial-builder/src/services/SpatialBridgeService.ts"
+      required_fields: ["targetId", "type", "modifiers", "traits", "namespace", "properties"]
+      empty_copy: "Intent must compile to strict HoloScript traits before preview."
+    }
+
+    object "SourcePatchPreviewPanel" using "AuthoringPanel" {
+      label: "Patch Preview"
+      position: [2.2, 1.82, -1.65]
+      scale: [1.55, 0.62, 0.08]
+      state_binding: "previewState"
+      required_semantics: ["generated_holoscript_patch", "parser_state", "preview_ghost", "source_hash_before", "source_hash_after"]
+      empty_copy: "The preview ghost must render before commit."
+    }
+  }
+
+  spatial_group "Quest3AuthoringActions" {
+    object "CaptureVoiceWorldIntentAction" using "AuthoringAction" {
+      label: "Capture Voice"
+      action_id: "capture_voice_world_intent"
+      channel: "hololand:quest3-authoring:voice-intent"
+      position: [-2.2, 0.74, -0.34]
+      scale: [1.2, 0.34, 0.08]
+    }
+
+    object "BindGestureToTraitAction" using "AuthoringAction" {
+      label: "Bind Gesture"
+      action_id: "bind_gesture_to_trait"
+      channel: "hololand:quest3-authoring:gesture-trait"
+      position: [-0.72, 0.74, -0.34]
+      scale: [1.2, 0.34, 0.08]
+    }
+
+    object "PreviewHoloScriptPatchAction" using "AuthoringAction" {
+      label: "Preview Patch"
+      action_id: "preview_holoscript_patch"
+      channel: "hololand:quest3-authoring:source-patch"
+      position: [0.72, 0.74, -0.34]
+      scale: [1.2, 0.34, 0.08]
+    }
+
+    object "ConfirmAuthoringCommitAction" using "AuthoringAction" {
+      label: "Commit Source"
+      action_id: "confirm_authoring_commit"
+      channel: "hololand:quest3-authoring:source-patch"
+      position: [2.2, 0.74, -0.34]
+      scale: [1.2, 0.34, 0.08]
+      requires_preview: true
+    }
+
+    object "RecordAuthoringReceiptAction" using "AuthoringAction" {
+      label: "Record Receipt"
+      action_id: "record_authoring_receipt"
+      channel: "hololand:quest3-authoring:receipt"
+      position: [0, 0.22, 0.4]
+      scale: [1.36, 0.34, 0.08]
+      receipt_kind: "hololand.quest3-authoring.v0.1.0"
+    }
+  }
+
+  spatial_group "Quest3AuthoringBoundaries" {
+    object "QuestFrameBudgetPanel" using "AuthoringPanel" {
+      label: "Quest Budget"
+      position: [-1.55, -0.48, 0.94]
+      scale: [2.05, 0.38, 0.08]
+      target_frame_rate: 90
+      frame_budget_ms: 11.11
+      max_draw_calls: 200
+      max_triangles: 1500000
+      product_copy: "Authoring preview must stay inside the Quest 3 viewer budget before headset-readiness copy."
+    }
+
+    object "ReceiptWitnessPanel" using "AuthoringPanel" {
+      label: "Authoring Receipt"
+      position: [0.62, -0.48, 0.94]
+      scale: [2.05, 0.38, 0.08]
+      receipt_kind: "hololand.quest3-authoring.v0.1.0"
+      witness_binding: "receiptStatus"
+      product_copy: "Records transcript, gesture, trait patch, parse state, preview state, source hash, and commit state."
+    }
+
+    object "ResoniteBoundaryPanel" using "AuthoringPanel" {
+      label: "Parity Boundary"
+      position: [2.32, -0.48, 0.94]
+      scale: [1.3, 0.38, 0.08]
+      status: "watch"
+      product_copy: "This is not ProtoFlux parity: realtime collaborative node scripting and headless self-hosted sessions remain gaps."
+    }
+  }
+
+  spatial_group "Quest3AuthoringPolicyContracts" {
+    object "AuthoringSourceOwnershipPolicy" {
+      type: "policy_contract"
+      policy_id: "VoiceAndGestureMustBecomeHoloScriptPatch"
+      appliesTo: ["capture_voice_world_intent", "bind_gesture_to_trait", "preview_holoscript_patch", "confirm_authoring_commit"]
+      sourceRequiredBeforeProjection: true
+      handAuthoredUiMayNotOwnBehavior: true
+      receiptRequired: true
+    }
+
+    object "NoProtoFluxParityPolicy" {
+      type: "policy_contract"
+      policy_id: "NoResoniteProtoFluxParityClaim"
+      appliesTo: ["competitor_gap_matrix", "marketing_copy", "authoring_copy", "roadmap_status"]
+      realtimeNodeScriptingRequired: true
+      collaborativeGraphRuntimeRequired: true
+      headlessSessionHostingRequired: true
+      matrixStatus: "narrowed_gap"
+      receiptRequired: true
+    }
+  }
+
+  logic {
+    on_enter {
+      emit "hololand_quest3_authoring_room_loaded"
+    }
+
+    action capture_voice_world_intent() {
+      emit "hololand_quest3_authoring_voice_intent_requested"
+    }
+
+    action bind_gesture_to_trait() {
+      emit "hololand_quest3_authoring_gesture_trait_binding_requested"
+    }
+
+    action preview_holoscript_patch() {
+      emit "hololand_quest3_authoring_patch_preview_requested"
+    }
+
+    action confirm_authoring_commit() {
+      emit "hololand_quest3_authoring_commit_requested"
+    }
+
+    action record_authoring_receipt() {
+      emit "hololand_quest3_authoring_receipt_requested"
+    }
+  }
+}

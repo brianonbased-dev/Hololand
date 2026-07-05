@@ -1,0 +1,325 @@
+// HoloLand Quest 3 In-World Authoring Policy
+//
+// Voice and gesture authoring semantics for headset creation. This policy
+// narrows the Resonite gap by defining the source-owned loop, while keeping
+// realtime collaborative node scripting and headless session hosting out of
+// scope until those runtimes exist.
+
+composition "HoloLandQuest3InWorldAuthoringPolicy" {
+  config {
+    title: "Quest 3 In-World Authoring Policy"
+    product: "HoloLand"
+    sourceLayer: "HoloScript"
+    roomSource: "apps/holoshell/source/hololand-quest3-authoring-room.holo"
+    specSource: "docs/specs/QUEST3_IN_WORLD_AUTHORING_LOOP.md"
+    voiceBridge: "packages/brittney/ai-bridge/src/VoiceMCPPipeline.ts"
+    aiBridge: "packages/brittney/ai-bridge/src/HololandAIBridge.ts"
+    spatialBridge: "packages/spatial-builder/src/services/SpatialBridgeService.ts"
+    trackingBindings: "packages/ar/tracking/src/holoscript/bindings.ts"
+    questViewerSource: "apps/holoshell/source/hololand-quest-browser-webxr-viewer.holo"
+    checkCommand: "pnpm run check:hololand-quest3-authoring-loop"
+    defaultMode: "voice_to_world_and_gesture_to_trait_minimum"
+  }
+
+  state Quest3AuthoringState {
+    workflow: "quest3-in-world-authoring"
+    currentWorldId: ""
+    selectedObjectId: ""
+    activeTranscript: ""
+    activeIntent: ""
+    activeGesture: ""
+    activeTraitNamespace: ""
+    sourceRef: ""
+    sourceHashBefore: ""
+    sourceHashAfter: ""
+    parserState: "unknown"
+    previewState: "not_rendered"
+    questBudgetState: "unknown"
+    commitState: "not_committed"
+    collaborationMode: "single_user_minimum"
+    receiptId: ""
+  }
+
+  channel "hololand:quest3-authoring:voice-intent" {
+    type: "append_only"
+    priority: "high"
+    description: "Voice transcript, intent class, target world, target object, confidence, and source context"
+  }
+
+  channel "hololand:quest3-authoring:gesture-trait" {
+    type: "append_only"
+    priority: "high"
+    description: "Tracked hand and wrist gestures mapped to strict HoloScript trait payloads"
+  }
+
+  channel "hololand:quest3-authoring:source-patch" {
+    type: "append_only"
+    priority: "high"
+    description: "Generated source patch, parser state, preview ghost state, source hash delta, and Quest budget"
+  }
+
+  channel "hololand:quest3-authoring:receipt" {
+    type: "append_only"
+    priority: "high"
+    description: "Final source commit receipt with voice, gesture, trait, preview, parse, and parity-boundary facts"
+  }
+
+  template "VoiceWorldIntentPacket" {
+    schemaVersion: "hololand.quest3-authoring.voice-intent.v0.1.0"
+    worldId: ""
+    authorId: ""
+    transcript: ""
+    intent: "create"
+    requestedChange: ""
+    targetObjectId: ""
+    sourceContextHash: ""
+    confidence: 0.0
+    localModelRoute: "brittney_or_byok"
+    needsClarification: false
+    receiptRequired: true
+  }
+
+  template "GestureTraitBindingPacket" {
+    schemaVersion: "hololand.quest3-authoring.gesture-trait.v0.1.0"
+    worldId: ""
+    authorId: ""
+    gestureName: "point_select"
+    acceptedGestures: ["point_select", "pinch_grab", "wrist_rotate", "two_hand_scale", "palm_inspect", "air_draw", "cup_spawn", "wrist_save"]
+    requiredKeypoints: ["left_wrist", "right_wrist"]
+    targetObjectId: ""
+    traitNamespace: ""
+    modifierPayload: {}
+    confidence: 0.0
+    confirmRequired: true
+    receiptRequired: true
+  }
+
+  template "InWorldAuthoringPatch" {
+    schemaVersion: "hololand.quest3-authoring.source-patch.v0.1.0"
+    patchId: ""
+    worldId: ""
+    authorId: ""
+    sourceRef: ""
+    sourceHashBefore: ""
+    sourceHashAfter: ""
+    generatedHoloScriptPatch: ""
+    traitNamespaces: []
+    parserState: "unknown"
+    previewState: "not_rendered"
+    questBudgetState: "unknown"
+    targetFrameRate: 90
+    frameBudgetMs: 11.11
+    maxDrawCalls: 200
+    maxTriangles: 1500000
+    receiptRequired: true
+  }
+
+  template "Quest3AuthoringReceipt" {
+    receiptVersion: "hololand.quest3-authoring.v0.1.0"
+    workflow: "quest3-in-world-authoring"
+    worldId: ""
+    authorId: ""
+    sourceRef: ""
+    sourceHashBefore: ""
+    sourceHashAfter: ""
+    voiceTranscript: ""
+    intent: ""
+    gestureName: ""
+    targetObjectId: ""
+    traitNamespace: ""
+    parserState: "unknown"
+    previewState: "not_rendered"
+    questBudgetState: "unknown"
+    committed: false
+    collaborationMode: "single_user_minimum"
+    parityBoundary: "not_protoflux_or_headless_parity"
+  }
+
+  policy "VoiceIntentMustBecomeHoloScriptPatch" {
+    appliesTo: ["capture_voice_world_intent", "preview_holoscript_patch", "confirm_authoring_commit"]
+    transcriptRequired: true
+    sourceContextHashRequired: true
+    generatedHoloScriptPatchRequired: true
+    handAuthoredUiMayNotOwnBehavior: true
+    receiptRequired: true
+  }
+
+  policy "GestureTraitBindingRequiresConfirm" {
+    appliesTo: ["bind_gesture_to_trait", "confirm_authoring_commit"]
+    acceptedGestures: ["point_select", "pinch_grab", "wrist_rotate", "two_hand_scale", "palm_inspect", "air_draw", "cup_spawn", "wrist_save"]
+    requiredKeypoints: ["left_wrist", "right_wrist"]
+    targetObjectIdRequired: true
+    confirmRequired: true
+    receiptRequired: true
+  }
+
+  policy "QuestPreviewBeforeCommit" {
+    appliesTo: ["preview_holoscript_patch", "confirm_authoring_commit"]
+    parserStateMustEqual: "passed"
+    previewStateMustEqual: "rendered"
+    targetFrameRate: 90
+    frameBudgetMs: 11.11
+    maxDrawCalls: 200
+    maxTriangles: 1500000
+    receiptRequired: true
+  }
+
+  policy "NoResoniteProtoFluxParityClaim" {
+    appliesTo: ["competitor_gap_matrix", "product_copy", "roadmap_copy", "authoring_copy"]
+    realtimeNodeScriptingRuntimePresent: false
+    collaborativeGraphRuntimePresent: false
+    headlessSelfHostedSessionPresent: false
+    noParityClaimAllowed: true
+    matrixStatus: "watch"
+  }
+
+  policy "CollaborationAndHeadlessStillBackendWork" {
+    appliesTo: ["multi_user_coedit", "headless_session_hosting", "deep_modding"]
+    collaborationMode: "single_user_minimum"
+    backendShardRequired: true
+    graphConflictResolutionRequired: true
+    sessionPersistenceRequired: true
+    followUpRequired: true
+  }
+
+  state_machine "Quest3AuthoringWorkflow" {
+    initial: "idle"
+    states: [
+      "idle",
+      "voice_captured",
+      "gesture_bound",
+      "traits_compiled",
+      "source_patch_generated",
+      "source_parsed",
+      "preview_rendered",
+      "commit_confirmed",
+      "receipt_recorded",
+      "blocked"
+    ]
+    transition "capture_voice" { from: "idle", to: "voice_captured" }
+    transition "bind_gesture" { from: ["idle", "voice_captured"], to: "gesture_bound" }
+    transition "compile_traits" { from: "gesture_bound", to: "traits_compiled" }
+    transition "generate_patch" { from: ["voice_captured", "traits_compiled"], to: "source_patch_generated" }
+    transition "parse_source" { from: "source_patch_generated", to: "source_parsed" }
+    transition "render_preview" { from: "source_parsed", to: "preview_rendered" }
+    transition "confirm_commit" { from: "preview_rendered", to: "commit_confirmed" }
+    transition "record_receipt" { from: "commit_confirmed", to: "receipt_recorded" }
+    transition "block" { from: "*", to: "blocked" }
+  }
+
+  action classifyAuthoringReadiness(readiness) {
+    if (readiness.generatedHoloScriptPatch == "") {
+      return "Voice or gesture input has not produced a HoloScript patch."
+    }
+    if (readiness.parserState != "passed") {
+      return "The generated HoloScript patch must parse before preview."
+    }
+    if (readiness.previewState != "rendered") {
+      return "A headset-safe preview ghost must render before commit."
+    }
+    if (readiness.questBudgetState != "passed") {
+      return "The authoring preview must satisfy the Quest frame budget."
+    }
+    return "Quest 3 in-world authoring commit is ready."
+  }
+
+  action capture_voice_world_intent(packet) {
+    Quest3AuthoringState.currentWorldId = packet.worldId
+    Quest3AuthoringState.selectedObjectId = packet.targetObjectId
+    Quest3AuthoringState.activeTranscript = packet.transcript
+    Quest3AuthoringState.activeIntent = packet.intent
+    Quest3AuthoringWorkflow.transition("capture_voice")
+
+    emit("hololand:quest3-authoring:voice-intent", {
+      schemaVersion: "hololand.quest3-authoring.voice-intent.v0.1.0",
+      worldId: packet.worldId,
+      authorId: packet.authorId,
+      transcript: packet.transcript,
+      intent: packet.intent,
+      requestedChange: packet.requestedChange,
+      targetObjectId: packet.targetObjectId,
+      sourceContextHash: packet.sourceContextHash,
+      confidence: packet.confidence,
+      needsClarification: packet.needsClarification,
+      receiptRequired: true
+    })
+  }
+
+  action bind_gesture_to_trait(packet) {
+    Quest3AuthoringState.currentWorldId = packet.worldId
+    Quest3AuthoringState.selectedObjectId = packet.targetObjectId
+    Quest3AuthoringState.activeGesture = packet.gestureName
+    Quest3AuthoringState.activeTraitNamespace = packet.traitNamespace
+    Quest3AuthoringWorkflow.transition("bind_gesture")
+
+    emit("hololand:quest3-authoring:gesture-trait", {
+      schemaVersion: "hololand.quest3-authoring.gesture-trait.v0.1.0",
+      worldId: packet.worldId,
+      authorId: packet.authorId,
+      gestureName: packet.gestureName,
+      requiredKeypoints: packet.requiredKeypoints,
+      targetObjectId: packet.targetObjectId,
+      traitNamespace: packet.traitNamespace,
+      modifierPayload: packet.modifierPayload,
+      confidence: packet.confidence,
+      confirmRequired: true,
+      receiptRequired: true
+    })
+  }
+
+  action preview_holoscript_patch(patch) {
+    Quest3AuthoringState.currentWorldId = patch.worldId
+    Quest3AuthoringState.sourceRef = patch.sourceRef
+    Quest3AuthoringState.sourceHashBefore = patch.sourceHashBefore
+    Quest3AuthoringState.sourceHashAfter = patch.sourceHashAfter
+    Quest3AuthoringState.parserState = patch.parserState
+    Quest3AuthoringState.previewState = patch.previewState
+    Quest3AuthoringState.questBudgetState = patch.questBudgetState
+    Quest3AuthoringWorkflow.transition("generate_patch")
+    Quest3AuthoringWorkflow.transition("parse_source")
+    Quest3AuthoringWorkflow.transition("render_preview")
+
+    emit("hololand:quest3-authoring:source-patch", {
+      schemaVersion: "hololand.quest3-authoring.source-patch.v0.1.0",
+      patchId: patch.patchId,
+      worldId: patch.worldId,
+      authorId: patch.authorId,
+      sourceRef: patch.sourceRef,
+      sourceHashBefore: patch.sourceHashBefore,
+      sourceHashAfter: patch.sourceHashAfter,
+      generatedHoloScriptPatch: patch.generatedHoloScriptPatch,
+      traitNamespaces: patch.traitNamespaces,
+      parserState: patch.parserState,
+      previewState: patch.previewState,
+      questBudgetState: patch.questBudgetState,
+      receiptRequired: true
+    })
+  }
+
+  action confirm_authoring_commit(receipt) {
+    Quest3AuthoringState.commitState = "committed"
+    Quest3AuthoringState.receiptId = receipt.receiptId
+    Quest3AuthoringWorkflow.transition("confirm_commit")
+    Quest3AuthoringWorkflow.transition("record_receipt")
+
+    emit("hololand:quest3-authoring:receipt", {
+      receiptVersion: "hololand.quest3-authoring.v0.1.0",
+      receiptId: receipt.receiptId,
+      worldId: Quest3AuthoringState.currentWorldId,
+      authorId: receipt.authorId,
+      sourceRef: Quest3AuthoringState.sourceRef,
+      sourceHashBefore: Quest3AuthoringState.sourceHashBefore,
+      sourceHashAfter: Quest3AuthoringState.sourceHashAfter,
+      voiceTranscript: Quest3AuthoringState.activeTranscript,
+      gestureName: Quest3AuthoringState.activeGesture,
+      targetObjectId: Quest3AuthoringState.selectedObjectId,
+      traitNamespace: Quest3AuthoringState.activeTraitNamespace,
+      parserState: Quest3AuthoringState.parserState,
+      previewState: Quest3AuthoringState.previewState,
+      questBudgetState: Quest3AuthoringState.questBudgetState,
+      committed: true,
+      collaborationMode: Quest3AuthoringState.collaborationMode,
+      parityBoundary: "not_protoflux_or_headless_parity"
+    })
+  }
+}

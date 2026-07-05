@@ -34,6 +34,7 @@ These are the HoloLand-side things a creator interacts with after authoring in H
 | Holographic UI | `packages/components/`, `packages/ar/` | UI primitives composable from `.holo`. See [HOLOGRAPHIC_UI.md](./HOLOGRAPHIC_UI.md). |
 | IoT digital twins | `packages/brittney/iot-digital-twins/` | Ingest IoT devices, emit `.holo`. See [IOT_DIGITAL_TWINS_SHOWCASE.md](./IOT_DIGITAL_TWINS_SHOWCASE.md). |
 | Creator economy source contract | `apps/holoshell/source/hololand-creator-economy-room.holo`, `apps/holoshell/source/hololand-creator-economy-policy.hsplus` | Defines x402 paid-world gates, settlement receipts, earnings snapshots, refund reserve, and payout-readiness boundaries. See [specs/CREATOR_ECONOMY_X402_GATES.md](./specs/CREATOR_ECONOMY_X402_GATES.md). |
+| Quest 3 in-world authoring source contract | `apps/holoshell/source/hololand-quest3-authoring-room.holo`, `apps/holoshell/source/hololand-quest3-authoring-policy.hsplus` | Defines the checked voice-to-world and gesture-to-trait authoring loop for headset creation. See [specs/QUEST3_IN_WORLD_AUTHORING_LOOP.md](./specs/QUEST3_IN_WORLD_AUTHORING_LOOP.md). |
 
 ## Creator economy status
 
@@ -45,6 +46,18 @@ Canonical spec source: `docs/specs/CREATOR_ECONOMY_X402_GATES.md`.
 This is not a live payout claim. It defines x402 gate configuration,
 settlement receipts, gross/fee/net/pending/available/reserve dashboard fields,
 and the boundary that payout copy requires backend transfer proof.
+
+## Quest 3 authoring status
+
+HoloLand now has a source-owned minimum contract for in-headset authoring:
+voice intent, gesture-to-trait binding, HoloScript patch preview, explicit
+confirmation, and receipts. It is checked with
+`pnpm run check:hololand-quest3-authoring-loop`.
+Canonical spec source: `docs/specs/QUEST3_IN_WORLD_AUTHORING_LOOP.md`.
+
+This is not Resonite/ProtoFlux parity. Realtime collaborative node scripting,
+deep modding, conflict resolution, and headless/self-hosted session hosting are
+still runtime gaps.
 
 ## What does not exist
 

@@ -153,6 +153,8 @@ contracts.
 | Quest Browser WebXR policy | `apps/holoshell/source/hololand-quest-browser-webxr-policy.hsplus` |
 | Creator economy room       | `apps/holoshell/source/hololand-creator-economy-room.holo`         |
 | Creator economy policy     | `apps/holoshell/source/hololand-creator-economy-policy.hsplus`     |
+| Quest 3 authoring room     | `apps/holoshell/source/hololand-quest3-authoring-room.holo`        |
+| Quest 3 authoring policy   | `apps/holoshell/source/hololand-quest3-authoring-policy.hsplus`    |
 | Skin presets               | `apps/holoshell/source/holoshell-skin-presets.hsplus`              |
 | Natural phenomena bridge   | `apps/holoshell/source/holoshell-natural-phenomena-bridge.hsplus`  |
 | Asset shard workflow       | `apps/holoshell/source/holoshell-asset-shard-workflow.hsplus`      |

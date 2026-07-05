@@ -11,6 +11,18 @@ this is intent, not shipped surface.
 > version of this doc and the related design `HOLOLAND_OASIS_CENTRAL_DESIGN.md`
 > have moved to [`docs/archive/`](./archive/HOLOLAND_OASIS_CENTRAL_DESIGN.md).
 
+## Source-owned minimum
+
+The checked source-owned minimum for voice-to-world and gesture-to-trait
+authoring now lives in
+[`apps/holoshell/source/hololand-quest3-authoring-room.holo`](../apps/holoshell/source/hololand-quest3-authoring-room.holo),
+[`apps/holoshell/source/hololand-quest3-authoring-policy.hsplus`](../apps/holoshell/source/hololand-quest3-authoring-policy.hsplus),
+and [`docs/specs/QUEST3_IN_WORLD_AUTHORING_LOOP.md`](./specs/QUEST3_IN_WORLD_AUTHORING_LOOP.md).
+That contract covers voice intent, gesture-to-trait binding, HoloScript patch
+preview, explicit confirmation, and an authoring receipt. It does not claim
+production wrist-power UI, marketplace portals, realtime collaborative node
+scripting, or headless session hosting.
+
 ## Where the building blocks already live on disk
 
 The wrist-power surface is design intent; the underlying tracking and AR
@@ -25,9 +37,11 @@ primitives it would rest on already exist as bridges:
 | Templates the asset shelf would surface | [`examples/hololand-central/templates/`](../examples/hololand-central/templates/) (10 `.holo` worlds) and [`packages/components/templates/`](../packages/components/templates/) |
 | Brittney chat (the "Chat / Brittney AI" wrist slot would call into) | [`packages/brittney/toolkit/src/chat/`](../packages/brittney/toolkit/src/chat/) and [`@hololand/ai-bridge`](../packages/brittney/ai-bridge/src/) |
 
-What is missing is the gesture-recognition glue, the holographic-glass UI
-primitives, and the marketplace-portal renderer that would turn these into
-the OASIS experience.
+What is missing is the production gesture-recognition glue, the
+holographic-glass UI primitives, and the marketplace-portal renderer that would
+turn these into the OASIS experience. The Quest 3 source contract above narrows
+that to a checked workflow, but runtime wrist powers and Resonite-style deep
+modding remain gaps.
 
 ## Design principles
 
