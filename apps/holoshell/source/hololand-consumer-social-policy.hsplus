@@ -1,0 +1,243 @@
+// HoloLand Consumer Social Policy
+//
+// Minimal source-owned semantics for friends, parties, invites, presence,
+// notifications, and social receipts. The TypeScript facade may project this
+// into current demos, but the product behavior is defined here.
+
+composition "HoloLandConsumerSocialPolicy" {
+  config {
+    title: "HoloLand Consumer Social Policy"
+    product: "HoloLand"
+    sourceLayer: "HoloScript"
+    roomSource: "apps/holoshell/source/hololand-consumer-social-room.holo"
+    facadeSource: "packages/platform/social/src/index.ts"
+    specSource: "docs/specs/SOCIAL_FEATURES_SPEC.md"
+    checkCommand: "pnpm run check:hololand-social-layer"
+    defaultMode: "friend_party_invite_minimum"
+  }
+
+  state HoloLandConsumerSocialState {
+    workflow: "hololand-consumer-social"
+    currentUserId: ""
+    currentDisplayName: ""
+    presenceStatus: "offline"
+    selectedFriendId: ""
+    selectedPartyId: ""
+    selectedInviteId: ""
+    friendRequestStatus: "idle"
+    partyStatus: "none"
+    inviteStatus: "none"
+    notificationStatus: "idle"
+    eventDiscoveryStatus: "watch"
+    moderationStatus: "policy_required"
+    receiptId: ""
+  }
+
+  channel "hololand:social:presence" {
+    type: "pub_sub"
+    priority: "high"
+    description: "Consumer player presence and activity for friends and parties"
+  }
+
+  channel "hololand:social:friend" {
+    type: "pub_sub"
+    priority: "high"
+    description: "Friend request, accept, reject, favorite, and block packets"
+  }
+
+  channel "hololand:social:party" {
+    type: "pub_sub"
+    priority: "high"
+    description: "Party creation, join, leave, and voice-state packets"
+  }
+
+  channel "hololand:social:invite" {
+    type: "append_only"
+    priority: "high"
+    description: "Invite packets with expiry, decline, accept, and receipt state"
+  }
+
+  channel "hololand:social:receipt" {
+    type: "append_only"
+    priority: "high"
+    description: "Consumer social receipts for player-visible actions"
+  }
+
+  template "FriendRequestPacket" {
+    schemaVersion: "hololand.consumer-social.friend-request.v0.1.0"
+    fromUserId: ""
+    fromDisplayName: ""
+    toUserId: ""
+    toDisplayName: ""
+    message: ""
+    status: "pending"
+    createdAt: ""
+    receiptRequired: true
+  }
+
+  template "PartyPacket" {
+    schemaVersion: "hololand.consumer-social.party.v0.1.0"
+    partyId: ""
+    partyName: ""
+    privacy: "friends"
+    maxSize: 8
+    voiceEnabled: true
+    memberRole: "leader"
+    receiptRequired: true
+  }
+
+  template "InvitePacket" {
+    schemaVersion: "hololand.consumer-social.invite.v0.1.0"
+    inviteId: ""
+    partyId: ""
+    worldId: ""
+    fromUserId: ""
+    toUserId: ""
+    status: "pending"
+    expiresAt: ""
+    revokedAt: ""
+    receiptRequired: true
+  }
+
+  template "ConsumerSocialReceipt" {
+    schemaVersion: "hololand.consumer-social.v0.1.0"
+    actorUserId: ""
+    action: ""
+    subjectUserId: ""
+    partyId: ""
+    inviteId: ""
+    worldId: ""
+    status: "pending"
+    source: "apps/holoshell/source/hololand-consumer-social-policy.hsplus"
+    facadeSource: "packages/platform/social/src/index.ts"
+  }
+
+  policy "FriendshipIsExplicit" {
+    appliesTo: ["send_friend_request", "accept_friend", "reject_friend", "block_user", "favorite_friend"]
+    requestRequiredBeforeFriendship: true
+    unilateralAddAllowed: false
+    blockSuppressesInvites: true
+    receiptRequired: true
+  }
+
+  policy "PartyMembershipIsScoped" {
+    appliesTo: ["create_party", "send_party_invite", "accept_party_invite", "leave_party"]
+    defaultPrivacy: "friends"
+    defaultMaxSize: 8
+    voiceStateExplicit: true
+    receiptRequired: true
+  }
+
+  policy "InvitesExpireAndCanBeDeclined" {
+    appliesTo: ["party_invite", "world_invite", "accept_invite", "decline_invite", "expire_invite", "revoke_invite"]
+    expiryRequired: true
+    declineRequired: true
+    revokeRequired: true
+    recipientFacingCopyRequired: true
+    receiptRequired: true
+  }
+
+  policy "PublicSocialGraphRequiresBackend" {
+    appliesTo: ["global_search", "public_groups", "event_calendar", "feed", "moderation_queue", "network_scale"]
+    satisfiedByCompatFacade: false
+    persistentBackendRequired: true
+    moderationToolsRequired: true
+    matrixFollowUpRequired: true
+  }
+
+  state_machine "ConsumerSocialWorkflow" {
+    initial: "idle"
+    states: [
+      "idle",
+      "friend_request_sent",
+      "friend_request_received",
+      "friend_added",
+      "party_created",
+      "invite_sent",
+      "invite_received",
+      "party_joined",
+      "party_left",
+      "receipt_recorded",
+      "blocked"
+    ]
+    transition "send_friend_request" { from: "idle", to: "friend_request_sent" }
+    transition "receive_friend_request" { from: "*", to: "friend_request_received" }
+    transition "accept_friend" { from: "friend_request_received", to: "friend_added" }
+    transition "create_party" { from: "*", to: "party_created" }
+    transition "send_invite" { from: "party_created", to: "invite_sent" }
+    transition "receive_invite" { from: "*", to: "invite_received" }
+    transition "accept_invite" { from: "invite_received", to: "party_joined" }
+    transition "leave_party" { from: "party_joined", to: "party_left" }
+    transition "record_receipt" { from: "*", to: "receipt_recorded" }
+    transition "block" { from: "*", to: "blocked" }
+  }
+
+  action update_presence(status) {
+    HoloLandConsumerSocialState.presenceStatus = status
+    emit("hololand:social:presence", {
+      userId: HoloLandConsumerSocialState.currentUserId,
+      displayName: HoloLandConsumerSocialState.currentDisplayName,
+      status: HoloLandConsumerSocialState.presenceStatus
+    })
+  }
+
+  action record_friend_request(packet) {
+    HoloLandConsumerSocialState.selectedFriendId = packet.toUserId
+    HoloLandConsumerSocialState.friendRequestStatus = "pending"
+    ConsumerSocialWorkflow.transition("send_friend_request")
+    emit("hololand:social:friend", {
+      action: "friend_request",
+      fromUserId: packet.fromUserId,
+      toUserId: packet.toUserId,
+      status: "pending",
+      receiptRequired: true
+    })
+  }
+
+  action record_party_created(packet) {
+    HoloLandConsumerSocialState.selectedPartyId = packet.partyId
+    HoloLandConsumerSocialState.partyStatus = "created"
+    ConsumerSocialWorkflow.transition("create_party")
+    emit("hololand:social:party", {
+      action: "party_created",
+      partyId: packet.partyId,
+      partyName: packet.partyName,
+      privacy: packet.privacy,
+      maxSize: packet.maxSize,
+      voiceEnabled: packet.voiceEnabled
+    })
+  }
+
+  action record_invite(packet) {
+    HoloLandConsumerSocialState.selectedInviteId = packet.inviteId
+    HoloLandConsumerSocialState.inviteStatus = "sent"
+    ConsumerSocialWorkflow.transition("send_invite")
+    emit("hololand:social:invite", {
+      action: "invite_sent",
+      inviteId: packet.inviteId,
+      partyId: packet.partyId,
+      worldId: packet.worldId,
+      fromUserId: packet.fromUserId,
+      toUserId: packet.toUserId,
+      expiresAt: packet.expiresAt,
+      receiptRequired: true
+    })
+  }
+
+  action record_social_receipt(receipt) {
+    HoloLandConsumerSocialState.receiptId = receipt.id
+    ConsumerSocialWorkflow.transition("record_receipt")
+    emit("hololand:social:receipt", {
+      schemaVersion: "hololand.consumer-social.v0.1.0",
+      receiptId: HoloLandConsumerSocialState.receiptId,
+      actorUserId: receipt.actorUserId,
+      action: receipt.action,
+      subjectUserId: receipt.subjectUserId,
+      partyId: receipt.partyId,
+      inviteId: receipt.inviteId,
+      worldId: receipt.worldId,
+      status: receipt.status,
+      source: "apps/holoshell/source/hololand-consumer-social-policy.hsplus"
+    })
+  }
+}

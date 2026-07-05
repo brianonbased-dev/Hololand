@@ -9,6 +9,13 @@ sharing, community, leaderboards, feed, moderation.
 > described below are NOT yet built. Use this doc as the design target;
 > verify the live API in [`packages/platform/social/src/index.ts`](../../packages/platform/social/src/index.ts)
 > before depending on any specific call.
+>
+> The current source-owned minimum is defined in
+> [`apps/holoshell/source/hololand-consumer-social-room.holo`](../../apps/holoshell/source/hololand-consumer-social-room.holo)
+> and
+> [`apps/holoshell/source/hololand-consumer-social-policy.hsplus`](../../apps/holoshell/source/hololand-consumer-social-policy.hsplus).
+> Run `pnpm run check:hololand-social-layer` to parse the source files and
+> smoke-test the compat facade.
 
 ## What ships today
 
@@ -23,6 +30,12 @@ Source-of-truth: [`packages/platform/social/src/index.ts`](../../packages/platfo
 | Emotes | `EmoteSystem`, `Emote`, `createEmoteSystem` | Emote registry / playback wiring. |
 | Notifications | `NotificationSystem`, `Notification`, `createNotificationSystem` | In-app notification surface. |
 | Version constant | `HOLOLAND_SOCIAL_VERSION = '1.0.0-compat'` | Tag to confirm at runtime that you're hitting the compat layer. |
+
+The HoloScript-owned source layer defines the first-screen consumer social room,
+friend request packets, party packets, invite packets, presence channels, and
+social receipts. It also keeps the larger public social graph as an explicit
+backend gap: public discovery, groups, event calendars, feeds, moderation
+queues, and network-scale persistence are not satisfied by the compat facade.
 
 Everything below is the spec for a fuller social surface that does **not yet
 exist** in this repo. Per [HOLOSCRIPT_SOURCE_CONTRACT.md](../HOLOSCRIPT_SOURCE_CONTRACT.md),
@@ -172,6 +185,12 @@ other 3–5 days.
 
 - [`packages/platform/social/src/index.ts`](../../packages/platform/social/src/index.ts)
   — current compat-facade source.
+- [`apps/holoshell/source/hololand-consumer-social-room.holo`](../../apps/holoshell/source/hololand-consumer-social-room.holo)
+  — source-owned consumer social room.
+- [`apps/holoshell/source/hololand-consumer-social-policy.hsplus`](../../apps/holoshell/source/hololand-consumer-social-policy.hsplus)
+  — source-owned friends, parties, invites, presence, and receipt policy.
+- [`scripts/check-hololand-social-layer.mjs`](../../scripts/check-hololand-social-layer.mjs)
+  — parser and compat-facade smoke check.
 - [`HOLOSCRIPT_SOURCE_CONTRACT.md`](../HOLOSCRIPT_SOURCE_CONTRACT.md) —
   social product behaviour belongs in HoloScript.
 - [`audits/HOLOLAND_CODEBASE_SHOULD_EXIST_AUDIT_2026-05-07.md`](../audits/HOLOLAND_CODEBASE_SHOULD_EXIST_AUDIT_2026-05-07.md)

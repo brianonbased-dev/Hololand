@@ -1,0 +1,249 @@
+// HoloLand Consumer Social Room
+//
+// Source-owned first consumer social slice for HoloLand. The existing
+// @hololand/social TypeScript package is the projection facade; this file owns
+// the player-facing semantics for friends, parties, invites, presence, and
+// event discovery.
+
+composition "HoloLand Consumer Social Room" {
+  metadata {
+    title: "HoloLand Consumer Social Room"
+    product: "HoloLand"
+    sourceLayer: "HoloScript"
+    policy_source: "apps/holoshell/source/hololand-consumer-social-policy.hsplus"
+    facade_source: "packages/platform/social/src/index.ts"
+    package_source: "packages/platform/social/package.json"
+    spec_source: "docs/specs/SOCIAL_FEATURES_SPEC.md"
+    checkCommand: "pnpm run check:hololand-social-layer"
+    adapterRole: "projection_only"
+    scope: "minimal_consumer_social_layer"
+  }
+
+  environment {
+    theme: "hololand_social"
+    render_mode: "desktop_spatial"
+    ambient_light: 0.66
+    camera_mode: "stationary_perspective"
+    receipt_underlay: true
+  }
+
+  state {
+    socialState: "ready"
+    currentUserId: ""
+    selectedFriendId: ""
+    selectedPartyId: ""
+    selectedInviteId: ""
+    presenceStatus: "offline"
+    eventDiscoveryStatus: "watch"
+    moderationStatus: "policy_required"
+    receiptStatus: "pending"
+  }
+
+  spatial_group "SocialChannels" {
+    object "PresenceChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:social:presence"
+      channel_type: "pub_sub"
+      priority: "high"
+      description: "Consumer player presence and friend activity"
+    }
+
+    object "FriendChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:social:friend"
+      channel_type: "pub_sub"
+      priority: "high"
+      description: "Friend request, accept, reject, block, and favorite semantics"
+    }
+
+    object "PartyChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:social:party"
+      channel_type: "pub_sub"
+      priority: "high"
+      description: "Party creation, membership, voice flag, and leave semantics"
+    }
+
+    object "InviteChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:social:invite"
+      channel_type: "append_only"
+      priority: "high"
+      description: "World and party invite receipts with expiry and revocation state"
+    }
+
+    object "EventChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:social:event"
+      channel_type: "pub_sub"
+      priority: "normal"
+      description: "Creator events, platform showcases, and live-world activity"
+    }
+  }
+
+  template "SocialPanel" {
+    type: "consumer_social_panel"
+    mesh: "rounded_panel"
+    material: "liquid_glass"
+    color: "#17212b"
+    active_color: "#73daca"
+    warning_color: "#e0af68"
+    blocked_color: "#f7768e"
+    receipt_required: true
+    source_owned_by_holoscript: true
+  }
+
+  template "SocialAction" {
+    type: "consumer_social_action"
+    mesh: "rounded_button"
+    material: "hologram"
+    color: "#26364a"
+    active_color: "#7dcfff"
+    disabled_color: "#4b5563"
+    receipt_required: true
+    source_owned_by_holoscript: true
+  }
+
+  template "SocialReceipt" {
+    type: "consumer_social_receipt"
+    schemaVersion: "hololand.consumer-social.v0.1.0"
+    source: "apps/holoshell/source/hololand-consumer-social-room.holo"
+    policySource: "apps/holoshell/source/hololand-consumer-social-policy.hsplus"
+    facadeSource: "packages/platform/social/src/index.ts"
+    receiptRequired: true
+  }
+
+  spatial_group "ConsumerSocialRoom" {
+    label: "Social"
+    userQuestion: "Who can I join, invite, or follow into this world?"
+    visualForm: "social_hub"
+    liveFeed: "hololand:social:presence"
+
+    object "FriendsPanel" using "SocialPanel" {
+      label: "Friends"
+      position: [-2.4, 1.7, -1.8]
+      scale: [1.6, 0.72, 0.08]
+      social_role: "friends"
+      required_semantics: ["send_friend_request", "accept_friend", "reject_friend", "block_user", "favorite_friend", "presence_status"]
+      facade_symbols: ["FriendSystem", "Friend", "FriendRequest", "BlockedUser", "createFriendSystem"]
+      empty_copy: "No friends online."
+    }
+
+    object "PartyPanel" using "SocialPanel" {
+      label: "Party"
+      position: [-0.8, 1.7, -1.8]
+      scale: [1.6, 0.72, 0.08]
+      social_role: "party"
+      required_semantics: ["create_party", "join_party", "leave_party", "voice_enabled", "party_privacy", "max_size"]
+      facade_symbols: ["PartySystem", "Party", "PartyMember", "createPartySystem"]
+      empty_copy: "Create or join a party."
+    }
+
+    object "InviteTray" using "SocialPanel" {
+      label: "Invites"
+      position: [0.8, 1.7, -1.8]
+      scale: [1.6, 0.72, 0.08]
+      social_role: "invites"
+      required_semantics: ["party_invite", "world_invite", "expire_invite", "decline_invite", "accept_invite", "receipt"]
+      facade_symbols: ["PartyInvite", "NotificationSystem", "Notification"]
+      empty_copy: "No active invites."
+    }
+
+    object "EventRail" using "SocialPanel" {
+      label: "Events"
+      position: [2.4, 1.7, -1.8]
+      scale: [1.6, 0.72, 0.08]
+      social_role: "events"
+      required_semantics: ["creator_highlight", "world_spotlight", "community_showcase", "theme_jam"]
+      status: "watch"
+      empty_copy: "Events are source-defined but not yet backed by public discovery."
+    }
+  }
+
+  spatial_group "PrimarySocialActions" {
+    object "SendFriendRequestAction" using "SocialAction" {
+      label: "Add Friend"
+      action_id: "send_friend_request"
+      channel: "hololand:social:friend"
+      position: [-2.4, 0.75, -0.8]
+      scale: [1.2, 0.34, 0.08]
+    }
+
+    object "CreatePartyAction" using "SocialAction" {
+      label: "Create Party"
+      action_id: "create_party"
+      channel: "hololand:social:party"
+      position: [-0.8, 0.75, -0.8]
+      scale: [1.2, 0.34, 0.08]
+    }
+
+    object "SendInviteAction" using "SocialAction" {
+      label: "Send Invite"
+      action_id: "send_invite"
+      channel: "hololand:social:invite"
+      position: [0.8, 0.75, -0.8]
+      scale: [1.2, 0.34, 0.08]
+    }
+
+    object "OpenEventsAction" using "SocialAction" {
+      label: "Events"
+      action_id: "open_events"
+      channel: "hololand:social:event"
+      position: [2.4, 0.75, -0.8]
+      scale: [1.2, 0.34, 0.08]
+      status: "watch"
+    }
+  }
+
+  object "SocialReceiptWitness" using "SocialPanel" {
+    label: "Social Receipt"
+    position: [0, -0.12, 0.5]
+    scale: [4.8, 0.4, 0.08]
+    receipt_kind: "hololand.consumer-social.v0.1.0"
+    witness_binding: "receiptStatus"
+    product_copy: "Records who requested, joined, invited, accepted, declined, or blocked."
+  }
+
+  spatial_group "SocialPolicyContracts" {
+    object "ConsumerSocialSourceOwnsBehaviorPolicy" {
+      type: "policy_contract"
+      policy_id: "ConsumerSocialSourceOwnsBehavior"
+      appliesTo: ["friends", "parties", "invites", "presence", "events", "notifications"]
+      sourceRequiredBeforeProjection: true
+      handAuthoredUiMayNotOwnBehavior: true
+      typescriptMayOnlyProject: true
+      receiptRequired: true
+    }
+
+    object "PublicSocialGraphStillNeedsBackendPolicy" {
+      type: "policy_contract"
+      policy_id: "PublicSocialGraphStillNeedsBackend"
+      appliesTo: ["public_discovery", "groups", "event_calendar", "feed", "moderation", "network_scale"]
+      localCompatLayerIsSufficient: false
+      backendRequired: true
+      matrixStatus: "narrowed_gap"
+    }
+  }
+
+  logic {
+    on_enter {
+      emit "hololand_consumer_social_room_loaded"
+    }
+
+    action send_friend_request() {
+      emit "hololand_social_friend_request_requested"
+    }
+
+    action create_party() {
+      emit "hololand_social_party_create_requested"
+    }
+
+    action send_invite() {
+      emit "hololand_social_invite_send_requested"
+    }
+
+    action open_events() {
+      emit "hololand_social_events_open_requested"
+    }
+  }
+}
