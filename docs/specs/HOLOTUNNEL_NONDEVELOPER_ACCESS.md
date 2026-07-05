@@ -289,3 +289,34 @@ copy, audience, expiry, and readiness. Direct tunnel URLs and operator
 diagnostics are kept in `advancedDiagnostics`, hidden by default. Client tokens,
 relay tokens, local targets, and secret-bearing URL query parameters are rejected
 or redacted before a HoloLand receipt is written.
+
+## Quest Browser WebXR Viewer Slice
+
+The distribution answer to Meta Horizon's Quest placement is not a store claim.
+HoloLand's first no-install response is a Quest Browser path that opens a stable
+HoloTunnel access URL, parses a `.holo` world, requests WebXR immersive VR, and
+records creator/hardware receipts.
+
+Source ratchet:
+
+- Viewer room: `apps/holoshell/source/hololand-quest-browser-webxr-viewer.holo`
+- Viewer policy: `apps/holoshell/source/hololand-quest-browser-webxr-policy.hsplus`
+- Access bridge: `scripts/holoshell-holotunnel-access.mjs`
+- WebXR bridge: `packages/platform/renderer/src/WebXRSessionBridge.ts`
+- Holo to WebXR pipeline proof: `packages/spatial-builder/src/scene-editor/__tests__/webxr-pipeline.test.ts`
+- Regression proof: `scripts/check-hololand-quest-browser-webxr.mjs`
+
+The viewer contract requires:
+
+1. Parseable `.holo`, `.hs`, or `.hsplus` source and a source hash.
+2. Stable access URL and QR payload; direct tunnel URLs stay hidden by default.
+3. WebXR `immersive-vr` with `local-floor` reference space for Quest Browser.
+4. Quest budget status before readiness claims: 90 fps target, 11.11 ms frame
+   budget, 200 draw calls, and 1.5M triangles for the Quest 3 lane.
+5. Creator receipt with source, launch URL, readiness, budget, and witness
+   status.
+
+This slice does not claim HoloLand is pre-installed or present in the Horizon
+Store. It turns the planned WebXR viewer path into source-owned product policy
+and local regression evidence while headset-side visual proof remains the next
+hardware witness.

@@ -1,0 +1,190 @@
+// HoloLand Quest Browser WebXR Policy
+//
+// Product and evidence policy for the no-install Quest Browser path. This is
+// a source contract; browser APIs, QR rendering, and relay calls stay in narrow
+// bridges and must write receipts.
+
+composition "HoloLandQuestBrowserWebXRPolicy" {
+  config {
+    title: "Quest Browser WebXR Policy"
+    product: "HoloLand"
+    sourceLayer: "HoloScript"
+    roomSource: "apps/holoshell/source/hololand-quest-browser-webxr-viewer.holo"
+    accessCardSource: "apps/holoshell/source/holoshell-holotunnel-access-card.holo"
+    accessBridge: "scripts/holoshell-holotunnel-access.mjs"
+    webxrBridge: "packages/platform/renderer/src/WebXRSessionBridge.ts"
+    spatialPipelineTest: "packages/spatial-builder/src/scene-editor/__tests__/webxr-pipeline.test.ts"
+    specSource: "docs/specs/HOLOTUNNEL_NONDEVELOPER_ACCESS.md"
+    defaultMode: "quest_browser_stable_url_first"
+  }
+
+  state QuestBrowserWebXRState {
+    workflow: "quest-browser-webxr-viewer"
+    viewerState: "waiting_for_source"
+    holoSourceRef: ""
+    sourceHash: ""
+    sourceParseState: "unknown"
+    stableAccessUrl: ""
+    directUrlVisible: false
+    questBrowserReady: false
+    webxrMode: "immersive-vr"
+    fallbackMode: "inline"
+    referenceSpace: "local-floor"
+    targetFrameRate: 90
+    frameBudgetMs: 11.11
+    maxDrawCalls: 200
+    maxTriangles: 1500000
+    readinessState: "unknown"
+    creatorReceiptStatus: "pending"
+    hardwareWitnessStatus: "pending"
+    recipientFacingError: ""
+  }
+
+  channel "hololand:quest-browser:webxr:launch" {
+    type: "pub_sub"
+    priority: "high"
+    description: "Launch state for Quest Browser stable-link WebXR entry"
+  }
+
+  channel "hololand:quest-browser:webxr:receipt" {
+    type: "append_only"
+    priority: "high"
+    description: "Creator and hardware witness receipts for the Quest Browser viewer"
+  }
+
+  template "QuestBrowserViewerReceipt" {
+    receiptVersion: "hololand.quest-browser-webxr-viewer.v1"
+    workflow: "quest-browser-webxr-viewer"
+    worldId: ""
+    sessionName: ""
+    sourceRef: ""
+    sourceHash: ""
+    stableUrl: ""
+    directUrlExposed: false
+    webxrMode: "immersive-vr"
+    referenceSpace: "local-floor"
+    targetFrameRate: 90
+    frameBudgetMs: 11.11
+    maxDrawCalls: 200
+    maxTriangles: 1500000
+    sourceParseState: "unknown"
+    readinessState: "unknown"
+    creatorReceiptStatus: "pending"
+    hardwareWitnessStatus: "pending"
+  }
+
+  policy "HoloSourceMustParseBeforeLaunch" {
+    appliesTo: ["open_in_quest_browser", "start_webxr_viewer", "capture_quest_browser_witness"]
+    sourceFormats: [".holo", ".hs", ".hsplus"]
+    parseRequired: true
+    sourceHashRequired: true
+    receiptRequired: true
+  }
+
+  policy "StableHoloTunnelUrlStartsViewer" {
+    appliesTo: ["open_in_quest_browser", "qr_payload", "stable_access_url"]
+    preferStableUrl: true
+    directTunnelPathHiddenByDefault: true
+    secretQueryRejected: true
+    browserFallbackAllowed: true
+    receiptRequired: true
+  }
+
+  policy "QuestPerformanceBudgetRequired" {
+    appliesTo: ["start_webxr_viewer", "readiness_claim", "hardware_witness"]
+    targetFrameRate: 90
+    frameBudgetMs: 11.11
+    maxDrawCalls: 200
+    maxTriangles: 1500000
+    budgetStatusMustBeEmitted: true
+    receiptRequired: true
+  }
+
+  policy "CreatorReceiptIsRequired" {
+    appliesTo: ["source_parse", "stable_link", "webxr_readiness", "hardware_witness"]
+    creatorVisibleReceipt: true
+    hardwareWitnessMayBePending: true
+    headsetStorePresenceClaimAllowed: false
+    receiptRequired: true
+  }
+
+  state_machine "QuestBrowserWebXRWorkflow" {
+    initial: "idle"
+    states: [
+      "idle",
+      "source_loaded",
+      "source_parsed",
+      "access_resolved",
+      "quest_browser_ready",
+      "webxr_ready",
+      "viewer_started",
+      "witness_recorded",
+      "fallback_preview",
+      "blocked"
+    ]
+    transition "load_source" { from: "idle", to: "source_loaded" }
+    transition "parse_source" { from: "source_loaded", to: "source_parsed" }
+    transition "resolve_access" { from: "source_parsed", to: "access_resolved" }
+    transition "open_browser" { from: "access_resolved", to: "quest_browser_ready" }
+    transition "detect_webxr" { from: "quest_browser_ready", to: "webxr_ready" }
+    transition "start_viewer" { from: "webxr_ready", to: "viewer_started" }
+    transition "record_witness" { from: "viewer_started", to: "witness_recorded" }
+    transition "fallback" { from: ["quest_browser_ready", "webxr_ready"], to: "fallback_preview" }
+    transition "block" { from: "*", to: "blocked" }
+  }
+
+  action classifyReadiness(readiness) {
+    if (readiness.sourceParseState != "passed") {
+      return "The world source must parse before Quest Browser launch."
+    }
+    if (readiness.webxrMode != "immersive-vr") {
+      return "Quest Browser can show a preview, but immersive VR is not ready."
+    }
+    if (readiness.frameBudgetMs > 11.11) {
+      return "The world exceeds the Quest frame budget."
+    }
+    return "Quest Browser WebXR viewer ready."
+  }
+
+  action recordViewerLaunch(packet) {
+    QuestBrowserWebXRWorkflow.transition("load_source")
+    QuestBrowserWebXRState.holoSourceRef = packet.sourceRef
+    QuestBrowserWebXRState.sourceHash = packet.sourceHash
+    QuestBrowserWebXRState.sourceParseState = packet.sourceParseState
+    QuestBrowserWebXRWorkflow.transition("parse_source")
+    QuestBrowserWebXRState.stableAccessUrl = packet.stableUrl
+    QuestBrowserWebXRState.directUrlVisible = false
+    QuestBrowserWebXRWorkflow.transition("resolve_access")
+
+    emit("hololand:quest-browser:webxr:launch", {
+      workflow: QuestBrowserWebXRState.workflow,
+      sourceRef: QuestBrowserWebXRState.holoSourceRef,
+      sourceParseState: QuestBrowserWebXRState.sourceParseState,
+      stableAccessUrl: QuestBrowserWebXRState.stableAccessUrl,
+      directUrlVisible: false,
+      targetFrameRate: QuestBrowserWebXRState.targetFrameRate,
+      frameBudgetMs: QuestBrowserWebXRState.frameBudgetMs
+    })
+  }
+
+  action recordHardwareWitness(witness) {
+    QuestBrowserWebXRState.hardwareWitnessStatus = witness.status
+    QuestBrowserWebXRState.creatorReceiptStatus = "recorded"
+    QuestBrowserWebXRWorkflow.transition("record_witness")
+
+    emit("hololand:quest-browser:webxr:receipt", {
+      receiptVersion: "hololand.quest-browser-webxr-viewer.v1",
+      sourceRef: QuestBrowserWebXRState.holoSourceRef,
+      sourceHash: QuestBrowserWebXRState.sourceHash,
+      stableUrl: QuestBrowserWebXRState.stableAccessUrl,
+      directUrlExposed: false,
+      webxrMode: QuestBrowserWebXRState.webxrMode,
+      referenceSpace: QuestBrowserWebXRState.referenceSpace,
+      targetFrameRate: QuestBrowserWebXRState.targetFrameRate,
+      frameBudgetMs: QuestBrowserWebXRState.frameBudgetMs,
+      maxDrawCalls: QuestBrowserWebXRState.maxDrawCalls,
+      maxTriangles: QuestBrowserWebXRState.maxTriangles,
+      hardwareWitnessStatus: QuestBrowserWebXRState.hardwareWitnessStatus
+    })
+  }
+}

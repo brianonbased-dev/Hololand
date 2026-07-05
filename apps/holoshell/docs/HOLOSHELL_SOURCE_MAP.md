@@ -149,6 +149,8 @@ contracts.
 | HoloTunnel access card     | `apps/holoshell/source/holoshell-holotunnel-access-card.holo`      |
 | HoloTunnel access policy   | `apps/holoshell/source/holoshell-holotunnel-access-policy.hsplus`  |
 | HoloTunnel access pipeline | `apps/holoshell/source/holoshell-holotunnel-access-pipeline.hs`    |
+| Quest Browser WebXR viewer | `apps/holoshell/source/hololand-quest-browser-webxr-viewer.holo`   |
+| Quest Browser WebXR policy | `apps/holoshell/source/hololand-quest-browser-webxr-policy.hsplus` |
 | Skin presets               | `apps/holoshell/source/holoshell-skin-presets.hsplus`              |
 | Natural phenomena bridge   | `apps/holoshell/source/holoshell-natural-phenomena-bridge.hsplus`  |
 | Asset shard workflow       | `apps/holoshell/source/holoshell-asset-shard-workflow.hsplus`      |

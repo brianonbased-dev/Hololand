@@ -1,0 +1,184 @@
+// HoloLand Quest Browser WebXR Viewer
+//
+// Source-owned no-install entry surface for opening a .holo world through a
+// stable HoloTunnel URL in Quest Browser, then starting an immersive WebXR view.
+
+composition "HoloLand Quest Browser WebXR Viewer" {
+  metadata {
+    title: "Quest Browser WebXR Viewer"
+    product: "HoloLand"
+    sourceLayer: "HoloScript"
+    behavior_source: "apps/holoshell/source/hololand-quest-browser-webxr-policy.hsplus"
+    access_source: "apps/holoshell/source/holoshell-holotunnel-access-card.holo"
+    access_bridge: "scripts/holoshell-holotunnel-access.mjs"
+    webxr_bridge: "packages/platform/renderer/src/WebXRSessionBridge.ts"
+    spatial_pipeline_test: "packages/spatial-builder/src/scene-editor/__tests__/webxr-pipeline.test.ts"
+    spec_source: "docs/specs/HOLOTUNNEL_NONDEVELOPER_ACCESS.md"
+  }
+
+  environment {
+    theme: "quest_browser_launch"
+    render_mode: "quest_browser_webxr"
+    ambient_light: 0.58
+    receipt_underlay: true
+    camera_mode: "headset_first"
+  }
+
+  state {
+    viewerState: "waiting_for_source"
+    holoSourceRef: ""
+    sourceParseState: "unknown"
+    stableAccessUrl: ""
+    directUrlHidden: true
+    questBrowserReady: false
+    webxrMode: "immersive-vr"
+    referenceSpace: "local-floor"
+    targetFrameRate: 90
+    frameBudgetMs: 11.11
+    maxDrawCalls: 200
+    maxTriangles: 1500000
+    creatorReceiptStatus: "pending"
+    hardwareWitnessStatus: "pending"
+    fallbackMode: "browser_preview"
+  }
+
+  template "QuestViewerPanel" {
+    type: "quest_browser_viewer_panel"
+    mesh: "rounded_panel"
+    material: "liquid_glass"
+    color: "#10242f"
+    active_color: "#78dce8"
+    warning_color: "#ffcb6b"
+    blocked_color: "#ff5370"
+    inspectable: true
+    receipt_required: true
+  }
+
+  template "QuestViewerAction" {
+    type: "quest_browser_viewer_action"
+    mesh: "rounded_button"
+    material: "hologram"
+    color: "#263f4f"
+    active_color: "#82aaff"
+    disabled_color: "#54606b"
+    receipt_required: true
+  }
+
+  template "QuestViewerToken" {
+    type: "quest_browser_viewer_token"
+    mesh: "sphere"
+    material: "hologram"
+    radius: 0.13
+    grabbable: false
+    receipt_required: true
+  }
+
+  object "QuestBrowserEntryPanel" using "QuestViewerPanel" {
+    label: "Open In Quest Browser"
+    position: [0, 2.18, -2.7]
+    scale: [3.15, 0.68, 0.08]
+    state_binding: "viewerState"
+    plain_language: "Open a source-owned HoloLand world from a stable link, then enter immersive WebXR."
+  }
+
+  spatial_group "ViewerReadiness" {
+    object "HoloWorldSourceToken" using "QuestViewerToken" {
+      label: ".holo source parsed"
+      position: [-1.9, 1.18, -0.72]
+      state_binding: "sourceParseState"
+      required_for_launch: true
+    }
+
+    object "StableAccessUrlToken" using "QuestViewerToken" {
+      label: "stable HoloTunnel URL"
+      position: [-0.65, 1.18, -0.52]
+      state_binding: "stableAccessUrl"
+      direct_url_hidden: true
+    }
+
+    object "QuestWebXRReadinessPanel" using "QuestViewerPanel" {
+      label: "Quest WebXR Ready"
+      position: [0.72, 1.18, -0.72]
+      scale: [1.56, 0.46, 0.08]
+      mode_binding: "webxrMode"
+      reference_space_binding: "referenceSpace"
+      fallback_copy: "Inline browser preview remains available when immersive VR is unavailable."
+    }
+
+    object "CreatorReceiptPanel" using "QuestViewerPanel" {
+      label: "Creator Receipt"
+      position: [2.18, 1.18, -0.72]
+      scale: [1.46, 0.46, 0.08]
+      receipt_kind: "hololand.quest-browser-webxr-viewer.v1"
+      witness_binding: "creatorReceiptStatus"
+      product_copy: "Records source hash, launch URL, WebXR readiness, and hardware witness status."
+    }
+  }
+
+  spatial_group "LaunchActions" {
+    object "OpenQuestBrowserAction" using "QuestViewerAction" {
+      label: "Open Quest Browser"
+      action_id: "open_in_quest_browser"
+      position: [-1.5, 0.34, 0.22]
+      scale: [1.48, 0.42, 0.08]
+      target_binding: "stableAccessUrl"
+      default_copy: "Open the stable access route in Quest Browser."
+    }
+
+    object "StartWebXRViewerAction" using "QuestViewerAction" {
+      label: "Start WebXR"
+      action_id: "start_webxr_viewer"
+      position: [0, 0.34, 0.22]
+      scale: [1.48, 0.42, 0.08]
+      mode_binding: "webxrMode"
+      reference_space: "local-floor"
+      default_copy: "Request an immersive-vr session for the parsed .holo world."
+    }
+
+    object "CaptureWitnessAction" using "QuestViewerAction" {
+      label: "Capture Witness"
+      action_id: "capture_quest_browser_witness"
+      position: [1.5, 0.34, 0.22]
+      scale: [1.48, 0.42, 0.08]
+      witness_binding: "hardwareWitnessStatus"
+      default_copy: "Attach browser, headset, or manual hardware evidence to the launch receipt."
+    }
+  }
+
+  object "PerformanceBudgetRail" using "QuestViewerPanel" {
+    label: "Quest Budget"
+    position: [0, -0.42, 1.12]
+    scale: [5.35, 0.36, 0.08]
+    target_frame_rate: 90
+    frame_budget_ms: 11.11
+    max_draw_calls: 200
+    max_triangles: 1500000
+    product_copy: "The viewer must emit budget status before claiming headset readiness."
+  }
+
+  object "FallbackPanel" using "QuestViewerPanel" {
+    label: "Fallback Preview"
+    position: [0, -0.94, 1.34]
+    scale: [5.35, 0.34, 0.08]
+    mode_binding: "fallbackMode"
+    product_copy: "If immersive VR cannot start, keep the source world visible as a browser preview."
+  }
+
+  logic {
+    on_enter {
+      emit "hololand_quest_browser_webxr_viewer_loaded"
+    }
+
+    action open_in_quest_browser() {
+      emit "hololand_quest_browser_open_requested"
+    }
+
+    action start_webxr_viewer() {
+      emit "hololand_quest_browser_webxr_session_requested"
+    }
+
+    action capture_quest_browser_witness() {
+      emit "hololand_quest_browser_witness_requested"
+    }
+  }
+}
