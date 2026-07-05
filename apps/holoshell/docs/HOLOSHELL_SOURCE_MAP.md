@@ -6,16 +6,19 @@ so agents and product surfaces do not have to rediscover the shape of
 
 ## Current Validation Snapshot
 
-Latest local receipt: `.tmp/holoshell/source-validation.json` (2026-06-30).
+Latest full local receipt: `.tmp/holoshell/source-validation.json` (2026-06-30,
+before later source additions). The 2026-07-05 full sweep is blocked by the
+current HoloScript CLI wrapper failure `VR_TRAITS is not iterable`; use targeted
+source-parser gates for new source until the wrapper is repaired.
 
 Summary from the receipt:
 
 | Field    | Value                                                                                      |
 | -------- | ------------------------------------------------------------------------------------------ |
-| Status   | `pass`                                                                                     |
-| Sources  | **155/155 passed** (2026-06-30)                                                           |
-| Formats  | 26 `.holo`, 23 `.hs`, 106 `.hsplus`                                                       |
-| Failures | 0 failures, 0 timeouts                                                                     |
+| Status   | `pass` for the stale full receipt; current full sweep is CLI-blocked                       |
+| Sources  | **155/155 passed** (2026-06-30 full receipt); 2026-07-05 sweep observed 0/167 CLI failures |
+| Formats  | 26 `.holo`, 23 `.hs`, 106 `.hsplus` in the stale full receipt                             |
+| Failures | 0 in the stale full receipt; 2026-07-05 current sweep is blocked by the CLI wrapper        |
 
 This map is the navigation layer. The validation receipt is the current parse
 proof. Update both when adding, deleting, or converting HoloShell source
@@ -45,6 +48,7 @@ contracts.
 | World-build cockpit policy   | `apps/holoshell/source/holoshell-world-build-cockpit-policy.hsplus` |
 | World-build cockpit pipeline | `apps/holoshell/source/holoshell-world-build-cockpit-pipeline.hs`   |
 | World-build service bay      | `apps/holoshell/source/holoshell-world-build-service-bay.holo`      |
+| Sovereign worldgen pipeline  | `apps/holoshell/source/holoshell-sovereign-worldgen-pipeline.hsplus` |
 | Readiness evidence           | `apps/holoshell/source/holoshell-readiness-evidence.hsplus`         |
 | Build custody                | `apps/holoshell/source/holoshell-build-custody.hsplus`              |
 | Source validation            | `apps/holoshell/source/holoshell-source-validation.hsplus`          |

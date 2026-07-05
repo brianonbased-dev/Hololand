@@ -1,0 +1,238 @@
+// HoloShell Sovereign Worldgen Pipeline
+//
+// Source-owned answer to HL-013: text and observed image facts become a typed,
+// navigable .holo asset graph with observed-vs-inferred provenance. JavaScript
+// bridge code may render receipts, but the product behavior lives here.
+
+composition "HoloShell Sovereign Worldgen Pipeline" {
+  config {
+    title: "Sovereign Worldgen Pipeline"
+    product: "HoloLand"
+    sourceLayer: "HoloScript"
+    sourcePath: "apps/holoshell/source/holoshell-sovereign-worldgen-pipeline.hsplus"
+    specSource: "docs/specs/HOLOLAND_SOVEREIGN_WORLDGEN_PIPELINE.md"
+    bridgeCommand: "node scripts/holoshell-sovereign-worldgen-pipeline.mjs"
+    testCommand: "node scripts/__tests__/holoshell-sovereign-worldgen-pipeline.test.mjs"
+    generatedWorldSource: ".tmp/holoshell/sovereign-worldgen-pipeline/generated-world.holo"
+    assetGraphOutput: ".tmp/holoshell/sovereign-worldgen-pipeline/asset-graph.json"
+    webxrPreviewOutput: ".tmp/holoshell/sovereign-worldgen-pipeline/world-preview.html"
+    receiptOutput: ".tmp/holoshell/sovereign-worldgen-pipeline/receipt.json"
+    matrixGap: "HL-013"
+    competitorBoundary: "World Labs Marble and Genie are benchmarks, not source dependencies"
+  }
+
+  state WorldgenPipelineState {
+    workflow: "sovereign-worldgen"
+    promptStatus: "required"
+    observedImageFactsStatus: "optional"
+    decompositionStatus: "required"
+    typedAssetGraphStatus: "required"
+    generatedWorldStatus: "required"
+    parserStatus: "required"
+    questWebxrPreviewStatus: "required"
+    provenanceStatus: "required"
+    opaqueSplatDependencyStatus: "forbidden"
+    marbleBridgeStatus: "import_only_optional"
+  }
+
+  channel "hololand:worldgen:intent" {
+    type: "append_only"
+    priority: "critical"
+    description: "Text prompt and optional observed image facts for sovereign world generation"
+  }
+
+  channel "hololand:worldgen:asset-graph" {
+    type: "append_only"
+    priority: "critical"
+    description: "Typed HoloScript asset graph with geometry, materials, collision, navigation, and provenance"
+  }
+
+  channel "hololand:worldgen:receipt" {
+    type: "append_only"
+    priority: "critical"
+    description: "Receipt proving source, parser, preview artifact, and observed-vs-inferred split"
+  }
+
+  template "WorldGenerationIntent" {
+    schemaVersion: "hololand.worldgen.intent.v0.1.0"
+    prompt: ""
+    imageObservationRef: ""
+    requestedPlatforms: ["quest3", "webxr"]
+    targetExperience: "navigable_world"
+    sourceContextHash: ""
+    receiptRequired: true
+  }
+
+  template "ObservedImageFact" {
+    schemaVersion: "hololand.worldgen.observed-fact.v0.1.0"
+    factId: ""
+    modality: "image_observation"
+    label: ""
+    confidence: 0.0
+    evidenceHash: ""
+    provenanceClass: "observed"
+  }
+
+  template "InferredWorldDecision" {
+    schemaVersion: "hololand.worldgen.inferred-decision.v0.1.0"
+    decisionId: ""
+    sourceFactIds: []
+    selectedTrait: ""
+    rationale: ""
+    confidence: 0.0
+    provenanceClass: "inferred"
+  }
+
+  template "TypedWorldAssetGraph" {
+    schemaVersion: "hololand.worldgen.asset-graph.v0.1.0"
+    graphId: ""
+    sourcePromptHash: ""
+    observedFactCount: 0
+    inferredDecisionCount: 0
+    nodes: []
+    navigationPathRequired: true
+    collisionMeshRequired: true
+    questBudgetRequired: true
+    opaqueSplatDependencyAllowed: false
+    receiptRequired: true
+  }
+
+  template "SovereignWorldgenReceipt" {
+    receiptVersion: "hololand.worldgen.receipt.v0.1.0"
+    matrixGap: "HL-013"
+    promptHash: ""
+    generatedWorldSource: ""
+    generatedWorldHash: ""
+    assetGraphHash: ""
+    parserStatus: "unknown"
+    previewStatus: "unknown"
+    observedFactCount: 0
+    inferredDecisionCount: 0
+    navigationPathPresent: false
+    collisionMeshPresent: false
+    questBudgetStatus: "unknown"
+    opaqueSplatDependencyPresent: false
+    rawSecretsIncluded: false
+  }
+
+  policy "InputMustDecomposeBeforeWorldSource" {
+    appliesTo: ["hololand:worldgen:intent", "hololand:worldgen:asset-graph"]
+    promptRequired: true
+    observedFactsMayBeEmpty: true
+    sourceContextHashRequired: true
+    decompositionBeforeWorldSource: true
+    receiptRequired: true
+  }
+
+  policy "TypedAssetGraphBeforeProjection" {
+    appliesTo: ["generated_world_source", "webxr_preview", "quest3_preview"]
+    generatedSourceMustBeHoloScript: true
+    typedNodesRequired: true
+    navigationPathRequired: true
+    collisionMeshRequired: true
+    parserMustPassBeforePreviewClaim: true
+    receiptRequired: true
+  }
+
+  policy "ObservedVsInferredMustBeExplicit" {
+    appliesTo: ["asset_graph", "receipt", "learning_signal"]
+    observedFactClassRequired: true
+    inferredDecisionClassRequired: true
+    factDecisionLinksRequired: true
+    rawInputHashRequired: true
+    receiptRequired: true
+  }
+
+  policy "NeverDependOnOpaqueSplats" {
+    appliesTo: ["marble_bridge", "genie_bridge", "generated_world_source"]
+    opaqueSplatAsSourceOfTruthAllowed: false
+    splatIngestRole: "optional_import_fixture_only"
+    typedEditableGraphRequired: true
+    compileTo3dgsIsBridgeOnly: true
+    receiptRequired: true
+  }
+
+  policy "QuestWebxrBudgetBeforePublicDemo" {
+    appliesTo: ["webxr_preview", "quest3_preview", "public_demo_copy"]
+    targetFrameRate: 90
+    frameBudgetMs: 11.11
+    maxDrawCalls: 200
+    maxTriangles: 1500000
+    budgetStatusMustEqual: "passed"
+    receiptRequired: true
+  }
+
+  action capture_world_generation_intent(intent) {
+    WorldgenPipelineState.promptStatus = "captured"
+
+    emit("hololand:worldgen:intent", {
+      action: "world_generation_intent_captured",
+      prompt: intent.prompt,
+      imageObservationRef: intent.imageObservationRef,
+      requestedPlatforms: intent.requestedPlatforms,
+      sourceContextHash: intent.sourceContextHash,
+      receiptRequired: true
+    })
+  }
+
+  action accept_decomposition(decomposition) {
+    WorldgenPipelineState.decompositionStatus = decomposition.status
+    WorldgenPipelineState.observedImageFactsStatus = decomposition.observedFactCount > 0 ? "captured" : "empty"
+
+    emit("hololand:worldgen:asset-graph", {
+      action: "input_decomposed",
+      status: decomposition.status,
+      observedFactCount: decomposition.observedFactCount,
+      inferredDecisionCount: decomposition.inferredDecisionCount,
+      observedVsInferredExplicit: true,
+      receiptRequired: true
+    })
+  }
+
+  action accept_typed_asset_graph(assetGraph) {
+    WorldgenPipelineState.typedAssetGraphStatus = assetGraph.status
+
+    emit("hololand:worldgen:asset-graph", {
+      action: "typed_asset_graph_accepted",
+      status: assetGraph.status,
+      graphId: assetGraph.graphId,
+      navigationPathPresent: assetGraph.navigationPathPresent,
+      collisionMeshPresent: assetGraph.collisionMeshPresent,
+      opaqueSplatDependencyPresent: false,
+      receiptRequired: true
+    })
+  }
+
+  action accept_generated_world(world) {
+    WorldgenPipelineState.generatedWorldStatus = world.status
+    WorldgenPipelineState.parserStatus = world.parserStatus
+    WorldgenPipelineState.questWebxrPreviewStatus = world.previewStatus
+
+    emit("hololand:worldgen:receipt", {
+      action: "generated_world_accepted",
+      status: world.status,
+      generatedWorldSource: world.path,
+      generatedWorldHash: world.sha256,
+      parserStatus: world.parserStatus,
+      previewStatus: world.previewStatus,
+      receiptRequired: true
+    })
+  }
+
+  action record_worldgen_receipt(receipt) {
+    WorldgenPipelineState.provenanceStatus = receipt.status
+
+    emit("hololand:worldgen:receipt", {
+      action: "worldgen_receipt_recorded",
+      status: receipt.status,
+      matrixGap: "HL-013",
+      receiptPath: receipt.path,
+      observedFactCount: receipt.observedFactCount,
+      inferredDecisionCount: receipt.inferredDecisionCount,
+      navigationPathPresent: receipt.navigationPathPresent,
+      collisionMeshPresent: receipt.collisionMeshPresent,
+      opaqueSplatDependencyPresent: false,
+      rawSecretsIncluded: false
+    })
+  }
+}
