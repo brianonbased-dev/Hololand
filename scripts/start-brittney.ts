@@ -271,8 +271,8 @@ async function runOllamaChat(model: string, request: BrittneyChatRequest): Promi
 }
 
 async function startOllamaCompatibilityGateway(model: string): Promise<void> {
-  console.log('🚀 Starting Brittney Ollama compatibility gateway...');
-  console.log(`🧠 Primary inference: Ollama (${model})`);
+  console.log('🚀 Starting Brittney HoloLLama local compatibility gateway...');
+  console.log(`🧠 Primary inference: HoloLLama local compatibility route (${model})`);
   console.log('🛡️  Deprecated GGUF service bypassed to protect local GPU memory.');
   console.log(`🌐 URL: http://${BRITTNEY_HOST}:${BRITTNEY_PORT}`);
 
@@ -304,7 +304,7 @@ async function startOllamaCompatibilityGateway(model: string): Promise<void> {
         sendText(
           res,
           200,
-          `<!doctype html><title>Brittney</title><body><h1>Brittney Ollama Gateway</h1><p>Ready on ${model}.</p></body>`,
+          `<!doctype html><title>Brittney</title><body><h1>Brittney HoloLLama Local Gateway</h1><p>Ollama-compatible endpoint ready on ${model}.</p></body>`,
           'text/html',
         );
         return;
@@ -357,7 +357,7 @@ async function startOllamaCompatibilityGateway(model: string): Promise<void> {
             completionTokens: result.completionTokens,
             totalTokens: result.promptTokens + result.completionTokens,
           },
-          routing: { reason: 'Local Ollama compatibility gateway' },
+          routing: { reason: 'HoloLLama local compatibility gateway' },
         });
         return;
       }
@@ -393,7 +393,7 @@ async function startOllamaCompatibilityGateway(model: string): Promise<void> {
   });
 
   server.on('error', (error: any) => {
-    console.error('❌ Failed to start Brittney Ollama gateway:', error.message);
+    console.error('❌ Failed to start Brittney HoloLLama local gateway:', error.message);
     process.exit(1);
   });
 
@@ -402,7 +402,7 @@ async function startOllamaCompatibilityGateway(model: string): Promise<void> {
 
   await new Promise<void>((resolve) => {
     server.listen(BRITTNEY_PORT, BRITTNEY_HOST, () => {
-      console.log(`✅ Brittney Ollama gateway is ready at http://${BRITTNEY_HOST}:${BRITTNEY_PORT}`);
+      console.log(`✅ Brittney HoloLLama local gateway is ready at http://${BRITTNEY_HOST}:${BRITTNEY_PORT}`);
       console.log('');
       console.log('🔧 Compatibility routes are now available:');
       console.log('   - GET  /health');
@@ -417,7 +417,7 @@ async function startOllamaCompatibilityGateway(model: string): Promise<void> {
 async function startBrittneyService(startup: BrittneyStartupMode): Promise<void> {
   console.log('🚀 Starting Brittney AI Service...');
   if (startup.inferenceMode === 'ollama') {
-    console.log(`🧠 Primary inference: Ollama (${startup.ollamaModel})`);
+    console.log(`🧠 Primary inference: HoloLLama local compatibility route (${startup.ollamaModel})`);
     console.log('🛡️  GGUF auto-load disabled to protect local GPU memory.');
   } else {
     console.log(`📦 Model: ${startup.modelPath}`);

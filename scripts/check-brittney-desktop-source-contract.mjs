@@ -163,7 +163,7 @@ requireIncludes('legacy Brittney gateway', gateway, [
   'HOLOSHELL_DESKTOP_SOURCE_CONTRACT',
   'apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus',
   'BRITTNEY_PORT = 11435',
-  'Primary inference: Ollama',
+  'Primary inference: HoloLLama local compatibility route',
   'Compatibility routes are now available',
   'primaryInference',
 ], failures);

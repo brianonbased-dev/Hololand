@@ -211,7 +211,7 @@ User clicks "Talk to Brittney" button
   ↓
 Microphone activates → Speech-to-text
   ↓
-Send to Ollama (Brittney model)
+Send to HoloLLama local serving (Brittney model)
   ↓
 Generate HoloScript
   ↓

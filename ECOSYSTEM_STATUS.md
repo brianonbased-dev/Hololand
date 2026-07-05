@@ -72,7 +72,7 @@
 | [@hololand/brittney-toolkit](./packages/brittney/toolkit) | Self-modification tools | Ready |
 | [@hololand/brittney-models](./packages/brittney/models) | Brittney model definitions | Ready |
 | [@hololand/mcp-server](./packages/brittney/mcp-server) | Model Context Protocol | Ready |
-| [@hololand/inference](./packages/shared/inference) | Unified AI - Local (Ollama) + BYOK Cloud | Ready |
+| [@hololand/inference](./packages/shared/inference) | Unified AI - HoloLLama local compatibility + BYOK Cloud | Ready |
 | [@hololand/iot-digital-twins](./packages/brittney/iot-digital-twins) | IoT digital twin generation | Ready |
 | [@hololand/brittney-cloud-api](./packages/brittney-cloud-api) | Cloud API for Brittney | Ready |
 

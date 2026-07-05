@@ -4,7 +4,7 @@
  * Unified AI inference layer for Hololand
  *
  * Features:
- * - Local inference via Ollama (FREE)
+ * - HoloLLama local inference through Ollama-compatible endpoints
  * - BYOK cloud providers (OpenAI, Anthropic, Google, Grok, Azure)
  * - Automatic provider selection and fallback
  * - HoloScript-optimized model routing

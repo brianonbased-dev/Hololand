@@ -42,7 +42,7 @@ ft:gpt-4o-mini-2024-07-18:brian-x-base-llc:brittney:CztHDZP4
 ft:gpt-4o-mini-2024-07-18:brian-x-base-llc:brittney-v2:CztIyJkK
 ```
 
-**Reason:** Cost reduction and privacy - all inference now runs locally via Ollama.
+**Reason:** Cost reduction and privacy - inference now routes through HoloLLama local compatibility or explicit BYOK providers.
 
 ---
 
@@ -59,8 +59,8 @@ ft:gpt-4o-mini-2024-07-18:brian-x-base-llc:brittney-v2:CztIyJkK
 
 | Deprecated | Replacement | Notes |
 |------------|-------------|-------|
-| `OPENAI_API_KEY` for Brittney | `OLLAMA_URL` | Brittney now runs locally |
-| `TOGETHER_API_KEY` for inference | `OLLAMA_URL` | Local inference preferred |
+| `OPENAI_API_KEY` for Brittney | HoloLLama local route (`OLLAMA_URL`) | Brittney can run locally through an Ollama-compatible endpoint |
+| `TOGETHER_API_KEY` for inference | HoloLLama local route (`OLLAMA_URL`) | Local inference preferred when available |
 
 ---
 
@@ -86,7 +86,7 @@ The following files are scheduled for removal in future versions:
 
 ### From OpenAI to Local Inference
 
-1. Install Ollama: `winget install Ollama.Ollama`
+1. Install a local HoloLLama-compatible serving endpoint, such as Ollama: `winget install Ollama.Ollama`
 2. Pull Brittney model: `ollama pull brittney:latest`
 3. Update environment: Remove `OPENAI_API_KEY`, add `OLLAMA_URL=http://localhost:11434`
 4. No code changes required - `@hololand/brittney-toolkit` handles routing

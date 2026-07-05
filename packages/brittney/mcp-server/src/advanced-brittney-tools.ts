@@ -10,7 +10,7 @@
  * - Visual comparison tools
  * - Scene versioning
  *
- * Architecture: Uses @hololand/inference → Ollama (port 11434)
+ * Architecture: Uses @hololand/inference -> HoloLLama local compatibility (Ollama-compatible endpoint, port 11434)
  */
 
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
@@ -18,7 +18,7 @@ import { sharedDataBridge } from './shared-data-bridge.js';
 import { createInferenceClient, type InferenceClient } from '@hololand/inference';
 
 // =============================================================================
-// INFERENCE CLIENT (Uses @hololand/inference → Ollama)
+// INFERENCE CLIENT (Uses @hololand/inference -> HoloLLama local compatibility)
 // =============================================================================
 
 const UAA2_SERVICE_URL = process.env.UAA2_SERVICE_URL || 'http://localhost:3000';

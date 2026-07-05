@@ -1,7 +1,7 @@
 /**
- * Ollama Provider - Local LLM Inference
+ * HoloLLama local compatibility provider
  *
- * Connects to Ollama server (default: localhost:11434)
+ * Connects to an Ollama-compatible local server (default: localhost:11434).
  * Used by both Hololand app and MCP tools
  */
 
@@ -64,7 +64,7 @@ export class OllamaProvider {
   }
 
   /**
-   * Check if Ollama is available
+   * Check if the local compatibility endpoint is available.
    */
   async health(): Promise<boolean> {
     try {
@@ -85,7 +85,11 @@ export class OllamaProvider {
     try {
       const available = await this.health();
       if (!available) {
-        return { type: 'local', available: false, error: 'Ollama not running' };
+        return {
+          type: 'local',
+          available: false,
+          error: 'HoloLLama local endpoint unavailable',
+        };
       }
 
       const models = await this.listModels();

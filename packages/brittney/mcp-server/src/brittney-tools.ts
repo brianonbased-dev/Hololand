@@ -25,7 +25,7 @@
  *                                    ↓
  *                    ┌───────────────┴───────────────┐
  *                    ▼                               ▼
- *             Ollama (local)                  BYOK Cloud APIs
+ *       HoloLLama local route                 BYOK Cloud APIs
  *        [Dynamic Model Selection]          (OpenAI, Anthropic, etc.)
  *     brittney-qwen-v23 (preferred)
  *     brittney-qwen (V22 fallback)
@@ -366,11 +366,11 @@ ${ctx.errors?.length ? `- Errors: ${ctx.errors.map((e) => e.message).join('; ')}
         : undefined,
     };
   } catch (error: any) {
-    // Check if Ollama is not running
+    // Check if the HoloLLama local compatibility endpoint is unavailable.
     if (error.message?.includes('ECONNREFUSED') || error.message?.includes('fetch failed')) {
       return {
         success: false,
-        error: `Ollama not running. Start it with: ollama serve\n\nOr configure a BYOK cloud provider in Settings.`,
+        error: `HoloLLama local endpoint unavailable. Start an Ollama-compatible server with: ollama serve\n\nOr configure a BYOK cloud provider in Settings.`,
       };
     }
     return {
@@ -1729,4 +1729,3 @@ Return ONLY a valid JSON object matching this schema:
 // now call the actual Brittney service at localhost:11435 via callBrittneyService().
 //
 // Start the Brittney service with: npx @hololand/brittney-service start
-

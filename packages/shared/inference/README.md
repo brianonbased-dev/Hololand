@@ -4,7 +4,7 @@
 
 ## Features
 
-- 🏠 **Local First** — Ollama integration for free, private AI
+- 🏠 **Local First** — HoloLLama local serving through Ollama-compatible endpoints
 - ☁️ **BYOK Cloud** — Bring your own AI provider keys for building orchestrations in Hololand (OpenAI, Anthropic, Google, Grok, Azure)
 - 🤖 **HoloScript Optimized** — Pre-configured Brittney models for code generation
 - 🔄 **Automatic Fallback** — Seamlessly switch between providers
@@ -91,7 +91,7 @@ const client = createInferenceClient({
 
 | Provider | Type | Description |
 |----------|------|-------------|
-| **Ollama** | `local` | Local LLM inference (FREE) |
+| **HoloLLama local** | `local` | Local LLM inference through an Ollama-compatible endpoint |
 | **OpenAI** | `openai` | GPT-4, GPT-4o, GPT-4o-mini |
 | **Anthropic** | `anthropic` | Claude 4, Claude 3.5 |
 | **Google** | `google` | Gemini 2.0, Gemini Pro |
@@ -106,7 +106,7 @@ Optimized for HoloScript code generation:
 ```typescript
 import { BRITTNEY_MODELS } from '@hololand/inference';
 
-// Local models (Ollama GGUF)
+// Local models (HoloLLama/Ollama-compatible GGUF)
 BRITTNEY_MODELS.local.expert    // 'brittney-qwen-v23:latest'
 BRITTNEY_MODELS.local.holoscript // 'brittney-v1:latest'
 BRITTNEY_MODELS.local.general   // 'brittney-v2:latest'

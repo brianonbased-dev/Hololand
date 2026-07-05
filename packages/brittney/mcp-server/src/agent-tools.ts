@@ -7,7 +7,7 @@
  * - Smart defaults and autonomous decision-making
  * - Batch operations to minimize round-trips
  *
- * Architecture: Uses @hololand/inference → Ollama (port 11434)
+ * Architecture: Uses @hololand/inference -> HoloLLama local compatibility (Ollama-compatible endpoint, port 11434)
  */
 
 import { z } from 'zod';

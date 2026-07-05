@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **@hololand/inference** - Unified AI inference layer
-  - Local-first with Ollama integration (FREE)
+  - Local-first with HoloLLama local compatibility serving
   - BYOK cloud providers for AI orchestrations: OpenAI, Anthropic, Google, Grok, Azure
   - Pre-configured Brittney models for HoloScript
   - Automatic provider fallback and routing

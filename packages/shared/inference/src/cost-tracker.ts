@@ -64,7 +64,7 @@ export const MODEL_PRICING: Record<string, ModelPricing> = {
   'grok-3':              { inputPer1M: 3.00,  outputPer1M: 15.00 },
   'grok-3-mini':         { inputPer1M: 0.30,  outputPer1M: 0.50 },
 
-  // Local (Ollama) - free
+  // HoloLLama local compatibility route - no provider token billing.
   'mistral-nemo:12b':    { inputPer1M: 0, outputPer1M: 0 },
   'llama3.1:8b':         { inputPer1M: 0, outputPer1M: 0 },
   'qwen2.5-coder:7b':    { inputPer1M: 0, outputPer1M: 0 },

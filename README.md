@@ -503,7 +503,7 @@ surfaces until HoloLand reaches the zero-TypeScript source contract.
 | `@hololand/brittney-service` | The AI that builds worlds |
 | `@hololand/brittney-toolkit` | Tools for self-modification |
 | `@hololand/mcp-server` | Model Context Protocol for AI agents ([docs](./packages/mcp-server/README.md)) |
-| `@hololand/inference` | Unified AI inference — Local (Ollama) + BYOK Cloud for AI orchestrations ([docs](./packages/shared/inference/README.md)) |
+| `@hololand/inference` | Unified AI inference — HoloLLama local compatibility + BYOK Cloud for AI orchestrations ([docs](./packages/shared/inference/README.md)) |
 
 **Getting Started with Brittney:**
 - [IDE Integration Setup](./packages/mcp-server/BRITTNEY_SETUP.md) - Connect Copilot/Claude/Cursor to your running app

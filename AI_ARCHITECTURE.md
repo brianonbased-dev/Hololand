@@ -15,7 +15,7 @@
 | Tier | Package | Model | Use Case |
 |------|---------|-------|----------|
 | **Local** | `@hololand/brittney-toolkit` | Bundled GGUF (2GB) | Tauri apps, mobile, offline worlds, sovereign NPCs |
-| **Self-hosted/BYOK** | `@hololand/inference` | Ollama, LAN, or user-supplied provider keys | Creator tools, private worlds, agent stewardship |
+| **Self-hosted/BYOK** | `@hololand/inference` | HoloLLama local compatibility, LAN, or user-supplied provider keys | Creator tools, private worlds, agent stewardship |
 | **Managed** | HoloLand-hosted runtime | Hosted models behind receipts and cost ceilings | Convenience, uptime, premium scale |
 | **Legacy** | `@hololand/brittney-service` | Deprecated fine-tune service | Back-compat only; not a target for new lineage work |
 
@@ -31,7 +31,7 @@ graph TD
     
     subgraph "Web / Hosted"
         App2["App"] --> Inference["hololand-inference"]
-        Inference --> Byok["BYOK / Ollama / Managed Route"]
+        Inference --> Byok["BYOK / HoloLLama local / Managed Route"]
         Byok --> Hosted["Model Backend"]
     end
     
