@@ -128,6 +128,9 @@ try {
   assert.doesNotMatch(JSON.stringify(receipt.state.samples), /initiated and is awaiting result/i);
   assert.equal(receipt.state.chat.ok, true);
   assert.equal(receipt.state.chat.selfTest, true);
+  assert.equal(receipt.state.chat.selectedBrainId, 'gamedev');
+  assert.equal(receipt.state.chat.selectedCompatibilitySkillId, 'gamedev');
+  assert.ok(receipt.state.chat.selectedBrainConsumerProfileId);
   assert.ok(receipt.state.chat.proposalCount > 0, 'chat response should include proposals');
   assert.equal(receipt.state.chat.modelInvocationPerformed, false);
   assert.ok(receipt.evidence.screenshotSha256, 'missing screenshot hash');

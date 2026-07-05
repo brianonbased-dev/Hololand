@@ -40,11 +40,11 @@ async function waitForServer() {
   throw new Error(`Timed out waiting for HoloShell server\n${stdout}\n${stderr}`);
 }
 
-async function postChat(message) {
+async function postChat(message, extra = {}) {
   const response = await fetch(`${baseUrl}/api/brittney/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, selfTest: true }),
+    body: JSON.stringify({ message, selfTest: true, ...extra }),
     signal: AbortSignal.timeout(80_000),
   });
   const body = await response.json();
@@ -86,6 +86,10 @@ try {
   assert.ok(status.systemStatus.capabilities.includes('holoclaw_runtime_bridge_status'));
   assert.equal(status.systemStatus.holoclawRuntimeBridge.directExecutionAllowed, false);
   assert.equal(status.systemStatus.laptopReasoning.lane, 'laptop-hardware');
+  assert.equal(status.selectedBrain.id, 'gamedev');
+  assert.equal(status.selectedCompatibilitySkill.id, 'gamedev');
+  assert.equal(status.brainSelection.schema, 'holollama-brain-router.selection.v1');
+  assert.equal(status.brainSelection.selectedBrainId, 'gamedev');
   assert.ok(status.systemStatus.lanes.some((lane) =>
     lane.id === 'codebase_fix' && /actual patch|validation/i.test(lane.role)
   ));
@@ -120,6 +124,8 @@ try {
   const statusReceipt = readTurnReceipt(status.turnId);
   assert.equal(statusReceipt.prompt, 'whats the status of the system?');
   assert.equal(statusReceipt.runtime.routingIntentProvided, true);
+  assert.equal(statusReceipt.selectedBrain.id, 'gamedev');
+  assert.equal(statusReceipt.summary.selectedBrainId, 'gamedev');
   assert.notEqual(statusReceipt.runtime.laptopReasoningDelegation.status, 'delegated');
 
   const gaps = await postChat('what are your edges and gaps?');
@@ -151,10 +157,15 @@ try {
   assert.ok(next.proposals.some((proposal) => proposal.operation === 'inspect_holoclaw_runtime_bridge_status'));
   assert.ok(next.proposals.some((proposal) => proposal.operation === 'separate_vision_from_desktop_automation'));
 
-  const addressed = await postChat('Brittney, use founder-language inspiration to separate cloud focus from local Jetson focus.');
+  const addressed = await postChat(
+    'Brittney, use founder-language inspiration to separate cloud focus from local Jetson focus.',
+    { brain: 'narrative' }
+  );
   assert.equal(addressed.systemStatus, null);
   assert.doesNotMatch(addressed.reply, /System status: online/);
   assert.equal(addressed.receiptType, 'hololand.holoshell.brittney-turn.v0.1.0');
+  assert.equal(addressed.selectedBrain.id, 'narrative');
+  assert.equal(addressed.selectedCompatibilitySkill.id, 'narrative');
 
   const relational = await postChat('Brittney, how are we doing together right now?');
   assert.equal(relational.systemStatus, null);

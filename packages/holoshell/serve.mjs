@@ -5990,7 +5990,7 @@ async function handleRequest(req, res) {
     req.on('data', (c) => { body += c; });
     req.on('end', async () => {
       try {
-        const { message, selfTest, mode } = JSON.parse(body || '{}');
+        const { message, selfTest, mode, brain } = JSON.parse(body || '{}');
         if (!message || typeof message !== 'string') {
           respond(res, { error: 'missing message' }, 400);
           return;
@@ -6017,6 +6017,7 @@ async function handleRequest(req, res) {
           .join('\n\n');
         const args = [turnScript, '--prompt', prompt, '--routing-intent', message, '--json'];
         if (selfTest) args.push('--self-test');
+        if (brain && typeof brain === 'string') args.push('--brain', brain);
         if (relational) args.push('--relational');
         else if (resolvedMode === 'maintenance') args.push('--maintenance');
         const out = execFileSync('node', args, {
@@ -6054,6 +6055,16 @@ async function handleRequest(req, res) {
           } : null,
           systemStatus: liveStatus ? liveStatusResponseEnvelope(liveStatus) : null,
           receiptType: receipt.receipt?.receiptType || null,
+          selectedBrain: receipt.selectedBrain || receipt.runtime?.selectedBrain || null,
+          selectedCompatibilitySkill: receipt.selectedCompatibilitySkill || receipt.runtime?.selectedCompatibilitySkill || null,
+          brainSelection: receipt.brainSelection ? {
+            schema: receipt.brainSelection.schema,
+            requestedBrain: receipt.brainSelection.requestedBrain,
+            selectedBrainId: receipt.brainSelection.selectedBrain?.id || '',
+            selectedCompatibilitySkillId: receipt.brainSelection.selectedCompatibilitySkill?.id || '',
+            selectedConsumerProfileId: receipt.brainSelection.selectedConsumerProfile?.id || '',
+            score: receipt.brainSelection.score || null,
+          } : null,
           mode: resolvedMode,
         });
         growDaimon(message).catch(() => {});  // accumulate the daimon's soul from this turn

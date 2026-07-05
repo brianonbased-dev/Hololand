@@ -1,6 +1,6 @@
 # holoshell-surface.service — Jetson-hosted Brittney Studio surface.
 # The Jetson is the sovereign node; the laptop/Quest are screens onto it
-# (founder 2026-06-17). Brain (Ollama) + agents + this surface all run here, $0.
+# (founder 2026-06-17). HoloLlama Brain + agents + this surface all run here, $0.
 #
 # INSTALL ONCE on the Jetson (sudo nopasswd):
 #   sudo cp scripts/holoshell-surface.service /etc/systemd/system/   # (or scp it over)
@@ -11,11 +11,11 @@
 # NOTES:
 # - ExecStart uses /usr/bin/node (Jetson `which node` = v20). The surface binds
 #   0.0.0.0 so http://holojetson.local:8747 is LAN-reachable to the laptop/Quest.
-# - HOLOSCRIPT_REPO points the Brittney turn handler at the synced dists + brain.
+# - HOLOSCRIPT_REPO points the Brittney turn handler at synced package dists,
+#   including @holoscript/holollama for Brain selection.
 # - No model endpoint is pinned here: the turn handler resolves the model node from
-#   the @model_fleet brain (jetson-orin), and falls back to the Jetson's OWN local
-#   Ollama by default. To enable semantic recall, also sync the sovereign-devices
-#   registry and set SOVEREIGN_DEVICES_DIR so the fleet embed route resolves.
+#   the @model_fleet brain. Any Ollama-compatible endpoint is substrate fallback,
+#   not the product target.
 
 [Unit]
 Description=HoloShell Surface — Jetson-hosted Brittney Studio (laptop/Quest are screens)

@@ -5,7 +5,9 @@
   stack (replaces the generic LiteLLM/.desktop draft, which targeted a different system).
 
   $0 BY DESIGN:
-    * Jetson (sovereign local qwen3:4b @ holojetson.local:11434) is the local brain (model-policy LOCAL default).
+    * Jetson targets HoloLlama as the sovereign local Brain/serving lane; legacy
+      Ollama-compatible tags are only a substrate health probe while HoloLlama
+      serving finishes rollout.
     * Messages land on the Jetson-hosted Brittney/HoloShell surface first.
     * The laptop is the reasoning workstation: Codex/HoloMesh peers inspect, decide,
       validate, and act through HoloShell + HoloMesh while the Jetson keeps the live surface.
@@ -35,7 +37,8 @@ param(
 $ErrorActionPreference = 'SilentlyContinue'
 $Hololand    = Split-Path -Parent $PSScriptRoot           # repo root (this file is in scripts/)
 $OperatePort = 8747
-$JetsonTags  = 'http://holojetson.local:11434/api/tags'
+$HoloLlamaPackage = '@holoscript/holollama'
+$LegacyModelTags  = 'http://holojetson.local:11434/api/tags'
 $JetsonSurface = 'http://holojetson.local:8747'  # Jetson-HOSTED Brittney surface (systemd holoshell-surface)
 $HoloScript  = Join-Path (Split-Path -Parent $Hololand) 'HoloScript'  # sibling repo — Studio lives here
 $StudioPort  = 3101                                                   # Studio /create = BrittneyPlus (building)
@@ -75,9 +78,9 @@ Write-Host '[Brittney Studio] the laptop is a SCREEN for the Jetson (founder 202
 # (Studio — the heavy Next.js build IDE — is a separate dev tool launched on its own,
 # not part of this screen; it cannot run on the 8GB Jetson alongside the model.)
 
-# 1) Jetson sovereign local brain reachable?
-$jetson = 'Jetson sovereign local brain OFF (LAN)'
-try { if (Invoke-RestMethod -Uri $JetsonTags -TimeoutSec 4) { $jetson = 'Jetson sovereign local brain OK' } } catch {}
+# 1) Jetson HoloLlama target/substrate reachable?
+$jetson = "Jetson HoloLlama target: $HoloLlamaPackage (legacy substrate probe pending)"
+try { if (Invoke-RestMethod -Uri $LegacyModelTags -TimeoutSec 4) { $jetson = "Jetson HoloLlama target: $HoloLlamaPackage (legacy substrate OK)" } } catch {}
 
 # 2) Jetson-hosted Brittney surface reachable?
 $surfaceUp = $false

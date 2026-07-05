@@ -29,6 +29,7 @@ const DEFAULT_AGENT_DISPATCH_DIR = path.join(DEFAULT_TMP, 'agent-dispatches');
 const DEFAULT_CONVERSATION_PLAN = path.join(DEFAULT_TMP, 'brittney-conversation-plan-latest.json');
 const DEFAULT_LAPTOP_REASONING_RESULT = path.join(DEFAULT_TMP, 'laptop-reasoning-result-latest.json');
 const DEFAULT_LAPTOP_REASONING_RESULT_DIR = path.join(DEFAULT_TMP, 'laptop-reasoning-results');
+const DEFAULT_BRITTNEY_BRAIN = process.env.HOLOSHELL_BRITTNEY_BRAIN || 'auto';
 const LAPTOP_REASONING_TARGET_HOST = 'laptop_windows';
 const LAPTOP_REASONING_LANE = 'laptop-hardware';
 
@@ -45,6 +46,7 @@ function parseArgs(argv) {
     jsOutput: DEFAULT_JS_OUTPUT,
     conversationPlanOutput: DEFAULT_CONVERSATION_PLAN,
     routingIntent: '',
+    brain: DEFAULT_BRITTNEY_BRAIN,
     relational: false,
     maintenance: false,
   };
@@ -65,6 +67,7 @@ function parseArgs(argv) {
     else if (arg === '--js-output') args.jsOutput = argv[++index];
     else if (arg === '--conversation-plan-output') args.conversationPlanOutput = argv[++index];
     else if (arg === '--routing-intent') args.routingIntent = argv[++index];
+    else if (arg === '--brain') args.brain = argv[++index];
     else if (arg === '--help' || arg === '-h') {
       printHelp();
       process.exit(0);
@@ -95,6 +98,7 @@ Options:
   --conversation-plan-output <path>
                                Latest conversation-plan packet. Defaults to .tmp/holoshell/brittney-conversation-plan-latest.json.
   --routing-intent <text>      Human/operator intent used for dispatch classification. Defaults to --prompt.
+  --brain <id|auto>            HoloLlama Brain selector. Defaults to HOLOSHELL_BRITTNEY_BRAIN or auto.
   -h, --help                   Show this help.
 `);
 }
@@ -733,6 +737,58 @@ async function importAIBrittney(holoscriptRoot) {
   return { runAgentTurn, Session, DEFAULT_SYSTEM_PROMPT, McpClient, defaultMcpConfig };
 }
 
+async function importHoloLlama(holoscriptRoot) {
+  try {
+    const packageModule = await import('@holoscript/holollama/brain');
+    if (typeof packageModule.selectHoloLlamaBrain === 'function') {
+      return {
+        selectHoloLlamaBrain: packageModule.selectHoloLlamaBrain,
+        packageSource: 'node_modules',
+        packagePath: '@holoscript/holollama/brain',
+      };
+    }
+  } catch (error) {
+    if (!isMissingHoloLlamaPackage(error)) throw error;
+  }
+
+  const packageRoot = path.resolve(holoscriptRoot, 'packages', 'holollama');
+  const brainPath = path.join(packageRoot, 'dist', 'brain.js');
+  if (!existsSync(brainPath)) {
+    throw new Error(`@holoscript/holollama dist file missing under ${packageRoot}`);
+  }
+  const packageModule = await import(pathToFileURL(brainPath).href);
+  if (typeof packageModule.selectHoloLlamaBrain !== 'function') {
+    throw new Error(`@holoscript/holollama Brain dist at ${brainPath} does not export selectHoloLlamaBrain`);
+  }
+  return {
+    selectHoloLlamaBrain: packageModule.selectHoloLlamaBrain,
+    packageSource: 'holoscript-dist',
+    packagePath: brainPath,
+  };
+}
+
+function isMissingHoloLlamaPackage(error) {
+  return (
+    (error?.code === 'ERR_MODULE_NOT_FOUND' || error?.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') &&
+    String(error.message || '').includes('@holoscript/holollama')
+  );
+}
+
+function selectedBrainDevice(ollamaHost) {
+  const envDevice =
+    process.env.HOLOLLAMA_DEVICE_HANDLE ||
+    process.env.HOLOSHELL_DEVICE_HANDLE ||
+    process.env.HOLOSCRIPT_DEVICE_HANDLE;
+  if (envDevice) return envDevice;
+  const host = String(ollamaHost || '').toLowerCase();
+  if (host.includes('holojetson') || host.includes('jetson')) return 'jetson-orin-super';
+  if (host.includes('vast')) return 'vast-linux-gpu';
+  if (host.includes('127.0.0.1') || host.includes('localhost') || host.includes('0.0.0.0')) {
+    return process.platform === 'win32' ? 'laptop-rtx3060' : 'jetson-orin-super';
+  }
+  return 'jetson-orin-super';
+}
+
 function createSelfTestHarness() {
   let callCount = 0;
   const fetchImpl = async () => {
@@ -1127,6 +1183,13 @@ async function runTurn(args) {
   const fleet = await resolveFleetRoute(holoscriptRoot, args.selfTest);
   const ollamaHost = fleet.ollamaHost;
   const routeClass = classifyOllamaHost(ollamaHost);
+  const holoLlama = await importHoloLlama(holoscriptRoot);
+  const brainSelection = holoLlama.selectHoloLlamaBrain({
+    task: intent,
+    brain: args.brain,
+    selectedDevice: selectedBrainDevice(ollamaHost),
+    generatedAt,
+  });
   const runtime = {
     packageName: '@holoscript/aibrittney',
     entrypoint: 'runAgentTurn',
@@ -1135,6 +1198,16 @@ async function runTurn(args) {
     modelSource: fleet.source,
     fleetRoute: fleet.reason,
     ollamaHostKind: routeClass,
+    brainSelector: {
+      packageName: '@holoscript/holollama',
+      source: holoLlama.packageSource,
+      packagePath: holoLlama.packagePath,
+      schema: brainSelection.schema,
+    },
+    selectedBrain: brainSelection.selectedBrain,
+    selectedCompatibilitySkill: brainSelection.selectedCompatibilitySkill,
+    selectedBrainConsumerProfile: brainSelection.selectedConsumerProfile,
+    brainSelection,
     apiKeyConfigured: Boolean(process.env.OLLAMA_API_KEY),
     secretsExposedToShell: false,
     semanticRecall: {
@@ -1154,6 +1227,14 @@ async function runTurn(args) {
     },
     conversationPlan,
     routingIntentProvided: Boolean(args.routingIntent),
+  };
+  shellContext.selectedBrain = {
+    id: brainSelection.selectedBrain.id,
+    displayName: brainSelection.selectedBrain.displayName,
+    packageName: brainSelection.selectedBrain.packageName,
+    compatibilitySkillId: brainSelection.selectedCompatibilitySkill.id,
+    consumerProfileId: brainSelection.selectedConsumerProfile.id,
+    selectorSchema: brainSelection.schema,
   };
   runtime.laptopReasoningDelegation = createLaptopReasoningDelegation(args);
   runtime.laptopReasoningResult = findLaptopReasoningResultForDelegation(runtime.laptopReasoningDelegation);
@@ -1363,11 +1444,16 @@ ${toneInstruction}`;
       laptopReasoningBridge: 'scripts/holoshell-laptop-reasoning-bridge.mjs',
       holoscriptRoot,
       runtimePackageDist: path.resolve(holoscriptRoot, 'packages', 'aibrittney', 'dist'),
+      brainSelectorPackage: '@holoscript/holollama',
+      brainSelectorPackageDist: path.resolve(holoscriptRoot, 'packages', 'holollama', 'dist'),
     },
     modelPrompt: modelPrompt === intent ? undefined : {
       promptHash: hashText(modelPrompt),
       promptPreview: truncate(modelPrompt, 320),
     },
+    selectedBrain: runtime.selectedBrain,
+    selectedCompatibilitySkill: runtime.selectedCompatibilitySkill,
+    brainSelection: runtime.brainSelection,
     runtime,
     shellContext,
     events,
@@ -1409,6 +1495,14 @@ ${toneInstruction}`;
       contextVisibleShellObjectCount: shellContext.visibleShellObjects?.length || 0,
       ambientTone: shellContext.ambientTone?.tone || 'unknown',
       ambientToneScore: shellContext.ambientTone?.score ?? null,
+      selectedBrainId: runtime.selectedBrain.id,
+      selectedBrainDisplayName: runtime.selectedBrain.displayName,
+      selectedBrainPackage: runtime.selectedBrain.packageName,
+      selectedCompatibilitySkillId: runtime.selectedCompatibilitySkill.id,
+      selectedBrainConsumerProfileId: runtime.selectedBrainConsumerProfile.id,
+      brainSelectionSchema: runtime.brainSelection.schema,
+      brainSelectionScore: runtime.brainSelection.score.value,
+      brainSelectionReason: runtime.brainSelection.score.reason,
       semanticRecallCount: runtime.semanticRecall.count,
       semanticRecallSource: runtime.semanticRecall.source,
       founderPromptFixtureStatus: runtime.founderPromptFixtures.status,
@@ -1484,6 +1578,9 @@ function assertSelfTest(receipt) {
   if (receipt.summary.toolResultCount < 1) failures.push('expected self-test tool result');
   if (receipt.summary.actionProposalCount < 1) failures.push('expected action proposal');
   if (!receipt.proposals.every((proposal) => proposal.receiptRequired)) failures.push('all proposals must require receipts');
+  if (!receipt.selectedBrain?.id) failures.push('expected selected Brain receipt field');
+  if (receipt.runtime.brainSelector?.packageName !== '@holoscript/holollama') failures.push('expected HoloLlama Brain selector');
+  if (receipt.summary.brainSelectionSchema !== 'holollama-brain-router.selection.v1') failures.push('expected Brain selection schema');
   if (receipt.runtime.secretsExposedToShell !== false) failures.push('runtime must not expose secrets');
   if (failures.length) {
     throw new Error(`Self-test failed:\n- ${failures.join('\n- ')}`);

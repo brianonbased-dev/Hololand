@@ -26,6 +26,8 @@ assert.match(bash, /scripts\/holoshell-brittney-turn\.mjs/, 'bash wrapper must p
 assert.match(bash, /scripts\/holoshell-sovereign-room-marathon\.mjs/, 'bash wrapper must sync Sovereign Room adapter');
 assert.match(bash, /scripts\/holoshell-holoclaw-runtime-bridge\.mjs/, 'bash wrapper must sync HoloClaw runtime adapter');
 assert.match(bash, /scripts\/holoshell-terminal-event-stream\.mjs/, 'bash wrapper must sync terminal event stream adapter');
+assert.match(bash, /packages\/holollama\/dist/, 'bash wrapper must sync HoloLlama Brain selector dist');
+assert.match(bash, /holoshell-brittney-runtime-bridge\.hsplus/, 'bash wrapper must sync Brittney runtime bridge source');
 assert.match(bash, /Jetson chat wrapper parity mismatch/, 'bash wrapper must fail loudly on hash mismatch');
 
 const powershell = readFileSync(psPath, 'utf8');
@@ -41,6 +43,10 @@ assert.match(powershell, /Jetson chat wrapper parity mismatch after deploy/, 'Po
 assert.match(powershell, /holoshell-sovereign-room-marathon\.mjs/, 'PowerShell wrapper must sync Sovereign Room adapter');
 assert.match(powershell, /holoshell-holoclaw-runtime-bridge\.mjs/, 'PowerShell wrapper must sync HoloClaw runtime adapter');
 assert.match(powershell, /holoshell-terminal-event-stream\.mjs/, 'PowerShell wrapper must sync terminal event stream adapter');
+assert.match(powershell, /packages\/holollama\//, 'PowerShell wrapper must sync HoloLlama Brain selector dist');
+assert.match(powershell, /holoshell-brittney-runtime-bridge\.hsplus/, 'PowerShell wrapper must sync Brittney runtime bridge source');
+assert.match(powershell, /function Ensure-RemoteDirectory/, 'PowerShell wrapper must create each remote copy destination defensively');
+assert.match(powershell, /Ensure-RemoteDirectory \(Get-RemoteDestinationDirectory \$Destination\)/, 'PowerShell wrapper must ensure remote copy destinations before scp');
 assert.match(powershell, /sshKeyPathIncluded = \$false/, 'PowerShell wrapper receipt must hide raw key paths');
 assert.match(powershell, /sudo -n systemctl restart holoshell-surface/, 'PowerShell wrapper restart must be non-interactive');
 

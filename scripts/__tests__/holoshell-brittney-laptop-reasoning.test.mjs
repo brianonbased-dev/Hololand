@@ -43,6 +43,13 @@ assert.ok(firstBrace >= 0, 'turn stdout must contain JSON receipt');
 const receipt = JSON.parse(result.stdout.slice(firstBrace));
 const delegation = receipt.runtime.laptopReasoningDelegation;
 
+assert.equal(receipt.selectedBrain.id, 'gamedev');
+assert.equal(receipt.selectedCompatibilitySkill.id, 'gamedev');
+assert.equal(receipt.runtime.brainSelector.packageName, '@holoscript/holollama');
+assert.equal(receipt.runtime.brainSelection.schema, 'holollama-brain-router.selection.v1');
+assert.equal(receipt.summary.selectedBrainId, 'gamedev');
+assert.equal(receipt.summary.selectedCompatibilitySkillId, 'gamedev');
+assert.ok(['jetson-edge', 'laptop-owned-metal'].includes(receipt.summary.selectedBrainConsumerProfileId));
 assert.equal(delegation.status, 'delegated');
 assert.equal(delegation.capabilityId, 'laptop_reasoning_job');
 assert.equal(delegation.dispatchKind, 'reasoning_job');
@@ -128,6 +135,9 @@ assert.ok(unsupportedFirstBrace >= 0, 'unsupported turn stdout must contain JSON
 const unsupportedReceipt = JSON.parse(unsupportedResult.stdout.slice(unsupportedFirstBrace));
 const unsupportedDelegation = unsupportedReceipt.runtime.laptopReasoningDelegation;
 
+assert.equal(unsupportedReceipt.selectedBrain.id, 'gamedev');
+assert.equal(unsupportedReceipt.selectedCompatibilitySkill.id, 'gamedev');
+assert.equal(unsupportedReceipt.summary.brainSelectionSchema, 'holollama-brain-router.selection.v1');
 assert.equal(unsupportedDelegation.status, 'not_needed');
 assert.equal(unsupportedDelegation.capabilityId, '');
 assert.equal(unsupportedDelegation.confidence, 0);

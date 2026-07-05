@@ -8,6 +8,7 @@
 # Build on the laptop first:
 #   pnpm --filter @holoscript/aibrittney build
 #   pnpm --filter @holoscript/llm-provider build
+#   pnpm --filter @holoscript/holollama build
 #   node packages/holoshell/compile.mjs
 #
 # Usage: bash scripts/deploy-holoshell-to-jetson.sh [--restart]
@@ -189,11 +190,12 @@ echo "[deploy] generating founder prompt fixtures ..."
   --json >/dev/null
 
 echo "[deploy] ensuring Jetson layout under /mnt/nvme/holo ..."
-"$SSH_BIN" "${SSH_OPTS[@]}" "$J" "mkdir -p $SURF/packages/holoshell/dist $SURF/scripts $SURF/model-library $SURF/.tmp/holoshell $SURF/apps/holoshell/source $ROOT/packages/aibrittney $ROOT/packages/llm-provider $ROOT/compositions/skills"
+"$SSH_BIN" "${SSH_OPTS[@]}" "$J" "mkdir -p $SURF/packages/holoshell/dist $SURF/scripts $SURF/model-library $SURF/.tmp/holoshell $SURF/apps/holoshell/source $ROOT/packages/aibrittney $ROOT/packages/llm-provider $ROOT/packages/holollama $ROOT/compositions/skills"
 
 echo "[deploy] syncing platform-neutral dists + brain + native resources + surface ..."
 "$SCP_BIN" "${SSH_OPTS[@]}" -q -r "$(tool_path "$HS/packages/aibrittney/dist")" "$J:$ROOT/packages/aibrittney/"
 "$SCP_BIN" "${SSH_OPTS[@]}" -q -r "$(tool_path "$HS/packages/llm-provider/dist")" "$J:$ROOT/packages/llm-provider/"
+"$SCP_BIN" "${SSH_OPTS[@]}" -q -r "$(tool_path "$HS/packages/holollama/dist")" "$J:$ROOT/packages/holollama/"
 "$SCP_BIN" "${SSH_OPTS[@]}" -q "$(tool_path "$HS/compositions/model-fleet.hsplus")" "$J:$ROOT/compositions/"
 "$SCP_BIN" "${SSH_OPTS[@]}" -q -r "$(tool_path "$HS/compositions/skills")" "$J:$ROOT/compositions/"
 "$SCP_BIN" "${SSH_OPTS[@]}" -q "$(tool_path "$HL/packages/holoshell/serve.mjs")" "$J:$SURF/packages/holoshell/"
@@ -208,6 +210,7 @@ echo "[deploy] syncing platform-neutral dists + brain + native resources + surfa
 "$SCP_BIN" "${SSH_OPTS[@]}" -q "$(tool_path "$HL/scripts/holoshell-agent-dispatch.mjs")" "$J:$SURF/scripts/"
 "$SCP_BIN" "${SSH_OPTS[@]}" -q "$(tool_path "$HL/scripts/holoshell-founder-prompt-fixtures.mjs")" "$J:$SURF/scripts/"
 "$SCP_BIN" "${SSH_OPTS[@]}" -q "$(tool_path "$HL/apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus")" "$J:$SURF/apps/holoshell/source/"
+"$SCP_BIN" "${SSH_OPTS[@]}" -q "$(tool_path "$HL/apps/holoshell/source/holoshell-brittney-runtime-bridge.hsplus")" "$J:$SURF/apps/holoshell/source/"
 "$SCP_BIN" "${SSH_OPTS[@]}" -q "$(tool_path "$HL/apps/holoshell/source/holoshell-sovereign-room-marathon.hsplus")" "$J:$SURF/apps/holoshell/source/"
 "$SCP_BIN" "${SSH_OPTS[@]}" -q "$(tool_path "$HL/apps/holoshell/source/holoshell-holoclaw-runtime-bridge.hsplus")" "$J:$SURF/apps/holoshell/source/"
 "$SCP_BIN" "${SSH_OPTS[@]}" -q "$(tool_path "$HL/apps/holoshell/source/holoshell-founder-prompt-fixtures.hsplus")" "$J:$SURF/apps/holoshell/source/"
@@ -218,7 +221,7 @@ echo "[deploy] syncing platform-neutral dists + brain + native resources + surfa
 if [ -f "$MODEL_LIBRARY" ]; then
   "$SCP_BIN" "${SSH_OPTS[@]}" -q "$(tool_path "$MODEL_LIBRARY")" "$J:$SURF/model-library/library.json"
 else
-  echo "[deploy] model library not found at $MODEL_LIBRARY; live server will use installed Ollama list only"
+  echo "[deploy] model library not found at $MODEL_LIBRARY; HoloLlama target will use installed-model fallback only"
 fi
 
 echo "[deploy] checking Jetson chat wrapper parity ..."
@@ -228,6 +231,7 @@ check_wrapper_parity "$HL/scripts/holoshell-sovereign-room-marathon.mjs" "$SURF/
 check_wrapper_parity "$HL/scripts/holoshell-control-daemon.mjs" "$SURF/scripts/holoshell-control-daemon.mjs" "scripts/holoshell-control-daemon.mjs"
 check_wrapper_parity "$HL/scripts/holoshell-holoclaw-runtime-bridge.mjs" "$SURF/scripts/holoshell-holoclaw-runtime-bridge.mjs" "scripts/holoshell-holoclaw-runtime-bridge.mjs"
 check_wrapper_parity "$HL/scripts/holoshell-terminal-event-stream.mjs" "$SURF/scripts/holoshell-terminal-event-stream.mjs" "scripts/holoshell-terminal-event-stream.mjs"
+check_wrapper_parity "$HL/apps/holoshell/source/holoshell-brittney-runtime-bridge.hsplus" "$SURF/apps/holoshell/source/holoshell-brittney-runtime-bridge.hsplus" "apps/holoshell/source/holoshell-brittney-runtime-bridge.hsplus"
 
 if [ "${1:-}" = "--restart" ]; then
   echo "[deploy] restarting holoshell-surface ..."

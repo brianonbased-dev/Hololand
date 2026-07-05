@@ -12,6 +12,11 @@ composition "HoloShell Brittney Runtime Bridge" {
     runtimePackage: "@holoscript/aibrittney"
     runtimeEntrypoint: "runAgentTurn"
     runtimePackagePath: "C:/Users/josep/Documents/GitHub/HoloScript/packages/aibrittney"
+    brainSelectorPackage: "@holoscript/holollama"
+    brainSelectorPackagePath: "C:/Users/josep/Documents/GitHub/HoloScript/packages/holollama"
+    brainSelectorSchema: "holollama-brain-router.selection.v1"
+    brainUserFacingUnit: "Brain"
+    compatibilityUnit: "skill"
     avatarSource: "apps/holoshell/source/holoshell-brittney-avatar.hsplus"
     presenceSource: "apps/holoshell/source/holoshell-brittney-presence.hsplus"
     hardwareControlSource: "apps/holoshell/source/holoshell-hardware-control.hsplus"
@@ -38,6 +43,9 @@ composition "HoloShell Brittney Runtime Bridge" {
     currentPrompt: ""
     currentRoutingIntent: ""
     runtimeStatus: "unknown"
+    selectedBrainId: ""
+    selectedCompatibilitySkillId: ""
+    selectedBrainConsumerProfileId: ""
     lastFinalText: ""
     lastError: ""
     runtimeEventCount: 0
@@ -107,6 +115,7 @@ composition "HoloShell Brittney Runtime Bridge" {
     type: "runtime_turn_request"
     actor: "user"
     targetRuntime: "@holoscript/aibrittney"
+    targetBrain: "auto"
     prompt: ""
     routingIntent: ""
     modelPrompt: ""
@@ -164,6 +173,11 @@ composition "HoloShell Brittney Runtime Bridge" {
     receiptType: "hololand.holoshell.brittney-turn.v0.1.0"
     actor: "brittney"
     runtimePackage: "@holoscript/aibrittney"
+    brainSelectorPackage: "@holoscript/holollama"
+    brainSelectionSchema: "holollama-brain-router.selection.v1"
+    selectedBrainId: ""
+    selectedCompatibilitySkillId: ""
+    selectedBrainConsumerProfileId: ""
     routeClass: "local"
     secretsExposedToShell: false
     resultStatus: "unknown"
@@ -221,6 +235,9 @@ composition "HoloShell Brittney Runtime Bridge" {
     contextMayGroundReply: true
     contextMayTriggerDispatch: false
     laptopDispatchRequires: "current_turn_ready_to_stage_agent_dispatch_receipt"
+    brainSelectorSource: "@holoscript/holollama"
+    brainUserFacingUnit: "Brain"
+    compatibilityUnit: "skill"
     nonReceiptedLaptopDispatchNarration: "forbidden"
     receiptRequired: true
   }
@@ -248,6 +265,7 @@ composition "HoloShell Brittney Runtime Bridge" {
       prompt: state.currentPrompt,
       routing_intent: state.currentRoutingIntent,
       target_runtime: "@holoscript/aibrittney",
+      target_brain: turnRequest.targetBrain != "" ? turnRequest.targetBrain : "auto",
       shell_context_included: true,
       context_packet_included: true,
       secrets_included: false,
@@ -314,6 +332,9 @@ composition "HoloShell Brittney Runtime Bridge" {
     state.currentTurnId = receipt.turnId
     state.bridgeStatus = receipt.summary.status
     state.runtimeStatus = receipt.runtime.status
+    state.selectedBrainId = receipt.summary.selectedBrainId
+    state.selectedCompatibilitySkillId = receipt.summary.selectedCompatibilitySkillId
+    state.selectedBrainConsumerProfileId = receipt.summary.selectedBrainConsumerProfileId
     state.lastFinalText = receipt.result.finalText
     state.lastError = receipt.result.error
     state.runtimeEventCount = receipt.summary.eventCount
@@ -335,6 +356,9 @@ composition "HoloShell Brittney Runtime Bridge" {
       turn_id: state.currentTurnId,
       status: state.bridgeStatus,
       runtime_status: state.runtimeStatus,
+      selected_brain_id: state.selectedBrainId,
+      selected_compatibility_skill_id: state.selectedCompatibilitySkillId,
+      selected_brain_consumer_profile_id: state.selectedBrainConsumerProfileId,
       event_count: state.runtimeEventCount,
       tool_calls: state.toolCallCount,
       proposals: state.actionProposalCount,

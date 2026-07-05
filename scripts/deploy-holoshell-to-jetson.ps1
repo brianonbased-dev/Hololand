@@ -139,6 +139,31 @@ function Quote-RemotePath {
   return "'$Value'"
 }
 
+function Get-RemoteDestinationDirectory {
+  param([string]$Destination)
+  $normalized = $Destination.Trim()
+  if ([string]::IsNullOrWhiteSpace($normalized)) {
+    throw 'remote destination is empty'
+  }
+  if ($normalized.EndsWith('/')) {
+    return $normalized.TrimEnd('/')
+  }
+  $lastSlash = $normalized.LastIndexOf('/')
+  if ($lastSlash -le 0) {
+    throw "remote destination has no parent directory: $Destination"
+  }
+  return $normalized.Substring(0, $lastSlash)
+}
+
+function Ensure-RemoteDirectory {
+  param([string]$RemotePath)
+  $normalized = $RemotePath.Trim()
+  if ([string]::IsNullOrWhiteSpace($normalized)) {
+    throw 'remote directory is empty'
+  }
+  [void](Invoke-Remote ("mkdir -p " + (Quote-RemotePath $normalized)))
+}
+
 function Quote-NativeArgument {
   param([string]$Value)
   if ($Value.Length -eq 0) {
@@ -315,15 +340,21 @@ function Test-JetsonChatWrapperParity {
       LocalPath = Join-Path $Hololand 'scripts\holoshell-receipt-control.mjs'
       RemotePath = Join-RemotePath $RemoteSurface 'scripts/holoshell-receipt-control.mjs'
     },
-    @{
-      Name = 'browser-terminal-coupling-source'
-      RelativePath = 'apps/holoshell/source/holoshell-browser-terminal-coupling.hsplus'
-      LocalPath = Join-Path $Hololand 'apps\holoshell\source\holoshell-browser-terminal-coupling.hsplus'
-      RemotePath = Join-RemotePath $RemoteSurface 'apps/holoshell/source/holoshell-browser-terminal-coupling.hsplus'
-    },
-    @{
-      Name = 'operator-terminal-source'
-      RelativePath = 'apps/holoshell/source/holoshell-operator-terminal.hsplus'
+  @{
+    Name = 'browser-terminal-coupling-source'
+    RelativePath = 'apps/holoshell/source/holoshell-browser-terminal-coupling.hsplus'
+    LocalPath = Join-Path $Hololand 'apps\holoshell\source\holoshell-browser-terminal-coupling.hsplus'
+    RemotePath = Join-RemotePath $RemoteSurface 'apps/holoshell/source/holoshell-browser-terminal-coupling.hsplus'
+  },
+  @{
+    Name = 'brittney-runtime-bridge-source'
+    RelativePath = 'apps/holoshell/source/holoshell-brittney-runtime-bridge.hsplus'
+    LocalPath = Join-Path $Hololand 'apps\holoshell\source\holoshell-brittney-runtime-bridge.hsplus'
+    RemotePath = Join-RemotePath $RemoteSurface 'apps/holoshell/source/holoshell-brittney-runtime-bridge.hsplus'
+  },
+  @{
+    Name = 'operator-terminal-source'
+    RelativePath = 'apps/holoshell/source/holoshell-operator-terminal.hsplus'
       LocalPath = Join-Path $Hololand 'apps\holoshell\source\holoshell-operator-terminal.hsplus'
       RemotePath = Join-RemotePath $RemoteSurface 'apps/holoshell/source/holoshell-operator-terminal.hsplus'
     }
@@ -359,6 +390,7 @@ function Copy-ToJetson {
     [string]$Destination,
     [switch]$Recursive
   )
+  Ensure-RemoteDirectory (Get-RemoteDestinationDirectory $Destination)
   $args = @()
   $args += New-SshArgs $script:ResolvedJetsonKey
   if ($Recursive) {
@@ -421,6 +453,7 @@ $FixtureScript = Join-Path $Hololand 'scripts\holoshell-founder-prompt-fixtures.
 $copyPlan = @(
   @{ Source = Join-Path $HoloScriptRepo 'packages\aibrittney\dist'; Destination = Join-RemotePath $RemoteRoot 'packages/aibrittney/'; Recursive = $true; Required = $true },
   @{ Source = Join-Path $HoloScriptRepo 'packages\llm-provider\dist'; Destination = Join-RemotePath $RemoteRoot 'packages/llm-provider/'; Recursive = $true; Required = $true },
+  @{ Source = Join-Path $HoloScriptRepo 'packages\holollama\dist'; Destination = Join-RemotePath $RemoteRoot 'packages/holollama/'; Recursive = $true; Required = $true },
   @{ Source = Join-Path $HoloScriptRepo 'compositions\model-fleet.hsplus'; Destination = Join-RemotePath $RemoteRoot 'compositions/'; Recursive = $false; Required = $true },
   @{ Source = Join-Path $HoloScriptRepo 'compositions\skills'; Destination = Join-RemotePath $RemoteRoot 'compositions/'; Recursive = $true; Required = $true },
   @{ Source = Join-Path $Hololand 'packages\holoshell\serve.mjs'; Destination = Join-RemotePath $RemoteSurface 'packages/holoshell/'; Recursive = $false; Required = $true },
@@ -439,6 +472,7 @@ $copyPlan = @(
   @{ Source = Join-Path $Hololand 'scripts\holoshell-agent-dispatch.mjs'; Destination = Join-RemotePath $RemoteSurface 'scripts/'; Recursive = $false; Required = $true },
   @{ Source = Join-Path $Hololand 'scripts\holoshell-founder-prompt-fixtures.mjs'; Destination = Join-RemotePath $RemoteSurface 'scripts/'; Recursive = $false; Required = $true },
   @{ Source = Join-Path $Hololand 'apps\holoshell\source\holoshell-brittney-desktop-cockpit.hsplus'; Destination = Join-RemotePath $RemoteSurface 'apps/holoshell/source/'; Recursive = $false; Required = $true },
+  @{ Source = Join-Path $Hololand 'apps\holoshell\source\holoshell-brittney-runtime-bridge.hsplus'; Destination = Join-RemotePath $RemoteSurface 'apps/holoshell/source/'; Recursive = $false; Required = $true },
   @{ Source = Join-Path $Hololand 'apps\holoshell\source\holoshell-sovereign-room-marathon.hsplus'; Destination = Join-RemotePath $RemoteSurface 'apps/holoshell/source/'; Recursive = $false; Required = $true },
   @{ Source = Join-Path $Hololand 'apps\holoshell\source\holoshell-holoclaw-runtime-bridge.hsplus'; Destination = Join-RemotePath $RemoteSurface 'apps/holoshell/source/'; Recursive = $false; Required = $true },
   @{ Source = Join-Path $Hololand 'apps\holoshell\source\holoshell-founder-prompt-fixtures.hsplus'; Destination = Join-RemotePath $RemoteSurface 'apps/holoshell/source/'; Recursive = $false; Required = $true },
@@ -526,6 +560,7 @@ $remoteDirs = @(
   Join-RemotePath $RemoteSurface 'apps/holoshell/source',
   Join-RemotePath $RemoteRoot 'packages/aibrittney',
   Join-RemotePath $RemoteRoot 'packages/llm-provider',
+  Join-RemotePath $RemoteRoot 'packages/holollama',
   Join-RemotePath $RemoteRoot 'compositions/skills'
 )
 $mkdir = 'mkdir -p ' + (($remoteDirs | ForEach-Object { Quote-RemotePath $_ }) -join ' ')
@@ -537,7 +572,7 @@ foreach ($entry in $copyPlan) {
     if ($entry.Required) {
       throw "deploy source missing after fixture generation: $($entry.Source)"
     }
-    Write-Deploy "model library not found at $($entry.Source); live server will use installed Ollama list only"
+    Write-Deploy "model library not found at $($entry.Source); HoloLlama target will use installed-model fallback only"
     continue
   }
   Copy-ToJetson -Source $entry.Source -Destination $entry.Destination -Recursive:([bool]$entry.Recursive)
