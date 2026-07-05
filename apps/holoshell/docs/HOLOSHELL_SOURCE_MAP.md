@@ -49,6 +49,8 @@ contracts.
 | World-build cockpit pipeline | `apps/holoshell/source/holoshell-world-build-cockpit-pipeline.hs`   |
 | World-build service bay      | `apps/holoshell/source/holoshell-world-build-service-bay.holo`      |
 | Sovereign worldgen pipeline  | `apps/holoshell/source/holoshell-sovereign-worldgen-pipeline.hsplus` |
+| Agent NPC primitive policy   | `apps/holoshell/source/hololand-agent-npc-primitive.hsplus`         |
+| Agent NPC world embed        | `apps/holoshell/source/hololand-agent-npc-world.holo`               |
 | Readiness evidence           | `apps/holoshell/source/holoshell-readiness-evidence.hsplus`         |
 | Build custody                | `apps/holoshell/source/holoshell-build-custody.hsplus`              |
 | Source validation            | `apps/holoshell/source/holoshell-source-validation.hsplus`          |
@@ -97,6 +99,8 @@ contracts.
 | Brittney custody operator     | `apps/holoshell/source/holoshell-brittney-custody-operator.hsplus`     |
 | Brittney environment coupling | `apps/holoshell/source/holoshell-brittney-environment-coupling.hsplus` |
 | Brittney ambient tone         | `apps/holoshell/source/holoshell-brittney-ambient-tone.hsplus`         |
+| Agent NPC primitive           | `apps/holoshell/source/hololand-agent-npc-primitive.hsplus`            |
+| Agent NPC world embed         | `apps/holoshell/source/hololand-agent-npc-world.holo`                  |
 | Agent dispatch                | `apps/holoshell/source/holoshell-agent-dispatch.hsplus`                |
 | Agent presence lanes          | `apps/holoshell/source/holoshell-agent-presence-lanes.hsplus`          |
 | HoloClaw runtime bridge       | `apps/holoshell/source/holoshell-holoclaw-runtime-bridge.hsplus`       |

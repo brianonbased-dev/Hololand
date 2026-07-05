@@ -1,0 +1,235 @@
+// HoloLand agent NPC primitive.
+//
+// Product source for HL-014: an AI-NPC is a HoloMesh agent with x402
+// identity, a HoloScript brain, shared world state, and action receipts.
+// This is not a rented dialogue endpoint or a TypeScript chatbot.
+
+composition "HoloLand Agent NPC Primitive" {
+  config {
+    matrixGap: "HL-014"
+    competitorBenchmark: "Inworld AI"
+    sourceLayer: "HoloScript"
+    productLayer: "HoloLand"
+    defaultWorldId: "frontier-shard-0"
+    defaultShardId: "hub-demo"
+    embeddedWorldSource: "apps/holoshell/source/hololand-agent-npc-world.holo"
+    manifestContract: "docs/specs/hololand-npc-manifest.holo"
+    accessContract: "docs/BRITTNEY_ACCESS_CONTRACT.md"
+    receiptRequired: true
+  }
+
+  state AgentNpcRuntime {
+    phase: "ready"
+    npcEntityId: "npc-mira-wayfinder-agent"
+    holomeshAgentId: "holomesh://agent/mira-wayfinder"
+    x402SeatId: "x402://hololand/npc/mira-wayfinder"
+    brainSource: "apps/holoshell/source/hololand-agent-npc-primitive.hsplus#MiraWayfinderBrain"
+    worldId: "frontier-shard-0"
+    shardId: "hub-demo"
+    sharedWorldStateReadKeys: [
+      "frontier.zone.status",
+      "player.discovery.receipts",
+      "party.intent",
+      "event.board.active"
+    ]
+    sharedWorldStateWriteKeys: [
+      "npc.mira.public_summary",
+      "npc.mira.suggested_next_step",
+      "npc.mira.receipted_action_log"
+    ]
+    localFirstRoute: "local-gguf"
+    fallbackRoute: "lan-ollama"
+    managedRouteAllowed: false
+    lastReceiptId: ""
+    receiptCount: 0
+    visibleToPlayers: true
+    scriptedDialogueOnly: false
+    worldMutationAllowed: false
+    rollbackPlanRequired: true
+  }
+
+  template "HoloMeshAgentNpcManifest" {
+    type: "holomesh_agent_npc_manifest"
+    identity: "x402_required"
+    holomeshAgentRequired: true
+    brainSourceRequired: true
+    sharedWorldStateRequired: true
+    playerVisibleEmbodimentRequired: true
+    actionReceiptRequired: true
+    localFirstRoute: "local-gguf"
+    fallbackRoutes: ["lan-ollama", "byok-cloud", "managed-hololand"]
+    unsupportedByDefault: ["managed-hololand"]
+  }
+
+  template "MiraWayfinderBrain" {
+    type: "agent_npc_brain"
+    lineage: "scoped_brittney_descendant"
+    requiredTraits: [
+      "@verbalFingerprint",
+      "@vocabularyRegister",
+      "@autonomousAgenda",
+      "@reputationLedger",
+      "@speechAwareEncounter",
+      "@care_ethics"
+    ]
+    autonomyGoals: [
+      "guide players toward replayable event receipts",
+      "summarize world state without revealing hidden-route solutions",
+      "propose safety-preserving next actions for the shard",
+      "file broken-world observations as HoloMesh tasks"
+    ]
+    memoryBoundary: {
+      factLogMax: 20
+      ttlDays: 90
+      deletionPath: "profile-settings"
+      publicSummary: true
+    }
+    dialogueBoundary: {
+      scriptedDialogueOnly: false
+      blackBoxRemoteEndpoint: false
+      explainableTraitManifest: true
+      transcriptAttributionGate: true
+    }
+  }
+
+  template "SharedWorldStateBinding" {
+    type: "agent_npc_world_state_binding"
+    readScopes: [
+      "world.public_state",
+      "player.consent_granted_receipts",
+      "party.public_intent",
+      "event.public_status"
+    ]
+    writeScopes: [
+      "npc.public_summary",
+      "npc.suggested_next_step",
+      "npc.action_receipt_ref"
+    ]
+    forbiddenWrites: [
+      "player.private_memory",
+      "wallet.secret",
+      "hidden_route_solution",
+      "unreceipted_world_mutation"
+    ]
+  }
+
+  template "AgentNpcActionReceipt" {
+    type: "cael_receipt"
+    receiptType: "hololand_agent_npc_action"
+    requiredFields: [
+      "world_id",
+      "shard_id",
+      "entity_id",
+      "holomesh_agent_id",
+      "x402_seat_id",
+      "brain_source_hash",
+      "shared_state_hash",
+      "action",
+      "outcome",
+      "rollback_plan",
+      "player_visible_impact"
+    ]
+    rawSecretsIncluded: false
+    reExecutable: true
+  }
+
+  policy "HoloMeshAgentIdentityRequired" {
+    decision: "block_without_identity"
+    requires: ["holomeshAgentId", "x402SeatId"]
+    rationale: "An AI-NPC must be an accountable HoloMesh actor, not anonymous generated dialogue."
+    receiptRequired: true
+  }
+
+  policy "WorldStateMutationRequiresReceipt" {
+    decision: "block_unreceipted_mutation"
+    appliesTo: ["world_state_write", "quest_hint", "event_schedule", "npc_public_summary"]
+    rollbackPlanRequired: true
+    playerVisibleImpactRequired: true
+  }
+
+  policy "NoOpaqueScriptedDialogueBlackBox" {
+    decision: "reject_black_box_npc"
+    blockedPatterns: [
+      "scripted_dialogue_only",
+      "remote_endpoint_only",
+      "missing_trait_manifest",
+      "missing_transcript_attribution_gate"
+    ]
+    replacement: "HoloMesh agent with HoloScript brain, sovereign traits, and receipts."
+  }
+
+  policy "LocalFirstBrittneyLineage" {
+    decision: "prefer_sovereign_route"
+    defaultRoute: "local-gguf"
+    fallbackOrder: ["lan-ollama", "byok-cloud", "managed-hololand"]
+    managedServiceRequiresExplicitPolicy: true
+    costCeilingUsdDaily: 0.5
+  }
+
+  action register_agent_npc(manifest) {
+    AgentNpcRuntime.phase = "registered"
+    AgentNpcRuntime.npcEntityId = manifest.entityId
+    AgentNpcRuntime.holomeshAgentId = manifest.holomeshAgentId
+    AgentNpcRuntime.x402SeatId = manifest.x402SeatId
+    AgentNpcRuntime.brainSource = manifest.brainSource
+    AgentNpcRuntime.visibleToPlayers = true
+    emit("hololand_agent_npc_registered", {
+      entity_id: AgentNpcRuntime.npcEntityId,
+      holomesh_agent_id: AgentNpcRuntime.holomeshAgentId,
+      x402_seat_id: AgentNpcRuntime.x402SeatId,
+      brain_source: AgentNpcRuntime.brainSource,
+      receipt_required: true
+    })
+  }
+
+  action observe_shared_world_state(snapshot) {
+    AgentNpcRuntime.phase = "observing"
+    emit("hololand_agent_npc_world_state_observed", {
+      entity_id: AgentNpcRuntime.npcEntityId,
+      world_id: AgentNpcRuntime.worldId,
+      shard_id: AgentNpcRuntime.shardId,
+      shared_state_hash: snapshot.hash,
+      read_keys: AgentNpcRuntime.sharedWorldStateReadKeys,
+      raw_private_state_included: false
+    })
+  }
+
+  action propose_world_action(proposal) {
+    AgentNpcRuntime.phase = "proposed_action"
+    AgentNpcRuntime.worldMutationAllowed = false
+    emit("hololand_agent_npc_action_proposed", {
+      entity_id: AgentNpcRuntime.npcEntityId,
+      holomesh_agent_id: AgentNpcRuntime.holomeshAgentId,
+      action: proposal.action,
+      target_state_key: proposal.targetStateKey,
+      requires_receipt: true,
+      requires_rollback_plan: true,
+      player_visible_impact: proposal.playerVisibleImpact
+    })
+  }
+
+  action apply_receipted_action(receipt) {
+    AgentNpcRuntime.receiptCount = AgentNpcRuntime.receiptCount + 1
+    AgentNpcRuntime.lastReceiptId = receipt.receiptId
+    AgentNpcRuntime.worldMutationAllowed = receipt.allowed
+    if (receipt.allowed) {
+      AgentNpcRuntime.phase = "applied_receipted_action"
+      emit("hololand_agent_npc_action_applied", {
+        entity_id: AgentNpcRuntime.npcEntityId,
+        receipt_id: receipt.receiptId,
+        outcome: receipt.outcome,
+        rollback_plan: receipt.rollbackPlan,
+        player_visible_impact: receipt.playerVisibleImpact
+      })
+    }
+    if (!receipt.allowed) {
+      AgentNpcRuntime.phase = "blocked_action"
+      emit("hololand_agent_npc_action_blocked", {
+        entity_id: AgentNpcRuntime.npcEntityId,
+        receipt_id: receipt.receiptId,
+        reason: receipt.reason,
+        world_mutation_allowed: false
+      })
+    }
+  }
+}

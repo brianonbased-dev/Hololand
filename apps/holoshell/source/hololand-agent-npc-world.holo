@@ -1,0 +1,125 @@
+// HoloLand agent NPC world embed.
+// Pairs with hololand-agent-npc-primitive.hsplus for HL-014.
+
+composition "HoloLand Agent NPC World Embed" {
+  metadata {
+    matrixGap: "HL-014"
+    sourceLayer: "HoloScript"
+    policySource: "apps/holoshell/source/hololand-agent-npc-primitive.hsplus"
+    npcEntityId: "npc-mira-wayfinder-agent"
+    holomeshAgentId: "holomesh://agent/mira-wayfinder"
+    x402SeatId: "x402://hololand/npc/mira-wayfinder"
+    brainSource: "apps/holoshell/source/hololand-agent-npc-primitive.hsplus#MiraWayfinderBrain"
+    receiptRequired: true
+  }
+
+  environment {
+    theme: "frontier_hub"
+    render_mode: "quest_browser_webxr"
+    backgroundColor: "#101820"
+    ambient_light: 0.72
+    shadows: true
+  }
+
+  state {
+    agentNpcStatus: "present"
+    sharedWorldStateStatus: "bound"
+    actionReceiptStatus: "required"
+    blackBoxDialogueEndpoint: false
+    playerVisibleEmbodiment: true
+  }
+
+  template "AgentNpcAvatar" {
+    type: "holomesh_agent_npc_avatar"
+    mesh: "humanoid_marker"
+    material: "source_owned"
+    interactable: true
+    visible_to_players: true
+    receipt_required: true
+  }
+
+  template "SharedStateSurface" {
+    type: "shared_world_state_surface"
+    mesh: "panel"
+    material: "inspectable"
+    privacy: "public_state_only"
+    receipt_required: true
+  }
+
+  template "ActionReceiptWitness" {
+    type: "agent_action_receipt_witness"
+    mesh: "ledger_panel"
+    material: "hologram"
+    re_executable: true
+    rollback_plan_required: true
+  }
+
+  spatial_group "FrontierHubAgentNpc" {
+    object "MiraWayfinderAgentNpc" using "AgentNpcAvatar" {
+      @interactable
+      label: "Mira Wayfinder"
+      position: [0, 1.05, -1.8]
+      scale: [0.72, 1.55, 0.72]
+      material: { color: "#73daca", emissive: "#1f8f82", emissiveIntensity: 0.22 }
+      properties: {
+        entityId: "npc-mira-wayfinder-agent"
+        actorKind: "holomesh_agent_npc"
+        holomeshAgentId: "holomesh://agent/mira-wayfinder"
+        x402SeatId: "x402://hololand/npc/mira-wayfinder"
+        brainSource: "apps/holoshell/source/hololand-agent-npc-primitive.hsplus#MiraWayfinderBrain"
+        scriptedDialogueOnly: false
+        blackBoxDialogueEndpoint: false
+        actionReceiptsRequired: true
+      }
+    }
+
+    object "SharedWorldStateBoard" using "SharedStateSurface" {
+      label: "Shared World State"
+      position: [-1.35, 1.25, -2.1]
+      scale: [1.4, 0.9, 0.08]
+      material: { color: "#7aa2f7", emissive: "#3455a4", emissiveIntensity: 0.18 }
+      properties: {
+        stateReadKeys: [
+          "frontier.zone.status",
+          "player.discovery.receipts",
+          "party.intent",
+          "event.board.active"
+        ]
+        stateWriteKeys: [
+          "npc.mira.public_summary",
+          "npc.mira.suggested_next_step",
+          "npc.mira.receipted_action_log"
+        ]
+        privatePlayerMemoryIncluded: false
+      }
+    }
+
+    object "AgentActionReceiptLedger" using "ActionReceiptWitness" {
+      label: "Agent Action Receipt Ledger"
+      position: [1.35, 1.25, -2.1]
+      scale: [1.4, 0.9, 0.08]
+      material: { color: "#e0af68", emissive: "#8a5f1f", emissiveIntensity: 0.18 }
+      properties: {
+        receiptType: "hololand_agent_npc_action"
+        reExecutable: true
+        rollbackPlanRequired: true
+        playerVisibleImpactRequired: true
+        rawSecretsIncluded: false
+      }
+    }
+  }
+
+  logic {
+    on_enter {
+      emit "hololand_agent_npc_world_loaded"
+    }
+
+    action request_mira_guidance() {
+      emit "hololand_agent_npc_guidance_requested"
+    }
+
+    action inspect_agent_action_receipt() {
+      emit "hololand_agent_npc_receipt_inspected"
+    }
+  }
+}
