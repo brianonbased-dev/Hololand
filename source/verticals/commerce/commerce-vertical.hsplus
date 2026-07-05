@@ -7,6 +7,7 @@ object "CommerceVertical" {
   layers: ["ar", "vr", "vrr"]
   domains: ["geo", "privacy", "receipts", "identity", "economy", "safety"]
   useCases: ["showroom", "store_overlay", "product_preview", "creator_market"]
-  requiredReceipts: ["offer_rendered", "source_verified", "privacy_policy_checked"]
+  requiredReceipts: ["offer_rendered", "source_verified", "privacy_policy_checked", "x402_gate_configured", "x402_settlement_receipt", "creator_earnings_snapshot"]
+  economyContracts: ["WorldX402GatePacket", "X402SettlementReceipt", "CreatorEarningsSnapshot"]
   failClosedBehavior: "deny_commerce_overlay_without_place_policy"
 }

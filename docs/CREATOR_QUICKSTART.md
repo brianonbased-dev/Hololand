@@ -33,13 +33,25 @@ These are the HoloLand-side things a creator interacts with after authoring in H
 | Avatar pipeline | `packages/ar/avatar-studio/` | VRM 1.0 export, Ready Player Me migration path. See [AVATAR_STUDIO_BRIDGE.md](./AVATAR_STUDIO_BRIDGE.md). |
 | Holographic UI | `packages/components/`, `packages/ar/` | UI primitives composable from `.holo`. See [HOLOGRAPHIC_UI.md](./HOLOGRAPHIC_UI.md). |
 | IoT digital twins | `packages/brittney/iot-digital-twins/` | Ingest IoT devices, emit `.holo`. See [IOT_DIGITAL_TWINS_SHOWCASE.md](./IOT_DIGITAL_TWINS_SHOWCASE.md). |
+| Creator economy source contract | `apps/holoshell/source/hololand-creator-economy-room.holo`, `apps/holoshell/source/hololand-creator-economy-policy.hsplus` | Defines x402 paid-world gates, settlement receipts, earnings snapshots, refund reserve, and payout-readiness boundaries. See [specs/CREATOR_ECONOMY_X402_GATES.md](./specs/CREATOR_ECONOMY_X402_GATES.md). |
+
+## Creator economy status
+
+HoloLand now has a source-owned contract for paid worlds and a creator earnings
+dashboard. The contract lives in HoloScript source and is checked with
+`pnpm run check:hololand-creator-economy`.
+Canonical spec source: `docs/specs/CREATOR_ECONOMY_X402_GATES.md`.
+
+This is not a live payout claim. It defines x402 gate configuration,
+settlement receipts, gross/fee/net/pending/available/reserve dashboard fields,
+and the boundary that payout copy requires backend transfer proof.
 
 ## What does not exist
 
 The following items in the January 2026 version were aspirational, not shipped. Do not propagate them:
 
 - **`hololand.io` web app, dashboard, sign-up flow** — no source on disk; no deploy.
-- **$100 welcome credit, Stripe creator payouts, 70/30 revenue split** — no payments routes; no Stripe integration.
+- **$100 welcome credit and Stripe creator payouts** — no Stripe integration and no proven live payout backend. The x402 paid-world gate and earnings dashboard source contract exists, but cash-out remains pending transfer-rail proof.
 - **No-code drag-and-drop builder** — `packages/spatial-builder/` exists but is not the dashboard described in the original. Verify with `ls packages/spatial-builder/`.
 - **Asset library with 500+ models** — no curated asset library exists; Brittney generates assets procedurally per [CACHING.md](./CACHING.md).
 - **Creator Discord, office hours, `creators@hololand.io`** — none verified.

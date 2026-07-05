@@ -1,0 +1,272 @@
+// HoloLand Creator Economy Policy
+//
+// Minimal source-owned semantics for paid-world x402 gates, creator earnings
+// snapshots, settlement receipts, refund reserves, and payout readiness. This
+// does not claim a live payout backend; it defines the contract a backend must
+// satisfy before product copy can say payouts are real.
+
+composition "HoloLandCreatorEconomyPolicy" {
+  config {
+    title: "HoloLand Creator Economy Policy"
+    product: "HoloLand"
+    sourceLayer: "HoloScript"
+    roomSource: "apps/holoshell/source/hololand-creator-economy-room.holo"
+    apiSpecSource: "docs/api.openapi.yaml"
+    specSource: "docs/specs/CREATOR_ECONOMY_X402_GATES.md"
+    commerceSource: "source/verticals/commerce/commerce-vertical.hsplus"
+    checkCommand: "pnpm run check:hololand-creator-economy"
+    defaultMode: "paid_world_gate_and_earnings_dashboard_minimum"
+  }
+
+  state HoloLandCreatorEconomyState {
+    workflow: "hololand-creator-economy"
+    currentCreatorId: ""
+    selectedWorldId: ""
+    selectedTransactionId: ""
+    gateStatus: "payment_required"
+    settlementStatus: "pending_backend"
+    earningsSnapshotStatus: "empty"
+    payoutStatus: "not_ready"
+    payoutWallet: ""
+    settlementBackendStatus: "not_live"
+    receiptId: ""
+  }
+
+  channel "hololand:economy:world-commerce" {
+    type: "append_only"
+    priority: "high"
+    description: "Paid-world x402 offer, payment-required response, entitlement grant, and gate mutation packets"
+  }
+
+  channel "hololand:economy:settlement-receipt" {
+    type: "append_only"
+    priority: "high"
+    description: "x402 settlement receipts with source hash, chain, split, payer, creator, and revocation state"
+  }
+
+  channel "hololand:economy:creator-earnings" {
+    type: "read_model"
+    priority: "high"
+    description: "Creator earnings dashboard snapshots derived from settlement receipts"
+  }
+
+  channel "hololand:economy:payout-readiness" {
+    type: "append_only"
+    priority: "normal"
+    description: "Payout readiness checks for wallet custody, KYC, sanctions, refund reserve, and backend transfer proof"
+  }
+
+  template "WorldX402GatePacket" {
+    schemaVersion: "hololand.creator-economy.world-x402-gate.v0.1.0"
+    worldId: ""
+    creatorId: ""
+    worldSourceHash: ""
+    enabled: false
+    priceUsd: 0.00
+    currency: "USDC"
+    chain: "base"
+    paymentProtocol: "x402"
+    recipientWallet: ""
+    entitlementType: "world_access"
+    expiresAt: ""
+    receiptRequired: true
+  }
+
+  template "X402SettlementReceipt" {
+    schemaVersion: "hololand.creator-economy.x402-settlement.v0.1.0"
+    transactionId: ""
+    worldId: ""
+    creatorId: ""
+    payerId: ""
+    paymentProtocol: "x402"
+    chain: "base"
+    paymentHash: ""
+    amountCents: 0
+    platformFeeCents: 0
+    creatorNetCents: 0
+    collaboratorSplitCents: 0
+    sourceHash: ""
+    entitlementGranted: false
+    receiptStatus: "pending"
+  }
+
+  template "CreatorEarningsSnapshot" {
+    schemaVersion: "hololand.creator-economy.earnings-snapshot.v0.1.0"
+    creatorId: ""
+    grossSalesCents: 0
+    platformFeeCents: 0
+    creatorNetCents: 0
+    pendingPayoutCents: 0
+    availablePayoutCents: 0
+    refundReserveCents: 0
+    collaboratorSplitCents: 0
+    transactionCount: 0
+    revokedEntitlementCount: 0
+    disputeCount: 0
+    payoutWallet: ""
+    payoutStatus: "not_ready"
+    settlementBackendStatus: "not_live"
+    generatedAt: ""
+    source: "apps/holoshell/source/hololand-creator-economy-policy.hsplus"
+  }
+
+  template "CreatorPayoutReceipt" {
+    schemaVersion: "hololand.creator-economy.payout-receipt.v0.1.0"
+    payoutId: ""
+    creatorId: ""
+    payoutWallet: ""
+    amountCents: 0
+    currency: "USDC"
+    chain: "base"
+    transferHash: ""
+    kycStatus: "unknown"
+    sanctionsStatus: "unknown"
+    payoutStatus: "not_ready"
+    minimumPayoutCents: 0
+    livePayoutRailProof: false
+    receiptRequired: true
+  }
+
+  policy "HoloScriptSourceOwnsPaidWorldGate" {
+    appliesTo: ["configure_x402_world_gate", "publish_paid_world", "grant_world_entitlement", "revoke_world_entitlement"]
+    sourceRequiredBeforeProjection: true
+    handAuthoredUiMayNotOwnBehavior: true
+    worldSourceHashRequired: true
+    receiptRequired: true
+  }
+
+  policy "X402SettlementReceiptRequired" {
+    appliesTo: ["capture_x402_settlement_receipt", "grant_world_entitlement", "creator_earnings_snapshot"]
+    paymentProtocol: "x402"
+    chainRequired: true
+    paymentHashRequired: true
+    entitlementRequiresConfirmedSettlement: true
+    receiptRequired: true
+  }
+
+  policy "EarningsDashboardCannotClaimPayoutWithoutSettlement" {
+    appliesTo: ["open_creator_earnings_dashboard", "request_creator_payout_review", "creator_payout_copy"]
+    dashboardMayShowPendingAmounts: true
+    realPayoutClaimRequiresLiveRailProof: true
+    settlementBackendStatusRequired: true
+    payoutWalletRequiredBeforeReview: true
+    matrixFollowUpRequired: true
+  }
+
+  policy "RefundAndRevocationReserveRequired" {
+    appliesTo: ["available_payout", "refund", "chargeback", "entitlement_revocation"]
+    refundReserveRequired: true
+    revokedEntitlementsReduceAvailablePayout: true
+    disputeCountRequired: true
+    receiptRequired: true
+  }
+
+  state_machine "CreatorEconomyWorkflow" {
+    initial: "idle"
+    states: [
+      "idle",
+      "gate_configured",
+      "payment_required",
+      "settlement_captured",
+      "entitlement_granted",
+      "earnings_snapshot_generated",
+      "payout_review_requested",
+      "payout_ready",
+      "payout_blocked",
+      "receipt_recorded"
+    ]
+    transition "configure_x402_world_gate" { from: "idle", to: "gate_configured" }
+    transition "request_payment" { from: "gate_configured", to: "payment_required" }
+    transition "capture_settlement" { from: "payment_required", to: "settlement_captured" }
+    transition "grant_entitlement" { from: "settlement_captured", to: "entitlement_granted" }
+    transition "generate_earnings_snapshot" { from: "*", to: "earnings_snapshot_generated" }
+    transition "request_payout_review" { from: "earnings_snapshot_generated", to: "payout_review_requested" }
+    transition "mark_payout_ready" { from: "payout_review_requested", to: "payout_ready" }
+    transition "block_payout" { from: "*", to: "payout_blocked" }
+    transition "record_receipt" { from: "*", to: "receipt_recorded" }
+  }
+
+  action configure_x402_world_gate(packet) {
+    HoloLandCreatorEconomyState.currentCreatorId = packet.creatorId
+    HoloLandCreatorEconomyState.selectedWorldId = packet.worldId
+    HoloLandCreatorEconomyState.gateStatus = "payment_required"
+    CreatorEconomyWorkflow.transition("configure_x402_world_gate")
+    emit("hololand:economy:world-commerce", {
+      action: "configure_x402_world_gate",
+      worldId: packet.worldId,
+      creatorId: packet.creatorId,
+      worldSourceHash: packet.worldSourceHash,
+      enabled: packet.enabled,
+      priceUsd: packet.priceUsd,
+      currency: packet.currency,
+      chain: packet.chain,
+      paymentProtocol: packet.paymentProtocol,
+      recipientWallet: packet.recipientWallet,
+      receiptRequired: true
+    })
+  }
+
+  action capture_x402_settlement_receipt(receipt) {
+    HoloLandCreatorEconomyState.selectedTransactionId = receipt.transactionId
+    HoloLandCreatorEconomyState.selectedWorldId = receipt.worldId
+    HoloLandCreatorEconomyState.currentCreatorId = receipt.creatorId
+    HoloLandCreatorEconomyState.settlementStatus = "captured"
+    CreatorEconomyWorkflow.transition("capture_settlement")
+    emit("hololand:economy:settlement-receipt", {
+      schemaVersion: "hololand.creator-economy.x402-settlement.v0.1.0",
+      transactionId: receipt.transactionId,
+      worldId: receipt.worldId,
+      creatorId: receipt.creatorId,
+      payerId: receipt.payerId,
+      paymentProtocol: receipt.paymentProtocol,
+      chain: receipt.chain,
+      paymentHash: receipt.paymentHash,
+      amountCents: receipt.amountCents,
+      platformFeeCents: receipt.platformFeeCents,
+      creatorNetCents: receipt.creatorNetCents,
+      sourceHash: receipt.sourceHash,
+      entitlementGranted: receipt.entitlementGranted,
+      receiptRequired: true
+    })
+  }
+
+  action generate_creator_earnings_snapshot(snapshot) {
+    HoloLandCreatorEconomyState.currentCreatorId = snapshot.creatorId
+    HoloLandCreatorEconomyState.payoutWallet = snapshot.payoutWallet
+    HoloLandCreatorEconomyState.payoutStatus = snapshot.payoutStatus
+    HoloLandCreatorEconomyState.settlementBackendStatus = snapshot.settlementBackendStatus
+    HoloLandCreatorEconomyState.earningsSnapshotStatus = "generated"
+    CreatorEconomyWorkflow.transition("generate_earnings_snapshot")
+    emit("hololand:economy:creator-earnings", {
+      schemaVersion: "hololand.creator-economy.earnings-snapshot.v0.1.0",
+      creatorId: snapshot.creatorId,
+      grossSalesCents: snapshot.grossSalesCents,
+      platformFeeCents: snapshot.platformFeeCents,
+      creatorNetCents: snapshot.creatorNetCents,
+      pendingPayoutCents: snapshot.pendingPayoutCents,
+      availablePayoutCents: snapshot.availablePayoutCents,
+      refundReserveCents: snapshot.refundReserveCents,
+      transactionCount: snapshot.transactionCount,
+      payoutWallet: snapshot.payoutWallet,
+      payoutStatus: snapshot.payoutStatus,
+      settlementBackendStatus: snapshot.settlementBackendStatus
+    })
+  }
+
+  action request_creator_payout_review(snapshot) {
+    HoloLandCreatorEconomyState.currentCreatorId = snapshot.creatorId
+    HoloLandCreatorEconomyState.payoutWallet = snapshot.payoutWallet
+    HoloLandCreatorEconomyState.payoutStatus = "review_requested"
+    CreatorEconomyWorkflow.transition("request_payout_review")
+    emit("hololand:economy:payout-readiness", {
+      action: "request_creator_payout_review",
+      creatorId: snapshot.creatorId,
+      payoutWallet: snapshot.payoutWallet,
+      availablePayoutCents: snapshot.availablePayoutCents,
+      refundReserveCents: snapshot.refundReserveCents,
+      settlementBackendStatus: snapshot.settlementBackendStatus,
+      livePayoutRailProofRequired: true,
+      receiptRequired: true
+    })
+  }
+}

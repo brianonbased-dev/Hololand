@@ -1,0 +1,268 @@
+// HoloLand Creator Economy Room
+//
+// Source-owned first economy slice for paid worlds. This file owns the
+// player-visible x402 gate, creator earnings dashboard, settlement receipt
+// witness, and the explicit boundary that live payout rails are not proven by
+// UI copy alone.
+
+composition "HoloLand Creator Economy Room" {
+  metadata {
+    title: "HoloLand Creator Economy Room"
+    product: "HoloLand"
+    sourceLayer: "HoloScript"
+    policy_source: "apps/holoshell/source/hololand-creator-economy-policy.hsplus"
+    api_spec_source: "docs/api.openapi.yaml"
+    spec_source: "docs/specs/CREATOR_ECONOMY_X402_GATES.md"
+    commerce_source: "source/verticals/commerce/commerce-vertical.hsplus"
+    checkCommand: "pnpm run check:hololand-creator-economy"
+    adapterRole: "projection_only"
+    scope: "x402_world_gate_and_creator_earnings_minimum"
+  }
+
+  environment {
+    theme: "hololand_creator_economy"
+    render_mode: "desktop_spatial"
+    ambient_light: 0.64
+    camera_mode: "stationary_perspective"
+    receipt_underlay: true
+  }
+
+  state {
+    economyState: "watch"
+    currentCreatorId: ""
+    selectedWorldId: ""
+    selectedTransactionId: ""
+    gateStatus: "payment_required"
+    dashboardStatus: "source_defined"
+    settlementStatus: "pending_backend"
+    payoutStatus: "not_ready"
+    receiptStatus: "pending"
+  }
+
+  spatial_group "CreatorEconomyChannels" {
+    object "WorldCommerceChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:economy:world-commerce"
+      channel_type: "append_only"
+      priority: "high"
+      description: "Paid-world offer, x402 payment-required response, and entitlement grant semantics"
+    }
+
+    object "SettlementReceiptChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:economy:settlement-receipt"
+      channel_type: "append_only"
+      priority: "high"
+      description: "x402 settlement receipts, source hash, payer, creator, split, and revocation state"
+    }
+
+    object "CreatorEarningsChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:economy:creator-earnings"
+      channel_type: "read_model"
+      priority: "high"
+      description: "Creator dashboard totals for gross, fees, net, pending, available, reserve, and payout readiness"
+    }
+
+    object "PayoutReadinessChannel" {
+      type: "channel_contract"
+      channel_id: "hololand:economy:payout-readiness"
+      channel_type: "append_only"
+      priority: "normal"
+      description: "Explicit readiness boundary for payout wallet, KYC, refund reserve, sanctions, and settlement backend"
+    }
+  }
+
+  template "EconomyPanel" {
+    type: "creator_economy_panel"
+    mesh: "rounded_panel"
+    material: "liquid_glass"
+    color: "#13202b"
+    active_color: "#73daca"
+    warning_color: "#e0af68"
+    blocked_color: "#f7768e"
+    receipt_required: true
+    source_owned_by_holoscript: true
+  }
+
+  template "EconomyAction" {
+    type: "creator_economy_action"
+    mesh: "rounded_button"
+    material: "hologram"
+    color: "#223047"
+    active_color: "#7dcfff"
+    disabled_color: "#4b5563"
+    receipt_required: true
+    source_owned_by_holoscript: true
+  }
+
+  template "EconomyReceipt" {
+    type: "creator_economy_receipt"
+    schemaVersion: "hololand.creator-economy.v0.1.0"
+    source: "apps/holoshell/source/hololand-creator-economy-room.holo"
+    policySource: "apps/holoshell/source/hololand-creator-economy-policy.hsplus"
+    apiSpecSource: "docs/api.openapi.yaml"
+    receiptRequired: true
+  }
+
+  spatial_group "CreatorEconomyDashboard" {
+    label: "Creator Economy"
+    userQuestion: "Which worlds are paid, what cleared, and what can be paid out?"
+    visualForm: "economy_dashboard"
+    liveFeed: "hololand:economy:creator-earnings"
+
+    object "WorldX402GatePanel" using "EconomyPanel" {
+      label: "World x402 Gate"
+      position: [-2.4, 1.7, -1.8]
+      scale: [1.6, 0.72, 0.08]
+      economy_role: "world_payment_gate"
+      required_semantics: ["http_402_payment_required", "x402_payment_header", "usdc_base_amount", "creator_wallet", "source_hash", "entitlement_receipt"]
+      api_paths: ["/worlds/{worldId}/x402-gate", "/transactions/x402-settlement"]
+      empty_copy: "No paid gate configured."
+    }
+
+    object "CreatorEarningsPanel" using "EconomyPanel" {
+      label: "Earnings"
+      position: [-0.8, 1.7, -1.8]
+      scale: [1.6, 0.72, 0.08]
+      economy_role: "creator_earnings_dashboard"
+      required_fields: ["grossSalesCents", "platformFeeCents", "creatorNetCents", "pendingPayoutCents", "availablePayoutCents", "refundReserveCents", "transactionCount"]
+      api_path: "/creators/earnings"
+      empty_copy: "No settled paid-world sales."
+    }
+
+    object "PayoutReadinessPanel" using "EconomyPanel" {
+      label: "Payout Readiness"
+      position: [0.8, 1.7, -1.8]
+      scale: [1.6, 0.72, 0.08]
+      economy_role: "payout_readiness"
+      required_fields: ["payoutWallet", "payoutStatus", "settlementBackendStatus", "kycStatus", "sanctionsStatus", "minimumPayoutCents"]
+      status: "pending_backend"
+      empty_copy: "Payout rail is not live until settlement backend proves transfer custody."
+    }
+
+    object "SalesLedgerPanel" using "EconomyPanel" {
+      label: "Sales Ledger"
+      position: [2.4, 1.7, -1.8]
+      scale: [1.6, 0.72, 0.08]
+      economy_role: "append_only_sales_ledger"
+      required_fields: ["transactionId", "worldId", "payerId", "creatorId", "paymentProtocol", "chain", "paymentHash", "sourceHash", "receiptStatus"]
+      empty_copy: "No x402 settlement receipts captured."
+    }
+  }
+
+  spatial_group "EconomyRiskAndSplitPanels" {
+    object "RevenueSplitPanel" using "EconomyPanel" {
+      label: "Split"
+      position: [-1.6, 0.78, -0.8]
+      scale: [1.5, 0.42, 0.08]
+      economy_role: "revenue_split"
+      required_fields: ["platformFeeCents", "creatorNetCents", "collaboratorSplitCents"]
+      product_copy: "Every paid-world sale must show gross, platform fee, creator net, and collaborator split before payout."
+    }
+
+    object "RefundRiskPanel" using "EconomyPanel" {
+      label: "Reserve"
+      position: [0, 0.78, -0.8]
+      scale: [1.5, 0.42, 0.08]
+      economy_role: "refund_reserve"
+      required_fields: ["refundReserveCents", "revokedEntitlementCount", "disputeCount"]
+      product_copy: "Available payout excludes refund reserve and revoked entitlements."
+    }
+
+    object "PayoutBoundaryPanel" using "EconomyPanel" {
+      label: "Boundary"
+      position: [1.6, 0.78, -0.8]
+      scale: [1.5, 0.42, 0.08]
+      economy_role: "truth_boundary"
+      status: "watch"
+      product_copy: "Source-defined x402 gates and dashboard do not equal Roblox-scale DevEx parity."
+    }
+  }
+
+  spatial_group "PrimaryCreatorEconomyActions" {
+    object "ConfigureX402WorldGateAction" using "EconomyAction" {
+      label: "Configure Gate"
+      action_id: "configure_x402_world_gate"
+      channel: "hololand:economy:world-commerce"
+      position: [-2.4, 0.08, -0.2]
+      scale: [1.2, 0.34, 0.08]
+    }
+
+    object "OpenCreatorEarningsDashboardAction" using "EconomyAction" {
+      label: "Open Earnings"
+      action_id: "open_creator_earnings_dashboard"
+      channel: "hololand:economy:creator-earnings"
+      position: [-0.8, 0.08, -0.2]
+      scale: [1.2, 0.34, 0.08]
+    }
+
+    object "CaptureX402SettlementReceiptAction" using "EconomyAction" {
+      label: "Capture Receipt"
+      action_id: "capture_x402_settlement_receipt"
+      channel: "hololand:economy:settlement-receipt"
+      position: [0.8, 0.08, -0.2]
+      scale: [1.2, 0.34, 0.08]
+    }
+
+    object "RequestCreatorPayoutReviewAction" using "EconomyAction" {
+      label: "Payout Review"
+      action_id: "request_creator_payout_review"
+      channel: "hololand:economy:payout-readiness"
+      position: [2.4, 0.08, -0.2]
+      scale: [1.2, 0.34, 0.08]
+      status: "pending_backend"
+    }
+  }
+
+  object "CreatorEconomyReceiptWitness" using "EconomyPanel" {
+    label: "Economy Receipt"
+    position: [0, -0.56, 0.5]
+    scale: [4.8, 0.4, 0.08]
+    receipt_kind: "hololand.creator-economy.v0.1.0"
+    witness_binding: "receiptStatus"
+    product_copy: "Records paid-world gate configuration, x402 settlement, earnings snapshot, refund reserve, and payout readiness."
+  }
+
+  spatial_group "CreatorEconomyPolicyContracts" {
+    object "PaidWorldGateSourceOwnershipPolicy" {
+      type: "policy_contract"
+      policy_id: "HoloScriptSourceOwnsPaidWorldGate"
+      appliesTo: ["paid_worlds", "creator_marketplace", "world_entitlements", "payment_required_responses"]
+      sourceRequiredBeforeProjection: true
+      handAuthoredUiMayNotOwnBehavior: true
+      receiptRequired: true
+    }
+
+    object "PayoutParityBoundaryPolicy" {
+      type: "policy_contract"
+      policy_id: "NoDevExParityClaimWithoutLivePayoutRail"
+      appliesTo: ["creator_payouts", "earnings_copy", "marketplace_claims", "competitor_gap_matrix"]
+      livePayoutRailRequired: true
+      matrixStatus: "narrowed_gap"
+      receiptRequired: true
+    }
+  }
+
+  logic {
+    on_enter {
+      emit "hololand_creator_economy_room_loaded"
+    }
+
+    action configure_x402_world_gate() {
+      emit "hololand_creator_economy_configure_x402_world_gate_requested"
+    }
+
+    action open_creator_earnings_dashboard() {
+      emit "hololand_creator_economy_dashboard_open_requested"
+    }
+
+    action capture_x402_settlement_receipt() {
+      emit "hololand_creator_economy_capture_x402_settlement_receipt_requested"
+    }
+
+    action request_creator_payout_review() {
+      emit "hololand_creator_economy_payout_review_requested"
+    }
+  }
+}

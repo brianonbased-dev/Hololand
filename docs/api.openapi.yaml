@@ -49,6 +49,85 @@ components:
         follower_count:
           type: integer
 
+    CreatorEarningsDashboard:
+      type: object
+      properties:
+        creator_id:
+          type: string
+          format: uuid
+        gross_sales_cents:
+          type: integer
+        platform_fee_cents:
+          type: integer
+        creator_net_cents:
+          type: integer
+        pending_payout_cents:
+          type: integer
+        available_payout_cents:
+          type: integer
+        refund_reserve_cents:
+          type: integer
+        transaction_count:
+          type: integer
+        payout_wallet:
+          type: string
+        payout_status:
+          type: string
+          enum: [not_ready, review_requested, ready, paid, blocked]
+        settlement_backend_status:
+          type: string
+          enum: [not_live, pending, live, degraded]
+        recent_receipts:
+          type: array
+          items:
+            type: object
+            properties:
+              transaction_id:
+                type: string
+              world_id:
+                type: string
+              payment_protocol:
+                type: string
+                enum: [x402]
+              chain:
+                type: string
+              payment_hash:
+                type: string
+              amount_cents:
+                type: integer
+              creator_net_cents:
+                type: integer
+              receipt_status:
+                type: string
+
+    WorldX402Gate:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        payment_protocol:
+          type: string
+          enum: [x402]
+        chain:
+          type: string
+          default: base
+        currency:
+          type: string
+          default: USDC
+        price_usdc:
+          type: number
+          format: double
+        recipient_wallet:
+          type: string
+        world_source_hash:
+          type: string
+        entitlement_type:
+          type: string
+          enum: [world_access, world_subscription, world_asset]
+        receipt_required:
+          type: boolean
+          default: true
+
     World:
       type: object
       properties:
@@ -72,6 +151,8 @@ components:
         average_rating:
           type: number
           format: double
+        x402_payment_gate:
+          $ref: '#/components/schemas/WorldX402Gate'
         created_at:
           type: string
           format: date-time
@@ -195,16 +276,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  total_earnings:
-                    type: number
-                    format: double
-                  period_revenue:
-                    type: number
-                    format: double
-                  transaction_count:
-                    type: integer
+                $ref: '#/components/schemas/CreatorEarningsDashboard'
 
   /creators/leaderboard:
     get:
@@ -345,6 +417,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/World'
+
+  /worlds/{worldId}/x402-gate:
+    put:
+      summary: Configure source-owned x402 payment gate for a world
+      tags: [Worlds, Transactions]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: worldId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorldX402Gate'
+      responses:
+        '200':
+          description: x402 gate configured
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  world_id:
+                    type: string
+                  x402_payment_gate:
+                    $ref: '#/components/schemas/WorldX402Gate'
+                  receipt_id:
+                    type: string
+                  payout_boundary:
+                    type: string
 
   /worlds/{worldId}/reviews:
     get:
@@ -506,6 +613,63 @@ paths:
                     format: uuid
                   stripe_session_id:
                     type: string
+
+  /transactions/x402-settlement:
+    post:
+      summary: Record x402 settlement receipt for a paid world
+      tags: [Transactions]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                world_id:
+                  type: string
+                  format: uuid
+                creator_id:
+                  type: string
+                  format: uuid
+                payer_id:
+                  type: string
+                  format: uuid
+                payment_protocol:
+                  type: string
+                  enum: [x402]
+                chain:
+                  type: string
+                  default: base
+                payment_hash:
+                  type: string
+                amount_cents:
+                  type: integer
+                platform_fee_cents:
+                  type: integer
+                creator_net_cents:
+                  type: integer
+                source_hash:
+                  type: string
+                entitlement_granted:
+                  type: boolean
+              required: [world_id, creator_id, payer_id, payment_protocol, chain, payment_hash, amount_cents, platform_fee_cents, creator_net_cents, source_hash]
+      responses:
+        '201':
+          description: x402 settlement receipt recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction_id:
+                    type: string
+                    format: uuid
+                  receipt_status:
+                    type: string
+                  earnings_dashboard:
+                    $ref: '#/components/schemas/CreatorEarningsDashboard'
 
 tags:
   - name: Auth
