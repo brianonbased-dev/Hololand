@@ -19,13 +19,55 @@ import { readFileSync, readdirSync, existsSync, statSync, mkdirSync, writeFileSy
 import { join, dirname, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync, execFileSync } from 'node:child_process';
-import { buildTerminalEventStream } from '../../scripts/holoshell-terminal-event-stream.mjs';
+import {
+  appendTerminalEvents,
+  buildTerminalEventStream,
+  EVENT_SCHEMA_VERSION as TERMINAL_EVENT_SCHEMA_VERSION,
+  upstreamTerminalEventStreamSnapshot,
+  UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+  UPSTREAM_TERMINAL_EVENT_STREAM_SCHEMA,
+  REQUIRED_CAPABILITY_LANE as TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
+  SOURCE_PATH as TERMINAL_EVENT_STREAM_SOURCE,
+} from '../../scripts/holoshell-terminal-event-stream.mjs';
+import { runTerminalProcessLifecycle } from '../../scripts/holoshell-terminal-runner.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = join(__dirname, 'dist');
 const HTML_PATH = join(DIST_DIR, 'operate-room.html');
+// Natural layer (primary surface): compiled from holoshell-shell-world.holo by
+// compile-shell-world-surface.mjs. The operator cockpit lives at /operator.
+const SURFACE_HTML_PATH = join(DIST_DIR, 'shell-world-surface.html');
 const BRITTNEY_COCKPIT_CAPSULE_SCHEMA = 'hololand.holoshell.brittney-cockpit-capsule.v0.1.0';
 const BRITTNEY_COCKPIT_SOURCE = 'apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus';
+const VISUAL_OPERATING_LAYER_SCHEMA = 'hololand.holoshell.visual-operating-layer.v0.1.0';
+const VISUAL_OPERATING_LAYER_SOURCE = 'apps/holoshell/source/holoshell-visual-operating-layer.hsplus';
+const NATIVE_VISUAL_OPERATING_LAYER_SCHEMA = 'holoscript.holoshell.native-visual-operating-layer.v0.1.0';
+const NATIVE_VISUAL_OPERATING_LAYER_RELATIVE =
+  'experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus';
+const NATIVE_VISUAL_OPERATING_LAYER_SOURCE = `HoloScript:${NATIVE_VISUAL_OPERATING_LAYER_RELATIVE}`;
+const JETSON_EXTENSION_ROUTE_SCHEMA = 'hololand.holoshell.jetson-extension-route.v0.1.0';
+const CANONICAL_JETSON_SURFACE = 'http://holojetson.local:8747';
+const BROWSER_FIRST_TEST_SURFACE = 'GET /';
+const BROWSER_FIRST_RECEIPT_SCRIPT = 'scripts/holoshell-brittney-operator-chat-browser-receipt.mjs';
+const NATIVE_HOLOSHELL_WRAPPER = 'apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1';
+const NATIVE_HOLOSHELL_WINDOW_ROLE = 'native_holoshell_app_window';
+const NATIVE_CAPABILITY_ENVELOPE_SCHEMA = 'holoscript.holoshell.native-capability-envelope.v0.1.0';
+const NATIVE_CAPABILITY_ENVELOPE_RELATIVE =
+  'experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus';
+const NATIVE_CAPABILITY_ENVELOPE_SOURCE = `HoloScript:${NATIVE_CAPABILITY_ENVELOPE_RELATIVE}`;
+const NATIVE_CAPABILITY_LANES = [
+  'receipt_read',
+  'terminal_event_read',
+  'jetson_appliance_observe',
+  'service_status',
+  'guarded_service_ensure',
+  'guarded_open_url',
+  'break_glass_os_mutation',
+];
+const SERVICE_SUPERVISOR_SOURCE = 'apps/holoshell/source/holoshell-service-supervisor.hsplus';
+const SERVICE_SUPERVISOR_SCRIPT = 'scripts/holoshell-service-supervisor.mjs';
+const SERVICE_SUPERVISOR_RECEIPT = '.tmp/holoshell/service-supervisor.json';
+const SERVICE_SUPERVISOR_SCHEMA = 'hololand.holoshell.service-supervisor.v0.1.0';
 const FARA_PEER_AUTOMATION_SOURCE = 'apps/holoshell/source/holoshell-fara-peer-automation.hsplus';
 const HOLOCLAW_RUNTIME_BRIDGE_SOURCE = 'apps/holoshell/source/holoshell-holoclaw-runtime-bridge.hsplus';
 const HOLOCLAW_RUNTIME_BRIDGE_SCHEMA = 'hololand.holoshell.holoclaw-runtime-bridge.v0.1.0';
@@ -35,6 +77,7 @@ const SOVEREIGN_ROOM_MARATHON_SOURCE = 'apps/holoshell/source/holoshell-sovereig
 const SOVEREIGN_ROOM_MARATHON_SCRIPT = 'scripts/holoshell-sovereign-room-marathon.mjs';
 const SOVEREIGN_ROOM_MARATHON_SCHEMA = 'hololand.holoshell.sovereign-room-marathon.v0.1.0';
 const REPO_ROOT = join(__dirname, '..', '..');
+const HOLOSCRIPT_ROOT = process.env.HOLOSCRIPT_ROOT || resolve(REPO_ROOT, '..', 'HoloScript');
 const HOLOSHELL_TMP_DIR = process.env.HOLOSHELL_TMP_DIR || join(REPO_ROOT, '.tmp', 'holoshell');
 const HOLOCLAW_RUNTIME_BRIDGE_RECEIPT =
   process.env.HOLOSHELL_HOLOCLAW_RUNTIME_BRIDGE_RECEIPT ||
@@ -332,6 +375,68 @@ function safeArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function nativeCapabilityEnvelopeSnapshot() {
+  const resolved = resolve(HOLOSCRIPT_ROOT, NATIVE_CAPABILITY_ENVELOPE_RELATIVE);
+  const present = existsSync(resolved);
+  const text = present ? readFileSync(resolved, 'utf8') : '';
+  const matchedLanes = NATIVE_CAPABILITY_LANES.filter((lane) => text.includes(`"${lane}"`));
+  const missingLanes = NATIVE_CAPABILITY_LANES.filter((lane) => !matchedLanes.includes(lane));
+  const schemaObserved = text.includes(NATIVE_CAPABILITY_ENVELOPE_SCHEMA);
+  const ready = present && schemaObserved && missingLanes.length === 0;
+  return {
+    schemaVersion: NATIVE_CAPABILITY_ENVELOPE_SCHEMA,
+    source: NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+    status: ready ? 'ready' : (present ? 'incomplete' : 'missing'),
+    present,
+    schemaObserved,
+    requiredLaneCount: NATIVE_CAPABILITY_LANES.length,
+    matchedLaneCount: matchedLanes.length,
+    matchedLanes,
+    missingLanes,
+    browserRole: 'bootstrap_self_test',
+    nativeWindowRole: NATIVE_HOLOSHELL_WINDOW_ROLE,
+    jetsonRole: 'always_on_service_plane',
+    terminalRole: 'pty_event_stream_and_receipts',
+    serviceRole: 'registered_holo_services',
+    permissionDefault: 'read_only',
+    guardedLanes: ['guarded_service_ensure', 'guarded_open_url'],
+    breakGlassLanes: ['break_glass_os_mutation'],
+    receiptRequired: true,
+  };
+}
+
+function nativeVisualOperatingLayerSnapshot() {
+  const resolved = resolve(HOLOSCRIPT_ROOT, NATIVE_VISUAL_OPERATING_LAYER_RELATIVE);
+  const present = existsSync(resolved);
+  const text = present ? readFileSync(resolved, 'utf8') : '';
+  const requiredPanels = [
+    'service_dock',
+    'terminal_run_timeline',
+    'agent_utility_capsules',
+    'hololand_node_city',
+    'consent_command_palette',
+  ];
+  const matchedPanels = requiredPanels.filter((panel) => text.includes(`"${panel}"`));
+  const missingPanels = requiredPanels.filter((panel) => !matchedPanels.includes(panel));
+  const schemaObserved = text.includes(NATIVE_VISUAL_OPERATING_LAYER_SCHEMA);
+  const ready = present && schemaObserved && missingPanels.length === 0;
+  return {
+    schemaVersion: NATIVE_VISUAL_OPERATING_LAYER_SCHEMA,
+    source: NATIVE_VISUAL_OPERATING_LAYER_SOURCE,
+    present,
+    schemaObserved,
+    status: ready ? 'ready' : (present ? 'incomplete' : 'missing'),
+    requiredPanelCount: requiredPanels.length,
+    matchedPanelCount: matchedPanels.length,
+    matchedPanels,
+    missingPanels,
+    browserMayProveProjection: true,
+    browserMayOwnExecution: false,
+    nativeWindowOwnsDailyOperation: true,
+    receiptRequired: true,
+  };
+}
+
 function readHoloShellTmpJson(fileName) {
   const filePath = join(HOLOSHELL_TMP_DIR, fileName);
   if (!existsSync(filePath)) return null;
@@ -339,6 +444,102 @@ function readHoloShellTmpJson(fileName) {
     return JSON.parse(readFileSync(filePath, 'utf8'));
   } catch {
     return null;
+  }
+}
+
+function normalizeServiceSupervisorSnapshot(snapshot, { refreshed = false, error = '' } = {}) {
+  const valid = snapshot?.schemaVersion === SERVICE_SUPERVISOR_SCHEMA;
+  const summary = valid ? (snapshot.summary || {}) : {};
+  const services = valid ? safeArray(snapshot.services) : [];
+  return {
+    schemaVersion: SERVICE_SUPERVISOR_SCHEMA,
+    source: SERVICE_SUPERVISOR_SOURCE,
+    adapter: SERVICE_SUPERVISOR_SCRIPT,
+    generatedAt: snapshot?.generatedAt || new Date().toISOString(),
+    status: valid ? (summary.status || 'unknown') : 'needs_refresh',
+    refreshed,
+    error,
+    statusEndpoint: 'GET /api/services/supervisor',
+    workflowEndpoint: 'POST /workflow/services/supervisor',
+    terminalCommandId: 'check_system',
+    terminalCommand: 'pnpm run holoshell:service-supervisor',
+    receiptPath: SERVICE_SUPERVISOR_RECEIPT,
+    summary: {
+      status: valid ? (summary.status || 'unknown') : 'needs_refresh',
+      requestedAction: summary.requestedAction || 'status',
+      serviceCount: summary.serviceCount || services.length,
+      requiredServiceCount: summary.requiredServiceCount || 0,
+      requiredOnlineServiceCount: summary.requiredOnlineServiceCount || 0,
+      requiredAttentionCount: summary.requiredAttentionCount || 0,
+      onlineServiceCount: summary.onlineServiceCount || 0,
+      degradedServiceCount: summary.degradedServiceCount || 0,
+      offlineServiceCount: summary.offlineServiceCount || 0,
+      optionalOfflineServiceCount: summary.optionalOfflineServiceCount || 0,
+      controlDaemonServiceStatus: summary.controlDaemonServiceStatus || 'unknown',
+      controlDaemonLoopbackReachable: Boolean(summary.controlDaemonLoopbackReachable),
+      controlDaemonExecuteEnabled: Boolean(summary.controlDaemonExecuteEnabled),
+      laptopReasoningBridgeServiceStatus: summary.laptopReasoningBridgeServiceStatus || 'unknown',
+      laptopReasoningBridgeStatus: summary.laptopReasoningBridgeStatus || 'unknown',
+      actionRequiredCount: summary.actionRequiredCount || 0,
+      nextRequiredAction: summary.nextRequiredAction || (valid ? 'No service action reported.' : 'Refresh the Holo Services supervisor receipt from the terminal app.'),
+    },
+    services: services.slice(0, 8),
+    policy: {
+      statusDefaultIsNonDestructive: snapshot?.policy?.statusDefaultIsNonDestructive ?? true,
+      ensureDelegatesOnlyToRegisteredManagers: snapshot?.policy?.ensureDelegatesOnlyToRegisteredManagers ?? true,
+      arbitraryProcessStartAllowed: snapshot?.policy?.arbitraryProcessStartAllowed ?? false,
+      arbitraryProcessStopAllowed: snapshot?.policy?.arbitraryProcessStopAllowed ?? false,
+      forceKillAllowed: snapshot?.policy?.forceKillAllowed ?? false,
+      rawCommandLineIncluded: snapshot?.policy?.rawCommandLineIncluded ?? false,
+      localOnly: snapshot?.policy?.localOnly ?? true,
+    },
+    brittneyGuidance: snapshot?.brittneyGuidance || {
+      trustRequiredServicesOnlyWhenSupervisorReady: true,
+      localMutationExecutionEnabled: false,
+      nextRequiredAction: valid ? 'No service action reported.' : 'Refresh the Holo Services supervisor receipt from the terminal app.',
+    },
+    receipt: {
+      snapshotHash: snapshot?.receipt?.snapshotHash || '',
+      localOnly: snapshot?.receipt?.localOnly ?? true,
+      destructiveActionsTaken: snapshot?.receipt?.destructiveActionsTaken ?? false,
+      rawCommandLineIncluded: snapshot?.receipt?.rawCommandLineIncluded ?? false,
+      serviceMutationTaken: snapshot?.receipt?.serviceMutationTaken ?? false,
+    },
+    destructiveActionsTaken: snapshot?.receipt?.destructiveActionsTaken ?? false,
+    desktopAutomationExecuted: false,
+    receiptRequired: true,
+  };
+}
+
+function latestServiceSupervisorSnapshot() {
+  return normalizeServiceSupervisorSnapshot(readHoloShellTmpJson('service-supervisor.json'));
+}
+
+function runServiceSupervisorSnapshot(action = 'status') {
+  const normalizedAction = action === 'ensure' ? 'ensure' : 'status';
+  try {
+    const stdout = execFileSync(process.execPath, [
+      SERVICE_SUPERVISOR_SCRIPT,
+      normalizedAction === 'ensure' ? '--ensure' : '--status',
+      '--json',
+      '--tmp-dir',
+      HOLOSHELL_TMP_DIR,
+      '--skip-control-probe',
+      '--timeout-ms',
+      '900',
+    ], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      windowsHide: true,
+      timeout: 8_000,
+      maxBuffer: 10 * 1024 * 1024,
+    });
+    return normalizeServiceSupervisorSnapshot(JSON.parse(stdout || '{}'), { refreshed: true });
+  } catch (error) {
+    return normalizeServiceSupervisorSnapshot(readHoloShellTmpJson('service-supervisor.json'), {
+      refreshed: false,
+      error: String(error.message || error).slice(0, 300),
+    });
   }
 }
 
@@ -3048,7 +3249,7 @@ function assertFreshOperatorTerminalReceiptForReadOnlyExecution() {
   return { receipt, receiptAgeMs };
 }
 
-function buildOperatorTerminalReadOnlyAdapterExecutionReceipt(payload = {}) {
+async function buildOperatorTerminalReadOnlyAdapterExecutionReceipt(payload = {}) {
   const { receipt: terminalReceipt, receiptAgeMs } = assertFreshOperatorTerminalReceiptForReadOnlyExecution();
   const command = findOperatorTerminalCommand(payload.commandId || payload.label);
   if (!command) {
@@ -3083,33 +3284,30 @@ function buildOperatorTerminalReadOnlyAdapterExecutionReceipt(payload = {}) {
   const generatedAt = new Date().toISOString();
   const readOnlyExecutionId = `otrx_${Date.now().toString(36)}_${safeOperatorTerminalId(command.id, 'command')}`;
   const childArgs = buildReadOnlyAdapterCliArgs(adapter);
-  const startedAt = new Date().toISOString();
-  let stdout = '';
-  let stderr = '';
-  let exitCode = 0;
-  let adapterOk = true;
+  const sessionId = sharedHoloShellSessionId();
+  const terminalRunLifecycle = await runTerminalProcessLifecycle({
+    executable: process.execPath,
+    args: childArgs,
+    cwd: REPO_ROOT,
+    eventLogPath: OPERATOR_TERMINAL_EVENT_LOG,
+    sessionId,
+    runId: readOnlyExecutionId,
+    commandId: command.id,
+    label: command.label || adapter.label,
+    sourceReceipt: OPERATOR_TERMINAL_READONLY_EXECUTION_RECEIPT,
+    timeoutMs: adapter.timeoutMs,
+    permissionEnvelope: adapter.permissionEnvelope,
+    env: {
+      ...process.env,
+      HOLOSHELL_OPERATOR_TERMINAL_READONLY_EXECUTION: '1',
+      HOLOSHELL_OPERATOR_TERMINAL_READONLY_EXECUTION_ID: readOnlyExecutionId,
+    },
+  });
+  const stdout = terminalRunLifecycle.stdout;
+  const stderr = terminalRunLifecycle.stderr;
+  const exitCode = terminalRunLifecycle.exitCode;
+  const adapterOk = terminalRunLifecycle.ok;
 
-  try {
-    stdout = execFileSync(process.execPath, childArgs, {
-      cwd: REPO_ROOT,
-      encoding: 'utf8',
-      timeout: adapter.timeoutMs,
-      maxBuffer: 5 * 1024 * 1024,
-      windowsHide: true,
-      env: {
-        ...process.env,
-        HOLOSHELL_OPERATOR_TERMINAL_READONLY_EXECUTION: '1',
-        HOLOSHELL_OPERATOR_TERMINAL_READONLY_EXECUTION_ID: readOnlyExecutionId,
-      },
-    });
-  } catch (error) {
-    adapterOk = false;
-    exitCode = Number.isInteger(error.status) ? error.status : 1;
-    stdout = String(error.stdout || '');
-    stderr = String(error.stderr || error.message || '');
-  }
-
-  const completedAt = new Date().toISOString();
   const adapterReceiptPath = resolveRepoFilePath(adapter.output || adapter.receipt || command.receipt);
   const adapterReceipt = readJsonFileIfPresent(adapterReceiptPath);
   return {
@@ -3117,7 +3315,7 @@ function buildOperatorTerminalReadOnlyAdapterExecutionReceipt(payload = {}) {
     source: OPERATOR_TERMINAL_COUPLING_SOURCE,
     generatedAt,
     readOnlyExecutionId,
-    sessionId: sharedHoloShellSessionId(),
+    sessionId,
     status: adapterOk ? 'readonly_adapter_executed' : 'readonly_adapter_failed',
     command: {
       id: command.id,
@@ -3145,8 +3343,8 @@ function buildOperatorTerminalReadOnlyAdapterExecutionReceipt(payload = {}) {
       label: adapter.label,
       script: adapter.adapter,
       allowedByServerAllowlist: true,
-      startedAt,
-      completedAt,
+      startedAt: terminalRunLifecycle.startedAt,
+      completedAt: terminalRunLifecycle.completedAt,
       ok: adapterOk,
       exitCode,
       timeoutMs: adapter.timeoutMs,
@@ -3155,6 +3353,29 @@ function buildOperatorTerminalReadOnlyAdapterExecutionReceipt(payload = {}) {
       receiptPath: adapterReceiptPath,
       receiptObserved: Boolean(adapterReceipt),
       receiptSchemaVersion: adapterReceipt?.schemaVersion || null,
+    },
+    terminalRunLifecycle: {
+      schemaVersion: terminalRunLifecycle.schemaVersion,
+      adapter: terminalRunLifecycle.adapter,
+      runId: terminalRunLifecycle.runId,
+      status: terminalRunLifecycle.status,
+      ok: terminalRunLifecycle.ok,
+      exitCode: terminalRunLifecycle.exitCode,
+      signal: terminalRunLifecycle.signal,
+      timedOut: terminalRunLifecycle.timedOut,
+      startedAt: terminalRunLifecycle.startedAt,
+      completedAt: terminalRunLifecycle.completedAt,
+      eventLog: terminalRunLifecycle.eventLog,
+      eventCount: terminalRunLifecycle.eventCount,
+      eventIds: terminalRunLifecycle.eventIds,
+      nativeEventKinds: terminalRunLifecycle.nativeEventKinds,
+      stdoutTruncated: terminalRunLifecycle.stdoutTruncated,
+      stderrTruncated: terminalRunLifecycle.stderrTruncated,
+      endpointExecutesCommand: false,
+      endpointExecutesReadOnlyAdapter: true,
+      endpointExecutesRawCommand: false,
+      destructiveActionsTaken: false,
+      desktopAutomationExecuted: false,
     },
     execution: {
       lane: 'operator_terminal_readonly_adapter_execution',
@@ -3188,33 +3409,70 @@ function writeOperatorTerminalReadOnlyAdapterExecutionReceipt(receipt) {
   const withOutput = {
     ...receipt,
     output: {
-      latestPath: writeJsonFile(OPERATOR_TERMINAL_READONLY_EXECUTION_RECEIPT, receipt),
-      archivePath: writeJsonFile(archivePath, receipt),
+      latestPath: OPERATOR_TERMINAL_READONLY_EXECUTION_RECEIPT,
+      archivePath,
     },
   };
-  writeJsonFile(OPERATOR_TERMINAL_READONLY_EXECUTION_RECEIPT, withOutput);
-  writeJsonFile(archivePath, withOutput);
-  mkdirSync(dirname(OPERATOR_TERMINAL_EVENT_LOG), { recursive: true });
-  appendFileSync(OPERATOR_TERMINAL_EVENT_LOG, `${JSON.stringify({
-    schemaVersion: 'hololand.holoshell.terminal-event.v0.1.0',
-    eventId: `ote_${receipt.readOnlyExecutionId}`,
+  const receiptEvents = appendTerminalEvents(OPERATOR_TERMINAL_EVENT_LOG, [{
+    schemaVersion: TERMINAL_EVENT_SCHEMA_VERSION,
+    eventId: `ote_${receipt.readOnlyExecutionId}_receipt_written`,
+    runId: receipt.readOnlyExecutionId,
+    readOnlyExecutionId: receipt.readOnlyExecutionId,
     sessionId: receipt.sessionId,
     receiptHash: receipt.readOnlyExecutionId,
     sourceReceipt: OPERATOR_TERMINAL_READONLY_EXECUTION_RECEIPT,
-    source: OPERATOR_TERMINAL_COUPLING_SOURCE,
-    generatedAt: receipt.generatedAt,
-    type: 'readonly_adapter_execution',
-    lifecycle: receipt.status,
+    source: TERMINAL_EVENT_STREAM_SOURCE,
+    upstreamSource: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+    requiredCapabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
+    generatedAt: new Date().toISOString(),
+    type: 'artifact',
+    nativeEventKind: 'receipt.written',
+    lifecycle: 'written',
+    sequence: receipt.terminalRunLifecycle?.eventCount || 0,
     severity: receipt.status === 'readonly_adapter_executed' ? 'info' : 'error',
-    summary: `Read-only operator-terminal adapter ${receipt.command.label} ${receipt.status}.`,
+    summary: `Read-only operator-terminal adapter ${receipt.command.label} wrote execution receipt.`,
     commandId: receipt.command.id,
-    readOnlyExecutionId: receipt.readOnlyExecutionId,
+    label: receipt.command.label,
+    permissionEnvelope: receipt.command.permissionEnvelope,
+    endpointExecutesCommand: false,
     endpointExecutesReadOnlyAdapter: true,
     endpointExecutesRawCommand: false,
+    browserMayOwnExecution: false,
+    browserMayExecuteTerminalCommand: false,
+    adapterSpawnedByEndpoint: true,
+    rawCommandLineIncluded: false,
+    rawSecretsIncluded: false,
     destructiveActionsTaken: false,
     desktopAutomationExecuted: false,
-  })}\n`, 'utf8');
-  return withOutput;
+    receiptRequired: true,
+    artifact: {
+      kind: 'operator_terminal_readonly_adapter_execution_receipt',
+      path: OPERATOR_TERMINAL_READONLY_EXECUTION_RECEIPT,
+      archivePath,
+    },
+  }]);
+  const eventIds = [
+    ...safeArray(withOutput.terminalRunLifecycle?.eventIds),
+    ...receiptEvents.map((event) => event.eventId),
+  ];
+  const nativeEventKinds = Array.from(new Set([
+    ...safeArray(withOutput.terminalRunLifecycle?.nativeEventKinds),
+    ...receiptEvents.map((event) => event.nativeEventKind).filter(Boolean),
+  ])).sort();
+  const finalOutput = {
+    ...withOutput,
+    terminalRunLifecycle: {
+      ...(withOutput.terminalRunLifecycle || {}),
+      eventCount: eventIds.length,
+      eventIds,
+      nativeEventKinds,
+      receiptEventIds: receiptEvents.map((event) => event.eventId),
+      receiptWrittenEventObserved: receiptEvents.length > 0 || eventIds.includes(`ote_${receipt.readOnlyExecutionId}_receipt_written`),
+    },
+  };
+  writeJsonFile(OPERATOR_TERMINAL_READONLY_EXECUTION_RECEIPT, finalOutput);
+  writeJsonFile(archivePath, finalOutput);
+  return finalOutput;
 }
 
 function normalizeWindowAwarenessReport(payload = {}) {
@@ -4071,6 +4329,10 @@ function buildOperatorTerminalSession() {
       receiptHash: terminalReceiptHash,
       source: OPERATOR_TERMINAL_SOURCE,
       eventStreamSource: OPERATOR_TERMINAL_EVENT_STREAM_SOURCE,
+      upstreamEventStreamSource: terminalEventStream.upstreamSource,
+      upstreamEventStreamSchema: terminalEventStream.upstreamSchemaVersion,
+      upstreamEventStreamStatus: terminalEventStream.upstreamContractStatus,
+      requiredEventCapabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
       adapter: 'scripts/holoshell-operator-terminal.mjs',
       eventStreamAdapter: 'scripts/holoshell-terminal-event-stream.mjs',
       launcher: 'scripts/brittney-studio-launch.ps1',
@@ -4090,6 +4352,9 @@ function buildOperatorTerminalSession() {
       readOnlyAdapterAllowlist: operatorTerminalReadOnlyAdapterCatalog(),
       eventStreamStatus: terminalEventStream.status,
       eventStreamEventCount: terminalEventStream.eventCount,
+      eventStreamRequiredEventKinds: terminalEventStream.requiredEventKinds,
+      browserMayConsumeEvents: terminalEventStream.browserMayConsumeEvents,
+      browserMayOwnExecution: terminalEventStream.browserMayOwnExecution,
       eventLog: terminalEventStream.eventLog,
       mode: terminalReceipt?.summary?.mode || 'agent',
       labels: terminalLabels,
@@ -4140,6 +4405,8 @@ function buildOperatorTerminalSession() {
       terminalEvidenceEventStreamStatus: terminalEventStream.status,
       terminalEvidenceEventStreamEndpoint: 'GET /api/operator-terminal/events',
       terminalEvidenceEventCount: terminalEventStream.eventCount,
+      terminalEvidenceUpstreamSource: terminalEventStream.upstreamSource,
+      terminalEvidenceUpstreamStatus: terminalEventStream.upstreamContractStatus,
       terminalEvidencePollIntervalMs: 30000,
       evidenceLedgerStatus: receiptObserved ? 'available' : 'needs_terminal_receipt',
       rehydrateFrom: ['localStorage', 'GET /api/browser-session/state?sessionId=:sessionId', 'GET /api/cockpit/capsule', 'GET /api/operator-terminal/session', 'GET /api/operator-terminal/events'],
@@ -4215,6 +4482,9 @@ function buildOperatorTerminalSession() {
     safety: {
       browserIsPrimaryConversationSurface: true,
       terminalIsExecutionEvidenceSurface: true,
+      upstreamTerminalEventStreamSource: terminalEventStream.upstreamSource,
+      upstreamTerminalEventStreamRequired: true,
+      terminalEventReadCapabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
       terminalMayForkChatBrain: false,
       directTerminalMutationAllowed: false,
       endpointMayExecuteTerminalCommand: false,
@@ -4240,6 +4510,371 @@ function buildOperatorTerminalSession() {
   };
 }
 
+function statusTone(status) {
+  const value = String(status || '').toLowerCase();
+  if (/ready|online|fresh|completed|available|observing/u.test(value)) return 'ready';
+  if (/blocked|failed|error|offline|missing/u.test(value)) return 'blocked';
+  if (/attention|stale|degraded|waiting|partial|needs|unknown/u.test(value)) return 'attention';
+  return 'neutral';
+}
+
+function visualServiceDockFromSupervisor(serviceSupervisor) {
+  const services = safeArray(serviceSupervisor?.services).map((service) => {
+    const status = service.normalizedStatus || service.status || 'unknown';
+    return {
+      serviceId: service.serviceId || 'unknown-service',
+      label: service.label || service.serviceId || 'Holo Service',
+      status,
+      rawStatus: service.status || status,
+      tone: statusTone(status),
+      serviceKind: service.serviceKind || 'unknown',
+      requiredForAutonomy: service.requiredForAutonomy === true,
+      pidKnown: Number.isInteger(Number(service.pid)),
+      pidCommandVerified: service.pidCommandVerified === true,
+      loopbackReachable: service.loopbackReachable === true,
+      api: 'GET /api/services/supervisor',
+      workflowEndpoint: 'POST /workflow/services/supervisor',
+      capabilityLane: 'service_status',
+      ensureCapabilityLane: 'guarded_service_ensure',
+      permissionEnvelope: 'read_only_service_supervisor',
+      receipt: serviceSupervisor?.receiptPath || SERVICE_SUPERVISOR_RECEIPT,
+      nextSafeAction: statusTone(status) === 'ready'
+        ? 'trust_read_only_status_receipt'
+        : 'inspect_service_receipt_before_guarded_ensure',
+      agentReadable: true,
+    };
+  });
+  return {
+    panelId: 'service_dock',
+    label: 'Service Dock',
+    status: services.some((service) => service.requiredForAutonomy && service.tone !== 'ready')
+      ? 'attention'
+      : (serviceSupervisor?.status || serviceSupervisor?.summary?.status || 'unknown'),
+    serviceCount: services.length,
+    requiredOnlineServiceCount: serviceSupervisor?.summary?.requiredOnlineServiceCount || 0,
+    requiredServiceCount: serviceSupervisor?.summary?.requiredServiceCount || 0,
+    actionRequiredCount: serviceSupervisor?.summary?.actionRequiredCount || 0,
+    api: 'GET /api/services/supervisor',
+    workflowEndpoint: 'POST /workflow/services/supervisor',
+    capabilityLane: 'service_status',
+    ensureCapabilityLane: 'guarded_service_ensure',
+    permissionEnvelope: 'read_only_service_supervisor',
+    receipt: serviceSupervisor?.receiptPath || SERVICE_SUPERVISOR_RECEIPT,
+    nextSafeAction: serviceSupervisor?.summary?.nextRequiredAction || 'No service action reported.',
+    services,
+    agentReadable: true,
+  };
+}
+
+function visualTerminalTimelineFromStream(operatorTerminal) {
+  const stream = buildOperatorTerminalEventStream({ append: false });
+  const events = safeArray(stream.events).slice(-12).map((event) => ({
+    eventId: event.eventId || '',
+    runId: event.runId || event.readOnlyExecutionId || '',
+    readOnlyExecutionId: event.readOnlyExecutionId || '',
+    nativeEventKind: event.nativeEventKind || event.type || 'artifact.detected',
+    type: event.type || 'artifact',
+    lifecycle: event.lifecycle || 'observed',
+    summary: event.summary || '',
+    generatedAt: event.generatedAt || '',
+    tone: statusTone(event.severity || event.lifecycle || event.nativeEventKind),
+    commandId: event.commandId || '',
+    api: 'GET /api/operator-terminal/events',
+    capabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
+    permissionEnvelope: 'read_only_event_stream',
+    receipt: event.sourceReceipt || stream.sourceReceipt || OPERATOR_TERMINAL_EVENT_LOG,
+    browserMayOwnExecution: false,
+    endpointExecutesCommand: event.endpointExecutesCommand === true,
+    endpointExecutesReadOnlyAdapter: event.endpointExecutesReadOnlyAdapter === true,
+    endpointExecutesRawCommand: event.endpointExecutesRawCommand === true,
+    destructiveActionsTaken: event.destructiveActionsTaken === true,
+    desktopAutomationExecuted: event.desktopAutomationExecuted === true,
+    agentReadable: true,
+  }));
+  return {
+    panelId: 'terminal_run_timeline',
+    label: 'Run Timeline',
+    status: stream.status,
+    eventCount: stream.eventCount,
+    visibleEventCount: events.length,
+    latestEventId: stream.latestEventId,
+    nativeEventKinds: stream.nativeEventKinds,
+    requiredEventKinds: stream.requiredEventKinds,
+    runCardCount: safeArray(operatorTerminal?.runCards).length,
+    api: 'GET /api/operator-terminal/events',
+    sessionApi: 'GET /api/operator-terminal/session',
+    capabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
+    permissionEnvelope: 'read_only_event_stream',
+    receipt: stream.eventLog,
+    nextSafeAction: operatorTerminal?.nextSafeStep || 'Inspect terminal event stream before staging any guarded work.',
+    events,
+    runCards: safeArray(operatorTerminal?.runCards).slice(0, 8),
+    browserMayOwnExecution: false,
+    agentReadable: true,
+  };
+}
+
+function visualAgentUtilityCapsules({ serviceDock, terminalTimeline, sourceOwnedState, operatorTerminal, actionCards }) {
+  const capsules = [
+    {
+      capsuleId: 'native_window',
+      label: 'Native Window',
+      status: sourceOwnedState?.nativeWindow?.upstreamCapabilityEnvelopeStatus || 'unknown',
+      api: 'GET /api/cockpit/capsule',
+      capabilityLane: 'receipt_read',
+      permissionEnvelope: 'native_app_window_contract',
+      receipt: sourceOwnedState?.worlds?.nativeHoloShellWrapper || NATIVE_HOLOSHELL_WRAPPER,
+      allowedActions: ['inspect_native_window_contract', 'open_browser_bootstrap_self_test'],
+      blockedActions: ['claim_os_shell_replacement_without_separate_plan'],
+      nextSafeAction: 'Use native wrapper as app/window after browser proof passes.',
+    },
+    {
+      capsuleId: 'service_dock',
+      label: 'Holo Services',
+      status: serviceDock.status,
+      api: serviceDock.api,
+      capabilityLane: serviceDock.capabilityLane,
+      permissionEnvelope: serviceDock.permissionEnvelope,
+      receipt: serviceDock.receipt,
+      allowedActions: ['refresh_service_status'],
+      blockedActions: ['arbitrary_process_start', 'force_kill'],
+      nextSafeAction: serviceDock.nextSafeAction,
+    },
+    {
+      capsuleId: 'terminal_timeline',
+      label: 'Terminal Timeline',
+      status: terminalTimeline.status,
+      api: terminalTimeline.api,
+      capabilityLane: terminalTimeline.capabilityLane,
+      permissionEnvelope: terminalTimeline.permissionEnvelope,
+      receipt: terminalTimeline.receipt,
+      allowedActions: ['inspect_terminal_events', 'request_read_only_adapter_with_confirmation'],
+      blockedActions: ['browser_owned_raw_command_execution'],
+      nextSafeAction: terminalTimeline.nextSafeAction,
+    },
+    {
+      capsuleId: 'source_owned_state',
+      label: 'Source State',
+      status: sourceOwnedState?.status || 'unknown',
+      api: 'GET /api/cockpit/capsule#sourceOwnedState',
+      capabilityLane: 'receipt_read',
+      permissionEnvelope: 'read_only_source_contract',
+      receipt: BRITTNEY_COCKPIT_SOURCE,
+      allowedActions: ['inspect_source_anchors'],
+      blockedActions: ['legacy_ui_owns_behavior'],
+      nextSafeAction: sourceOwnedState?.nextSafeStep || 'Change source before projection.',
+    },
+    {
+      capsuleId: 'command_palette',
+      label: 'Command Palette',
+      status: actionCards.length ? 'ready' : 'waiting',
+      api: 'GET /api/visual-operating-layer#commandPalette',
+      capabilityLane: 'receipt_read',
+      permissionEnvelope: 'consent_command_palette',
+      receipt: VISUAL_OPERATING_LAYER_SOURCE,
+      allowedActions: actionCards.slice(0, 8).map((card) => card.id || card.label).filter(Boolean),
+      blockedActions: ['destructive_action_without_break_glass_lane'],
+      nextSafeAction: 'Choose read-only actions freely; guarded actions require explicit confirmation receipts.',
+    },
+  ].map((capsule) => ({
+    ...capsule,
+    agentReadable: true,
+    rawCommandLineIncluded: false,
+    destructiveActionsTaken: false,
+    desktopAutomationExecuted: false,
+  }));
+  return {
+    panelId: 'agent_utility_capsules',
+    label: 'Agent Utility',
+    status: 'ready',
+    capsuleCount: capsules.length,
+    requiredFields: ['api', 'capabilityLane', 'permissionEnvelope', 'receipt', 'nextSafeAction'],
+    api: 'GET /api/visual-operating-layer#agentUtility',
+    capabilityLane: 'receipt_read',
+    permissionEnvelope: 'read_only_agent_utility',
+    receipt: VISUAL_OPERATING_LAYER_SOURCE,
+    nextSafeAction: 'Agents consume these capsules before deciding what they may do.',
+    capsules,
+    agentReadable: true,
+  };
+}
+
+function visualNodeCity({ liveStatus, serviceDock, terminalTimeline, sourceOwnedState }) {
+  const nodes = [
+    { nodeId: 'jetson', label: 'Jetson', kind: 'appliance', status: liveStatus?.route?.primaryHostRole || 'unknown', tone: 'ready', x: 0, y: 0, api: liveStatus?.route?.url || CANONICAL_JETSON_SURFACE },
+    { nodeId: 'native_window', label: 'Native Window', kind: 'surface', status: sourceOwnedState?.nativeWindow?.upstreamCapabilityEnvelopeStatus || 'unknown', tone: statusTone(sourceOwnedState?.nativeWindow?.upstreamCapabilityEnvelopeStatus), x: 1, y: 0, api: 'GET /api/cockpit/capsule' },
+    { nodeId: 'browser_bootstrap', label: 'Browser', kind: 'bootstrap', status: 'ready', tone: 'ready', x: 2, y: 0, api: 'GET /' },
+    { nodeId: 'holo_services', label: 'Holo Services', kind: 'service_dock', status: serviceDock.status, tone: statusTone(serviceDock.status), x: 1, y: 1, api: serviceDock.api },
+    { nodeId: 'terminal_events', label: 'Terminal Events', kind: 'event_stream', status: terminalTimeline.status, tone: statusTone(terminalTimeline.status), x: 2, y: 1, api: terminalTimeline.api },
+    { nodeId: 'laptop', label: 'Laptop', kind: 'reasoning', status: liveStatus?.laptopReasoning?.status || 'unknown', tone: statusTone(liveStatus?.laptopReasoning?.status), x: 0, y: 1, api: 'GET /api/live-status' },
+    { nodeId: 'source', label: 'HoloScript Source', kind: 'source', status: sourceOwnedState?.status || 'unknown', tone: statusTone(sourceOwnedState?.status), x: 0, y: 2, api: 'GET /api/cockpit/capsule#sourceOwnedState' },
+    { nodeId: 'hololand', label: 'Hololand', kind: 'spatial_projection', status: 'ready', tone: 'ready', x: 1, y: 2, api: 'GET /api/visual-operating-layer#nodeCity' },
+  ];
+  const edges = [
+    ['source', 'native_window', 'defines'],
+    ['jetson', 'native_window', 'extends'],
+    ['native_window', 'holo_services', 'supervises'],
+    ['holo_services', 'terminal_events', 'emits'],
+    ['browser_bootstrap', 'terminal_events', 'proves'],
+    ['laptop', 'native_window', 'validates'],
+    ['hololand', 'native_window', 'spatializes'],
+  ].map(([from, to, relationship]) => ({ from, to, relationship }));
+  return {
+    panelId: 'hololand_node_city',
+    label: 'Node City',
+    status: 'ready',
+    nodeCount: nodes.length,
+    edgeCount: edges.length,
+    api: 'GET /api/visual-operating-layer#nodeCity',
+    capabilityLane: 'jetson_appliance_observe',
+    permissionEnvelope: 'read_only_spatial_projection',
+    receipt: VISUAL_OPERATING_LAYER_SOURCE,
+    nextSafeAction: 'Project the same nodes into Hololand as inspectable infrastructure.',
+    nodes,
+    edges,
+    agentReadable: true,
+  };
+}
+
+function visualCommandPalette(actionCards, sourceOwnedState) {
+  const selectedTaskId = sourceOwnedState?.boardTasks?.selectedTaskId || '';
+  const commands = [
+    {
+      commandId: 'inspect_services',
+      label: 'Services',
+      method: 'GET',
+      href: '/api/services/supervisor',
+      capabilityLane: 'service_status',
+      permissionEnvelope: 'read_only_service_supervisor',
+      receiptRequired: true,
+      confirmationRequired: false,
+    },
+    {
+      commandId: 'ensure_holo_services',
+      label: 'Ensure',
+      method: 'POST',
+      href: '/workflow/services/supervisor',
+      body: { ensure: true, confirmHoloServicesEnsure: true },
+      capabilityLane: 'guarded_service_ensure',
+      permissionEnvelope: 'guarded_service_ensure',
+      receiptRequired: true,
+      confirmationRequired: true,
+    },
+    {
+      commandId: 'timeline',
+      label: 'Timeline',
+      method: 'GET',
+      href: '/api/operator-terminal/events',
+      capabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
+      permissionEnvelope: 'read_only_event_stream',
+      receiptRequired: true,
+      confirmationRequired: false,
+    },
+    {
+      commandId: 'show_agents',
+      label: 'Agents',
+      method: 'POST',
+      href: '/api/operator-terminal/run-readonly',
+      body: { commandId: 'show_agents', confirmReadOnlyAdapterExecution: true },
+      capabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
+      permissionEnvelope: 'read_only_adapter_execution',
+      receiptRequired: true,
+      confirmationRequired: true,
+    },
+    {
+      commandId: 'show_receipts',
+      label: 'Receipts',
+      method: 'POST',
+      href: '/api/operator-terminal/run-readonly',
+      body: { commandId: 'show_receipts', confirmReadOnlyAdapterExecution: true },
+      capabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
+      permissionEnvelope: 'read_only_adapter_execution',
+      receiptRequired: true,
+      confirmationRequired: true,
+    },
+    {
+      commandId: 'claim_local_room_task',
+      label: 'Claim Local',
+      method: 'POST',
+      href: '/workflow/sovereign-room-marathon',
+      body: { taskLane: 'local', taskTag: 'local', claim: true, confirmClaim: true, selectedTaskId },
+      capabilityLane: 'guarded_local_claim',
+      permissionEnvelope: 'guarded_local_claim',
+      receiptRequired: true,
+      confirmationRequired: true,
+      disabled: !selectedTaskId,
+    },
+  ];
+  return {
+    panelId: 'consent_command_palette',
+    label: 'Command Palette',
+    status: commands.length ? 'ready' : 'waiting',
+    commandCount: commands.length,
+    api: 'GET /api/visual-operating-layer#commandPalette',
+    capabilityLane: 'receipt_read',
+    permissionEnvelope: 'consent_command_palette',
+    receipt: VISUAL_OPERATING_LAYER_SOURCE,
+    nextSafeAction: 'Run read-only commands after an explicit click; guarded commands ask for confirmation.',
+    commands,
+    actionCardCount: safeArray(actionCards).length,
+    browserMayOwnExecution: false,
+    endpointExecutesRawCommand: false,
+    destructiveActionsTaken: false,
+    desktopAutomationExecuted: false,
+    agentReadable: true,
+  };
+}
+
+function buildVisualOperatingLayer({ liveStatus, operatorTerminal, serviceSupervisor, sourceOwnedState, actionCards = [] }) {
+  const nativeVisualOperatingLayer = liveStatus?.nativeVisualOperatingLayer || nativeVisualOperatingLayerSnapshot();
+  const serviceDock = visualServiceDockFromSupervisor(serviceSupervisor);
+  const terminalRunTimeline = visualTerminalTimelineFromStream(operatorTerminal);
+  const agentUtility = visualAgentUtilityCapsules({
+    serviceDock,
+    terminalTimeline: terminalRunTimeline,
+    sourceOwnedState,
+    operatorTerminal,
+    actionCards,
+  });
+  const nodeCity = visualNodeCity({ liveStatus, serviceDock, terminalTimeline: terminalRunTimeline, sourceOwnedState });
+  const commandPalette = visualCommandPalette(actionCards, sourceOwnedState);
+  return {
+    schemaVersion: VISUAL_OPERATING_LAYER_SCHEMA,
+    source: VISUAL_OPERATING_LAYER_SOURCE,
+    upstreamSource: NATIVE_VISUAL_OPERATING_LAYER_SOURCE,
+    upstreamSchemaVersion: NATIVE_VISUAL_OPERATING_LAYER_SCHEMA,
+    upstreamStatus: nativeVisualOperatingLayer.status,
+    generatedAt: new Date().toISOString(),
+    status: 'ready',
+    mode: 'native_operating_layer_projection',
+    endpoint: 'GET /api/visual-operating-layer',
+    cockpitCapsulePath: 'GET /api/cockpit/capsule#visualOperatingLayer',
+    nativeWindowTarget: NATIVE_HOLOSHELL_WINDOW_ROLE,
+    browserMayProveProjection: true,
+    browserMayOwnExecution: false,
+    nativeWindowOwnsDailyOperation: true,
+    panels: ['service_dock', 'terminal_run_timeline', 'agent_utility_capsules', 'hololand_node_city', 'consent_command_palette'],
+    serviceDock,
+    terminalRunTimeline,
+    agentUtility,
+    nodeCity,
+    commandPalette,
+    safety: {
+      sourceRequiredBeforeProjection: true,
+      everyPanelCarriesAgentUtility: true,
+      everyActionCarriesPermissionEnvelope: true,
+      browserMayOwnExecution: false,
+      endpointExecutesRawCommand: false,
+      destructiveActionsTaken: false,
+      desktopAutomationExecuted: false,
+      receiptRequired: true,
+    },
+    receiptRequired: true,
+    destructiveActionsTaken: false,
+    desktopAutomationExecuted: false,
+  };
+}
+
 function buildLiveStatusSnapshot() {
   const pending = pendingConsents();
   const executions = executionHistory();
@@ -4249,6 +4884,10 @@ function buildLiveStatusSnapshot() {
   const laptopReasoning = laptopReasoningStatusSnapshot();
   const sovereignRoomMarathon = sovereignRoomMarathonStatusSnapshot();
   const holoclawRuntimeBridge = holoclawRuntimeBridgeStatusSnapshot();
+  const serviceSupervisor = latestServiceSupervisorSnapshot();
+  const nativeCapabilityEnvelope = nativeCapabilityEnvelopeSnapshot();
+  const nativeTerminalEventStream = upstreamTerminalEventStreamSnapshot();
+  const nativeVisualOperatingLayer = nativeVisualOperatingLayerSnapshot();
   const faraPeerAutomation = {
     latestPulse: faraPeerAutomationHistory()[0] || null,
     schedule: faraPeerAutomationScheduleSnapshot(),
@@ -4263,8 +4902,20 @@ function buildLiveStatusSnapshot() {
       url: publicShellUrl(),
       host: HOST,
       port: PORT,
+      primaryHostRole: HOST === '0.0.0.0' ? 'jetson_extension_host' : 'browser_first_local_test_host',
+      canonicalJetsonSurface: CANONICAL_JETSON_SURFACE,
+      browserFirstTestSurface: BROWSER_FIRST_TEST_SURFACE,
+      browserFirstReceiptScript: BROWSER_FIRST_RECEIPT_SCRIPT,
+      nativeHoloShellWrapper: NATIVE_HOLOSHELL_WRAPPER,
+      nativeCapabilityEnvelopeSource: NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+      nativeCapabilityEnvelopeSchema: NATIVE_CAPABILITY_ENVELOPE_SCHEMA,
+      nativeTerminalEventStreamSource: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+      nativeTerminalEventStreamSchema: UPSTREAM_TERMINAL_EVENT_STREAM_SCHEMA,
       chatEndpoint: 'POST /api/brittney/chat',
       cockpitCapsuleEndpoint: 'GET /api/cockpit/capsule',
+      visualOperatingLayerEndpoint: 'GET /api/visual-operating-layer',
+      nativeVisualOperatingLayerSource: NATIVE_VISUAL_OPERATING_LAYER_SOURCE,
+      nativeVisualOperatingLayerSchema: NATIVE_VISUAL_OPERATING_LAYER_SCHEMA,
       browserSessionStateEndpoint: 'GET/POST /api/browser-session/state?sessionId=:sessionId',
       operatorTerminalSessionEndpoint: 'GET /api/operator-terminal/session',
       operatorTerminalReportEndpoint: 'POST /api/operator-terminal/report',
@@ -4272,6 +4923,8 @@ function buildLiveStatusSnapshot() {
       operatorTerminalGuardedExecuteEndpoint: 'POST /api/operator-terminal/execute',
       operatorTerminalApprovedAdapterExecuteEndpoint: 'POST /api/operator-terminal/run-approved',
       operatorTerminalReadOnlyAdapterExecuteEndpoint: 'POST /api/operator-terminal/run-readonly',
+      serviceSupervisorEndpoint: 'GET /api/services/supervisor',
+      serviceSupervisorWorkflowEndpoint: 'POST /workflow/services/supervisor',
       desktopControlEndpoint: 'POST /api/desktop-control/plan',
       desktopBridgeEndpoint: 'GET /api/desktop-control/bridge',
       desktopBridgeReportEndpoint: 'POST /api/desktop-control/bridge/report',
@@ -4305,14 +4958,28 @@ function buildLiveStatusSnapshot() {
       'receipt_backed_status',
       'desktop_control_plan',
       'brittney_desktop_cockpit',
+      'visual_operating_layer',
+      'native_visual_operating_layer',
+      'service_dock',
+      'terminal_run_timeline',
+      'agent_utility_capsules',
+      'hololand_node_city',
+      'consent_command_palette',
       'browser_terminal_coupling',
       'operator_terminal_session',
       'operator_terminal_event_stream',
+      'native_terminal_event_stream',
       'operator_terminal_run_cards',
       'operator_terminal_guarded_execute_receipts',
       'operator_terminal_approved_adapter_execution',
       'operator_terminal_approved_adapter_replay_guard',
       'operator_terminal_readonly_adapter_execution',
+      'holoservices_supervisor',
+      'native_holoshell_app_window',
+      'native_capability_envelope',
+      'terminal_event_read',
+      'jetson_appliance_observe',
+      'guarded_service_ensure',
       'browser_refresh_evidence_rehydration',
       'browser_session_snapshot',
       'fara_brittney_peer_chat',
@@ -4338,8 +5005,16 @@ function buildLiveStatusSnapshot() {
       'desktop_bridge_status',
       'desktop_bridge_browser_report',
       'laptop_hardware_reasoning_receipts',
+      'jetson_extension_surface',
+      'browser_first_test_surface',
+      'native_holoshell_wrapper_contract',
     ],
     lanes: [
+      { id: 'jetson_extension_surface', model: 'holojetson.local:8747', role: 'always-on HoloShell host; browser validates before native wrapper claims behavior' },
+      { id: 'native_holoshell_app_window', model: NATIVE_HOLOSHELL_WRAPPER, role: 'daily HoloShell app/window for service operations, approvals, terminal run cards, and receipts' },
+      { id: 'native_capability_envelope', model: NATIVE_CAPABILITY_ENVELOPE_SOURCE, role: 'HoloScript source of truth for native app/window, terminal, service, and Jetson permissions' },
+      { id: 'native_terminal_event_stream', model: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL, role: 'HoloScript source of truth for terminal events before UI projection' },
+      { id: 'native_visual_operating_layer', model: NATIVE_VISUAL_OPERATING_LAYER_SOURCE, role: 'HoloScript source of truth for service dock, terminal timeline, node city, and command palette projections' },
       { id: 'brittney_operator', model: process.env.AIBRITTNEY_MODEL || 'qwen3:4b-instruct', role: 'operator chat and routing' },
       { id: 'fara_peer_chat', model: 'fara:7b', role: 'read-only peer chat and co-planning with Brittney' },
       { id: 'fara_gui_grounding', model: 'fara:7b', role: 'guarded desktop automation planning' },
@@ -4351,6 +5026,7 @@ function buildLiveStatusSnapshot() {
       { id: 'operator_terminal_guarded_execute', model: 'local HoloShell receipts', role: 'confirmation-bound operator terminal capability staging' },
       { id: 'operator_terminal_approved_adapter_execution', model: 'local HoloShell allowlisted adapters', role: 'receipt-bound approved adapter execution' },
       { id: 'operator_terminal_readonly_adapter_execution', model: 'local HoloShell read-only adapters', role: 'browser-triggered read-only run cards with receipts' },
+      { id: 'holoservices_supervisor', model: SERVICE_SUPERVISOR_SCRIPT, role: 'registered Holo Services health and safe ensure boundary' },
       { id: 'holoclaw_skills', model: 'HoloClaw skill shelf', role: 'native skill execution routes' },
       { id: 'holoclaw_runtime', model: 'HoloClaw AgentRunner', role: 'consent-gated HoloScript agent runtime bridge' },
       { id: 'codebase_fix', model: 'Codex/local agent seats', role: 'actual patch, validation, and commit-backed shakedown work' },
@@ -4361,6 +5037,10 @@ function buildLiveStatusSnapshot() {
     nativeResources,
     sovereignRoomMarathon,
     holoclawRuntimeBridge,
+    serviceSupervisor,
+    nativeCapabilityEnvelope,
+    nativeTerminalEventStream,
+    nativeVisualOperatingLayer,
     faraPeerAutomation,
     gpu: gpuStatusSnapshot(),
     laptopReasoning,
@@ -4670,6 +5350,10 @@ function liveStatusResponseEnvelope(snapshot) {
     nativeResources: snapshot.nativeResources,
     sovereignRoomMarathon: snapshot.sovereignRoomMarathon,
     holoclawRuntimeBridge: snapshot.holoclawRuntimeBridge,
+    serviceSupervisor: snapshot.serviceSupervisor,
+    nativeCapabilityEnvelope: snapshot.nativeCapabilityEnvelope,
+    nativeTerminalEventStream: snapshot.nativeTerminalEventStream,
+    nativeVisualOperatingLayer: snapshot.nativeVisualOperatingLayer,
     faraPeerAutomation: snapshot.faraPeerAutomation,
     gpu: snapshot.gpu,
     laptopReasoning: snapshot.laptopReasoning,
@@ -4685,6 +5369,10 @@ function buildSourceOwnedCockpitState({
   sovereignRoomMarathon,
   holoclawRuntimeBridge,
   operatorTerminal,
+  serviceSupervisor,
+  nativeCapabilityEnvelope,
+  nativeTerminalEventStream,
+  nativeVisualOperatingLayer,
 }) {
   const domains = ['agents', 'files', 'worlds', 'receipts', 'board_tasks'];
   const selectedTaskId = sovereignRoomMarathon?.selectedTaskId || '';
@@ -4717,6 +5405,14 @@ function buildSourceOwnedCockpitState({
         OPERATOR_TERMINAL_COUPLING_SOURCE,
         SOVEREIGN_ROOM_MARATHON_SOURCE,
         HOLOCLAW_RUNTIME_BRIDGE_SOURCE,
+        SERVICE_SUPERVISOR_SOURCE,
+        NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+        UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+        NATIVE_VISUAL_OPERATING_LAYER_SOURCE,
+        VISUAL_OPERATING_LAYER_SOURCE,
+        OPERATOR_TERMINAL_EVENT_STREAM_SOURCE,
+        BROWSER_FIRST_RECEIPT_SCRIPT,
+        NATIVE_HOLOSHELL_WRAPPER,
         'packages/holoshell/scenes/operate-room.holo',
       ],
       adapterProjectionOnly: 'packages/holoshell/serve.mjs',
@@ -4728,15 +5424,98 @@ function buildSourceOwnedCockpitState({
       shellWorldSource: 'apps/holoshell/source/holoshell-shell-world.holo',
       surface: liveStatus?.route?.surface || 'HoloShell Operate Room',
       route: liveStatus?.route?.url || publicShellUrl(),
+      canonicalJetsonSurface: CANONICAL_JETSON_SURFACE,
+      browserFirstTestSurface: BROWSER_FIRST_TEST_SURFACE,
+      nativeHoloShellWrapper: NATIVE_HOLOSHELL_WRAPPER,
+      nativeHoloShellWindowRole: NATIVE_HOLOSHELL_WINDOW_ROLE,
+      nativeCapabilityEnvelopeSource: NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+      nativeTerminalEventStreamSource: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+      nativeVisualOperatingLayerSource: NATIVE_VISUAL_OPERATING_LAYER_SOURCE,
+      visualOperatingLayerEndpoint: 'GET /api/visual-operating-layer',
+      serviceSupervisorEndpoint: 'GET /api/services/supervisor',
+    },
+    jetsonExtension: {
+      schemaVersion: JETSON_EXTENSION_ROUTE_SCHEMA,
+      source: BRITTNEY_COCKPIT_SOURCE,
+      hostRole: liveStatus?.route?.primaryHostRole || 'browser_first_local_test_host',
+      canonicalJetsonSurface: CANONICAL_JETSON_SURFACE,
+      activeSurfaceUrl: liveStatus?.route?.url || publicShellUrl(),
+      browserFirstTestSurface: BROWSER_FIRST_TEST_SURFACE,
+      browserFirstReceiptScript: BROWSER_FIRST_RECEIPT_SCRIPT,
+      nativeHoloShellWrapper: NATIVE_HOLOSHELL_WRAPPER,
+      nativeCapabilityEnvelopeSource: NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+      nativeCapabilityEnvelopeStatus: nativeCapabilityEnvelope?.status || 'unknown',
+      desktopAppRole: NATIVE_HOLOSHELL_WINDOW_ROLE,
+      browserProvidesBootstrapValidation: true,
+      browserOwnsFirstValidation: false,
+      nativeWindowOwnsDailyOperation: true,
+      nativeWrapperFollowsSameSource: true,
+      sourceRequiredBeforeProjection: true,
+      receiptRequired: true,
+    },
+    nativeWindow: {
+      role: NATIVE_HOLOSHELL_WINDOW_ROLE,
+      launcher: NATIVE_HOLOSHELL_WRAPPER,
+      productTarget: 'app_window_for_holoservices_terminal_and_hologate_actions',
+      upstreamCapabilityEnvelopeSource: NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+      upstreamCapabilityEnvelopeStatus: nativeCapabilityEnvelope?.status || 'unknown',
+      upstreamTerminalEventStreamSource: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+      upstreamTerminalEventStreamStatus: nativeTerminalEventStream?.status || operatorTerminal?.terminal?.upstreamEventStreamStatus || 'unknown',
+      upstreamVisualOperatingLayerSource: NATIVE_VISUAL_OPERATING_LAYER_SOURCE,
+      upstreamVisualOperatingLayerStatus: nativeVisualOperatingLayer?.status || 'unknown',
+      visualOperatingLayerEndpoint: 'GET /api/visual-operating-layer',
+      serviceSupervisorEndpoint: 'GET /api/services/supervisor',
+      operatorTerminalEndpoint: 'GET /api/operator-terminal/session',
+      operatorTerminalEventsEndpoint: 'GET /api/operator-terminal/events',
+      terminalRunCardsRequired: true,
+      browserSelfTestRequiredBeforePackagingClaim: true,
+      receiptRequired: true,
     },
     receipts: {
       receiptsDir: liveStatus?.receiptsDir || RECEIPTS_DIR,
       operatorTerminalReceipt: OPERATOR_TERMINAL_RECEIPT,
       operatorTerminalReceiptStatus: operatorTerminal?.terminal?.receiptStatus || operatorTerminal?.terminal?.status || 'unknown',
+      operatorTerminalEventsEndpoint: 'GET /api/operator-terminal/events',
+      operatorTerminalEventStreamStatus: operatorTerminal?.terminal?.eventStreamStatus || 'unknown',
+      upstreamTerminalEventStreamSource: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+      upstreamTerminalEventStreamStatus: nativeTerminalEventStream?.status || operatorTerminal?.terminal?.upstreamEventStreamStatus || 'unknown',
       sovereignRoomMarathonReceipt: sovereignRoomMarathon?.receiptPath || SOVEREIGN_ROOM_MARATHON_RECEIPT,
       sovereignRoomMarathonStatus: sovereignRoomMarathon?.status || 'unknown',
       holoclawRuntimeBridgeReceipt: holoclawRuntimeBridge?.receiptPath || HOLOCLAW_RUNTIME_BRIDGE_RECEIPT,
       holoclawRuntimeBridgeStatus: holoclawRuntimeBridge?.status || 'unknown',
+      serviceSupervisorReceipt: SERVICE_SUPERVISOR_RECEIPT,
+      serviceSupervisorStatus: serviceSupervisor?.summary?.status || serviceSupervisor?.status || 'unknown',
+      nativeCapabilityEnvelopeSource: NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+      nativeCapabilityEnvelopeStatus: nativeCapabilityEnvelope?.status || 'unknown',
+      receiptRequired: true,
+    },
+    nativeCapabilityEnvelope: nativeCapabilityEnvelope || nativeCapabilityEnvelopeSnapshot(),
+    nativeTerminalEventStream: nativeTerminalEventStream || liveStatus?.nativeTerminalEventStream || upstreamTerminalEventStreamSnapshot(),
+    nativeVisualOperatingLayer: nativeVisualOperatingLayer || liveStatus?.nativeVisualOperatingLayer || nativeVisualOperatingLayerSnapshot(),
+    visualOperatingLayer: {
+      source: VISUAL_OPERATING_LAYER_SOURCE,
+      upstreamSource: NATIVE_VISUAL_OPERATING_LAYER_SOURCE,
+      endpoint: 'GET /api/visual-operating-layer',
+      status: nativeVisualOperatingLayer?.status || 'unknown',
+      requiredPanels: ['service_dock', 'terminal_run_timeline', 'agent_utility_capsules', 'hololand_node_city', 'consent_command_palette'],
+      agentReadable: true,
+      receiptRequired: true,
+    },
+    services: {
+      source: SERVICE_SUPERVISOR_SOURCE,
+      upstreamCapabilityEnvelopeSource: NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+      statusCapabilityLane: 'service_status',
+      ensureCapabilityLane: 'guarded_service_ensure',
+      endpoint: 'GET /api/services/supervisor',
+      workflowEndpoint: 'POST /workflow/services/supervisor',
+      terminalCommandId: 'check_system',
+      terminalCommand: 'pnpm run holoshell:service-supervisor',
+      status: serviceSupervisor?.summary?.status || serviceSupervisor?.status || 'unknown',
+      serviceCount: serviceSupervisor?.summary?.serviceCount || 0,
+      requiredOnlineServiceCount: serviceSupervisor?.summary?.requiredOnlineServiceCount || 0,
+      requiredServiceCount: serviceSupervisor?.summary?.requiredServiceCount || 0,
+      actionRequiredCount: serviceSupervisor?.summary?.actionRequiredCount || 0,
+      localMutationExecutionEnabled: Boolean(serviceSupervisor?.summary?.controlDaemonExecuteEnabled),
       receiptRequired: true,
     },
     boardTasks: {
@@ -4756,13 +5535,18 @@ function buildSourceOwnedCockpitState({
       role: 'adapter_projection_only',
       endpoint: 'GET /api/cockpit/capsule',
       route: 'GET /api/cockpit/capsule#sourceOwnedState',
+      browserFirstTestSurface: BROWSER_FIRST_TEST_SURFACE,
+      browserProvidesBootstrapValidation: true,
+      browserOwnsFirstValidation: false,
+      nativeWindowOwnsDailyOperation: true,
+      nativeWrapperFollowsSameSource: true,
       sourceRequiredBeforeProjection: true,
       legacyUiMayNotOwnBehavior: true,
     },
     destructiveActionsTaken: false,
     desktopAutomationExecuted: false,
     receiptRequired: true,
-    nextSafeStep: 'Change HoloScript source first, then project through serve.mjs and compile.mjs adapter surfaces.',
+    nextSafeStep: 'Change HoloScript source first, prove the route in the browser receipt, then operate through the native HoloShell window backed by terminal run cards and the Holo Services supervisor.',
   };
 }
 
@@ -4771,6 +5555,10 @@ function buildBrittneyCockpitCapsule() {
   const desktopBridge = desktopBridgeStatusSnapshot();
   const sovereignRoomMarathon = liveStatus.sovereignRoomMarathon || sovereignRoomMarathonStatusSnapshot();
   const holoclawRuntimeBridge = liveStatus.holoclawRuntimeBridge || holoclawRuntimeBridgeStatusSnapshot();
+  const serviceSupervisor = liveStatus.serviceSupervisor || latestServiceSupervisorSnapshot();
+  const nativeCapabilityEnvelope = liveStatus.nativeCapabilityEnvelope || nativeCapabilityEnvelopeSnapshot();
+  const nativeTerminalEventStream = liveStatus.nativeTerminalEventStream || upstreamTerminalEventStreamSnapshot();
+  const nativeVisualOperatingLayer = liveStatus.nativeVisualOperatingLayer || nativeVisualOperatingLayerSnapshot();
   const operatorTerminal = buildOperatorTerminalSession();
   const browserSessionState = readBrowserSessionStateSnapshot();
   const windowAwareness = buildWindowAwareness();
@@ -4786,11 +5574,24 @@ function buildBrittneyCockpitCapsule() {
     sovereignRoomMarathon,
     holoclawRuntimeBridge,
     operatorTerminal,
+    serviceSupervisor,
+    nativeCapabilityEnvelope,
+    nativeTerminalEventStream,
+    nativeVisualOperatingLayer,
   });
   const bridgeReady = desktopBridge.status === 'ready';
   const bridgeAttention = ['awaiting_laptop_daemon', 'stale_laptop_report'].includes(desktopBridge.status);
   const runtimeTruthStatus = liveStatus.status === 'online' ? 'ready' : 'attention';
   const routeStatus = liveStatus.route?.chatEndpoint && liveStatus.route?.desktopControlEndpoint ? 'ready' : 'attention';
+  const jetsonExtensionStatus = liveStatus.route?.canonicalJetsonSurface === CANONICAL_JETSON_SURFACE ? 'ready' : 'attention';
+  const browserFirstTestStatus = liveStatus.route?.browserFirstTestSurface === BROWSER_FIRST_TEST_SURFACE ? 'ready' : 'attention';
+  const nativeWrapperStatus = liveStatus.route?.nativeHoloShellWrapper === NATIVE_HOLOSHELL_WRAPPER ? 'source_bound' : 'attention';
+  const nativeWindowStatus = nativeWrapperStatus === 'source_bound' ? 'ready' : 'attention';
+  const nativeCapabilityEnvelopeStatus = nativeCapabilityEnvelope.status === 'ready' ? 'ready' : 'attention';
+  const nativeVisualOperatingLayerStatus = nativeVisualOperatingLayer.status === 'ready' ? 'ready' : 'attention';
+  const serviceSupervisorStatus = serviceSupervisor.summary.requiredAttentionCount > 0
+    ? 'attention'
+    : (serviceSupervisor.status === 'needs_refresh' ? 'waiting' : 'ready');
   const contextCarryStatus = 'ready';
   const sourceOwnedStateStatus = sourceOwnedState.status === 'ready' ? 'ready' : 'attention';
   const browserSessionStateStatus = browserSessionState.snapshotStatus === 'available' ? 'ready' : 'waiting';
@@ -4798,6 +5599,11 @@ function buildBrittneyCockpitCapsule() {
     .reduce((sum, entries) => sum + safeArray(entries).length, 0);
   const desktopBridgeStatus = bridgeReady ? 'ready' : (bridgeAttention ? 'attention' : desktopBridge.status || 'unknown');
   const operatorTerminalStatus = operatorTerminal.terminal.status === 'ready' ? 'ready' : 'attention';
+  const operatorTerminalEventStreamStatus =
+    operatorTerminal.terminal.upstreamEventStreamStatus === 'ready' &&
+    ['ready', 'awaiting_events'].includes(operatorTerminal.terminal.eventStreamStatus)
+      ? 'ready'
+      : 'attention';
   const windowAwarenessStatus = windowAwareness.status === 'windows_visible' ? 'ready' : 'attention';
   const faraAutomationStatus = faraAutomation.latestPulse
     ? 'ready'
@@ -4834,6 +5640,68 @@ function buildBrittneyCockpitCapsule() {
       detail: `${liveStatus.route.chatEndpoint}; ${liveStatus.route.cockpitCapsuleEndpoint}`,
       sourceEndpoint: 'GET /api/cockpit/capsule',
       permissionEnvelope: 'read_only',
+      receiptRequired: true,
+    },
+    {
+      id: 'jetson_extension',
+      label: 'Jetson Extension',
+      status: jetsonExtensionStatus,
+      value: liveStatus.route.primaryHostRole,
+      detail: `browser self-test ${BROWSER_FIRST_TEST_SURFACE}; Jetson ${CANONICAL_JETSON_SURFACE}; native window ${NATIVE_HOLOSHELL_WRAPPER}`,
+      sourceEndpoint: BRITTNEY_COCKPIT_SOURCE,
+      browserFirstReceiptScript: BROWSER_FIRST_RECEIPT_SCRIPT,
+      permissionEnvelope: 'read_only_projection',
+      browserProvidesBootstrapValidation: true,
+      browserOwnsFirstValidation: false,
+      nativeWindowOwnsDailyOperation: true,
+      nativeWrapperFollowsSameSource: true,
+      receiptRequired: true,
+    },
+    {
+      id: 'native_holoshell_window',
+      label: 'Native Window',
+      status: nativeWindowStatus,
+      value: NATIVE_HOLOSHELL_WINDOW_ROLE,
+      detail: 'app/window owns daily operations; browser is bootstrap receipt only',
+      sourceEndpoint: 'apps/holoshell/source/holoshell-native-wrapper.hsplus',
+      launcher: NATIVE_HOLOSHELL_WRAPPER,
+      serviceSupervisorEndpoint: 'GET /api/services/supervisor',
+      operatorTerminalSessionEndpoint: 'GET /api/operator-terminal/session',
+      permissionEnvelope: 'native_app_window',
+      receiptRequired: true,
+    },
+    {
+      id: 'native_capability_envelope',
+      label: 'Native Envelope',
+      status: nativeCapabilityEnvelopeStatus,
+      value: nativeCapabilityEnvelope.status,
+      detail: `${nativeCapabilityEnvelope.matchedLaneCount}/${nativeCapabilityEnvelope.requiredLaneCount} HoloScript native lanes ready`,
+      sourceEndpoint: NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+      permissionEnvelope: 'read_only_source_contract',
+      capabilityLanes: nativeCapabilityEnvelope.matchedLanes,
+      receiptRequired: true,
+    },
+    {
+      id: 'visual_operating_layer',
+      label: 'Visual Layer',
+      status: nativeVisualOperatingLayerStatus,
+      value: nativeVisualOperatingLayer.status,
+      detail: `${nativeVisualOperatingLayer.matchedPanelCount}/${nativeVisualOperatingLayer.requiredPanelCount} native visual panel contract(s) ready`,
+      sourceEndpoint: 'GET /api/visual-operating-layer',
+      upstreamSource: NATIVE_VISUAL_OPERATING_LAYER_SOURCE,
+      permissionEnvelope: 'read_only_operating_layer',
+      receiptRequired: true,
+    },
+    {
+      id: 'holoservices_supervisor',
+      label: 'Holo Services',
+      status: serviceSupervisorStatus,
+      value: serviceSupervisor.summary.status,
+      detail: `${serviceSupervisor.summary.requiredOnlineServiceCount}/${serviceSupervisor.summary.requiredServiceCount} required online; ${serviceSupervisor.summary.actionRequiredCount} action(s)`,
+      sourceEndpoint: 'GET /api/services/supervisor',
+      workflowEndpoint: 'POST /workflow/services/supervisor',
+      terminalCommandId: 'check_system',
+      permissionEnvelope: 'read_only_service_supervisor',
       receiptRequired: true,
     },
     {
@@ -4943,6 +5811,18 @@ function buildBrittneyCockpitCapsule() {
       receiptRequired: true,
     },
     {
+      id: 'terminal_event_stream',
+      label: 'Terminal Events',
+      status: operatorTerminalEventStreamStatus,
+      value: operatorTerminal.terminal.eventStreamStatus,
+      detail: `${operatorTerminal.terminal.eventStreamEventCount} event(s); upstream ${operatorTerminal.terminal.upstreamEventStreamStatus}`,
+      sourceEndpoint: 'GET /api/operator-terminal/events',
+      upstreamSource: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+      requiredCapabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
+      permissionEnvelope: 'read_only_event_stream',
+      receiptRequired: true,
+    },
+    {
       id: 'window_awareness',
       label: 'Windows',
       status: windowAwarenessStatus,
@@ -4964,6 +5844,83 @@ function buildBrittneyCockpitCapsule() {
     },
   ];
   const baseActionCards = [
+    {
+      id: 'browser_first_test_surface',
+      label: 'Browser Self-Test',
+      method: 'GET',
+      href: '/',
+      lane: 'jetson_extension_surface',
+      permissionEnvelope: 'read_only_browser_test',
+      mayExecuteWithoutConsent: true,
+      primaryAction: 'open_browser_bootstrap_self_test',
+      canonicalJetsonSurface: CANONICAL_JETSON_SURFACE,
+      browserReceiptScript: BROWSER_FIRST_RECEIPT_SCRIPT,
+      nativeWrapperFollowsSameSource: true,
+      nativeWindowOwnsDailyOperation: true,
+      receiptRequired: true,
+    },
+    {
+      id: 'native_holoshell_window',
+      label: 'Native Window',
+      method: 'GET',
+      href: '/api/cockpit/capsule',
+      lane: 'native_holoshell_app_window',
+      permissionEnvelope: 'native_app_window_contract',
+      mayExecuteWithoutConsent: true,
+      primaryAction: 'inspect_native_holoshell_window_contract',
+      launcher: NATIVE_HOLOSHELL_WRAPPER,
+      serviceSupervisorEndpoint: 'GET /api/services/supervisor',
+      operatorTerminalSessionEndpoint: 'GET /api/operator-terminal/session',
+      browserSelfTestOnly: true,
+      receiptRequired: true,
+    },
+    {
+      id: 'native_capability_envelope',
+      label: 'Native Envelope',
+      method: 'GET',
+      href: '/api/cockpit/capsule',
+      lane: 'native_capability_envelope',
+      permissionEnvelope: 'read_only_source_contract',
+      mayExecuteWithoutConsent: true,
+      primaryAction: 'inspect_holoscript_native_capability_envelope',
+      sourceEndpoint: NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+      schemaVersion: NATIVE_CAPABILITY_ENVELOPE_SCHEMA,
+      matchedLaneCount: nativeCapabilityEnvelope.matchedLaneCount,
+      requiredLaneCount: nativeCapabilityEnvelope.requiredLaneCount,
+      guardedLanes: nativeCapabilityEnvelope.guardedLanes,
+      breakGlassLanes: nativeCapabilityEnvelope.breakGlassLanes,
+      receiptRequired: true,
+    },
+    {
+      id: 'visual_operating_layer',
+      label: 'Visual Layer',
+      method: 'GET',
+      href: '/api/visual-operating-layer',
+      lane: 'native_visual_operating_layer',
+      permissionEnvelope: 'read_only_operating_layer',
+      mayExecuteWithoutConsent: true,
+      primaryAction: 'inspect_visual_operating_layer',
+      sourceEndpoint: VISUAL_OPERATING_LAYER_SOURCE,
+      upstreamSource: NATIVE_VISUAL_OPERATING_LAYER_SOURCE,
+      matchedPanelCount: nativeVisualOperatingLayer.matchedPanelCount,
+      requiredPanelCount: nativeVisualOperatingLayer.requiredPanelCount,
+      browserMayOwnExecution: false,
+      receiptRequired: true,
+    },
+    {
+      id: 'holoservices_supervisor_status',
+      label: 'Holo Services',
+      method: 'GET',
+      href: '/api/services/supervisor',
+      lane: 'holoservices_supervisor',
+      permissionEnvelope: 'read_only_service_supervisor',
+      mayExecuteWithoutConsent: true,
+      primaryAction: 'refresh_holoservices_supervisor_status',
+      terminalCommandId: 'check_system',
+      terminalCommand: 'pnpm run holoshell:service-supervisor',
+      endpointMayEnsureServices: false,
+      receiptRequired: true,
+    },
     {
       id: 'refresh_runtime_truth',
       label: 'Runtime Truth',
@@ -5160,8 +6117,12 @@ function buildBrittneyCockpitCapsule() {
       label: 'Terminal Events',
       method: 'GET',
       href: '/api/operator-terminal/events',
-      lane: 'operator_terminal',
+      lane: 'terminal_event_stream',
       permissionEnvelope: 'read_only_event_stream',
+      primaryAction: 'inspect_terminal_event_stream',
+      upstreamSource: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+      requiredCapabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
+      browserMayOwnExecution: false,
       mayExecuteWithoutConsent: true,
       receiptRequired: true,
     },
@@ -5169,6 +6130,13 @@ function buildBrittneyCockpitCapsule() {
   const windowActionCards = buildWindowActionCards(windowAwareness);
   const toolPreflightCards = buildToolPreflightCards(windowAwareness);
   const actionCards = [...baseActionCards, ...toolPreflightCards, ...windowActionCards];
+  const visualOperatingLayer = buildVisualOperatingLayer({
+    liveStatus,
+    operatorTerminal,
+    serviceSupervisor,
+    sourceOwnedState,
+    actionCards,
+  });
   const preflightPaths = toolPreflightCards.map((card) => card.preflightPath);
   return {
     schemaVersion: BRITTNEY_COCKPIT_CAPSULE_SCHEMA,
@@ -5179,6 +6147,30 @@ function buildBrittneyCockpitCapsule() {
     summary: {
       runtimeTruthStatus,
       routeStatus,
+      jetsonExtensionStatus,
+      browserFirstTestStatus,
+      nativeWrapperStatus,
+      nativeWindowStatus,
+      nativeCapabilityEnvelopeStatus,
+      nativeCapabilityEnvelopeLaneCount: nativeCapabilityEnvelope.matchedLaneCount,
+      nativeVisualOperatingLayerStatus,
+      visualOperatingLayerStatus: visualOperatingLayer.status,
+      visualOperatingLayerPanelCount: visualOperatingLayer.panels.length,
+      serviceDockStatus: visualOperatingLayer.serviceDock.status,
+      serviceDockServiceCount: visualOperatingLayer.serviceDock.serviceCount,
+      terminalRunTimelineStatus: visualOperatingLayer.terminalRunTimeline.status,
+      terminalRunTimelineEventCount: visualOperatingLayer.terminalRunTimeline.eventCount,
+      agentUtilityCapsuleCount: visualOperatingLayer.agentUtility.capsuleCount,
+      nodeCityNodeCount: visualOperatingLayer.nodeCity.nodeCount,
+      commandPaletteCommandCount: visualOperatingLayer.commandPalette.commandCount,
+      serviceSupervisorStatus,
+      serviceSupervisorSummaryStatus: serviceSupervisor.summary.status,
+      serviceSupervisorServiceCount: serviceSupervisor.summary.serviceCount,
+      serviceSupervisorRequiredOnlineCount: serviceSupervisor.summary.requiredOnlineServiceCount,
+      serviceSupervisorRequiredServiceCount: serviceSupervisor.summary.requiredServiceCount,
+      serviceSupervisorActionRequiredCount: serviceSupervisor.summary.actionRequiredCount,
+      serviceSupervisorControlDaemonStatus: serviceSupervisor.summary.controlDaemonServiceStatus,
+      serviceSupervisorTerminalCommandId: 'check_system',
       contextCarryStatus,
       sourceOwnedStateStatus,
       sourceOwnedDomainCount: sourceOwnedState.summary.domainCount,
@@ -5194,6 +6186,9 @@ function buildBrittneyCockpitCapsule() {
       activeChatWorkspaceId: browserSessionState.activeChatId,
       expandedChatWorkspaceCount: browserSessionState.expandedChatIds.length,
       operatorTerminalStatus,
+      operatorTerminalEventStreamStatus: operatorTerminal.terminal.eventStreamStatus,
+      operatorTerminalEventStreamEventCount: operatorTerminal.terminal.eventStreamEventCount,
+      upstreamTerminalEventStreamStatus: operatorTerminal.terminal.upstreamEventStreamStatus,
       windowAwarenessStatus,
       toolActionStatus,
       laptopReasoningLane: laptopReasoning.lane,
@@ -5230,11 +6225,21 @@ function buildBrittneyCockpitCapsule() {
       sovereignRoomMarathonEndpoint: 'GET /api/sovereign-room/marathon',
       sovereignRoomMarathonWorkflowEndpoint: 'POST /workflow/sovereign-room-marathon',
       sovereignRoomMarathonLatestEndpoint: 'GET /workflow/sovereign-room-marathon/latest',
+      serviceSupervisorEndpoint: 'GET /api/services/supervisor',
+      serviceSupervisorWorkflowEndpoint: 'POST /workflow/services/supervisor',
+      visualOperatingLayerEndpoint: 'GET /api/visual-operating-layer',
     },
     avatar: liveStatus.avatar,
     cockpitLanes,
     actionCards,
     sourceOwnedState,
+    jetsonExtension: sourceOwnedState.jetsonExtension,
+    nativeWindow: sourceOwnedState.nativeWindow,
+    nativeCapabilityEnvelope,
+    nativeTerminalEventStream,
+    nativeVisualOperatingLayer,
+    visualOperatingLayer,
+    serviceSupervisor,
     sovereignRoomMarathon,
     holoclawRuntimeBridge,
     faraPeerAutomation: faraAutomation,
@@ -5249,6 +6254,8 @@ function buildBrittneyCockpitCapsule() {
       identityCarry: ['surface', 'agent_family', 'current_lane', 'room_task_id', 'handoff_source'],
       memoryInputs: ['knowledge_store', 'GOLD', 'repo_files', 'receipts', 'room_board'],
       sourceOwnedStateRequires: ['agents', 'files', 'worlds', 'receipts', 'board_tasks'],
+      surfaceInputs: ['jetson_surface', 'native_window', 'native_capability_envelope', 'terminal_event_stream', 'terminal_run_cards', 'holo_services', 'browser_self_test_receipt'],
+      visualOperatingLayerInputs: ['service_dock', 'terminal_run_timeline', 'agent_utility_capsules', 'hololand_node_city', 'consent_command_palette'],
       graphRagPrompt: 'Ask the knowledge graph for prior decisions before guessing when runtime truth is unknown.',
     },
     safety: {
@@ -5257,6 +6264,26 @@ function buildBrittneyCockpitCapsule() {
       admittedExecutorActions: ['open_url'],
       allOtherDesktopActionsRemainPlanOnly: true,
       browserTerminalCouplingRequires: ['shared_session_id', 'terminal_receipt', 'context_capsule', 'hologate_receipt'],
+      browserFirstValidationRequiredBeforeNativeClaim: true,
+      nativeWrapperFollowsSameSource: true,
+      nativeCapabilityEnvelopeSource: NATIVE_CAPABILITY_ENVELOPE_SOURCE,
+      nativeCapabilityEnvelopeRequired: true,
+      nativeVisualOperatingLayerSource: NATIVE_VISUAL_OPERATING_LAYER_SOURCE,
+      nativeVisualOperatingLayerRequired: true,
+      nativeCapabilityLanesReady: nativeCapabilityEnvelope.status === 'ready',
+      nativeCapabilityGuardedLanes: nativeCapabilityEnvelope.guardedLanes,
+      upstreamTerminalEventStreamSource: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+      upstreamTerminalEventStreamRequired: true,
+      upstreamTerminalEventStreamStatus: operatorTerminal.terminal.upstreamEventStreamStatus,
+      terminalEventReadCapabilityLane: TERMINAL_EVENT_REQUIRED_CAPABILITY_LANE,
+      browserMayOwnTerminalExecution: false,
+      jetsonIsPrimaryAlwaysOnSurface: true,
+      nativeWindowOwnsDailyOperation: true,
+      browserIsBootstrapSelfTestOnly: true,
+      holoServicesRunThroughTerminalSupervisor: true,
+      visualOperatingLayerAgentReadable: true,
+      commandPaletteRequiresConsentBoundaries: true,
+      serviceEnsureRequiresExplicitConfirmation: true,
       sovereignRoomClaimRequires: ['explicit_local_claim_confirmation', 'local_task_match', 'execution_receipt_before_done'],
       sovereignRoomBrowserClaimAllowed: true,
       sovereignRoomBrowserClaimScope: 'claim_local_room_task_only',
@@ -5285,9 +6312,19 @@ function buildBrittneyCockpitCapsule() {
       latestSovereignRoomMarathonStatus: sovereignRoomMarathon.status,
       latestHoloClawRuntimeBridgeReceipt: holoclawRuntimeBridge.receiptPath,
       latestHoloClawRuntimeBridgeStatus: holoclawRuntimeBridge.status,
+      serviceSupervisorReceipt: SERVICE_SUPERVISOR_RECEIPT,
+      serviceSupervisorStatus: serviceSupervisor.summary.status,
+      serviceSupervisorSnapshotHash: serviceSupervisor.receipt.snapshotHash,
       operatorTerminalReceiptHash: operatorTerminal.terminal.receiptHash,
       operatorTerminalReceiptStatus: operatorTerminal.terminal.receiptStatus,
       operatorTerminalRunCardCount: operatorTerminal.runCards.length,
+      operatorTerminalEventStreamStatus: operatorTerminal.terminal.eventStreamStatus,
+      operatorTerminalEventStreamEventCount: operatorTerminal.terminal.eventStreamEventCount,
+      upstreamTerminalEventStreamSource: operatorTerminal.terminal.upstreamEventStreamSource,
+      upstreamTerminalEventStreamStatus: operatorTerminal.terminal.upstreamEventStreamStatus,
+      nativeVisualOperatingLayerStatus: nativeVisualOperatingLayer.status,
+      visualOperatingLayerStatus: visualOperatingLayer.status,
+      visualOperatingLayerEndpoint: 'GET /api/visual-operating-layer',
       evidenceLedgerStatus: operatorTerminal.refreshRecovery.evidenceLedgerStatus,
       browserSessionSnapshotStatus: browserSessionState.snapshotStatus,
       browserSessionSnapshotReceipt: browserSessionState.output,
@@ -5299,7 +6336,7 @@ function buildBrittneyCockpitCapsule() {
     },
     destructiveActionsTaken: windowAwareness.safety.destructiveActionsTaken,
     desktopAutomationExecuted: false,
-    nextSafeStep: 'Preserve source-owned agents, files, worlds, receipts, and board tasks before projection; inspect Sovereign Room status before claiming local work, claim only through explicit guarded local-claim confirmation, inspect HoloClaw runtime status before staging agent work, refresh terminal evidence when stale, then request desktop execution only through preflight -> consent-token -> receipt.',
+    nextSafeStep: 'Preserve source-owned agents, files, worlds, receipts, board tasks, and Holo Services before projection; use the browser as a bootstrap receipt, operate daily through the native HoloShell window, refresh Holo Services through the terminal supervisor, inspect Sovereign Room status before claiming local work, inspect HoloClaw runtime status before staging agent work, then request desktop execution only through preflight -> consent-token -> receipt.',
   };
 }
 
@@ -5357,8 +6394,28 @@ async function handleRequest(req, res) {
   const url = new URL(req.url, `http://localhost:${PORT}`);
   const path = url.pathname;
 
-  // ── GET / → compiled dashboard HTML
+  // ── GET / → natural layer surface (compiled from holoshell-shell-world.holo)
   if (req.method === 'GET' && path === '/') {
+    if (existsSync(SURFACE_HTML_PATH)) {
+      const html = readFileSync(SURFACE_HTML_PATH, 'utf8');
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(html);
+      return;
+    }
+    // Fallback to the operator cockpit if the surface hasn't been compiled yet.
+    if (!existsSync(HTML_PATH)) {
+      res.writeHead(503, { 'Content-Type': 'text/plain' });
+      res.end('surface not found. Run: node packages/holoshell/compile-shell-world-surface.mjs');
+      return;
+    }
+    const html = readFileSync(HTML_PATH, 'utf8');
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(html);
+    return;
+  }
+
+  // ── GET /operator → operator cockpit (backend layer, escape hatch)
+  if (req.method === 'GET' && (path === '/operator' || path === '/operator/')) {
     if (!existsSync(HTML_PATH)) {
       res.writeHead(503, { 'Content-Type': 'text/plain' });
       res.end('operate-room.html not found. Run: node packages/holoshell/compile.mjs');
@@ -5626,6 +6683,61 @@ async function handleRequest(req, res) {
     return;
   }
 
+  if (req.method === 'GET' && path === '/api/visual-operating-layer') {
+    respond(res, buildBrittneyCockpitCapsule().visualOperatingLayer);
+    return;
+  }
+
+  if (req.method === 'GET' && path === '/api/services/supervisor') {
+    respond(res, runServiceSupervisorSnapshot('status'));
+    return;
+  }
+
+  if (req.method === 'POST' && path === '/workflow/services/supervisor') {
+    let body = '';
+    req.on('data', (c) => { body += c; });
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const wantsEnsure = payload.ensure === true || payload.action === 'ensure';
+        if (wantsEnsure && payload.confirmHoloServicesEnsure !== true) {
+          respond(res, {
+            schemaVersion: SERVICE_SUPERVISOR_SCHEMA,
+            status: 'confirmation_required',
+            reason: 'holo_services_ensure_requires_confirmHoloServicesEnsure_true',
+            required: ['confirmHoloServicesEnsure:true'],
+            endpointExecutesRawCommand: false,
+            endpointDelegatesOnlyToRegisteredManagers: true,
+            destructiveActionsTaken: false,
+            desktopAutomationExecuted: false,
+            receiptRequired: true,
+          }, 403);
+          return;
+        }
+        const snapshot = runServiceSupervisorSnapshot(wantsEnsure ? 'ensure' : 'status');
+        respond(res, {
+          ...snapshot,
+          workflowAction: wantsEnsure ? 'ensure' : 'status',
+          endpointExecutesRawCommand: false,
+          endpointDelegatesOnlyToRegisteredManagers: true,
+          destructiveActionsTaken: snapshot.destructiveActionsTaken,
+          desktopAutomationExecuted: false,
+          receiptRequired: true,
+        });
+      } catch (err) {
+        respond(res, {
+          schemaVersion: SERVICE_SUPERVISOR_SCHEMA,
+          status: 'error',
+          error: String(err.message || err).slice(0, 300),
+          destructiveActionsTaken: false,
+          desktopAutomationExecuted: false,
+          receiptRequired: true,
+        }, 400);
+      }
+    });
+    return;
+  }
+
   if (req.method === 'GET' && path === '/api/browser-session/state') {
     const requestedSessionId = url.searchParams.get('sessionId');
     respond(res, readBrowserSessionStateSnapshot({
@@ -5786,11 +6898,11 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && path === '/api/operator-terminal/run-readonly') {
     let body = '';
     req.on('data', (c) => { body += c; });
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
         const payload = JSON.parse(body || '{}');
         const receipt = writeOperatorTerminalReadOnlyAdapterExecutionReceipt(
-          buildOperatorTerminalReadOnlyAdapterExecutionReceipt(payload)
+          await buildOperatorTerminalReadOnlyAdapterExecutionReceipt(payload)
         );
         respond(res, {
           schemaVersion: OPERATOR_TERMINAL_READONLY_EXECUTION_SCHEMA,
