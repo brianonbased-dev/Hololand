@@ -1,0 +1,25 @@
+{
+  "schema": "hololand.worldgen.demo-input.v0.1.0",
+  "demoId": "hl-013-sovereign-worldgen",
+  "title": "HL-013 Sovereign Worldgen Coastal Ruin",
+  "prompt": "Create a navigable Quest 3 coastal ruin world with a visible path, a portal, safe collision, and provenance markers for every generated asset.",
+  "imageObservationRef": "synthetic://hl-013-coastal-ruin-input",
+  "facts": [
+    {
+      "label": "coastal cliff silhouette",
+      "confidence": 0.93
+    },
+    {
+      "label": "arched stone ruin",
+      "confidence": 0.88
+    },
+    {
+      "label": "warm cyan orange palette",
+      "confidence": 0.82
+    },
+    {
+      "label": "walkable foreground path",
+      "confidence": 0.91
+    }
+  ]
+}
