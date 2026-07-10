@@ -11,7 +11,28 @@ composition "HoloShell Brittney Desktop Cockpit" {
     product: "HoloShell"
     sourceLayer: "HoloScript"
     runtimeSurface: "Brittney Studio desktop app"
+    primaryHostRole: "jetson_extension_host"
+    canonicalJetsonSurface: "http://holojetson.local:8747"
+    browserFirstTestSurface: "GET /"
+    browserFirstReceiptScript: "scripts/holoshell-brittney-operator-chat-browser-receipt.mjs"
+    nativeHoloShellWrapper: "apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1"
+    nativeHoloShellWindowRole: "native_holoshell_app_window"
+    nativeCapabilityEnvelopeSource: "HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus"
+    nativeCapabilityEnvelopeSchema: "holoscript.holoshell.native-capability-envelope.v0.1.0"
+    nativeTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    nativeTerminalEventStreamSchema: "holoscript.holoshell.native-terminal-event-stream.v0.1.0"
+    nativeVisualOperatingLayerSource: "HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus"
+    nativeVisualOperatingLayerSchema: "holoscript.holoshell.native-visual-operating-layer.v0.1.0"
+    visualOperatingLayerSource: "apps/holoshell/source/holoshell-visual-operating-layer.hsplus"
+    visualOperatingLayerEndpoint: "GET /api/visual-operating-layer"
+    terminalEventReadCapabilityLane: "terminal_event_read"
+    serviceSupervisorSource: "apps/holoshell/source/holoshell-service-supervisor.hsplus"
+    serviceSupervisorEndpoint: "GET /api/services/supervisor"
+    serviceSupervisorWorkflowEndpoint: "POST /workflow/services/supervisor"
+    serviceSupervisorTerminalCommandId: "check_system"
+    serviceSupervisorReceipt: ".tmp/holoshell/service-supervisor.json"
     desktopLaunchAdapter: "scripts/brittney-studio-launch.ps1"
+    desktopLaunchStartsLaptopBridgeBeforeBrowser: true
     legacyGatewayAdapter: "scripts/start-brittney.ts"
     laptopReceiptFreshnessAdapter: "scripts/holoshell-laptop-receipt-freshness.mjs"
     adapterScript: "packages/holoshell/serve.mjs"
@@ -36,12 +57,14 @@ composition "HoloShell Brittney Desktop Cockpit" {
     holoclawRuntimeBridgeWorkflowEndpoint: "POST /workflow/holoclaw-runtime-bridge"
     operatorTerminalSessionEndpoint: "GET /api/operator-terminal/session"
     operatorTerminalReportEndpoint: "POST /api/operator-terminal/report"
+    visualOperatingLayerCapsulePath: "GET /api/cockpit/capsule#visualOperatingLayer"
     browserSessionStateEndpoint: "GET/POST /api/browser-session/state?sessionId=:sessionId"
     laptopReasoningReportEndpoint: "POST /api/laptop-reasoning/report"
     windowAwarenessReportEndpoint: "POST /api/window-awareness/report"
     chatEndpoint: "POST /api/brittney/chat"
     desktopPlanEndpoint: "POST /api/desktop-control/plan"
     desktopBridgeEndpoint: "GET /api/desktop-control/bridge"
+    laptopDesktopBridgeEndpoint: "GET http://127.0.0.1:8751/api/desktop-control/bridge"
     faraPeerAutomationPulseEndpoint: "POST /api/fara-peer-chat/automation-pulse"
     faraPeerAutomationScheduleEndpoint: "POST /api/fara-peer-chat/automation-schedule"
     faraPeerAutomationPromotionEndpoint: "POST /api/fara-peer-chat/promote-proposal"
@@ -70,6 +93,19 @@ composition "HoloShell Brittney Desktop Cockpit" {
     sourceOwnedStateStatus: "unknown"
     sourceOwnedDomainCount: 0
     desktopBridgeStatus: "unknown"
+    jetsonExtensionStatus: "unknown"
+    browserFirstTestStatus: "unknown"
+    nativeWrapperStatus: "unknown"
+    nativeWindowStatus: "unknown"
+    nativeCapabilityEnvelopeStatus: "unknown"
+    nativeCapabilityEnvelopeLaneCount: 0
+    nativeTerminalEventStreamStatus: "unknown"
+    terminalEventStreamEventCount: 0
+    serviceSupervisorStatus: "unknown"
+    serviceSupervisorServiceCount: 0
+    serviceSupervisorRequiredOnlineCount: 0
+    serviceSupervisorRequiredServiceCount: 0
+    serviceSupervisorActionRequiredCount: 0
     laptopReasoningStatus: "unknown"
     laptopReasoningLane: "laptop-hardware"
     laptopReasoningModelInvocationPerformed: false
@@ -128,6 +164,7 @@ composition "HoloShell Brittney Desktop Cockpit" {
     sovereignRoomMarathon: {}
     holoclawRuntimeBridge: {}
     sourceOwnedState: {}
+    visualOperatingLayer: {}
     faraPeerAutomation: {}
     windowAwareness: {}
     preflightPaths: []
@@ -136,6 +173,52 @@ composition "HoloShell Brittney Desktop Cockpit" {
     receipts: {}
     destructiveActionsTaken: false
     desktopAutomationExecuted: false
+    receiptRequired: true
+  }
+
+  template "JetsonExtensionRoute" {
+    type: "jetson_extension_route"
+    schemaVersion: "hololand.holoshell.jetson-extension-route.v0.1.0"
+    source: "apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus"
+    hostRole: "jetson_extension_host"
+    canonicalJetsonSurface: "http://holojetson.local:8747"
+    browserFirstTestSurface: "GET /"
+    browserFirstReceiptScript: "scripts/holoshell-brittney-operator-chat-browser-receipt.mjs"
+    nativeHoloShellWrapper: "apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1"
+    desktopAppRole: "native_holoshell_app_window"
+    browserProvidesBootstrapValidation: true
+    browserOwnsFirstValidation: false
+    nativeWindowOwnsDailyOperation: true
+    sourceRequiredBeforeProjection: true
+    receiptRequired: true
+  }
+
+  template "NativeHoloShellWindow" {
+    type: "native_holoshell_window"
+    source: "apps/holoshell/source/holoshell-native-wrapper.hsplus"
+    launcher: "apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1"
+    productTarget: "app_window_for_holoservices_terminal_and_hologate_actions"
+    serviceSupervisorEndpoint: "GET /api/services/supervisor"
+    operatorTerminalEndpoint: "GET /api/operator-terminal/session"
+    visualOperatingLayerEndpoint: "GET /api/visual-operating-layer"
+    terminalRunCardsRequired: true
+    visualOperatingLayerRequired: true
+    browserSelfTestRequiredBeforePackagingClaim: true
+    receiptRequired: true
+  }
+
+  template "VisualOperatingLayer" {
+    type: "native_visual_operating_layer"
+    schemaVersion: "hololand.holoshell.visual-operating-layer.v0.1.0"
+    source: "apps/holoshell/source/holoshell-visual-operating-layer.hsplus"
+    upstreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus"
+    endpoint: "GET /api/visual-operating-layer"
+    cockpitCapsulePath: "GET /api/cockpit/capsule#visualOperatingLayer"
+    requiredPanels: ["service_dock", "terminal_run_timeline", "agent_utility_capsules", "hololand_node_city", "consent_command_palette"]
+    requiredAgentFields: ["api", "capabilityLane", "permissionEnvelope", "receipt", "nextSafeAction"]
+    browserMayProveProjection: true
+    browserMayOwnExecution: false
+    nativeWindowOwnsDailyOperation: true
     receiptRequired: true
   }
 
@@ -256,6 +339,42 @@ composition "HoloShell Brittney Desktop Cockpit" {
       uiType: "cockpit_lane"
       label: "Routes"
       status: $routeStatus
+    }
+
+    object "JetsonExtension" {
+      type: "ui"
+      uiType: "cockpit_lane"
+      label: "Jetson Extension"
+      status: $jetsonExtensionStatus
+      source: "apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus"
+      browserSurface: "http://holojetson.local:8747"
+      browserFirstTestSurface: "GET /"
+      nativeWrapper: "apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1"
+      browserProvidesBootstrapValidation: true
+      browserOwnsFirstValidation: false
+      nativeWindowOwnsDailyOperation: true
+    }
+
+    object "NativeWindow" {
+      type: "ui"
+      uiType: "cockpit_lane"
+      label: "Native Window"
+      status: $nativeWindowStatus
+      source: "apps/holoshell/source/holoshell-native-wrapper.hsplus"
+      launcher: "apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1"
+      serviceSupervisorEndpoint: "GET /api/services/supervisor"
+      operatorTerminalEndpoint: "GET /api/operator-terminal/session"
+    }
+
+    object "HoloServices" {
+      type: "ui"
+      uiType: "cockpit_lane"
+      label: "Holo Services"
+      status: $serviceSupervisorStatus
+      source: "apps/holoshell/source/holoshell-service-supervisor.hsplus"
+      endpoint: "GET /api/services/supervisor"
+      workflowEndpoint: "POST /workflow/services/supervisor"
+      terminalCommandId: "check_system"
     }
 
     object "ContextCarry" {
@@ -413,6 +532,48 @@ composition "HoloShell Brittney Desktop Cockpit" {
     receiptRequired: true
   }
 
+  policy "BrowserBootstrapNativeWindowProof" {
+    appliesTo: ["jetson_extension_route", "browser_cockpit", "native_holoshell_wrapper", "desktop_launch_adapter"]
+    source: "apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus"
+    canonicalJetsonSurface: "http://holojetson.local:8747"
+    browserFirstTestSurface: "GET /"
+    browserReceiptScript: "scripts/holoshell-brittney-operator-chat-browser-receipt.mjs"
+    browserProvidesBootstrapValidation: true
+    browserOwnsFirstValidation: false
+    browserIsBootstrapSelfTestOnly: true
+    nativeWrapperFollowsSameSource: true
+    nativeWindowOwnsDailyOperation: true
+    desktopAppMayNotOwnBehaviorAlone: true
+    jetsonIsPrimaryAlwaysOnSurface: true
+    laptopIsReasoningAndReceiptOverflow: true
+    receiptRequired: true
+  }
+
+  policy "NativeWindowRunsHoloServicesThroughTerminal" {
+    appliesTo: ["native_holoshell_app_window", "operator_terminal", "holoservices_supervisor", "service_ensure"]
+    source: "apps/holoshell/source/holoshell-service-supervisor.hsplus"
+    upstreamCapabilityEnvelopeSource: "HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus"
+    statusCapabilityLane: "service_status"
+    ensureCapabilityLane: "guarded_service_ensure"
+    serviceSupervisorEndpoint: "GET /api/services/supervisor"
+    serviceSupervisorWorkflowEndpoint: "POST /workflow/services/supervisor"
+    terminalCommandId: "check_system"
+    terminalCommand: "pnpm run holoshell:service-supervisor"
+    nativeWindowOwnsDailyOperation: true
+    browserIsBootstrapSelfTestOnly: true
+    terminalRunCardsRequired: true
+    ensureDelegatesOnlyToRegisteredManagers: true
+    serviceEnsureRequiresExplicitConfirmation: true
+    nativeCapabilityEnvelopeRequired: true
+    upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    terminalEventReadCapabilityLane: "terminal_event_read"
+    upstreamTerminalEventStreamRequired: true
+    arbitraryProcessStartAllowed: false
+    arbitraryProcessStopAllowed: false
+    forceKillAllowed: false
+    receiptRequired: true
+  }
+
   policy "BrowserRefreshPreservesOperatorSession" {
     appliesTo: ["browser_cockpit", "brittney_chat", "sovereign_chat", "holoclaw_chat", "terminal_chat", "improvement_chat", "draft_inputs", "improvement_run_selection", "latest_cockpit_capsule", "evidence_ledger", "server_session_snapshot"]
     source: "apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus"
@@ -461,6 +622,9 @@ composition "HoloShell Brittney Desktop Cockpit" {
     desktopLaunchAdapter: "scripts/brittney-studio-launch.ps1"
     legacyGatewayAdapter: "scripts/start-brittney.ts"
     adapterMayOpenBrowserSurface: true
+    browserFirstTestSurface: "GET /"
+    canonicalJetsonSurface: "http://holojetson.local:8747"
+    nativeWrapperFollowsSameSource: true
     adapterMayRefreshOperatorTerminalReceipt: true
     adapterMayRunLaptopReceiptFreshnessWatch: true
     adapterMayOpenVisibleTerminalByDefault: false
@@ -561,6 +725,17 @@ composition "HoloShell Brittney Desktop Cockpit" {
     state.contextCarryStatus = capsule.summary.contextCarryStatus
     state.sourceOwnedStateStatus = capsule.summary.sourceOwnedStateStatus
     state.sourceOwnedDomainCount = capsule.summary.sourceOwnedDomainCount
+    state.jetsonExtensionStatus = capsule.summary.jetsonExtensionStatus
+    state.browserFirstTestStatus = capsule.summary.browserFirstTestStatus
+    state.nativeWrapperStatus = capsule.summary.nativeWrapperStatus
+    state.nativeWindowStatus = capsule.summary.nativeWindowStatus
+    state.nativeTerminalEventStreamStatus = capsule.summary.upstreamTerminalEventStreamStatus
+    state.terminalEventStreamEventCount = capsule.summary.operatorTerminalEventStreamEventCount
+    state.serviceSupervisorStatus = capsule.summary.serviceSupervisorStatus
+    state.serviceSupervisorServiceCount = capsule.summary.serviceSupervisorServiceCount
+    state.serviceSupervisorRequiredOnlineCount = capsule.summary.serviceSupervisorRequiredOnlineCount
+    state.serviceSupervisorRequiredServiceCount = capsule.summary.serviceSupervisorRequiredServiceCount
+    state.serviceSupervisorActionRequiredCount = capsule.summary.serviceSupervisorActionRequiredCount
     state.desktopBridgeStatus = capsule.summary.desktopBridgeStatus
     state.laptopReasoningStatus = capsule.summary.laptopReasoningStatus
     state.laptopReasoningLane = capsule.summary.laptopReasoningLane
@@ -607,6 +782,17 @@ composition "HoloShell Brittney Desktop Cockpit" {
       contextCarry: state.contextCarryStatus,
       sourceOwnedState: state.sourceOwnedStateStatus,
       sourceOwnedDomains: state.sourceOwnedDomainCount,
+      jetsonExtension: state.jetsonExtensionStatus,
+      browserFirstTest: state.browserFirstTestStatus,
+      nativeWrapper: state.nativeWrapperStatus,
+      nativeWindow: state.nativeWindowStatus,
+      nativeTerminalEventStream: state.nativeTerminalEventStreamStatus,
+      terminalEventStreamEvents: state.terminalEventStreamEventCount,
+      serviceSupervisor: state.serviceSupervisorStatus,
+      serviceSupervisorServices: state.serviceSupervisorServiceCount,
+      serviceSupervisorRequiredOnline: state.serviceSupervisorRequiredOnlineCount,
+      serviceSupervisorRequired: state.serviceSupervisorRequiredServiceCount,
+      serviceSupervisorActions: state.serviceSupervisorActionRequiredCount,
       desktopBridge: state.desktopBridgeStatus,
       laptopReasoning: state.laptopReasoningStatus,
       laptopReasoningLane: state.laptopReasoningLane,

@@ -41,6 +41,7 @@ composition "HoloShell Desktop Control Bridge" {
     latestPlanBootstrap: ".tmp/holoshell/desktop-control-latest.js"
     latestBridgeReport: ".tmp/holoshell/desktop-control-bridge/latest-status.json"
     latestBridgeReportFreshnessMs: 120000
+    latestBridgeReportRequiresLoopbackReachable: true
     preflightReceiptDir: ".tmp/holoshell/desktop-control-bridge/preflights"
     primaryOperator: "brittney"
     peerChatLane: "fara_peer_chat"
@@ -154,6 +155,10 @@ composition "HoloShell Desktop Control Bridge" {
     status: "ready"
     url: "http://127.0.0.1:8751"
     hostRole: "laptop_desktop_bridge"
+    statusSource: "daemon_runtime"
+    loopbackReachable: true
+    offlineStatus: "offline"
+    statusProbe: { mode: "loopback_status_cli", endpoint: "GET http://127.0.0.1:8751/api/desktop-control/bridge", ok: true, error: "" }
     modelLane: "fara_gui_grounding"
     capabilities: ["bridge_status", "desktop_action_preflight", "consent_token_issue", "consent_token_verify", "approved_execution_staging", "admitted_open_url_executor", "execution_refusal", "receipt_write"]
     destructiveActionsTaken: false

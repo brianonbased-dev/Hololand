@@ -8,6 +8,10 @@ const files = {
   source: 'apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus',
   browserTerminalSource: 'apps/holoshell/source/holoshell-browser-terminal-coupling.hsplus',
   operatorTerminalSource: 'apps/holoshell/source/holoshell-operator-terminal.hsplus',
+  terminalEventStreamSource: 'apps/holoshell/source/holoshell-terminal-event-stream.hsplus',
+  visualOperatingLayerSource: 'apps/holoshell/source/holoshell-visual-operating-layer.hsplus',
+  nativeWrapperSource: 'apps/holoshell/source/holoshell-native-wrapper.hsplus',
+  serviceSupervisorSource: 'apps/holoshell/source/holoshell-service-supervisor.hsplus',
   sovereignRoomSource: 'apps/holoshell/source/holoshell-sovereign-room-marathon.hsplus',
   chatSource: 'apps/holoshell/source/holoshell-brittney-operator-chat.hsplus',
   launch: 'scripts/brittney-studio-launch.ps1',
@@ -33,6 +37,10 @@ function requireIncludes(label, text, snippets, failures) {
 const source = read(files.source);
 const browserTerminalSource = read(files.browserTerminalSource);
 const operatorTerminalSource = read(files.operatorTerminalSource);
+const terminalEventStreamSource = read(files.terminalEventStreamSource);
+const visualOperatingLayerSource = read(files.visualOperatingLayerSource);
+const nativeWrapperSource = read(files.nativeWrapperSource);
+const serviceSupervisorSource = read(files.serviceSupervisorSource);
 const sovereignRoomSource = read(files.sovereignRoomSource);
 const chatSource = read(files.chatSource);
 const launch = read(files.launch);
@@ -53,6 +61,30 @@ requireIncludes('desktop cockpit source', source, [
   'browserSessionStateSchema: "hololand.holoshell.browser-session-state.v0.1.0"',
   'browserSessionStateStorageKey: "holoshell:brittney:browser-session:v1"',
   'browserChatWorkspaceIds: ["brittney", "sovereign", "holoclaw", "terminal", "improvement"]',
+  'primaryHostRole: "jetson_extension_host"',
+  'canonicalJetsonSurface: "http://holojetson.local:8747"',
+  'browserFirstTestSurface: "GET /"',
+  'browserFirstReceiptScript: "scripts/holoshell-brittney-operator-chat-browser-receipt.mjs"',
+  'nativeHoloShellWrapper: "apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1"',
+  'nativeHoloShellWindowRole: "native_holoshell_app_window"',
+  'nativeCapabilityEnvelopeSource: "HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus"',
+  'nativeCapabilityEnvelopeSchema: "holoscript.holoshell.native-capability-envelope.v0.1.0"',
+  'nativeTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"',
+  'nativeTerminalEventStreamSchema: "holoscript.holoshell.native-terminal-event-stream.v0.1.0"',
+  'nativeVisualOperatingLayerSource: "HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus"',
+  'nativeVisualOperatingLayerSchema: "holoscript.holoshell.native-visual-operating-layer.v0.1.0"',
+  'visualOperatingLayerSource: "apps/holoshell/source/holoshell-visual-operating-layer.hsplus"',
+  'visualOperatingLayerEndpoint: "GET /api/visual-operating-layer"',
+  'terminalEventReadCapabilityLane: "terminal_event_read"',
+  'serviceSupervisorEndpoint: "GET /api/services/supervisor"',
+  'serviceSupervisorTerminalCommandId: "check_system"',
+  'JetsonExtensionRoute',
+  'NativeHoloShellWindow',
+  'VisualOperatingLayer',
+  'BrowserBootstrapNativeWindowProof',
+  'NativeWindowRunsHoloServicesThroughTerminal',
+  'nativeCapabilityEnvelopeRequired: true',
+  'upstreamTerminalEventStreamRequired: true',
   'sourceOwnedStateSchema: "hololand.holoshell.source-owned-cockpit-state.v0.1.0"',
   'sourceOwnedStateEndpoint: "GET /api/cockpit/capsule#sourceOwnedState"',
   'ChatWorkspace',
@@ -82,9 +114,15 @@ requireIncludes('desktop cockpit source', source, [
 ], failures);
 
 requireIncludes('browser-terminal source', browserTerminalSource, [
+  'terminalEventStreamSource: "apps/holoshell/source/holoshell-terminal-event-stream.hsplus"',
+  'upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"',
+  'terminalEventsEndpoint: "GET /api/operator-terminal/events"',
   'guardedExecuteEndpoint: "POST /api/operator-terminal/execute"',
   'approvedAdapterExecuteEndpoint: "POST /api/operator-terminal/run-approved"',
   'readOnlyAdapterExecuteEndpoint: "POST /api/operator-terminal/run-readonly"',
+  'terminalRunnerAdapter: "scripts/holoshell-terminal-runner.mjs"',
+  'terminalLifecycleEventsRequired: true',
+  'requiredLifecycleEvents: ["run.started", "stdout.chunk", "stderr.chunk", "run.exited", "receipt.written"]',
   'endpointMayStageGuardedExecutionReceipt: true',
   'endpointMayExecuteApprovedAdapter: true',
   'endpointMayExecuteReadOnlyAdapter: true',
@@ -97,6 +135,7 @@ requireIncludes('browser-terminal source', browserTerminalSource, [
   'ApprovedTerminalAdapterExecutionConsumesReceipts',
   'ReadOnlyTerminalAdapterExecutionRunsReceipts',
   'confirmClaim_for_local_room_claim',
+  '"GET /api/operator-terminal/events"',
 ], failures);
 
 requireIncludes('operator-terminal source', operatorTerminalSource, [
@@ -111,6 +150,58 @@ requireIncludes('operator-terminal source', operatorTerminalSource, [
   'requiresSelectedTaskId: true',
   'taskSelectionField: "selectedTaskId"',
   'confirmClaim_for_local_room_claim',
+], failures);
+
+requireIncludes('terminal event stream source', terminalEventStreamSource, [
+  'upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"',
+  'upstreamTerminalEventStreamSchema: "holoscript.holoshell.native-terminal-event-stream.v0.1.0"',
+  'requiredCapabilityLane: "terminal_event_read"',
+  'nativeEventKind: "artifact.detected"',
+  'runnerScript: "scripts/holoshell-terminal-runner.mjs"',
+  'ReadOnlyAdapterLifecycleRunner',
+  'endpointExecutesReadOnlyAdapter: true',
+  'UpstreamTerminalEventContractRequired',
+  'eventKindsRequired: ["run.started", "stdout.chunk", "stderr.chunk", "artifact.detected", "approval.required", "run.exited", "receipt.written"]',
+  'browserMayOwnExecution: false',
+], failures);
+
+requireIncludes('visual operating layer source', visualOperatingLayerSource, [
+  'upstreamVisualOperatingLayerSource: "HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus"',
+  'upstreamVisualOperatingLayerSchema: "holoscript.holoshell.native-visual-operating-layer.v0.1.0"',
+  'sourceEndpoint: "GET /api/visual-operating-layer"',
+  'requiredPanels: ["service_dock", "terminal_run_timeline", "agent_utility_capsules", "hololand_node_city", "consent_command_palette"]',
+  'requiredAgentFields: ["api", "capabilityLane", "permissionEnvelope", "receipt", "nextSafeAction"]',
+  'VisualOperatingLayerReceipt',
+  'ServiceDockCard',
+  'TerminalTimelineEvent',
+  'PanelsCarryAgentUtility',
+  'CommandPaletteConsentBoundary',
+  'browserMayOwnExecution: false',
+], failures);
+
+requireIncludes('native wrapper source', nativeWrapperSource, [
+  'upstreamCapabilityEnvelopeSource: "HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus"',
+  'upstreamCapabilityEnvelopeSchema: "holoscript.holoshell.native-capability-envelope.v0.1.0"',
+  'upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"',
+  'upstreamTerminalEventStreamSchema: "holoscript.holoshell.native-terminal-event-stream.v0.1.0"',
+  'upstreamVisualOperatingLayerSource: "HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus"',
+  'visualOperatingLayerEndpoint: "GET /api/visual-operating-layer"',
+  'nativeCapabilityLanes: ["receipt_read", "terminal_event_read", "jetson_appliance_observe", "service_status", "guarded_service_ensure", "guarded_open_url", "break_glass_os_mutation"]',
+  'NativeCapabilityEnvelopeSourceOfTruth',
+  'terminalEventsBeforeTerminalUi: true',
+  'visualOperatingLayerBeforeNativeUiClaim: true',
+  'jetsonEvidenceMustStaySeparatedFromLaptopEvidence: true',
+], failures);
+
+requireIncludes('service supervisor source', serviceSupervisorSource, [
+  'upstreamCapabilityEnvelopeSource: "HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus"',
+  'upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"',
+  'requiredCapabilityForStatus: "service_status"',
+  'requiredCapabilityForEnsure: "guarded_service_ensure"',
+  'requiredCapabilityForEvents: "terminal_event_read"',
+  'ServiceEnsureUsesNativeCapabilityEnvelope',
+  'upstreamTerminalEventStreamRequired: true',
+  'nativeHostOwnsServiceLifecycle: true',
 ], failures);
 
 requireIncludes('sovereign room source', sovereignRoomSource, [
@@ -178,6 +269,37 @@ requireIncludes('operator terminal adapter', terminal, [
 requireIncludes('HoloShell server adapter', serve, [
   "const BRITTNEY_COCKPIT_SOURCE = 'apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus'",
   "const BRITTNEY_COCKPIT_CAPSULE_SCHEMA = 'hololand.holoshell.brittney-cockpit-capsule.v0.1.0'",
+  "const VISUAL_OPERATING_LAYER_SOURCE = 'apps/holoshell/source/holoshell-visual-operating-layer.hsplus'",
+  "const NATIVE_VISUAL_OPERATING_LAYER_SOURCE = `HoloScript:${NATIVE_VISUAL_OPERATING_LAYER_RELATIVE}`",
+  "const JETSON_EXTENSION_ROUTE_SCHEMA = 'hololand.holoshell.jetson-extension-route.v0.1.0'",
+  "const CANONICAL_JETSON_SURFACE = 'http://holojetson.local:8747'",
+  "const BROWSER_FIRST_RECEIPT_SCRIPT = 'scripts/holoshell-brittney-operator-chat-browser-receipt.mjs'",
+  "const NATIVE_HOLOSHELL_WRAPPER = 'apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1'",
+  "const NATIVE_CAPABILITY_ENVELOPE_SOURCE = `HoloScript:${NATIVE_CAPABILITY_ENVELOPE_RELATIVE}`",
+  "const NATIVE_CAPABILITY_ENVELOPE_SCHEMA = 'holoscript.holoshell.native-capability-envelope.v0.1.0'",
+  'UPSTREAM_TERMINAL_EVENT_STREAM_LABEL',
+  'UPSTREAM_TERMINAL_EVENT_STREAM_SCHEMA',
+  'native_terminal_event_stream',
+  'native_visual_operating_layer',
+  'upstreamTerminalEventStreamSnapshot',
+  'nativeVisualOperatingLayerSnapshot',
+  'buildVisualOperatingLayer',
+  "'/api/visual-operating-layer'",
+  "const SERVICE_SUPERVISOR_SOURCE = 'apps/holoshell/source/holoshell-service-supervisor.hsplus'",
+  "const SERVICE_SUPERVISOR_SCRIPT = 'scripts/holoshell-service-supervisor.mjs'",
+  'browserFirstValidationRequiredBeforeNativeClaim',
+  'nativeWindowOwnsDailyOperation',
+  'nativeCapabilityEnvelopeSnapshot',
+  'native_capability_envelope',
+  'holoServicesRunThroughTerminalSupervisor',
+  'visualOperatingLayerAgentReadable',
+  'commandPaletteRequiresConsentBoundaries',
+  "'/api/services/supervisor'",
+  "'/workflow/services/supervisor'",
+  'jetson_extension_surface',
+  'browser_first_test_surface',
+  'native_holoshell_wrapper_contract',
+  'holoservices_supervisor',
   'buildSourceOwnedCockpitState',
   'sourceOwnedState',
   'read_only_source_contract',
@@ -194,6 +316,8 @@ requireIncludes('HoloShell server adapter', serve, [
   'buildOperatorTerminalGuardedExecuteReceipt',
   'buildOperatorTerminalApprovedAdapterExecutionReceipt',
   'buildOperatorTerminalReadOnlyAdapterExecutionReceipt',
+  'runTerminalProcessLifecycle',
+  'TERMINAL_EVENT_STREAM_SOURCE',
   'guarded_execution_receipt_already_consumed',
   'readonly_operator_terminal_adapter_execution_requires_confirmation',
   'claim_local_room_task',
@@ -224,6 +348,16 @@ requireIncludes('HoloShell compiler bridge', compiler, [
   '_restoreBrowserSession',
   '_rememberTranscript',
   '_persistCockpitCapsule',
+  'native-proof-strip',
+  'visual-operating-layer-panel',
+  '_renderVisualOperatingLayer',
+  'visual-command-grid',
+  'Source Envelope',
+  'Terminal Events',
+  'native_capability_envelope',
+  'Browser Self-Test',
+  'Holo Services',
+  'Start-HoloShellFounderHost.ps1',
   'sourceOwnedState',
   'cockpit-source',
   ], failures);

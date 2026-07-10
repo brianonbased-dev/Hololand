@@ -15,12 +15,18 @@ composition "HoloShell Browser Terminal Coupling" {
     compilerBridge: "packages/holoshell/compile.mjs"
     launcher: "scripts/brittney-studio-launch.ps1"
     terminalAdapter: "scripts/holoshell-operator-terminal.mjs"
+    terminalRunnerAdapter: "scripts/holoshell-terminal-runner.mjs"
     laptopReceiptFreshnessAdapter: "scripts/holoshell-laptop-receipt-freshness.mjs"
     cockpitSource: "apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus"
     terminalSource: "apps/holoshell/source/holoshell-operator-terminal.hsplus"
+    terminalEventStreamSource: "apps/holoshell/source/holoshell-terminal-event-stream.hsplus"
+    upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    upstreamTerminalEventStreamSchema: "holoscript.holoshell.native-terminal-event-stream.v0.1.0"
     terminalVisibilityDefault: "hidden_receipt_refresh"
     visibleTerminalLaunchFlag: "-OperatorTerminal"
     sessionEndpoint: "GET /api/operator-terminal/session"
+    terminalEventsEndpoint: "GET /api/operator-terminal/events"
+    terminalEventLog: ".tmp/holoshell/operator-terminal-events.jsonl"
     terminalReportEndpoint: "POST /api/operator-terminal/report"
     guardedExecuteEndpoint: "POST /api/operator-terminal/execute"
     approvedAdapterExecuteEndpoint: "POST /api/operator-terminal/run-approved"
@@ -52,6 +58,7 @@ composition "HoloShell Browser Terminal Coupling" {
     browserSessionSnapshotStatus: "unknown"
     browserSessionScoped: false
     terminalEvidenceStreamStatus: "unknown"
+    terminalRunnerStatus: "unknown"
     evidenceLedgerStatus: "unknown"
     terminalRunCardCount: 0
     browserIsPrimaryConversationSurface: true
@@ -230,6 +237,10 @@ composition "HoloShell Browser Terminal Coupling" {
     readOnlyAdapterExecuteEndpoint: "POST /api/operator-terminal/run-readonly"
     terminalReceipt: ".tmp/holoshell/operator-terminal.json"
     readOnlyAdapterExecutionReceipt: ".tmp/holoshell/operator-terminal-readonly-execution-latest.json"
+    terminalRunnerAdapter: "scripts/holoshell-terminal-runner.mjs"
+    terminalEventLog: ".tmp/holoshell/operator-terminal-events.jsonl"
+    terminalEventsEndpoint: "GET /api/operator-terminal/events"
+    requiredLifecycleEvents: ["run.started", "stdout.chunk", "stderr.chunk", "run.exited", "receipt.written"]
     allowedMutation: "run_server_allowlisted_read_only_adapter_and_write_execution_receipt"
     requiredBeforeAdapter: ["commandId", "fresh_operator_terminal_receipt", "confirmReadOnlyAdapterExecution", "server_allowlisted_read_only_adapter"]
     allowlistedAdaptersOnly: true
@@ -237,6 +248,9 @@ composition "HoloShell Browser Terminal Coupling" {
     endpointMayExecuteReadOnlyAdapter: true
     endpointMayExecuteRawCommand: false
     adapterSpawnedByEndpoint: true
+    terminalLifecycleEventsRequired: true
+    browserMayOwnExecution: false
+    rawCommandLineIncluded: false
     browserMayExecuteTerminalCommand: false
     destructiveActionsTaken: false
     desktopAutomationExecuted: false
@@ -292,7 +306,7 @@ composition "HoloShell Browser Terminal Coupling" {
     appliesTo: ["browser_refresh", "local_storage_state", "server_session_snapshot", "operator_terminal_session", "cockpit_capsule"]
     browserStateKey: "holoshell:brittney:browser-session:v1"
     serverSnapshotEndpoint: "GET/POST /api/browser-session/state?sessionId=:sessionId"
-    rehydrateFrom: ["localStorage", "GET /api/browser-session/state?sessionId=:sessionId", "GET /api/cockpit/capsule", "GET /api/operator-terminal/session"]
+    rehydrateFrom: ["localStorage", "GET /api/browser-session/state?sessionId=:sessionId", "GET /api/cockpit/capsule", "GET /api/operator-terminal/session", "GET /api/operator-terminal/events"]
     browserRefreshMayResetTruth: false
     terminalReceiptsAreDurableTruth: true
     evidenceLedgerSurvivesRefresh: true

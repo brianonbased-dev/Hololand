@@ -114,6 +114,11 @@ try {
   assert.equal(receipt.state.assertions.laneTruthVisible, true);
   assert.equal(receipt.state.assertions.sourceOwnedVisible, true);
   assert.equal(receipt.state.assertions.contextCapsuleVisible, true);
+  assert.equal(receipt.state.assertions.browserSelfTestVisible, true);
+  assert.equal(receipt.state.assertions.nativeWindowVisible, true);
+  assert.equal(receipt.state.assertions.holoServicesVisible, true);
+  assert.equal(receipt.state.assertions.sourceEnvelopeVisible, true);
+  assert.equal(receipt.state.assertions.terminalEventsVisible, true);
   assert.equal(receipt.state.assertions.proposalCardsVisible, true);
   assert.equal(receipt.state.assertions.receiptNarrationVisible, true);
   assert.equal(receipt.state.assertions.runtimeTruthVisible, true);

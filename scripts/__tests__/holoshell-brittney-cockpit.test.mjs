@@ -206,9 +206,23 @@ try {
   const liveStatus = await getJson('/api/live-status');
   assert.equal(liveStatus.status, 'online');
   assert.equal(liveStatus.route.cockpitCapsuleEndpoint, 'GET /api/cockpit/capsule');
+  assert.equal(liveStatus.route.visualOperatingLayerEndpoint, 'GET /api/visual-operating-layer');
+  assert.equal(liveStatus.route.nativeVisualOperatingLayerSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus');
+  assert.equal(liveStatus.route.nativeVisualOperatingLayerSchema, 'holoscript.holoshell.native-visual-operating-layer.v0.1.0');
   assert.equal(liveStatus.route.laptopReasoningReportEndpoint, 'POST /api/laptop-reasoning/report');
   assert.equal(liveStatus.route.windowAwarenessReportEndpoint, 'POST /api/window-awareness/report');
   assert.equal(liveStatus.route.browserSessionStateEndpoint, 'GET/POST /api/browser-session/state?sessionId=:sessionId');
+  assert.equal(liveStatus.route.primaryHostRole, 'browser_first_local_test_host');
+  assert.equal(liveStatus.route.canonicalJetsonSurface, 'http://holojetson.local:8747');
+  assert.equal(liveStatus.route.browserFirstTestSurface, 'GET /');
+  assert.equal(liveStatus.route.browserFirstReceiptScript, 'scripts/holoshell-brittney-operator-chat-browser-receipt.mjs');
+  assert.equal(liveStatus.route.nativeHoloShellWrapper, 'apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1');
+  assert.equal(liveStatus.route.nativeCapabilityEnvelopeSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus');
+  assert.equal(liveStatus.route.nativeCapabilityEnvelopeSchema, 'holoscript.holoshell.native-capability-envelope.v0.1.0');
+  assert.equal(liveStatus.route.nativeTerminalEventStreamSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus');
+  assert.equal(liveStatus.route.nativeTerminalEventStreamSchema, 'holoscript.holoshell.native-terminal-event-stream.v0.1.0');
+  assert.equal(liveStatus.route.serviceSupervisorEndpoint, 'GET /api/services/supervisor');
+  assert.equal(liveStatus.route.serviceSupervisorWorkflowEndpoint, 'POST /workflow/services/supervisor');
   assert.equal(liveStatus.route.holoclawRuntimeBridgeEndpoint, 'GET /api/holoclaw/runtime-bridge');
   assert.equal(liveStatus.route.holoclawRuntimeBridgeWorkflowEndpoint, 'POST /workflow/holoclaw-runtime-bridge');
   assert.equal(liveStatus.route.sovereignRoomMarathonEndpoint, 'GET /api/sovereign-room/marathon');
@@ -218,6 +232,51 @@ try {
   assert.ok(liveStatus.capabilities.includes('sovereign_room_marathon_status'));
   assert.ok(liveStatus.capabilities.includes('sovereign_room_marathon_receipt_refresh'));
   assert.ok(liveStatus.capabilities.includes('holoclaw_runtime_bridge_status'));
+  assert.ok(liveStatus.capabilities.includes('jetson_extension_surface'));
+  assert.ok(liveStatus.capabilities.includes('browser_first_test_surface'));
+  assert.ok(liveStatus.capabilities.includes('native_holoshell_wrapper_contract'));
+  assert.ok(liveStatus.capabilities.includes('native_holoshell_app_window'));
+  assert.ok(liveStatus.capabilities.includes('native_capability_envelope'));
+  assert.ok(liveStatus.capabilities.includes('native_terminal_event_stream'));
+  assert.ok(liveStatus.capabilities.includes('visual_operating_layer'));
+  assert.ok(liveStatus.capabilities.includes('native_visual_operating_layer'));
+  assert.ok(liveStatus.capabilities.includes('service_dock'));
+  assert.ok(liveStatus.capabilities.includes('terminal_run_timeline'));
+  assert.ok(liveStatus.capabilities.includes('agent_utility_capsules'));
+  assert.ok(liveStatus.capabilities.includes('hololand_node_city'));
+  assert.ok(liveStatus.capabilities.includes('consent_command_palette'));
+  assert.ok(liveStatus.capabilities.includes('terminal_event_read'));
+  assert.ok(liveStatus.capabilities.includes('jetson_appliance_observe'));
+  assert.ok(liveStatus.capabilities.includes('guarded_service_ensure'));
+  assert.ok(liveStatus.capabilities.includes('holoservices_supervisor'));
+  assert.ok(liveStatus.lanes.some((lane) => lane.id === 'jetson_extension_surface' && lane.model === 'holojetson.local:8747'));
+  assert.ok(liveStatus.lanes.some((lane) => lane.id === 'native_holoshell_app_window'));
+  assert.ok(liveStatus.lanes.some((lane) =>
+    lane.id === 'native_capability_envelope' &&
+    lane.model === 'HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus'
+  ));
+  assert.ok(liveStatus.lanes.some((lane) =>
+    lane.id === 'native_terminal_event_stream' &&
+    lane.model === 'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus'
+  ));
+  assert.ok(liveStatus.lanes.some((lane) =>
+    lane.id === 'native_visual_operating_layer' &&
+    lane.model === 'HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus'
+  ));
+  assert.ok(liveStatus.lanes.some((lane) => lane.id === 'holoservices_supervisor'));
+  assert.equal(liveStatus.nativeCapabilityEnvelope.schemaVersion, 'holoscript.holoshell.native-capability-envelope.v0.1.0');
+  assert.equal(liveStatus.nativeCapabilityEnvelope.status, 'ready');
+  assert.equal(liveStatus.nativeCapabilityEnvelope.matchedLaneCount, 7);
+  assert.deepEqual(liveStatus.nativeCapabilityEnvelope.missingLanes, []);
+  assert.equal(liveStatus.nativeTerminalEventStream.schemaVersion, 'holoscript.holoshell.native-terminal-event-stream.v0.1.0');
+  assert.equal(liveStatus.nativeTerminalEventStream.status, 'ready');
+  assert.equal(liveStatus.nativeTerminalEventStream.matchedEventKindCount, 7);
+  assert.deepEqual(liveStatus.nativeTerminalEventStream.missingEventKinds, []);
+  assert.equal(liveStatus.nativeVisualOperatingLayer.schemaVersion, 'holoscript.holoshell.native-visual-operating-layer.v0.1.0');
+  assert.equal(liveStatus.nativeVisualOperatingLayer.status, 'ready');
+  assert.equal(liveStatus.nativeVisualOperatingLayer.matchedPanelCount, 5);
+  assert.deepEqual(liveStatus.nativeVisualOperatingLayer.missingPanels, []);
+  assert.equal(liveStatus.serviceSupervisor.schemaVersion, 'hololand.holoshell.service-supervisor.v0.1.0');
   assert.equal(liveStatus.sovereignRoomMarathon.directExecutionAllowed, false);
   assert.equal(liveStatus.holoclawRuntimeBridge.directExecutionAllowed, false);
 
@@ -354,6 +413,21 @@ try {
   assert.equal(stagedHoloClawRuntime.bridgeId, stagedHoloClaw.bridgeId);
   assert.equal(stagedHoloClawRuntime.directExecutionAllowed, false);
 
+  const serviceSupervisorStatus = await getJson('/api/services/supervisor');
+  assert.equal(serviceSupervisorStatus.schemaVersion, 'hololand.holoshell.service-supervisor.v0.1.0');
+  assert.equal(serviceSupervisorStatus.source, 'apps/holoshell/source/holoshell-service-supervisor.hsplus');
+  assert.equal(serviceSupervisorStatus.statusEndpoint, 'GET /api/services/supervisor');
+  assert.equal(serviceSupervisorStatus.workflowEndpoint, 'POST /workflow/services/supervisor');
+  assert.equal(serviceSupervisorStatus.terminalCommandId, 'check_system');
+  assert.equal(serviceSupervisorStatus.policy.arbitraryProcessStartAllowed, false);
+  assert.equal(serviceSupervisorStatus.policy.forceKillAllowed, false);
+
+  const unconfirmedServiceEnsure = await postJsonExpectStatus('/workflow/services/supervisor', {
+    action: 'ensure',
+    ensure: true,
+  }, 403);
+  assert.match(unconfirmedServiceEnsure.reason, /confirmHoloServicesEnsure_true/);
+
   const laptopReport = await postJson('/api/laptop-reasoning/report', {
     schemaVersion: 'hololand.holoshell.laptop-reasoning-result.v0.1.0',
     resultId: 'laptop_reasoning_result_http_fixture',
@@ -421,8 +495,50 @@ try {
   assert.equal(capsule.summary.actionCardCount, capsule.actionCards.length);
   assert.equal(capsule.summary.windowActionCardCount, 3);
   assert.equal(capsule.summary.preflightPathCount, 3);
+  assert.equal(capsule.summary.jetsonExtensionStatus, 'ready');
+  assert.equal(capsule.summary.browserFirstTestStatus, 'ready');
+  assert.equal(capsule.summary.nativeWrapperStatus, 'source_bound');
+  assert.equal(capsule.summary.nativeWindowStatus, 'ready');
+  assert.ok(['ready', 'attention', 'waiting'].includes(capsule.summary.serviceSupervisorStatus));
+  assert.equal(capsule.summary.nativeVisualOperatingLayerStatus, 'ready');
+  assert.equal(capsule.summary.visualOperatingLayerStatus, 'ready');
+  assert.equal(capsule.summary.visualOperatingLayerPanelCount, 5);
+  assert.equal(capsule.summary.agentUtilityCapsuleCount, 5);
+  assert.equal(capsule.summary.nodeCityNodeCount, 8);
+  assert.equal(capsule.summary.commandPaletteCommandCount, 6);
+  assert.equal(capsule.summary.serviceSupervisorTerminalCommandId, 'check_system');
+  assert.equal(typeof capsule.summary.serviceSupervisorServiceCount, 'number');
   assert.ok(capsule.cockpitLanes.some((lane) => lane.id === 'runtime_truth' && lane.permissionEnvelope === 'read_only'));
   assert.ok(capsule.cockpitLanes.some((lane) => lane.id === 'route_health' && lane.sourceEndpoint === 'GET /api/cockpit/capsule'));
+  assert.ok(capsule.cockpitLanes.some((lane) =>
+    lane.id === 'jetson_extension' &&
+    lane.value === 'browser_first_local_test_host' &&
+    lane.browserProvidesBootstrapValidation === true &&
+    lane.browserOwnsFirstValidation === false &&
+    lane.nativeWindowOwnsDailyOperation === true &&
+    lane.nativeWrapperFollowsSameSource === true &&
+    lane.browserFirstReceiptScript === 'scripts/holoshell-brittney-operator-chat-browser-receipt.mjs'
+  ));
+  assert.ok(capsule.cockpitLanes.some((lane) =>
+    lane.id === 'native_holoshell_window' &&
+    lane.permissionEnvelope === 'native_app_window' &&
+    lane.serviceSupervisorEndpoint === 'GET /api/services/supervisor'
+  ));
+  assert.ok(capsule.cockpitLanes.some((lane) =>
+    lane.id === 'native_capability_envelope' &&
+    lane.sourceEndpoint === 'HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus' &&
+    lane.permissionEnvelope === 'read_only_source_contract'
+  ));
+  assert.ok(capsule.cockpitLanes.some((lane) =>
+    lane.id === 'visual_operating_layer' &&
+    lane.sourceEndpoint === 'GET /api/visual-operating-layer' &&
+    lane.upstreamSource === 'HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus'
+  ));
+  assert.ok(capsule.cockpitLanes.some((lane) =>
+    lane.id === 'holoservices_supervisor' &&
+    lane.sourceEndpoint === 'GET /api/services/supervisor' &&
+    lane.terminalCommandId === 'check_system'
+  ));
   assert.ok(capsule.cockpitLanes.some((lane) => lane.id === 'context_carry' && /goal, files, tests/.test(lane.detail)));
   assert.ok(capsule.cockpitLanes.some((lane) =>
     lane.id === 'source_owned_state' &&
@@ -465,16 +581,94 @@ try {
   assert.equal(capsule.sourceOwnedState.summary.sourceRequiredBeforeProjection, true);
   assert.equal(capsule.sourceOwnedState.summary.sourceFormatGapNamedBeforeAdapterWork, true);
   assert.equal(capsule.sourceOwnedState.files.legacyUiMayNotOwnBehavior, true);
+  assert.ok(capsule.sourceOwnedState.files.sourceAnchors.includes('scripts/holoshell-brittney-operator-chat-browser-receipt.mjs'));
+  assert.ok(capsule.sourceOwnedState.files.sourceAnchors.includes('apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1'));
+  assert.ok(capsule.sourceOwnedState.files.sourceAnchors.includes('apps/holoshell/source/holoshell-service-supervisor.hsplus'));
+  assert.ok(capsule.sourceOwnedState.files.sourceAnchors.includes('HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus'));
+  assert.ok(capsule.sourceOwnedState.files.sourceAnchors.includes('HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus'));
+  assert.ok(capsule.sourceOwnedState.files.sourceAnchors.includes('HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus'));
+  assert.ok(capsule.sourceOwnedState.files.sourceAnchors.includes('apps/holoshell/source/holoshell-terminal-event-stream.hsplus'));
+  assert.ok(capsule.sourceOwnedState.files.sourceAnchors.includes('apps/holoshell/source/holoshell-visual-operating-layer.hsplus'));
   assert.ok(capsule.sourceOwnedState.files.sourceAnchors.includes('packages/holoshell/scenes/operate-room.holo'));
+  assert.equal(capsule.sourceOwnedState.worlds.canonicalJetsonSurface, 'http://holojetson.local:8747');
+  assert.equal(capsule.sourceOwnedState.worlds.browserFirstTestSurface, 'GET /');
+  assert.equal(capsule.sourceOwnedState.worlds.nativeHoloShellWrapper, 'apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1');
+  assert.equal(capsule.sourceOwnedState.worlds.nativeHoloShellWindowRole, 'native_holoshell_app_window');
+  assert.equal(capsule.sourceOwnedState.worlds.nativeCapabilityEnvelopeSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus');
+  assert.equal(capsule.sourceOwnedState.worlds.nativeTerminalEventStreamSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus');
+  assert.equal(capsule.sourceOwnedState.worlds.nativeVisualOperatingLayerSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus');
+  assert.equal(capsule.sourceOwnedState.worlds.visualOperatingLayerEndpoint, 'GET /api/visual-operating-layer');
+  assert.equal(capsule.sourceOwnedState.worlds.serviceSupervisorEndpoint, 'GET /api/services/supervisor');
+  assert.equal(capsule.sourceOwnedState.jetsonExtension.schemaVersion, 'hololand.holoshell.jetson-extension-route.v0.1.0');
+  assert.equal(capsule.sourceOwnedState.jetsonExtension.browserProvidesBootstrapValidation, true);
+  assert.equal(capsule.sourceOwnedState.jetsonExtension.browserOwnsFirstValidation, false);
+  assert.equal(capsule.sourceOwnedState.jetsonExtension.nativeWindowOwnsDailyOperation, true);
+  assert.equal(capsule.sourceOwnedState.jetsonExtension.nativeWrapperFollowsSameSource, true);
+  assert.equal(capsule.sourceOwnedState.jetsonExtension.canonicalJetsonSurface, 'http://holojetson.local:8747');
+  assert.equal(capsule.sourceOwnedState.nativeWindow.role, 'native_holoshell_app_window');
+  assert.equal(capsule.sourceOwnedState.nativeWindow.upstreamCapabilityEnvelopeStatus, 'ready');
+  assert.equal(capsule.sourceOwnedState.nativeWindow.serviceSupervisorEndpoint, 'GET /api/services/supervisor');
+  assert.equal(capsule.sourceOwnedState.nativeCapabilityEnvelope.status, 'ready');
+  assert.equal(capsule.sourceOwnedState.nativeCapabilityEnvelope.matchedLaneCount, 7);
+  assert.deepEqual(capsule.sourceOwnedState.nativeCapabilityEnvelope.missingLanes, []);
+  assert.equal(capsule.sourceOwnedState.nativeTerminalEventStream.status, 'ready');
+  assert.equal(capsule.sourceOwnedState.nativeTerminalEventStream.matchedEventKindCount, 7);
+  assert.deepEqual(capsule.sourceOwnedState.nativeTerminalEventStream.missingEventKinds, []);
+  assert.equal(capsule.sourceOwnedState.nativeVisualOperatingLayer.status, 'ready');
+  assert.equal(capsule.sourceOwnedState.nativeVisualOperatingLayer.matchedPanelCount, 5);
+  assert.deepEqual(capsule.sourceOwnedState.nativeVisualOperatingLayer.missingPanels, []);
+  assert.equal(capsule.sourceOwnedState.visualOperatingLayer.endpoint, 'GET /api/visual-operating-layer');
+  assert.equal(capsule.sourceOwnedState.visualOperatingLayer.agentReadable, true);
+  assert.equal(capsule.sourceOwnedState.services.statusCapabilityLane, 'service_status');
+  assert.equal(capsule.sourceOwnedState.services.ensureCapabilityLane, 'guarded_service_ensure');
+  assert.equal(capsule.sourceOwnedState.services.terminalCommandId, 'check_system');
   assert.equal(capsule.sourceOwnedState.boardTasks.selectedTaskId, 'task_claimed_fixture');
   assert.equal(capsule.sourceOwnedState.boardTasks.browserMayClaimRoomTask, true);
   assert.equal(capsule.sourceOwnedState.boardTasks.browserClaimRequiresExplicitLocalConfirmation, true);
   assert.equal(capsule.sourceOwnedState.boardTasks.claimMutationScope, 'claim_local_room_task_only');
   assert.equal(capsule.sourceOwnedState.uiProjection.role, 'adapter_projection_only');
+  assert.equal(capsule.sourceOwnedState.uiProjection.browserFirstTestSurface, 'GET /');
+  assert.equal(capsule.sourceOwnedState.uiProjection.browserProvidesBootstrapValidation, true);
+  assert.equal(capsule.sourceOwnedState.uiProjection.browserOwnsFirstValidation, false);
+  assert.equal(capsule.sourceOwnedState.uiProjection.nativeWindowOwnsDailyOperation, true);
+  assert.equal(capsule.sourceOwnedState.uiProjection.nativeWrapperFollowsSameSource, true);
+  assert.equal(capsule.jetsonExtension.canonicalJetsonSurface, 'http://holojetson.local:8747');
+  assert.equal(capsule.jetsonExtension.nativeHoloShellWrapper, 'apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1');
+  assert.equal(capsule.nativeWindow.role, 'native_holoshell_app_window');
+  assert.equal(capsule.nativeCapabilityEnvelope.status, 'ready');
+  assert.equal(capsule.nativeTerminalEventStream.status, 'ready');
+  assert.equal(capsule.nativeVisualOperatingLayer.status, 'ready');
+  assert.equal(capsule.visualOperatingLayer.schemaVersion, 'hololand.holoshell.visual-operating-layer.v0.1.0');
+  assert.equal(capsule.visualOperatingLayer.source, 'apps/holoshell/source/holoshell-visual-operating-layer.hsplus');
+  assert.equal(capsule.visualOperatingLayer.upstreamSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus');
+  assert.deepEqual(capsule.visualOperatingLayer.panels, ['service_dock', 'terminal_run_timeline', 'agent_utility_capsules', 'hololand_node_city', 'consent_command_palette']);
+  assert.equal(capsule.visualOperatingLayer.serviceDock.api, 'GET /api/services/supervisor');
+  assert.equal(capsule.visualOperatingLayer.serviceDock.capabilityLane, 'service_status');
+  assert.equal(capsule.visualOperatingLayer.terminalRunTimeline.api, 'GET /api/operator-terminal/events');
+  assert.equal(capsule.visualOperatingLayer.terminalRunTimeline.capabilityLane, 'terminal_event_read');
+  assert.equal(capsule.visualOperatingLayer.agentUtility.requiredFields.includes('api'), true);
+  assert.equal(capsule.visualOperatingLayer.agentUtility.capsules.every((capsuleItem) => capsuleItem.agentReadable === true), true);
+  assert.equal(capsule.visualOperatingLayer.nodeCity.nodeCount, 8);
+  assert.ok(capsule.visualOperatingLayer.nodeCity.nodes.some((node) => node.nodeId === 'hololand' && node.kind === 'spatial_projection'));
+  assert.equal(capsule.visualOperatingLayer.commandPalette.commandCount, 6);
+  assert.ok(capsule.visualOperatingLayer.commandPalette.commands.some((command) => command.commandId === 'ensure_holo_services' && command.confirmationRequired === true));
+  assert.equal(capsule.visualOperatingLayer.safety.browserMayOwnExecution, false);
+  const visualLayer = await getJson('/api/visual-operating-layer');
+  assert.equal(visualLayer.schemaVersion, 'hololand.holoshell.visual-operating-layer.v0.1.0');
+  assert.equal(visualLayer.endpoint, 'GET /api/visual-operating-layer');
+  assert.equal(visualLayer.serviceDock.serviceCount, capsule.visualOperatingLayer.serviceDock.serviceCount);
+  assert.equal(visualLayer.terminalRunTimeline.permissionEnvelope, 'read_only_event_stream');
+  assert.equal(visualLayer.agentUtility.capsuleCount, 5);
+  assert.equal(visualLayer.nodeCity.edgeCount, 7);
+  assert.equal(visualLayer.commandPalette.commands.every((command) => command.receiptRequired === true), true);
+  assert.equal(visualLayer.browserMayOwnExecution, false);
+  assert.equal(capsule.serviceSupervisor.schemaVersion, 'hololand.holoshell.service-supervisor.v0.1.0');
   assert.equal(capsule.sovereignRoomMarathon.statusEndpoint, 'GET /api/sovereign-room/marathon');
   assert.equal(capsule.sovereignRoomMarathon.selectedTaskId, 'task_claimed_fixture');
   assert.equal(capsule.summary.holoclawRuntimeBridgeStatus, stagedHoloClawRuntime.status);
   assert.equal(capsule.holoclawRuntimeBridge.statusEndpoint, 'GET /api/holoclaw/runtime-bridge');
+  assert.equal(capsule.summary.upstreamTerminalEventStreamStatus, 'ready');
+  assert.ok(capsule.summary.operatorTerminalEventStreamEventCount >= 0);
   assert.equal(capsule.summary.browserSessionStateStatus, 'waiting');
   assert.equal(capsule.summary.browserSessionSnapshotStatus, 'empty');
   assert.equal(capsule.browserSessionState.snapshotStatus, 'empty');
@@ -483,6 +677,36 @@ try {
   assert.equal(capsule.summary.laptopReasoningPingbackStatus, 'ready_for_brittney');
   assert.equal(capsule.laptopReasoning.lane, 'laptop-hardware');
   assert.ok(capsule.actionCards.some((card) => card.id === 'desktop_control_plan' && card.permissionEnvelope === 'read_only_plan'));
+  assert.ok(capsule.actionCards.some((card) =>
+    card.id === 'browser_first_test_surface' &&
+    card.href === '/' &&
+    card.lane === 'jetson_extension_surface' &&
+    card.canonicalJetsonSurface === 'http://holojetson.local:8747' &&
+    card.browserReceiptScript === 'scripts/holoshell-brittney-operator-chat-browser-receipt.mjs' &&
+    card.nativeWrapperFollowsSameSource === true &&
+    card.nativeWindowOwnsDailyOperation === true
+  ));
+  assert.ok(capsule.actionCards.some((card) =>
+    card.id === 'native_holoshell_window' &&
+    card.lane === 'native_holoshell_app_window' &&
+    card.serviceSupervisorEndpoint === 'GET /api/services/supervisor' &&
+    card.operatorTerminalSessionEndpoint === 'GET /api/operator-terminal/session' &&
+    card.browserSelfTestOnly === true
+  ));
+  assert.ok(capsule.actionCards.some((card) =>
+    card.id === 'native_capability_envelope' &&
+    card.lane === 'native_capability_envelope' &&
+    card.sourceEndpoint === 'HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus' &&
+    card.matchedLaneCount === 7 &&
+    card.requiredLaneCount === 7
+  ));
+  assert.ok(capsule.actionCards.some((card) =>
+    card.id === 'holoservices_supervisor_status' &&
+    card.href === '/api/services/supervisor' &&
+    card.lane === 'holoservices_supervisor' &&
+    card.terminalCommandId === 'check_system' &&
+    card.endpointMayEnsureServices === false
+  ));
   assert.ok(capsule.actionCards.some((card) => card.id === 'laptop_reasoning_status' && card.lane === 'laptop-hardware'));
   assert.ok(capsule.actionCards.some((card) =>
     card.id === 'source_owned_state' &&
@@ -536,6 +760,14 @@ try {
     card.href === '/api/browser-session/state' &&
     card.permissionEnvelope === 'read_only_snapshot'
   ));
+  assert.ok(capsule.actionCards.some((card) =>
+    card.id === 'operator_terminal_events' &&
+    card.href === '/api/operator-terminal/events' &&
+    card.lane === 'terminal_event_stream' &&
+    card.upstreamSource === 'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus' &&
+    card.requiredCapabilityLane === 'terminal_event_read' &&
+    card.browserMayOwnExecution === false
+  ));
   assert.equal(capsule.faraPeerAutomation.schedule.status, 'disabled');
   assert.ok(capsule.windowAwareness);
   assert.equal(capsule.windowAwareness.status, 'windows_visible');
@@ -569,6 +801,22 @@ try {
   assert.ok(capsule.actionCards.some((card) => card.id.startsWith('focus_window_window-') && card.target?.rawTitleHidden === true));
   assert.deepEqual(capsule.safety.admittedExecutorActions, ['open_url']);
   assert.equal(capsule.safety.allOtherDesktopActionsRemainPlanOnly, true);
+  assert.equal(capsule.safety.browserFirstValidationRequiredBeforeNativeClaim, true);
+  assert.equal(capsule.safety.nativeWrapperFollowsSameSource, true);
+  assert.equal(capsule.safety.nativeCapabilityEnvelopeSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus');
+  assert.equal(capsule.safety.nativeCapabilityEnvelopeRequired, true);
+  assert.equal(capsule.safety.nativeCapabilityLanesReady, true);
+  assert.ok(capsule.safety.nativeCapabilityGuardedLanes.includes('guarded_service_ensure'));
+  assert.equal(capsule.safety.upstreamTerminalEventStreamSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus');
+  assert.equal(capsule.safety.upstreamTerminalEventStreamRequired, true);
+  assert.equal(capsule.safety.upstreamTerminalEventStreamStatus, 'ready');
+  assert.equal(capsule.safety.terminalEventReadCapabilityLane, 'terminal_event_read');
+  assert.equal(capsule.safety.browserMayOwnTerminalExecution, false);
+  assert.equal(capsule.safety.jetsonIsPrimaryAlwaysOnSurface, true);
+  assert.equal(capsule.safety.nativeWindowOwnsDailyOperation, true);
+  assert.equal(capsule.safety.browserIsBootstrapSelfTestOnly, true);
+  assert.equal(capsule.safety.holoServicesRunThroughTerminalSupervisor, true);
+  assert.equal(capsule.safety.serviceEnsureRequiresExplicitConfirmation, true);
   assert.equal(capsule.safety.sovereignRoomBrowserClaimAllowed, true);
   assert.equal(capsule.safety.sovereignRoomBrowserClaimScope, 'claim_local_room_task_only');
   assert.ok(capsule.safety.sovereignRoomClaimRequires.includes('explicit_local_claim_confirmation'));
@@ -578,8 +826,12 @@ try {
   assert.equal(capsule.safety.rawWindowTitlesHidden, true);
   assert.equal(capsule.safety.destructiveActionsTaken, false);
   assert.equal(capsule.receipts.latestSovereignRoomMarathonStatus, 'done');
+  assert.equal(capsule.receipts.serviceSupervisorReceipt, '.tmp/holoshell/service-supervisor.json');
   assert.ok(capsule.contextCapsuleTemplate.requiredFields.includes('next_command'));
   assert.ok(capsule.contextCapsuleTemplate.memoryInputs.includes('knowledge_store'));
+  assert.deepEqual(capsule.contextCapsuleTemplate.surfaceInputs, ['jetson_surface', 'native_window', 'native_capability_envelope', 'terminal_event_stream', 'terminal_run_cards', 'holo_services', 'browser_self_test_receipt']);
+  assert.match(capsule.nextSafeStep, /native HoloShell window/);
+  assert.match(capsule.nextSafeStep, /Holo Services/);
   assert.match(capsule.nextSafeStep, /preflight -> consent-token -> receipt/);
 
   const hsplusSource = readFileSync(resolve('apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus'), 'utf8');
@@ -599,6 +851,21 @@ try {
   assert.match(hsplusSource, /sessionScopedSnapshots: true/);
   assert.match(hsplusSource, /ParallelChatWorkspacesStayIsolated/);
   assert.match(hsplusSource, /SourceOwnedStateBeforeProjection/);
+  assert.match(hsplusSource, /BrowserBootstrapNativeWindowProof/);
+  assert.match(hsplusSource, /NativeWindowRunsHoloServicesThroughTerminal/);
+  assert.match(hsplusSource, /JetsonExtensionRoute/);
+  assert.match(hsplusSource, /NativeHoloShellWindow/);
+  assert.match(hsplusSource, /primaryHostRole: "jetson_extension_host"/);
+  assert.match(hsplusSource, /canonicalJetsonSurface: "http:\/\/holojetson\.local:8747"/);
+  assert.match(hsplusSource, /browserFirstReceiptScript: "scripts\/holoshell-brittney-operator-chat-browser-receipt\.mjs"/);
+  assert.match(hsplusSource, /nativeHoloShellWrapper: "apps\/holoshell\/native\/windows\/Start-HoloShellFounderHost\.ps1"/);
+  assert.match(hsplusSource, /nativeHoloShellWindowRole: "native_holoshell_app_window"/);
+  assert.match(hsplusSource, /nativeCapabilityEnvelopeSource: "HoloScript:experiments\/holoshell-human-os-frontier\/native-holoshell-capability-envelope\.hsplus"/);
+  assert.match(hsplusSource, /nativeTerminalEventStreamSource: "HoloScript:experiments\/holoshell-human-os-frontier\/native-terminal-event-stream\.hsplus"/);
+  assert.match(hsplusSource, /nativeCapabilityEnvelopeRequired: true/);
+  assert.match(hsplusSource, /upstreamTerminalEventStreamRequired: true/);
+  assert.match(hsplusSource, /serviceSupervisorEndpoint: "GET \/api\/services\/supervisor"/);
+  assert.match(hsplusSource, /serviceSupervisorTerminalCommandId: "check_system"/);
   assert.match(hsplusSource, /sourceOwnedStateSchema: "hololand\.holoshell\.source-owned-cockpit-state\.v0\.1\.0"/);
   assert.match(hsplusSource, /sourceOwnedDomains: \["agents", "files", "worlds", "receipts", "board_tasks"\]/);
   assert.match(hsplusSource, /browserChatWorkspaceIds: \["brittney", "sovereign", "holoclaw", "terminal", "improvement"\]/);
@@ -607,6 +874,14 @@ try {
   const operateRoomSource = readFileSync(resolve('packages/holoshell/scenes/operate-room.holo'), 'utf8');
   assert.match(operateRoomSource, /brittney_cockpit_source/);
   assert.match(operateRoomSource, /source_owned_state_schema: "hololand\.holoshell\.source-owned-cockpit-state\.v0\.1\.0"/);
+  assert.match(operateRoomSource, /canonical_jetson_surface: "http:\/\/holojetson\.local:8747"/);
+  assert.ok(operateRoomSource.includes('browser_first_test_surface: "GET /"'));
+  assert.match(operateRoomSource, /browser_first_receipt_script: "scripts\/holoshell-brittney-operator-chat-browser-receipt\.mjs"/);
+  assert.match(operateRoomSource, /native_holoshell_wrapper: "apps\/holoshell\/native\/windows\/Start-HoloShellFounderHost\.ps1"/);
+  assert.match(operateRoomSource, /native_capability_envelope_source: "HoloScript:experiments\/holoshell-human-os-frontier\/native-holoshell-capability-envelope\.hsplus"/);
+  assert.match(operateRoomSource, /native_terminal_event_stream_source: "HoloScript:experiments\/holoshell-human-os-frontier\/native-terminal-event-stream\.hsplus"/);
+  assert.match(operateRoomSource, /native HoloShell app window is the product target/i);
+  assert.match(operateRoomSource, /service_supervisor_endpoint: "GET \/api\/services\/supervisor"/);
   assert.match(operateRoomSource, /laptop_reasoning_lane: "laptop-hardware"/);
   assert.match(operateRoomSource, /GET \/api\/cockpit\/capsule/);
 
@@ -635,6 +910,14 @@ try {
   assert.match(compileSource, /\/api\/browser-session\/state/);
   assert.match(compileSource, /localStorage/);
   assert.match(compileSource, /cockpit-action-cards/);
+  assert.match(compileSource, /native-proof-strip/);
+  assert.match(compileSource, /Browser Self-Test/);
+  assert.match(compileSource, /Source Envelope/);
+  assert.match(compileSource, /Terminal Events/);
+  assert.match(compileSource, /native_capability_envelope/);
+  assert.match(compileSource, /Holo Services/);
+  assert.match(compileSource, /Native Window/);
+  assert.match(compileSource, /Start-HoloShellFounderHost\.ps1/);
   assert.match(compileSource, /sourceOwnedState/);
   assert.match(compileSource, /cockpit-source/);
   assert.match(compileSource, /\/api\/cockpit\/capsule/);

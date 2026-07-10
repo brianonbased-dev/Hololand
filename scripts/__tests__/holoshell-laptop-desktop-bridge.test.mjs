@@ -222,13 +222,17 @@ const statusTmp = mkdtempSync(join(tmpdir(), 'holoshell-laptop-bridge-status-'))
 const cliStatus = JSON.parse(execFileSync(NODE, [
   SCRIPT,
   '--status',
+  '--port',
+  '65534',
   '--receipt-dir',
   statusTmp,
   '--created-at',
   CREATED_AT,
   '--json',
 ], { encoding: 'utf8' }));
-assert.equal(cliStatus.status, 'ready');
+assert.equal(cliStatus.status, 'offline');
+assert.equal(cliStatus.loopbackReachable, false);
+assert.equal(cliStatus.statusProbe.ok, false);
 assert.equal(cliStatus.destructiveActionsTaken, false);
 assert.match(cliStatus.receiptPath, /latest-status\.json$/);
 assert.equal(existsSync(cliStatus.receiptPath), true);

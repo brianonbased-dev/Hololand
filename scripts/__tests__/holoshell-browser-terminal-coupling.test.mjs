@@ -297,8 +297,38 @@ try {
   assert.equal(readOnlyAdapterExecution.receipt.execution.browserMayExecuteTerminalCommand, false);
   assert.equal(readOnlyAdapterExecution.receipt.execution.endpointExecutesReadOnlyAdapter, true);
   assert.equal(readOnlyAdapterExecution.receipt.execution.endpointExecutesRawCommand, false);
+  assert.equal(readOnlyAdapterExecution.receipt.terminalRunLifecycle.schemaVersion, 'hololand.holoshell.terminal-runner.v0.1.0');
+  assert.equal(readOnlyAdapterExecution.receipt.terminalRunLifecycle.adapter, 'scripts/holoshell-terminal-runner.mjs');
+  assert.equal(readOnlyAdapterExecution.receipt.terminalRunLifecycle.ok, true);
+  assert.equal(readOnlyAdapterExecution.receipt.terminalRunLifecycle.endpointExecutesCommand, false);
+  assert.equal(readOnlyAdapterExecution.receipt.terminalRunLifecycle.endpointExecutesReadOnlyAdapter, true);
+  assert.equal(readOnlyAdapterExecution.receipt.terminalRunLifecycle.endpointExecutesRawCommand, false);
+  assert.equal(readOnlyAdapterExecution.receipt.terminalRunLifecycle.destructiveActionsTaken, false);
+  assert.equal(readOnlyAdapterExecution.receipt.terminalRunLifecycle.desktopAutomationExecuted, false);
+  assert.ok(readOnlyAdapterExecution.receipt.terminalRunLifecycle.eventCount >= 4);
+  assert.ok(readOnlyAdapterExecution.receipt.terminalRunLifecycle.nativeEventKinds.includes('run.started'));
+  assert.ok(readOnlyAdapterExecution.receipt.terminalRunLifecycle.nativeEventKinds.includes('stdout.chunk'));
+  assert.ok(readOnlyAdapterExecution.receipt.terminalRunLifecycle.nativeEventKinds.includes('run.exited'));
+  assert.ok(readOnlyAdapterExecution.receipt.terminalRunLifecycle.nativeEventKinds.includes('receipt.written'));
+  assert.equal(readOnlyAdapterExecution.receipt.terminalRunLifecycle.receiptWrittenEventObserved, true);
   assert.match(readFileSync(join(tempDir, 'operator-terminal-readonly-execution-latest.json'), 'utf8'), /show_receipts/);
   assert.match(readFileSync(join(tempDir, 'receipt-control-latest.json'), 'utf8'), /hololand.holoshell.receipt-control.v0.1.0/);
+
+  const terminalEventsAfterReadOnlyRun = await getJson('/api/operator-terminal/events');
+  const readOnlyRunEvents = terminalEventsAfterReadOnlyRun.events.filter(
+    (event) => event.readOnlyExecutionId === readOnlyAdapterExecution.readOnlyExecutionId
+  );
+  const readOnlyRunEventKinds = readOnlyRunEvents.map((event) => event.nativeEventKind);
+  assert.ok(readOnlyRunEventKinds.includes('run.started'));
+  assert.ok(readOnlyRunEventKinds.includes('stdout.chunk'));
+  assert.ok(readOnlyRunEventKinds.includes('run.exited'));
+  assert.ok(readOnlyRunEventKinds.includes('receipt.written'));
+  assert.equal(readOnlyRunEvents.every((event) => event.endpointExecutesCommand === false), true);
+  assert.equal(readOnlyRunEvents.every((event) => event.endpointExecutesReadOnlyAdapter === true), true);
+  assert.equal(readOnlyRunEvents.every((event) => event.endpointExecutesRawCommand === false), true);
+  assert.equal(readOnlyRunEvents.every((event) => event.browserMayOwnExecution === false), true);
+  assert.equal(readOnlyRunEvents.every((event) => event.destructiveActionsTaken === false), true);
+  assert.equal(readOnlyRunEvents.every((event) => event.desktopAutomationExecuted === false), true);
 
   const reported = await postJson('/api/operator-terminal/report', {
     schemaVersion: 'hololand.holoshell.operator-terminal.v0.1.0',

@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url';
 const SCHEMA_VERSION = 'hololand.holoshell.service-supervisor.v0.1.0';
 const DEFAULT_TMP = path.join('.tmp', 'holoshell');
 const REPO_ROOT = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
+const UPSTREAM_TERMINAL_EVENT_STREAM_SOURCE =
+  'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus';
 const DEFAULT_CONTROL_ENDPOINT = 'http://127.0.0.1:4747/health';
 const DEFAULT_HEARTBEAT_STALE_MS = 120000;
 
@@ -500,6 +502,7 @@ async function createSupervisor(args, fixtures = null) {
       grokHeartbeat: 'scripts/holoshell-grok-heartbeat.mjs',
       controlDaemonService: 'scripts/holoshell-control-daemon-service.mjs',
       controlDaemon: 'scripts/holoshell-control-daemon.mjs',
+      upstreamTerminalEventStream: UPSTREAM_TERMINAL_EVENT_STREAM_SOURCE,
     },
     summary,
     services,
@@ -511,6 +514,8 @@ async function createSupervisor(args, fixtures = null) {
       forceKillAllowed: false,
       rawCommandLineIncluded: false,
       localOnly: true,
+      upstreamTerminalEventStreamRequired: true,
+      terminalEventReadCapabilityLane: 'terminal_event_read',
     },
     brittneyGuidance: {
       trustRequiredServicesOnlyWhenSupervisorReady: true,

@@ -31,6 +31,18 @@ composition "OperateRoom" {
     improvement_run_execute_endpoint: "POST /api/improvement-runs/:runId/execute"
     brittney_cockpit_source: "apps/holoshell/source/holoshell-brittney-desktop-cockpit.hsplus"
     brittney_cockpit_endpoint: "GET /api/cockpit/capsule"
+    primary_host_role: "jetson_extension_host"
+    canonical_jetson_surface: "http://holojetson.local:8747"
+    browser_first_test_surface: "GET /"
+    browser_first_receipt_script: "scripts/holoshell-brittney-operator-chat-browser-receipt.mjs"
+    native_holoshell_wrapper: "apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1"
+    native_holoshell_window_role: "native_holoshell_app_window"
+    native_capability_envelope_source: "HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus"
+    native_capability_envelope_schema: "holoscript.holoshell.native-capability-envelope.v0.1.0"
+    native_terminal_event_stream_source: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    native_terminal_event_stream_schema: "holoscript.holoshell.native-terminal-event-stream.v0.1.0"
+    service_supervisor_endpoint: "GET /api/services/supervisor"
+    service_supervisor_source: "apps/holoshell/source/holoshell-service-supervisor.hsplus"
     source_owned_state_schema: "hololand.holoshell.source-owned-cockpit-state.v0.1.0"
     source_owned_state_endpoint: "GET /api/cockpit/capsule#sourceOwnedState"
     laptop_reasoning_source: "apps/holoshell/source/holoshell-laptop-reasoning-worker.hsplus"
@@ -89,6 +101,9 @@ composition "OperateRoom" {
       object "subtitle" { type: "text"; variant: "caption"; content: "chat with Brittney & Daimon — agents handle the data" }
     }
 
+    // The native HoloShell app window is the product target. The browser is a
+    // bootstrap proof harness for the Jetson route before packaging claims.
+    // Holo Services are operated through terminal run cards and receipts.
     // The chat IS the surface. Brittney routes through POST /api/brittney/chat →
     // the HoloShell operator loop, with owned GPU routes available ($0) and
     // receipts proving whether laptop GPU inference actually ran. Her
@@ -112,8 +127,9 @@ composition "OperateRoom" {
     // require patch + validation evidence; HoloTune waits until fixes pass review.
     // Vision models read screens/images; Fara is reserved for guarded desktop automation planning.
     // The browser probes the laptop bridge at 127.0.0.1:8751, 8752, then 8753
-    // when needed, and reports status back to the Jetson surface; desktop mutation
-    // remains consent-token gated.
+    // when needed. The Brittney Studio launcher starts the primary bridge before
+    // opening the browser, and reports live loopback status back to the Jetson
+    // surface; desktop mutation remains consent-token gated.
     // The interactive DOM (messages / input / send) is built by the runtime helper.
     // Operator Chat v1 keeps the Brittney transcript/input as the focal workbench.
     // Lane truth, stale-evidence prompts, context capsule carry, proposal cards,

@@ -422,6 +422,7 @@ const STATE_EXPRESSION = `(() => {
   const lastFetch = chatFetches[chatFetches.length - 1] || null;
   const operatorText = text('#operator-state-rail');
   const contextText = text('#context-capsule-panel');
+  const nativeProofText = text('#native-proof-strip');
   const messagesText = text('#brittney-messages');
   const proposalCards = titleTexts.filter((title) => title.startsWith('Proposal:')).length;
   const receiptNarrationCards = titleTexts.filter((title) => title === 'Receipt narration').length;
@@ -441,6 +442,27 @@ const STATE_EXPRESSION = `(() => {
     visible('#context-capsule-panel') &&
     contextText.length > 20 &&
     !/checking context/i.test(contextText);
+  const browserSelfTestVisible =
+    visible('#native-proof-strip') &&
+    /Browser Self-Test/i.test(nativeProofText) &&
+    /GET \\//i.test(nativeProofText) &&
+    /browser receipt/i.test(nativeProofText);
+  const nativeWindowVisible =
+    visible('#native-proof-strip') &&
+    /Native Window/i.test(nativeProofText) &&
+    /Start-HoloShellFounderHost\\.ps1/i.test(nativeProofText);
+  const holoServicesVisible =
+    visible('#native-proof-strip') &&
+    /Holo Services/i.test(nativeProofText) &&
+    /terminal supervisor/i.test(nativeProofText);
+  const sourceEnvelopeVisible =
+    visible('#native-proof-strip') &&
+    /Source Envelope/i.test(nativeProofText) &&
+    /HoloScript native capability lanes/i.test(nativeProofText);
+  const terminalEventsVisible =
+    visible('#native-proof-strip') &&
+    /Terminal Events/i.test(nativeProofText) &&
+    /append-only HoloScript terminal event stream/i.test(nativeProofText);
   const inputVisible = visible('#brittney-input');
   const sendVisible = visible('#brittney-send');
   const messageVisible = visible('#brittney-messages') && messageTexts.length >= 2;
@@ -451,6 +473,7 @@ const STATE_EXPRESSION = `(() => {
       mount: visible('#brittney-chat-mount'),
       operatorStateRail: visible('#operator-state-rail'),
       operatorAlerts: visible('#operator-alerts'),
+      nativeProofStrip: visible('#native-proof-strip'),
       contextCapsulePanel: visible('#context-capsule-panel'),
       cockpitActionCards: visible('#cockpit-action-cards'),
       messages: visible('#brittney-messages'),
@@ -470,6 +493,7 @@ const STATE_EXPRESSION = `(() => {
     samples: {
       operatorText,
       contextText,
+      nativeProofText,
       cardTitles: titleTexts,
       cards: cardTexts,
       messages: messageTexts
@@ -492,6 +516,11 @@ const STATE_EXPRESSION = `(() => {
       laneTruthVisible,
       sourceOwnedVisible,
       contextCapsuleVisible,
+      browserSelfTestVisible,
+      nativeWindowVisible,
+      holoServicesVisible,
+      sourceEnvelopeVisible,
+      terminalEventsVisible,
       proposalCardsVisible: proposalCards > 0,
       receiptNarrationVisible: receiptNarrationCards > 0,
       runtimeTruthVisible: runtimeTruthCards > 0,

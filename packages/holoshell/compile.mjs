@@ -62,7 +62,7 @@ const composition = {
         obj('title', [t('text', { variant: 'h1', content: 'HoloShell' })]),
         obj('subtitle', [
           t('theme', { tag: 'span', style: 'color:#6e7681;font-size:13px;font-family:system-ui,sans-serif' }),
-          t('text', { content: 'chat with Brittney & Daimon — agents handle the data' }),
+          t('text', { content: 'Native HoloShell window - Jetson extension - terminal-run Holo Services' }),
         ]),
       ]),
       // The chat fills everything below the header.
@@ -307,6 +307,315 @@ function compileOperateRoomShell(holoComposition) {
     .context-capsule-grid {
       grid-template-columns: minmax(0, 1fr);
       margin-top: 6px;
+    }
+    /* ── Operating layer: an instrument cluster, not a dashboard ──
+       One ambient health hero (calm when green, alerts on exception),
+       five DISTINCT domain objects, human words, real focus states. */
+    .visual-layer-panel {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #0e141b, #0b0f14);
+      --vol-ready: #3fb950;
+      --vol-attention: #d29922;
+      --vol-blocked: #f85149;
+      --vol-neutral: #6e7681;
+      --vol-guard: #8957e5;
+    }
+    /* Hero — the one thing you read first. */
+    .vol-hero {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid #30363d;
+      border-radius: 11px;
+      background: #0b0f14;
+      transition: border-color .3s ease, background .3s ease;
+    }
+    .vol-hero-dot {
+      flex: 0 0 auto;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--vol-tone, var(--vol-neutral));
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--vol-tone, var(--vol-neutral)) 20%, transparent);
+    }
+    .vol-hero-text { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .vol-hero-word {
+      color: #f0f6fc;
+      font-size: 17px;
+      font-weight: 750;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+    }
+    .vol-hero-summary {
+      color: #9aa4b1;
+      font-size: 11.5px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+    .visual-layer-panel[data-health="ready"] { --vol-tone: var(--vol-ready); }
+    .visual-layer-panel[data-health="neutral"] { --vol-tone: var(--vol-neutral); }
+    .visual-layer-panel[data-health="attention"] { --vol-tone: var(--vol-attention); }
+    .visual-layer-panel[data-health="blocked"] { --vol-tone: var(--vol-blocked); }
+    .visual-layer-panel[data-health="ready"] .vol-hero {
+      border-color: color-mix(in srgb, var(--vol-ready) 34%, #30363d);
+    }
+    .visual-layer-panel[data-health="attention"] .vol-hero {
+      border-color: color-mix(in srgb, var(--vol-attention) 68%, #30363d);
+      background: color-mix(in srgb, var(--vol-attention) 9%, #0b0f14);
+      animation: volPulse 2.4s ease-in-out infinite;
+    }
+    .visual-layer-panel[data-health="blocked"] .vol-hero {
+      border-color: color-mix(in srgb, var(--vol-blocked) 78%, #30363d);
+      background: color-mix(in srgb, var(--vol-blocked) 11%, #0b0f14);
+      animation: volPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes volPulse {
+      0%, 100% { box-shadow: 0 0 0 0 transparent; }
+      50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--vol-tone, var(--vol-neutral)) 24%, transparent); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .visual-layer-panel .vol-hero { animation: none !important; }
+    }
+    /* Section tabs — human words, a live tone dot, a count. */
+    .visual-layer-tabs {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 5px;
+    }
+    .visual-layer-tabs button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      min-width: 0;
+      padding: 6px 2px;
+      border: 1px solid #2a3038;
+      border-radius: 9px;
+      background: #12181f;
+      color: #b7c0cc;
+      font-size: 9.5px;
+      font-weight: 650;
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease, color .15s ease, transform .1s ease;
+    }
+    .visual-layer-tabs button .vol-tab-top { display: flex; align-items: center; gap: 4px; }
+    .visual-layer-tabs button .vol-tab-count { font-size: 9px; font-weight: 700; color: #7d8794; }
+    .visual-layer-tabs button[data-active="true"] .vol-tab-count { color: #9fb3c9; }
+    .visual-layer-tabs button .vol-tab-label {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      letter-spacing: -0.03em;
+    }
+    .visual-layer-tabs button .vol-tab-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--vol-tone, var(--vol-neutral));
+    }
+    .visual-layer-tabs button:hover { border-color: #3d4650; background: #161d25; color: #e6edf3; }
+    .visual-layer-tabs button:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; }
+    .visual-layer-tabs button:active { transform: translateY(1px); }
+    .visual-layer-tabs button[data-active="true"] {
+      border-color: #58a6ff;
+      background: color-mix(in srgb, #58a6ff 15%, #12181f);
+      color: #f0f6fc;
+    }
+    .visual-layer-body {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-height: 340px;
+      overflow: auto;
+      scrollbar-width: thin;
+    }
+    /* Services — a health pill + plain-language meaning. */
+    .vol-service {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 11px;
+      border: 1px solid #262c34;
+      border-left: 3px solid var(--vol-tone, var(--vol-neutral));
+      border-radius: 8px;
+      background: #0b0f14;
+    }
+    .vol-service-body { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; }
+    .vol-service-name { color: #f0f6fc; font-size: 12px; font-weight: 650; line-height: 1.2; overflow-wrap: anywhere; }
+    .vol-service-meaning { color: #9aa4b1; font-size: 10.5px; line-height: 1.3; overflow-wrap: anywhere; }
+    .vol-pill {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--vol-tone, var(--vol-neutral)) 15%, #0b0f14);
+      color: color-mix(in srgb, var(--vol-tone, var(--vol-neutral)) 52%, #f0f6fc);
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .vol-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--vol-tone, var(--vol-neutral)); }
+    /* Activity — a real time axis. */
+    .vol-timeline { position: relative; padding-left: 18px; display: flex; flex-direction: column; gap: 9px; }
+    .vol-timeline::before { content: ""; position: absolute; left: 5px; top: 4px; bottom: 4px; width: 2px; background: #262c34; border-radius: 2px; }
+    .vol-event { position: relative; }
+    .vol-event::before {
+      content: "";
+      position: absolute;
+      left: -15px;
+      top: 3px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--vol-tone, var(--vol-neutral));
+      box-shadow: 0 0 0 3px #0b0f14;
+    }
+    .vol-event-head { display: flex; align-items: baseline; gap: 8px; }
+    .vol-event-kind { color: #e6edf3; font-size: 11.5px; font-weight: 650; overflow-wrap: anywhere; }
+    .vol-event-when { color: #6e7681; font-size: 10px; margin-left: auto; white-space: nowrap; }
+    .vol-event-detail { color: #9aa4b1; font-size: 10.5px; line-height: 1.35; margin-top: 2px; overflow-wrap: anywhere; }
+    /* Agents — portrait capsule cards. */
+    .vol-agent {
+      display: flex;
+      gap: 10px;
+      padding: 9px 11px;
+      border: 1px solid #262c34;
+      border-radius: 10px;
+      background: #0b0f14;
+    }
+    .vol-agent-face {
+      flex: 0 0 auto;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      background: color-mix(in srgb, var(--vol-tone, var(--vol-neutral)) 18%, #12181f);
+      color: color-mix(in srgb, var(--vol-tone, var(--vol-neutral)) 58%, #f0f6fc);
+      border: 1px solid color-mix(in srgb, var(--vol-tone, var(--vol-neutral)) 40%, #30363d);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .vol-agent-body { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; }
+    .vol-agent-name { color: #f0f6fc; font-size: 12px; font-weight: 650; }
+    .vol-agent-lane { color: #7d8794; font-size: 10px; overflow-wrap: anywhere; }
+    .vol-agent-next { color: #9aa4b1; font-size: 10.5px; line-height: 1.3; overflow-wrap: anywhere; }
+    /* Map — the nodes AND the links between them. */
+    .visual-node-map {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 2.4;
+      min-height: 210px;
+      border: 1px solid #262c34;
+      border-radius: 10px;
+      background: #0b0f14;
+      overflow: hidden;
+    }
+    .visual-node-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .vol-edge { stroke: #343b45; }
+    .vol-node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--vol-tone, var(--vol-neutral)) 45%, #30363d);
+      background: #12181f;
+      color: #e6edf3;
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+      max-width: 46%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vol-node::before { content: ""; flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%; background: var(--vol-tone, var(--vol-neutral)); }
+    .vol-map-caption { color: #7d8794; font-size: 10px; padding: 0 2px; line-height: 1.35; }
+    /* Do — guarded vs safe, real focus. */
+    .visual-command-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+    .visual-command-grid button {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      min-width: 0;
+      padding: 8px 10px;
+      border: 1px solid #2a3038;
+      border-left: 3px solid #58a6ff;
+      border-radius: 9px;
+      background: #12181f;
+      color: #e6edf3;
+      font-size: 11px;
+      font-weight: 650;
+      line-height: 1.25;
+      text-align: left;
+      cursor: pointer;
+      overflow-wrap: anywhere;
+      transition: border-color .15s ease, background .15s ease, transform .1s ease;
+    }
+    .visual-command-grid button:hover { background: #161d25; border-color: #3d4650; }
+    .visual-command-grid button:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; }
+    .visual-command-grid button:active { transform: translateY(1px); }
+    .visual-command-grid button[data-guarded="true"] { border-left-color: var(--vol-guard); }
+    .visual-command-grid button:disabled { cursor: wait; opacity: 0.6; }
+    /* Shared empty/fallback state. */
+    .visual-mini-row {
+      min-width: 0;
+      padding: 9px 11px;
+      border: 1px solid #262c34;
+      border-left: 3px solid var(--vol-tone, var(--vol-neutral));
+      border-radius: 8px;
+      background: #0b0f14;
+    }
+    .visual-mini-row strong { display: block; color: #f0f6fc; font-size: 11.5px; font-weight: 650; overflow-wrap: anywhere; }
+    .visual-mini-row span { display: block; margin-top: 3px; color: #9aa4b1; font-size: 10.5px; line-height: 1.35; overflow-wrap: anywhere; }
+    .native-proof-strip {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+      padding: 8px 10px;
+      border-bottom: 1px solid #30363d;
+      background: #0b0f14;
+    }
+    .native-proof-strip div {
+      min-width: 0;
+      padding: 7px 8px;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      background: #0d1117;
+    }
+    .native-proof-strip strong,
+    .native-proof-strip span {
+      display: block;
+      overflow-wrap: anywhere;
+      line-height: 1.25;
+    }
+    .native-proof-strip strong {
+      color: #f0f6fc;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .native-proof-strip span {
+      margin-top: 3px;
+      color: #8b949e;
+      font-size: 11px;
     }
     .operator-card-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -593,6 +902,9 @@ function compileOperateRoomShell(holoComposition) {
       .context-capsule-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+      .native-proof-strip {
+        grid-template-columns: minmax(0, 1fr);
+      }
       .improvement-grid {
         grid-template-columns: minmax(0, 1fr) 76px;
       }
@@ -620,7 +932,7 @@ function compileOperateRoomShell(holoComposition) {
   <div id="holoshell-root">
     <header>
       <h1>HoloShell</h1>
-      <span>chat with Brittney &amp; Daimon - agents handle the data</span>
+      <span>Native HoloShell window - Jetson extension - terminal-run Holo Services</span>
     </header>
     <main id="brittney-chat-mount"></main>
   </div>
@@ -640,6 +952,7 @@ const runtimeScript = `  <script>
     var _lastLaptopDesktopBridgeBaseUrl = null;
     var _laptopDesktopBridgeBases = ['http://127.0.0.1:8751', 'http://127.0.0.1:8752', 'http://127.0.0.1:8753'];
     var _lastCockpitCapsule = null;
+    var _visualLayerTab = 'services';
     var HOLOSHELL_BROWSER_STATE_SCHEMA = 'hololand.holoshell.browser-session-state.v0.1.0';
     var HOLOSHELL_BROWSER_STATE_KEY = 'holoshell:brittney:browser-session:v1';
     var HOLOSHELL_BROWSER_DEFAULT_SESSION_ID = 'default';
@@ -653,7 +966,7 @@ const runtimeScript = `  <script>
         detail: 'operator route',
         speaker: 'Brittney',
         color: '#bc8cff',
-        placeholder: 'Talk to Brittney - she manages the system and agents do the data work...'
+        placeholder: 'Talk to Brittney - native window, Jetson host, terminal-run Holo Services...'
       },
       {
         id: 'sovereign',
@@ -965,7 +1278,9 @@ const runtimeScript = `  <script>
           cockpitLanes: capsule.cockpitLanes,
           actionCards: capsule.actionCards,
           sourceOwnedState: capsule.sourceOwnedState,
+          jetsonExtension: capsule.jetsonExtension,
           contextCapsuleTemplate: capsule.contextCapsuleTemplate,
+          visualOperatingLayer: capsule.visualOperatingLayer,
           receipts: capsule.receipts,
           sovereignRoomMarathon: capsule.sovereignRoomMarathon,
           holoclawRuntimeBridge: capsule.holoclawRuntimeBridge,
@@ -1315,6 +1630,8 @@ const runtimeScript = `  <script>
       var receipts = (capsule && capsule.receipts) || {};
       var sovereign = (capsule && capsule.sovereignRoomMarathon) || {};
       var holoclaw = (capsule && capsule.holoclawRuntimeBridge) || {};
+      var serviceSupervisor = (capsule && capsule.serviceSupervisor) || {};
+      var serviceSummary = serviceSupervisor.summary || {};
       var holoclawApprovalCount = summary.holoclawRuntimeBridgePendingApprovalCount;
       if (holoclawApprovalCount == null) holoclawApprovalCount = holoclaw.pendingApprovalCount || 0;
       var reasoningDetail = [
@@ -1333,6 +1650,18 @@ const runtimeScript = `  <script>
           value: route.url || 'route not reported',
           detail: route.chatEndpoint || 'chat endpoint not reported',
           tone: _toneForStatus(summary.routeStatus)
+        },
+        {
+          label: 'Native Window',
+          value: summary.nativeWindowStatus || 'unknown',
+          detail: 'app/window target; browser is bootstrap self-test only',
+          tone: _toneForStatus(summary.nativeWindowStatus)
+        },
+        {
+          label: 'Holo Services',
+          value: serviceSummary.status || summary.serviceSupervisorSummaryStatus || 'unknown',
+          detail: (serviceSummary.requiredOnlineServiceCount || summary.serviceSupervisorRequiredOnlineCount || 0) + '/' + (serviceSummary.requiredServiceCount || summary.serviceSupervisorRequiredServiceCount || 0) + ' required online; actions ' + (serviceSummary.actionRequiredCount || summary.serviceSupervisorActionRequiredCount || 0),
+          tone: _toneForStatus(summary.serviceSupervisorStatus || serviceSummary.status)
         },
         {
           label: 'Source Owned',
@@ -1611,12 +1940,397 @@ const runtimeScript = `  <script>
           }, 1200);
         });
     }
+    function _miniRow(title, value, detail, tone) {
+      var row = document.createElement('div');
+      row.className = 'visual-mini-row';
+      row.dataset.tone = tone || _toneForStatus(value);
+      var strong = document.createElement('strong');
+      strong.textContent = title || 'Item';
+      var first = document.createElement('span');
+      first.textContent = value || 'unknown';
+      row.append(strong, first);
+      if (detail) {
+        var second = document.createElement('span');
+        second.textContent = detail;
+        row.appendChild(second);
+      }
+      return row;
+    }
+    function _setVisualLayerTab(tabId) {
+      _visualLayerTab = tabId || 'services';
+      if (_lastCockpitCapsule) _renderVisualOperatingLayer(_lastCockpitCapsule);
+    }
+    function _runVisualCommand(command, button) {
+      if (!command || command.disabled) return;
+      if (command.confirmationRequired && !window.confirm(command.label + ' requires confirmation. Continue?')) return;
+      var original = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Running';
+      var options = command.method === 'POST'
+        ? {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(command.body || {})
+          }
+        : { cache: 'no-store' };
+      fetch(command.href, options)
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(result) {
+          var data = result.data || {};
+          if (!result.ok || data.error) throw new Error(data.error || data.reason || 'request_failed');
+          button.textContent = 'Receipt';
+          _appendTurnCard(command.label || 'Command', [
+            'status: ' + (data.status || data.summary?.status || 'ready'),
+            'lane: ' + (command.capabilityLane || 'unknown'),
+            'permission: ' + (command.permissionEnvelope || 'unknown'),
+            'receipt required: ' + (command.receiptRequired ? 'yes' : 'no')
+          ], _toneForStatus(data.status || data.summary?.status || 'ready'), 'receipt', { chatId: _chatIdForLane(command.capabilityLane || command.commandId || 'terminal') });
+          loadCockpitCapsule();
+        })
+        .catch(function(e) {
+          button.textContent = 'Blocked';
+          _bMsg('Command palette', (command.label || command.commandId || 'Command') + ' blocked: ' + e.message, '#f85149', { chatId: 'terminal' });
+        })
+        .finally(function() {
+          setTimeout(function() {
+            button.disabled = Boolean(command.disabled);
+            button.textContent = original;
+          }, 1200);
+        });
+    }
+    var VOL_TONE_COLORS = { ready: '#3fb950', attention: '#d29922', blocked: '#f85149', neutral: '#6e7681' };
+    var _VOL_TONE_RANK = { ready: 0, neutral: 1, attention: 2, blocked: 3 };
+    function _volToneColor(tone) { return VOL_TONE_COLORS[tone] || VOL_TONE_COLORS.neutral; }
+    function _volWorstTone(tones) {
+      var worst = 'ready';
+      (tones || []).forEach(function(t) {
+        var tone = t || 'neutral';
+        if ((_VOL_TONE_RANK[tone] || 0) > (_VOL_TONE_RANK[worst] || 0)) worst = tone;
+      });
+      return worst;
+    }
+    function _volHumanStatus(raw) {
+      var text = String(raw == null ? '' : raw).toLowerCase();
+      if (!text) return 'unknown';
+      var map = {
+        online: 'running', ready: 'ready', completed: 'done', coupled: 'linked',
+        managed_pid_watch: 'PID-verified', reported: 'reporting', available: 'available',
+        window_preflights_ready: 'ready', cards_ready: 'ready', windows_visible: 'windows up',
+        blocked: 'blocked', failed: 'failed', error: 'error', refused: 'refused',
+        unavailable: 'offline', missing: 'missing', critical: 'critical',
+        stale: 'needs refresh', needs_refresh: 'needs refresh', waiting: 'waiting',
+        pending: 'pending', partial: 'partial', not_reported: 'no report yet', unknown: 'unknown'
+      };
+      if (map[text]) return map[text];
+      return text.replace(/[._]+/g, ' ');
+    }
+    function _volToneWord(tone) {
+      if (tone === 'blocked') return 'Needs a fix';
+      if (tone === 'attention') return 'Wants a look';
+      if (tone === 'ready') return 'All clear';
+      return 'Warming up';
+    }
+    function _volInitial(name) {
+      var s = String(name || '?').replace(/[^A-Za-z0-9]/g, '');
+      return (s.charAt(0) || '?').toUpperCase();
+    }
+    function _volEmpty(title, detail, tone) {
+      var row = document.createElement('div');
+      row.className = 'visual-mini-row';
+      row.style.setProperty('--vol-tone', _volToneColor(tone || 'neutral'));
+      var strong = document.createElement('strong');
+      strong.textContent = title || 'Nothing here yet';
+      row.appendChild(strong);
+      if (detail) { var span = document.createElement('span'); span.textContent = detail; row.appendChild(span); }
+      return row;
+    }
+    function _volSectionTone(items, statusFallback, statusOf) {
+      var list = items || [];
+      if (!list.length) return _toneForStatus(statusFallback);
+      return _volWorstTone(list.map(statusOf));
+    }
+    function _renderServiceDock(layer, body) {
+      var dock = (layer && layer.serviceDock) || {};
+      var services = dock.services || [];
+      if (!services.length) {
+        body.appendChild(_volEmpty('No services reported yet', dock.nextSafeAction, _toneForStatus(dock.status)));
+        return;
+      }
+      services.slice(0, 8).forEach(function(service) {
+        var tone = service.tone || _toneForStatus(service.status);
+        var row = document.createElement('div');
+        row.className = 'vol-service';
+        row.style.setProperty('--vol-tone', _volToneColor(tone));
+        var info = document.createElement('div');
+        info.className = 'vol-service-body';
+        var name = document.createElement('span');
+        name.className = 'vol-service-name';
+        name.textContent = service.label || service.serviceId || 'Service';
+        var meaning = document.createElement('span');
+        meaning.className = 'vol-service-meaning';
+        var bits = [];
+        if (service.serviceKind) bits.push(_volHumanStatus(service.serviceKind));
+        if (service.pidCommandVerified) bits.push('process confirmed');
+        if (service.nextSafeAction) bits.push(service.nextSafeAction);
+        meaning.textContent = bits.join(' \\u00b7 ') || (service.api || '');
+        info.appendChild(name);
+        info.appendChild(meaning);
+        var pill = document.createElement('span');
+        pill.className = 'vol-pill';
+        pill.textContent = _volHumanStatus(service.status);
+        row.appendChild(info);
+        row.appendChild(pill);
+        body.appendChild(row);
+      });
+    }
+    function _volEventWhen(event) {
+      var raw = event.ts || event.time || event.at || event.timestamp || event.receivedAt || event.observedAt;
+      if (!raw) return '';
+      var d = new Date(raw);
+      if (isNaN(d.getTime())) return '';
+      var hh = d.getHours(), mm = d.getMinutes();
+      return (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm;
+    }
+    function _renderTerminalTimeline(layer, body) {
+      var timeline = (layer && layer.terminalRunTimeline) || {};
+      var events = timeline.events || [];
+      if (!events.length) {
+        body.appendChild(_volEmpty('No activity yet', timeline.nextSafeAction, _toneForStatus(timeline.status)));
+        return;
+      }
+      var rail = document.createElement('div');
+      rail.className = 'vol-timeline';
+      events.slice().reverse().slice(0, 10).forEach(function(event) {
+        var tone = event.tone || _toneForStatus(event.lifecycle || event.nativeEventKind);
+        var item = document.createElement('div');
+        item.className = 'vol-event';
+        item.style.setProperty('--vol-tone', _volToneColor(tone));
+        var head = document.createElement('div');
+        head.className = 'vol-event-head';
+        var kind = document.createElement('span');
+        kind.className = 'vol-event-kind';
+        var kindText = _volHumanStatus(event.nativeEventKind || event.type || 'event');
+        if (event.lifecycle) kindText += ' \\u00b7 ' + _volHumanStatus(event.lifecycle);
+        kind.textContent = kindText;
+        head.appendChild(kind);
+        var when = _volEventWhen(event);
+        if (when) { var w = document.createElement('span'); w.className = 'vol-event-when'; w.textContent = when; head.appendChild(w); }
+        item.appendChild(head);
+        var detailText = event.summary || (event.commandId ? event.commandId : '');
+        if (detailText) { var det = document.createElement('div'); det.className = 'vol-event-detail'; det.textContent = detailText; item.appendChild(det); }
+        rail.appendChild(item);
+      });
+      body.appendChild(rail);
+    }
+    function _renderAgentUtility(layer, body) {
+      var utility = (layer && layer.agentUtility) || {};
+      var capsules = utility.capsules || [];
+      if (!capsules.length) {
+        body.appendChild(_volEmpty('No agents reported', utility.nextSafeAction, _toneForStatus(utility.status)));
+        return;
+      }
+      capsules.slice(0, 8).forEach(function(capsule) {
+        var tone = capsule.tone || _toneForStatus(capsule.status);
+        var card = document.createElement('div');
+        card.className = 'vol-agent';
+        card.style.setProperty('--vol-tone', _volToneColor(tone));
+        var face = document.createElement('div');
+        face.className = 'vol-agent-face';
+        face.textContent = _volInitial(capsule.label || capsule.capsuleId);
+        var info = document.createElement('div');
+        info.className = 'vol-agent-body';
+        var name = document.createElement('span');
+        name.className = 'vol-agent-name';
+        name.textContent = capsule.label || capsule.capsuleId || 'Agent';
+        var lane = document.createElement('span');
+        lane.className = 'vol-agent-lane';
+        lane.textContent = _volHumanStatus(capsule.status) + ' \\u00b7 ' + _volHumanStatus(capsule.capabilityLane || 'lane');
+        info.appendChild(name);
+        info.appendChild(lane);
+        var next = capsule.nextSafeAction || capsule.api;
+        if (next) { var n = document.createElement('span'); n.className = 'vol-agent-next'; n.textContent = next; info.appendChild(n); }
+        card.appendChild(face);
+        card.appendChild(info);
+        body.appendChild(card);
+      });
+    }
+    function _renderNodeCity(layer, body) {
+      var city = (layer && layer.nodeCity) || {};
+      var nodes = (city.nodes || []).slice(0, 12);
+      if (!nodes.length) {
+        body.appendChild(_volEmpty('No node map yet', city.nextSafeAction, _toneForStatus(city.status)));
+        return;
+      }
+      var maxX = 0, maxY = 0;
+      nodes.forEach(function(n) { maxX = Math.max(maxX, Number(n.x || 0)); maxY = Math.max(maxY, Number(n.y || 0)); });
+      var cols = maxX + 1, rows = maxY + 1;
+      function px(n) { return ((Number(n.x || 0) + 0.5) / cols) * 100; }
+      function py(n) { return ((Number(n.y || 0) + 0.5) / rows) * 100; }
+      var byId = {};
+      nodes.forEach(function(n) { byId[n.nodeId] = n; });
+      var map = document.createElement('div');
+      map.className = 'visual-node-map';
+      var svgNS = 'http://www.w3.org/2000/svg';
+      var svg = document.createElementNS(svgNS, 'svg');
+      svg.setAttribute('viewBox', '0 0 100 100');
+      svg.setAttribute('preserveAspectRatio', 'none');
+      (city.edges || []).forEach(function(edge) {
+        var a = byId[edge.from], b = byId[edge.to];
+        if (!a || !b) return;
+        var line = document.createElementNS(svgNS, 'line');
+        line.setAttribute('x1', px(a).toFixed(2));
+        line.setAttribute('y1', py(a).toFixed(2));
+        line.setAttribute('x2', px(b).toFixed(2));
+        line.setAttribute('y2', py(b).toFixed(2));
+        line.setAttribute('class', 'vol-edge');
+        line.setAttribute('vector-effect', 'non-scaling-stroke');
+        svg.appendChild(line);
+      });
+      map.appendChild(svg);
+      nodes.forEach(function(node) {
+        var tone = node.tone || _toneForStatus(node.status);
+        var el = document.createElement('div');
+        el.className = 'vol-node';
+        el.style.setProperty('--vol-tone', _volToneColor(tone));
+        el.style.left = px(node).toFixed(2) + '%';
+        el.style.top = py(node).toFixed(2) + '%';
+        el.title = (node.label || node.nodeId) + ' \\u2014 ' + _volHumanStatus(node.status);
+        el.textContent = node.label || node.nodeId;
+        map.appendChild(el);
+      });
+      body.appendChild(map);
+      var caption = document.createElement('div');
+      caption.className = 'vol-map-caption';
+      var edgeCount = (city.edges || []).length;
+      caption.textContent = nodes.length + ' systems \\u00b7 ' + edgeCount + ' links \\u2014 ' + (city.nextSafeAction || 'live infrastructure map');
+      body.appendChild(caption);
+    }
+    function _renderCommandPalette(layer, body) {
+      var palette = (layer && layer.commandPalette) || {};
+      var commands = palette.commands || [];
+      if (!commands.length) {
+        body.appendChild(_volEmpty('No commands available', palette.nextSafeAction, _toneForStatus(palette.status)));
+        return;
+      }
+      var grid = document.createElement('div');
+      grid.className = 'visual-command-grid';
+      commands.slice(0, 8).forEach(function(command) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.guarded = command.confirmationRequired ? 'true' : 'false';
+        button.disabled = command.disabled === true;
+        var envelope = command.permissionEnvelope || 'read_only';
+        var lane = command.capabilityLane || 'receipt_read';
+        button.title = (command.confirmationRequired ? 'Guarded \\u00b7 asks before running' : 'Safe \\u00b7 read-only') + ' \\u2014 ' + envelope + ' / ' + lane;
+        button.textContent = command.label || command.commandId || 'Command';
+        button.onclick = function() { _runVisualCommand(command, button); };
+        grid.appendChild(button);
+      });
+      body.appendChild(grid);
+    }
+    function _renderVisualOperatingLayer(capsule) {
+      var panel = document.getElementById('visual-operating-layer-panel');
+      var body = document.getElementById('visual-layer-body');
+      var tabs = document.getElementById('visual-layer-tabs');
+      if (!panel || !body || !tabs) return;
+      if (!_visualLayerTab) _visualLayerTab = 'services';
+      var layer = (capsule && capsule.visualOperatingLayer) || {};
+      var dock = layer.serviceDock || {};
+      var timeline = layer.terminalRunTimeline || {};
+      var utility = layer.agentUtility || {};
+      var city = layer.nodeCity || {};
+      var palette = layer.commandPalette || {};
+      function countOf(node, key, arr) { return node && node[key] != null ? node[key] : ((node && node[arr]) || []).length; }
+      var serviceCount = countOf(dock, 'serviceCount', 'services');
+      var eventCount = countOf(timeline, 'eventCount', 'events');
+      var agentCount = countOf(utility, 'capsuleCount', 'capsules');
+      var nodeCount = countOf(city, 'nodeCount', 'nodes');
+      var commandCount = countOf(palette, 'commandCount', 'commands');
+      var serviceTone = _volSectionTone(dock.services, dock.status, function(s) { return s.tone || _toneForStatus(s.status); });
+      var timelineTone = _volSectionTone(timeline.events, timeline.status, function(e) { return e.tone || _toneForStatus(e.lifecycle || e.nativeEventKind); });
+      var agentTone = _volSectionTone(utility.capsules, utility.status, function(c) { return c.tone || _toneForStatus(c.status); });
+      var nodeTone = _volSectionTone(city.nodes, city.status, function(n) { return n.tone || _toneForStatus(n.status); });
+      var commandTone = _toneForStatus(palette.status);
+      var sections = [
+        { id: 'services', label: 'Services', tone: serviceTone, count: serviceCount },
+        { id: 'timeline', label: 'Activity', tone: timelineTone, count: eventCount },
+        { id: 'agents', label: 'Agents', tone: agentTone, count: agentCount },
+        { id: 'nodes', label: 'Map', tone: nodeTone, count: nodeCount },
+        { id: 'commands', label: 'Do', tone: commandTone, count: commandCount }
+      ];
+      var worst = _volWorstTone([serviceTone, agentTone, timelineTone]);
+      var health;
+      if (worst === 'blocked' || worst === 'attention') health = worst;
+      else if (layer.status) health = 'ready';
+      else health = 'neutral';
+      panel.dataset.health = health;
+      _setText('visual-layer-word', _volToneWord(health));
+      var flagged = [];
+      (dock.services || []).forEach(function(s) { var t = s.tone || _toneForStatus(s.status); if (t === 'attention' || t === 'blocked') flagged.push(s.label || s.serviceId); });
+      (utility.capsules || []).forEach(function(c) { var t = c.tone || _toneForStatus(c.status); if (t === 'attention' || t === 'blocked') flagged.push(c.label || c.capsuleId); });
+      var summary;
+      if (health === 'neutral') {
+        summary = 'Reading your systems\\u2026';
+      } else if (health === 'ready') {
+        summary = serviceCount + ' services \\u00b7 ' + agentCount + ' agents \\u00b7 ' + nodeCount + ' systems \\u2014 all green';
+      } else {
+        var lead = flagged.length
+          ? flagged.slice(0, 2).join(', ') + (flagged.length === 1 ? ' needs a look' : ' need a look')
+          : 'something needs a look';
+        summary = lead + ' \\u00b7 ' + serviceCount + ' services, ' + agentCount + ' agents, ' + nodeCount + ' systems';
+      }
+      _setText('visual-layer-status', summary);
+      tabs.textContent = '';
+      sections.forEach(function(section) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.setAttribute('role', 'tab');
+        var active = _visualLayerTab === section.id;
+        button.dataset.active = active ? 'true' : 'false';
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
+        button.style.setProperty('--vol-tone', _volToneColor(section.tone));
+        var top = document.createElement('span');
+        top.className = 'vol-tab-top';
+        var dot = document.createElement('span');
+        dot.className = 'vol-tab-dot';
+        dot.setAttribute('aria-hidden', 'true');
+        top.appendChild(dot);
+        if (section.count) {
+          var cnt = document.createElement('span');
+          cnt.className = 'vol-tab-count';
+          cnt.textContent = section.count;
+          top.appendChild(cnt);
+        }
+        var label = document.createElement('span');
+        label.className = 'vol-tab-label';
+        label.textContent = section.label;
+        button.appendChild(top);
+        button.appendChild(label);
+        button.onclick = function() { _setVisualLayerTab(section.id); };
+        tabs.appendChild(button);
+      });
+      body.textContent = '';
+      if (_visualLayerTab === 'timeline') _renderTerminalTimeline(layer, body);
+      else if (_visualLayerTab === 'agents') _renderAgentUtility(layer, body);
+      else if (_visualLayerTab === 'nodes') _renderNodeCity(layer, body);
+      else if (_visualLayerTab === 'commands') _renderCommandPalette(layer, body);
+      else _renderServiceDock(layer, body);
+    }
     function _renderCockpitActionCards(capsule) {
       var mount = document.getElementById('cockpit-action-cards');
       if (!mount) return;
       mount.textContent = '';
       var cards = ((capsule && capsule.actionCards) || []).filter(function(card) {
-        return card && (card.primaryAction || card.id === 'desktop_control_plan' || card.id === 'context_capsule' || card.id === 'laptop_reasoning_status');
+        return card && (
+          card.primaryAction
+          || card.id === 'desktop_control_plan'
+          || card.id === 'context_capsule'
+          || card.id === 'laptop_reasoning_status'
+          || card.id === 'holoservices_supervisor_status'
+          || card.id === 'native_holoshell_window'
+          || card.id === 'native_capability_envelope'
+          || card.id === 'visual_operating_layer'
+        );
       }).slice(0, 10);
       if (!cards.length) {
         mount.textContent = 'no cards reported';
@@ -1641,6 +2355,7 @@ const runtimeScript = `  <script>
       _renderOperatorTruth(capsule);
       _renderEvidencePrompts(capsule);
       _renderContextCapsule(capsule);
+      _renderVisualOperatingLayer(capsule);
       _setText('cockpit-runtime', _laneText(_lane(capsule, 'runtime_truth')));
       _setText('cockpit-routes', _laneText(_lane(capsule, 'route_health')));
       _setText('cockpit-context', _laneText(_lane(capsule, 'context_carry')));
@@ -2091,13 +2806,15 @@ const runtimeScript = `  <script>
       var alerts = document.getElementById('operator-alerts');
       var cockpit = document.getElementById('brittney-cockpit');
       var actionCards = document.getElementById('cockpit-action-cards');
+      var visualLayer = document.getElementById('visual-operating-layer-panel');
       var contextPanel = document.getElementById('context-capsule-panel');
+      var nativeProof = document.getElementById('native-proof-strip');
       var improvementPanel = document.getElementById('improvement-run-panel');
       var messages = document.getElementById('brittney-messages');
       var input = document.getElementById('brittney-input');
       var send = document.getElementById('brittney-send');
       var composer = input && input.parentElement;
-      if (!stateRail || !alerts || !cockpit || !actionCards || !contextPanel || !improvementPanel || !messages || !composer) return;
+      if (!stateRail || !alerts || !cockpit || !actionCards || !visualLayer || !contextPanel || !nativeProof || !improvementPanel || !messages || !composer) return;
 
       messages.removeAttribute('style');
       messages.className = 'brittney-message-stream';
@@ -2131,7 +2848,7 @@ const runtimeScript = `  <script>
       parallelStack.id = 'parallel-chat-stack';
       parallelStack.className = 'parallel-chat-stack';
       parallelStack.setAttribute('aria-label', 'Expanded parallel chats');
-      chatPanel.append(chatHeader, workspaceBar, parallelStack, messages, composer);
+      chatPanel.append(chatHeader, nativeProof, workspaceBar, parallelStack, messages, composer);
 
       var leftRail = document.createElement('aside');
       leftRail.className = 'operator-side-rail operator-left-rail';
@@ -2141,7 +2858,7 @@ const runtimeScript = `  <script>
       var rightRail = document.createElement('aside');
       rightRail.className = 'operator-side-rail operator-right-rail';
       rightRail.setAttribute('aria-label', 'Brittney action and context rail');
-      rightRail.append(actionCards, contextPanel, improvementPanel);
+      rightRail.append(visualLayer, actionCards, contextPanel, improvementPanel);
 
       shell.append(chatPanel, leftRail, rightRail);
       mount.textContent = '';
@@ -2165,6 +2882,24 @@ const runtimeScript = `  <script>
         '<div class="cockpit-card"><strong>Tools</strong><span id="cockpit-actions">checking</span></div>' +
         '</section>' +
         '<section id="cockpit-action-cards" class="cockpit-action-grid" aria-label="Brittney action cards"></section>' +
+        '<section id="visual-operating-layer-panel" class="visual-layer-panel" aria-label="Operating layer">' +
+        '<div class="vol-hero">' +
+        '<span class="vol-hero-dot" aria-hidden="true"></span>' +
+        '<div class="vol-hero-text">' +
+        '<strong class="vol-hero-word" id="visual-layer-word">Reading your systems&#8230;</strong>' +
+        '<span class="vol-hero-summary" id="visual-layer-status">Reading your systems&#8230;</span>' +
+        '</div>' +
+        '</div>' +
+        '<div id="visual-layer-tabs" class="visual-layer-tabs" role="tablist" aria-label="Operating layer sections"></div>' +
+        '<div id="visual-layer-body" class="visual-layer-body"></div>' +
+        '</section>' +
+        '<section id="native-proof-strip" class="native-proof-strip" aria-label="Native HoloShell app proof">' +
+        '<div><strong>Native Window</strong><span id="native-proof-window">Start-HoloShellFounderHost.ps1 app window</span></div>' +
+        '<div><strong>Source Envelope</strong><span id="native-proof-envelope">HoloScript native capability lanes gate app powers</span></div>' +
+        '<div><strong>Terminal Events</strong><span id="native-proof-terminal-events">append-only HoloScript terminal event stream</span></div>' +
+        '<div><strong>Holo Services</strong><span id="native-proof-services">terminal supervisor runs service receipts</span></div>' +
+        '<div><strong>Browser Self-Test</strong><span id="native-proof-browser">GET / plus browser receipt before packaging claims</span></div>' +
+        '</section>' +
         '<section id="context-capsule-panel" class="context-capsule-panel" aria-label="Context capsule">' +
         '<strong>Context Capsule</strong>' +
         '<div class="context-capsule-grid">' +
@@ -2211,7 +2946,7 @@ const runtimeScript = `  <script>
         .then(function(hydrated) {
           var state = _readBrowserState();
           if (!hydrated && !(state.transcriptByChat[_activeChatId] || []).length) {
-            _bMsg('Brittney', 'Online - owned GPU routes are available ($0), and receipts show when the laptop GPU is actually used. Just talk to me; I manage the system and hand the data work to the agents. The Daimon\\u2019s remembered context rides along when it has emerged (D.053).', '#bc8cff');
+            _bMsg('Brittney', 'Online - HoloShell is aiming at a native app window backed by the Jetson surface at holojetson.local:8747. The browser is the bootstrap self-test, while the terminal app and Holo Services supervisor own execution receipts, service health, and guarded actions. The Daimon\\u2019s remembered context rides along when it has emerged (D.053).', '#bc8cff');
           }
         })
         .finally(function() {

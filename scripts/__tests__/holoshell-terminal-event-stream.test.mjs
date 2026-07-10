@@ -8,6 +8,7 @@ import {
   buildTerminalEventStream,
   eventsFromOperatorTerminalReceipt,
   readTerminalEventLog,
+  upstreamTerminalEventStreamSnapshot,
 } from '../holoshell-terminal-event-stream.mjs';
 
 const tempDir = mkdtempSync(join(tmpdir(), 'holoshell-terminal-events-'));
@@ -59,10 +60,22 @@ const events = eventsFromOperatorTerminalReceipt(receipt, {
 });
 assert.equal(events.length, 3);
 assert.deepEqual(events.map((event) => event.type), ['process', 'artifact', 'command_catalog']);
+assert.deepEqual(events.map((event) => event.nativeEventKind), ['run.started', 'receipt.written', 'artifact.detected']);
 assert.equal(events.every((event) => event.endpointExecutesCommand === false), true);
 assert.equal(events.every((event) => event.destructiveActionsTaken === false), true);
 assert.equal(events.every((event) => event.desktopAutomationExecuted === false), true);
+assert.equal(events.every((event) => event.upstreamSource === 'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus'), true);
+assert.equal(events.every((event) => event.requiredCapabilityLane === 'terminal_event_read'), true);
 assert.equal(events[2].commandCount, 2);
+
+const upstreamContract = upstreamTerminalEventStreamSnapshot();
+assert.equal(upstreamContract.schemaVersion, 'holoscript.holoshell.native-terminal-event-stream.v0.1.0');
+assert.equal(upstreamContract.source, 'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus');
+assert.equal(upstreamContract.status, 'ready');
+assert.equal(upstreamContract.requiredCapabilityLane, 'terminal_event_read');
+assert.equal(upstreamContract.matchedEventKindCount, 7);
+assert.deepEqual(upstreamContract.missingEventKinds, []);
+assert.equal(upstreamContract.browserMayOwnExecution, false);
 
 const firstStream = buildTerminalEventStream({
   receiptPath,
@@ -76,7 +89,13 @@ assert.equal(firstStream.appendedEventCount, 3);
 assert.equal(firstStream.eventCount, 3);
 assert.equal(firstStream.latestReceiptHash, 'terminal-event-test-hash');
 assert.equal(firstStream.browserRunCardsReady, true);
+assert.equal(firstStream.upstreamSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus');
+assert.equal(firstStream.upstreamSchemaVersion, 'holoscript.holoshell.native-terminal-event-stream.v0.1.0');
+assert.equal(firstStream.upstreamContractStatus, 'ready');
+assert.equal(firstStream.requiredCapabilityLane, 'terminal_event_read');
+assert.equal(firstStream.browserMayOwnExecution, false);
 assert.deepEqual(firstStream.eventTypes, ['artifact', 'command_catalog', 'process']);
+assert.deepEqual(firstStream.nativeEventKinds, ['artifact.detected', 'receipt.written', 'run.started']);
 
 const secondStream = buildTerminalEventStream({
   receiptPath,
@@ -111,6 +130,7 @@ assert.equal(cliReceipt.appendedEventCount, 0);
 assert.equal(cliReceipt.endpointExecutesCommand, false);
 assert.equal(cliReceipt.destructiveActionsTaken, false);
 assert.equal(cliReceipt.desktopAutomationExecuted, false);
+assert.equal(cliReceipt.upstreamContractStatus, 'ready');
 
 const port = 9490 + Math.floor(Math.random() * 200);
 const serverReceiptPath = join(tempDir, 'server-operator-terminal.json');
@@ -161,7 +181,10 @@ try {
   await waitForServer();
   const liveStatus = await fetchJson('/api/live-status');
   assert.equal(liveStatus.route.operatorTerminalEventsEndpoint, 'GET /api/operator-terminal/events');
+  assert.equal(liveStatus.route.nativeTerminalEventStreamSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus');
+  assert.equal(liveStatus.route.nativeTerminalEventStreamSchema, 'holoscript.holoshell.native-terminal-event-stream.v0.1.0');
   assert.ok(liveStatus.capabilities.includes('operator_terminal_event_stream'));
+  assert.ok(liveStatus.capabilities.includes('native_terminal_event_stream'));
 
   const firstEvents = await fetchJson('/api/operator-terminal/events');
   assert.equal(firstEvents.status, 'ready');
@@ -169,6 +192,9 @@ try {
   assert.equal(firstEvents.appendedEventCount, 3);
   assert.equal(firstEvents.eventCount, 3);
   assert.equal(firstEvents.endpointExecutesCommand, false);
+  assert.equal(firstEvents.upstreamContractStatus, 'ready');
+  assert.equal(firstEvents.requiredCapabilityLane, 'terminal_event_read');
+  assert.equal(firstEvents.browserMayOwnExecution, false);
 
   const secondEvents = await fetchJson('/api/operator-terminal/events');
   assert.equal(secondEvents.status, 'ready');
@@ -180,9 +206,15 @@ try {
   assert.equal(session.terminal.eventStreamEndpoint, 'GET /api/operator-terminal/events');
   assert.equal(session.terminal.eventStreamStatus, 'ready');
   assert.equal(session.terminal.eventStreamEventCount, 3);
+  assert.equal(session.terminal.upstreamEventStreamSource, 'HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus');
+  assert.equal(session.terminal.upstreamEventStreamSchema, 'holoscript.holoshell.native-terminal-event-stream.v0.1.0');
+  assert.equal(session.terminal.upstreamEventStreamStatus, 'ready');
+  assert.equal(session.terminal.requiredEventCapabilityLane, 'terminal_event_read');
+  assert.equal(session.terminal.browserMayOwnExecution, false);
   assert.equal(session.refreshRecovery.terminalEvidenceStreamStatus, 'polling_enabled');
   assert.equal(session.refreshRecovery.terminalEvidenceEventStreamStatus, 'ready');
   assert.equal(session.refreshRecovery.terminalEvidenceEventStreamEndpoint, 'GET /api/operator-terminal/events');
+  assert.equal(session.refreshRecovery.terminalEvidenceUpstreamStatus, 'ready');
   assert.ok(session.refreshRecovery.rehydrateFrom.includes('GET /api/operator-terminal/events'));
 } finally {
   server.kill();

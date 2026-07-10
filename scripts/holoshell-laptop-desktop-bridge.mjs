@@ -449,16 +449,20 @@ export function buildBridgeStatus(options = {}) {
   const port = Number(options.port || DEFAULT_PORT);
   const url = options.url || `http://${host}:${port}`;
   const at = generatedAt(options);
+  const status = options.status || 'ready';
   return {
     schemaVersion: LAPTOP_DESKTOP_BRIDGE_SCHEMA,
     reportId: stableId('desktop_bridge_report', `${at}:${url}:${process.pid}`),
     generatedAt: at,
-    status: 'ready',
+    status,
     url,
     hostRole: 'laptop_desktop_bridge',
     expectedSurface: 'Jetson-hosted HoloShell browser page',
     source: 'apps/holoshell/source/holoshell-desktop-control-bridge.hsplus',
     daemonScript: 'scripts/holoshell-laptop-desktop-bridge.mjs',
+    statusSource: options.statusSource || 'daemon_runtime',
+    loopbackReachable: options.loopbackReachable ?? status === 'ready',
+    statusProbe: options.statusProbe || null,
     platform: {
       node: process.version,
       platform: process.platform,
@@ -935,6 +939,58 @@ export function createLaptopDesktopBridgeServer(options = {}) {
   });
 }
 
+function bridgeStatusEndpoint(options = {}) {
+  const host = options.host || DEFAULT_HOST;
+  const port = Number(options.port || DEFAULT_PORT);
+  const url = options.url || `http://${host}:${port}`;
+  return `${url}/api/desktop-control/bridge`;
+}
+
+function statusProbeError(error) {
+  return String(error?.cause?.code || error?.message || error || 'unknown_error');
+}
+
+export async function probeBridgeStatus(options = {}) {
+  const endpoint = bridgeStatusEndpoint(options);
+  try {
+    const response = await fetch(endpoint, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(1500),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(`status_endpoint_${response.status}`);
+    }
+    if (body.schemaVersion !== LAPTOP_DESKTOP_BRIDGE_SCHEMA) {
+      throw new Error('schema_mismatch');
+    }
+    return writeLatestBridgeStatus({
+      ...body,
+      statusSource: 'status_cli_live_probe',
+      loopbackReachable: true,
+      statusProbe: {
+        mode: 'loopback_status_cli',
+        endpoint,
+        ok: true,
+        statusCode: response.status,
+      },
+    }, options.receiptDir);
+  } catch (error) {
+    return writeLatestBridgeStatus(buildBridgeStatus({
+      ...options,
+      status: 'offline',
+      statusSource: 'status_cli_live_probe',
+      loopbackReachable: false,
+      statusProbe: {
+        mode: 'loopback_status_cli',
+        endpoint,
+        ok: false,
+        error: statusProbeError(error),
+      },
+    }), options.receiptDir);
+  }
+}
+
 export function runSelfTest(options = {}) {
   const status = buildBridgeStatus({ ...options, createdAt: options.createdAt || '2026-06-23T00:00:00.000Z' });
   const preflight = buildDesktopControlPreflight({
@@ -1029,11 +1085,12 @@ if (isMain()) {
       process.exit(0);
     }
     if (args.status) {
-      const status = writeLatestBridgeStatus(buildBridgeStatus(args), args.receiptDir);
+      const status = await probeBridgeStatus(args);
       if (args.json) console.log(JSON.stringify(status, null, 2));
       else {
         console.log(`Status: ${status.status}`);
         console.log(`URL: ${status.url}`);
+        console.log(`Loopback reachable: ${status.loopbackReachable ? 'yes' : 'no'}`);
         console.log(`Mutation boundary: ${status.mutationBoundary}`);
       }
       process.exit(0);

@@ -1,0 +1,145 @@
+// HoloShell Visual Operating Layer
+//
+// Product source for the native-style operating layer: service dock, terminal
+// run timeline, agent utility capsules, Hololand node city, and consent command
+// palette. This is not decorative UI; every panel is backed by an API, lane,
+// receipt, and next-safe-action.
+
+composition "HoloShell Visual Operating Layer" {
+  config {
+    title: "Visual Operating Layer"
+    product: "HoloShell"
+    sourceLayer: "HoloScript"
+    upstreamVisualOperatingLayerSource: "HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus"
+    upstreamVisualOperatingLayerSchema: "holoscript.holoshell.native-visual-operating-layer.v0.1.0"
+    upstreamCapabilityEnvelopeSource: "HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus"
+    upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    sourceEndpoint: "GET /api/visual-operating-layer"
+    cockpitCapsuleEndpoint: "GET /api/cockpit/capsule#visualOperatingLayer"
+    serviceDockEndpoint: "GET /api/services/supervisor"
+    terminalEventsEndpoint: "GET /api/operator-terminal/events"
+    terminalSessionEndpoint: "GET /api/operator-terminal/session"
+    commandPaletteEndpoint: "GET /api/visual-operating-layer#commandPalette"
+    requiredPanels: ["service_dock", "terminal_run_timeline", "agent_utility_capsules", "hololand_node_city", "consent_command_palette"]
+    requiredAgentFields: ["api", "capabilityLane", "permissionEnvelope", "receipt", "nextSafeAction"]
+    defaultMode: "native_operating_layer_projection"
+    receiptRequired: true
+  }
+
+  state {
+    status: "unknown"
+    serviceDockStatus: "unknown"
+    serviceCount: 0
+    terminalTimelineStatus: "unknown"
+    terminalEventCount: 0
+    agentUtilityStatus: "unknown"
+    agentCapsuleCount: 0
+    nodeCityStatus: "unknown"
+    nodeCount: 0
+    commandPaletteStatus: "unknown"
+    commandCount: 0
+    browserMayOwnExecution: false
+    destructiveActionsTaken: false
+    desktopAutomationExecuted: false
+  }
+
+  channel "holoshell:visual-operating-layer" {
+    type: "request_response"
+    priority: "critical"
+    description: "Native visual operating layer for Joseph and agent-readable utility"
+  }
+
+  template "VisualOperatingLayerReceipt" {
+    schemaVersion: "hololand.holoshell.visual-operating-layer.v0.1.0"
+    source: "apps/holoshell/source/holoshell-visual-operating-layer.hsplus"
+    upstreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus"
+    status: "ready"
+    serviceDock: {}
+    terminalRunTimeline: {}
+    agentUtility: {}
+    nodeCity: {}
+    commandPalette: {}
+    browserMayOwnExecution: false
+    destructiveActionsTaken: false
+    desktopAutomationExecuted: false
+    receiptRequired: true
+  }
+
+  template "ServiceDockCard" {
+    serviceId: ""
+    label: ""
+    status: "unknown"
+    serviceKind: ""
+    api: "GET /api/services/supervisor"
+    capabilityLane: "service_status"
+    ensureCapabilityLane: "guarded_service_ensure"
+    permissionEnvelope: "read_only_service_supervisor"
+    receipt: ".tmp/holoshell/service-supervisor.json"
+    nextSafeAction: "inspect_service_receipt"
+    agentReadable: true
+  }
+
+  template "TerminalTimelineEvent" {
+    eventId: ""
+    runId: ""
+    nativeEventKind: "artifact.detected"
+    summary: ""
+    api: "GET /api/operator-terminal/events"
+    capabilityLane: "terminal_event_read"
+    permissionEnvelope: "read_only_event_stream"
+    browserMayOwnExecution: false
+    receiptRequired: true
+  }
+
+  policy "PanelsCarryAgentUtility" {
+    appliesTo: ["service_dock", "terminal_run_timeline", "agent_utility_capsules", "hololand_node_city", "consent_command_palette"]
+    everyPanelCarriesApi: true
+    everyPanelCarriesCapabilityLane: true
+    everyPanelCarriesReceipt: true
+    everyPanelCarriesNextSafeAction: true
+    sourceRequiredBeforeProjection: true
+    receiptRequired: true
+  }
+
+  policy "CommandPaletteConsentBoundary" {
+    appliesTo: ["consent_command_palette", "guarded_service_ensure", "operator_terminal_readonly_adapter_execution"]
+    readOnlyActionsRequireExplicitClick: true
+    guardedActionsRequireConfirmation: true
+    endpointExecutesRawCommand: false
+    browserMayOwnExecution: false
+    destructiveActionsTaken: false
+    desktopAutomationExecuted: false
+    receiptRequired: true
+  }
+
+  action consume_visual_operating_layer(layer) {
+    state.status = layer.status
+    state.serviceDockStatus = layer.serviceDock.status
+    state.serviceCount = layer.serviceDock.serviceCount
+    state.terminalTimelineStatus = layer.terminalRunTimeline.status
+    state.terminalEventCount = layer.terminalRunTimeline.eventCount
+    state.agentUtilityStatus = layer.agentUtility.status
+    state.agentCapsuleCount = layer.agentUtility.capsuleCount
+    state.nodeCityStatus = layer.nodeCity.status
+    state.nodeCount = layer.nodeCity.nodeCount
+    state.commandPaletteStatus = layer.commandPalette.status
+    state.commandCount = layer.commandPalette.commandCount
+
+    emit("holoshell:visual-operating-layer", {
+      status: state.status,
+      service_dock: state.serviceDockStatus,
+      services: state.serviceCount,
+      terminal_timeline: state.terminalTimelineStatus,
+      terminal_events: state.terminalEventCount,
+      agent_utility: state.agentUtilityStatus,
+      agent_capsules: state.agentCapsuleCount,
+      node_city: state.nodeCityStatus,
+      nodes: state.nodeCount,
+      command_palette: state.commandPaletteStatus,
+      commands: state.commandCount,
+      browser_may_own_execution: state.browserMayOwnExecution,
+      destructive_actions_taken: state.destructiveActionsTaken,
+      desktop_automation_executed: state.desktopAutomationExecuted
+    })
+  }
+}

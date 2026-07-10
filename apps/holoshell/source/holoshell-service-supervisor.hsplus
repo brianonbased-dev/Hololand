@@ -9,6 +9,11 @@ composition "HoloShell Service Supervisor" {
     title: "Service Supervisor"
     product: "HoloShell"
     sourceLayer: "HoloScript"
+    upstreamCapabilityEnvelopeSource: "HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus"
+    upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    requiredCapabilityForStatus: "service_status"
+    requiredCapabilityForEnsure: "guarded_service_ensure"
+    requiredCapabilityForEvents: "terminal_event_read"
     adapterScript: "scripts/holoshell-service-supervisor.mjs"
     supervisorReceipt: ".tmp/holoshell/service-supervisor.json"
     supervisorBootstrap: ".tmp/holoshell/service-supervisor.js"
@@ -119,6 +124,19 @@ composition "HoloShell Service Supervisor" {
     rawNetworkIdentifiersIncluded: false
     endpointDetailsRedacted: true
     localOnly: true
+  }
+
+  policy "ServiceEnsureUsesNativeCapabilityEnvelope" {
+    appliesTo: ["service_ensure", "registered_manager_restart", "control_daemon_boundary"]
+    upstreamCapabilityEnvelopeRequired: true
+    statusLane: "service_status"
+    ensureLane: "guarded_service_ensure"
+    eventLane: "terminal_event_read"
+    upstreamTerminalEventStreamRequired: true
+    explicitConfirmationRequired: true
+    browserMayShowPlanButNotOwnLifecycle: true
+    nativeHostOwnsServiceLifecycle: true
+    receiptRequired: true
   }
 
   action consume_service_supervisor(snapshot) {

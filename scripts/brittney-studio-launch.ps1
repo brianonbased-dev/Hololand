@@ -42,6 +42,7 @@ $LegacyModelTags  = 'http://holojetson.local:11434/api/tags'
 $JetsonSurface = 'http://holojetson.local:8747'  # Jetson-HOSTED Brittney surface (systemd holoshell-surface)
 $HoloScript  = Join-Path (Split-Path -Parent $Hololand) 'HoloScript'  # sibling repo — Studio lives here
 $StudioPort  = 3101                                                   # Studio /create = BrittneyPlus (building)
+$LaptopDesktopBridgePort = 8751
 
 function Test-LocalPort([int]$Port) {
   $c = New-Object Net.Sockets.TcpClient
@@ -50,6 +51,37 @@ function Test-LocalPort([int]$Port) {
 
 function Quote-PowerShellSingle([string]$Value) {
   "'" + ($Value -replace "'", "''") + "'"
+}
+
+function Start-LaptopDesktopBridge {
+  if (Test-LocalPort $LaptopDesktopBridgePort) { return $true }
+  if (-not (Test-Path (Join-Path $Hololand 'scripts\holoshell-laptop-desktop-bridge.mjs'))) { return $false }
+
+  $repo = Quote-PowerShellSingle $Hololand
+  $port = $LaptopDesktopBridgePort
+  $bridgeCommand = @"
+Set-Location $repo
+New-Item -ItemType Directory -Force .tmp\holoshell\desktop-control-bridge | Out-Null
+Write-Host '[Brittney Studio] starting laptop desktop bridge...'
+if (Get-Command node -ErrorAction SilentlyContinue) {
+  node scripts\holoshell-laptop-desktop-bridge.mjs --host 127.0.0.1 --port $port *>> .tmp\holoshell\desktop-control-bridge\bridge-daemon.log
+} else {
+  Write-Host '[Brittney Studio] node unavailable; laptop desktop bridge not started.'
+}
+"@
+  Start-Process powershell.exe -WorkingDirectory $Hololand -WindowStyle Hidden -ArgumentList @(
+    '-NoProfile',
+    '-ExecutionPolicy',
+    'Bypass',
+    '-Command',
+    $bridgeCommand
+  )
+
+  for ($i = 0; $i -lt 20; $i++) {
+    Start-Sleep -Milliseconds 250
+    if (Test-LocalPort $LaptopDesktopBridgePort) { return $true }
+  }
+  return $false
 }
 
 # 0) Self-install the desktop icon if missing — so running this once (you OR an agent) gives
@@ -91,10 +123,16 @@ if (-not $surfaceUp) {
   Write-Host "    ssh -i `$HOME\.ssh\jetson_ed25519 username@holojetson.local 'sudo systemctl restart holoshell-surface'"
 }
 
-# 3) Open the screen onto the Jetson (skip with -Headless / APIs-only).
+# 3) Start the laptop loopback bridge before the browser probes it.
+$bridgeUp = Start-LaptopDesktopBridge
+if (-not $bridgeUp) {
+  Write-Host "[Brittney Studio] laptop desktop bridge unavailable on 127.0.0.1:$LaptopDesktopBridgePort."
+}
+
+# 4) Open the screen onto the Jetson (skip with -Headless / APIs-only).
 if (-not $Headless) { Start-Process $JetsonSurface }
 
-# 4) Keep the paired read-only laptop receipts fresh. This stays hidden by default so desktop
+# 5) Keep the paired read-only laptop receipts fresh. This stays hidden by default so desktop
 #    shortcuts and agent-triggered launches do not create surprise terminal windows. A visible,
 #    persistent operator terminal is still available with -OperatorTerminal. Append watcher
 #    output so repeat launches preserve verifier history instead of flattening the receipt log.

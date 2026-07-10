@@ -4,9 +4,11 @@ param(
   [string]$RepoRoot,
   [string]$BrowserPath,
   [string]$ProfileDir,
+  [string]$SurfaceUrl = 'http://holojetson.local:8747',
   [switch]$RefreshReceipts,
   [switch]$NoLaunch,
-  [switch]$Kiosk
+  [switch]$Kiosk,
+  [switch]$UseLocalPrototype
 )
 
 $ErrorActionPreference = 'Stop'
@@ -57,12 +59,14 @@ if ($RefreshReceipts) {
   if ($LASTEXITCODE -ne 0) { throw 'Startup integration receipt refresh failed.' }
   & node (Join-Path $root 'scripts\holoshell-native-wrapper.mjs') | Out-Host
   if ($LASTEXITCODE -ne 0) { throw 'Native wrapper receipt refresh failed.' }
+  & node (Join-Path $root 'scripts\holoshell-service-supervisor.mjs') --status | Out-Host
+  if ($LASTEXITCODE -ne 0) { throw 'Holo Services supervisor receipt refresh failed.' }
   & node (Join-Path $root 'scripts\holoshell-founder-host.mjs') --refresh | Out-Host
   if ($LASTEXITCODE -ne 0) { throw 'Founder host receipt refresh failed.' }
 }
 
 $surfacePath = Join-Path $root 'apps\holoshell\prototype\local-capability-room.html'
-$surfaceUri = Convert-ToFileUri -Path $surfacePath
+$surfaceUri = if ($UseLocalPrototype) { Convert-ToFileUri -Path $surfacePath } else { $SurfaceUrl }
 $browser = Find-Browser -ExplicitPath $BrowserPath
 $arguments = @(
   "--app=$surfaceUri",
@@ -87,7 +91,10 @@ $receipt = [ordered]@{
     launcher = 'apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1'
     wrapperReceipt = '.tmp/holoshell/native-wrapper.json'
     founderHostReceipt = '.tmp/holoshell/founder-host.json'
-    surface = 'apps/holoshell/prototype/local-capability-room.html'
+    serviceSupervisorReceipt = '.tmp/holoshell/service-supervisor.json'
+    surface = $surfaceUri
+    browserSelfTestSurface = 'GET /'
+    fallbackPrototype = 'apps/holoshell/prototype/local-capability-room.html'
   }
   summary = [ordered]@{
     status = if ($NoLaunch) { 'dry_run' } else { 'launched' }
@@ -96,11 +103,18 @@ $receipt = [ordered]@{
     processId = if ($launchedProcess) { $launchedProcess.Id } else { 0 }
     startupRegistered = $false
     localMutationExecutionEnabled = $false
-    surface = 'apps/holoshell/prototype/local-capability-room.html'
+    productTarget = 'native_holoshell_app_window'
+    surface = $surfaceUri
+    surfaceRole = if ($UseLocalPrototype) { 'local_prototype_fallback' } else { 'jetson_holoshell_app_window' }
+    holoServicesSupervisor = '.tmp/holoshell/service-supervisor.json'
+    browserSelfTestSurface = 'GET /'
   }
   policy = [ordered]@{
     localOnly = $true
     appModeOnly = $true
+    browserIsBootstrapSelfTestOnly = $true
+    nativeWindowOwnsDailyOperation = $true
+    holoServicesRunThroughTerminalSupervisor = $true
     startupRegistrationRequiresApproval = $true
     daemonExecuteDisabledByDefault = $true
     destructiveActionsAllowed = $false

@@ -11,12 +11,33 @@ export const ADAPTER_PATH = 'scripts/holoshell-terminal-event-stream.mjs';
 export const DEFAULT_RECEIPT_PATH = '.tmp/holoshell/operator-terminal.json';
 export const DEFAULT_EVENT_LOG_PATH = '.tmp/holoshell/operator-terminal-events.jsonl';
 export const DEFAULT_OUT_PATH = '.tmp/holoshell/operator-terminal-events.json';
+export const UPSTREAM_TERMINAL_EVENT_STREAM_SCHEMA =
+  'holoscript.holoshell.native-terminal-event-stream.v0.1.0';
+export const UPSTREAM_TERMINAL_EVENT_STREAM_SOURCE =
+  'experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus';
+export const UPSTREAM_TERMINAL_EVENT_STREAM_LABEL =
+  `HoloScript:${UPSTREAM_TERMINAL_EVENT_STREAM_SOURCE}`;
+export const REQUIRED_CAPABILITY_LANE = 'terminal_event_read';
+export const REQUIRED_EVENT_KINDS = [
+  'run.started',
+  'stdout.chunk',
+  'stderr.chunk',
+  'artifact.detected',
+  'approval.required',
+  'run.exited',
+  'receipt.written',
+];
 
 const __filename = fileURLToPath(import.meta.url);
 const REPO_ROOT = path.resolve(path.dirname(__filename), '..');
+const HOLOSCRIPT_ROOT = process.env.HOLOSCRIPT_ROOT || path.resolve(REPO_ROOT, '..', 'HoloScript');
 
 function repoPath(filePath) {
   return path.isAbsolute(filePath) ? filePath : path.resolve(REPO_ROOT, filePath);
+}
+
+function holoscriptPath(filePath) {
+  return path.isAbsolute(filePath) ? filePath : path.resolve(HOLOSCRIPT_ROOT, filePath);
 }
 
 function relativeDisplayPath(filePath) {
@@ -46,6 +67,33 @@ function eventIdFor(seed) {
   return `ote_${sha256(seed).slice(0, 20)}`;
 }
 
+export function upstreamTerminalEventStreamSnapshot() {
+  const resolved = holoscriptPath(UPSTREAM_TERMINAL_EVENT_STREAM_SOURCE);
+  const present = existsSync(resolved);
+  const text = present ? readFileSync(resolved, 'utf8') : '';
+  const schemaObserved = text.includes(UPSTREAM_TERMINAL_EVENT_STREAM_SCHEMA);
+  const laneObserved = text.includes(`"${REQUIRED_CAPABILITY_LANE}"`);
+  const matchedEventKinds = REQUIRED_EVENT_KINDS.filter((kind) => text.includes(`"${kind}"`));
+  const missingEventKinds = REQUIRED_EVENT_KINDS.filter((kind) => !matchedEventKinds.includes(kind));
+  const ready = present && schemaObserved && laneObserved && missingEventKinds.length === 0;
+  return {
+    schemaVersion: UPSTREAM_TERMINAL_EVENT_STREAM_SCHEMA,
+    source: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+    present,
+    schemaObserved,
+    laneObserved,
+    status: ready ? 'ready' : (present ? 'incomplete' : 'missing'),
+    requiredCapabilityLane: REQUIRED_CAPABILITY_LANE,
+    requiredEventKindCount: REQUIRED_EVENT_KINDS.length,
+    matchedEventKindCount: matchedEventKinds.length,
+    matchedEventKinds,
+    missingEventKinds,
+    browserMayConsumeEvents: true,
+    browserMayOwnExecution: false,
+    receiptRequired: true,
+  };
+}
+
 export function eventsFromOperatorTerminalReceipt(receipt, {
   sessionId = 'holoshell:unknown',
   sourceReceipt = DEFAULT_RECEIPT_PATH,
@@ -60,6 +108,8 @@ export function eventsFromOperatorTerminalReceipt(receipt, {
     receiptHash,
     sourceReceipt: relativeDisplayPath(sourceReceipt),
     source: SOURCE_PATH,
+    upstreamSource: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+    requiredCapabilityLane: REQUIRED_CAPABILITY_LANE,
     generatedAt,
     endpointExecutesCommand: false,
     destructiveActionsTaken: false,
@@ -72,6 +122,7 @@ export function eventsFromOperatorTerminalReceipt(receipt, {
       ...base,
       eventId: eventIdFor(`${sessionId}|${receiptHash}|process|0`),
       type: 'process',
+      nativeEventKind: 'run.started',
       lifecycle: 'observed',
       severity: routeStatus === 'ready' ? 'info' : 'attention',
       summary: sanitizeSummary(
@@ -88,6 +139,7 @@ export function eventsFromOperatorTerminalReceipt(receipt, {
       ...base,
       eventId: eventIdFor(`${sessionId}|${receiptHash}|artifact|1`),
       type: 'artifact',
+      nativeEventKind: 'receipt.written',
       lifecycle: 'written',
       severity: 'info',
       summary: sanitizeSummary(`Terminal receipt artifact ${String(receiptHash).slice(0, 16)} is available for browser run cards.`),
@@ -101,6 +153,7 @@ export function eventsFromOperatorTerminalReceipt(receipt, {
       ...base,
       eventId: eventIdFor(`${sessionId}|${receiptHash}|command_catalog|2`),
       type: 'command_catalog',
+      nativeEventKind: 'artifact.detected',
       lifecycle: 'catalogued',
       severity: 'info',
       summary: sanitizeSummary(`${commands.length} read-only or consent-gated terminal command route(s) catalogued.`),
@@ -158,6 +211,7 @@ export function buildTerminalEventStream({
   limit = 100,
 } = {}) {
   const receipt = readJsonIfPresent(receiptPath);
+  const upstreamContract = upstreamTerminalEventStreamSnapshot();
   const candidateEvents = eventsFromOperatorTerminalReceipt(receipt, { sessionId, sourceReceipt: receiptPath });
   const appendedEvents = append ? appendTerminalEvents(eventLogPath, candidateEvents) : [];
   const events = readTerminalEventLog(eventLogPath, { limit });
@@ -168,6 +222,10 @@ export function buildTerminalEventStream({
   return {
     schemaVersion: STREAM_SCHEMA_VERSION,
     source: SOURCE_PATH,
+    upstreamSource: UPSTREAM_TERMINAL_EVENT_STREAM_LABEL,
+    upstreamSchemaVersion: UPSTREAM_TERMINAL_EVENT_STREAM_SCHEMA,
+    upstreamContractStatus: upstreamContract.status,
+    upstreamContract,
     adapter: ADAPTER_PATH,
     generatedAt: new Date().toISOString(),
     status,
@@ -180,7 +238,12 @@ export function buildTerminalEventStream({
     latestReceiptHash,
     latestEventId: latestEvent?.eventId || '',
     eventTypes: Array.from(new Set(events.map((event) => event.type))).sort(),
+    nativeEventKinds: Array.from(new Set(events.map((event) => event.nativeEventKind).filter(Boolean))).sort(),
+    requiredCapabilityLane: REQUIRED_CAPABILITY_LANE,
+    requiredEventKinds: REQUIRED_EVENT_KINDS,
     browserRunCardsReady: events.length > 0,
+    browserMayConsumeEvents: true,
+    browserMayOwnExecution: false,
     endpointExecutesCommand: false,
     destructiveActionsTaken: false,
     desktopAutomationExecuted: false,

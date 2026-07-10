@@ -8,11 +8,17 @@ composition "HoloShell Terminal Event Stream" {
     title: "Terminal Event Stream"
     product: "HoloShell"
     sourceLayer: "HoloScript"
+    upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    upstreamTerminalEventStreamSchema: "holoscript.holoshell.native-terminal-event-stream.v0.1.0"
+    requiredCapabilityLane: "terminal_event_read"
+    requiredNativeEventKinds: ["run.started", "stdout.chunk", "stderr.chunk", "artifact.detected", "approval.required", "run.exited", "receipt.written"]
     adapterScript: "scripts/holoshell-terminal-event-stream.mjs"
+    runnerScript: "scripts/holoshell-terminal-runner.mjs"
     sessionEndpoint: "GET /api/operator-terminal/events"
     sourceReceipt: ".tmp/holoshell/operator-terminal.json"
     eventLog: ".tmp/holoshell/operator-terminal-events.jsonl"
-    defaultMode: "append_only_receipt_projection"
+    defaultMode: "append_only_native_lifecycle_projection"
+    readOnlyAdapterExecuteEndpoint: "POST /api/operator-terminal/run-readonly"
   }
 
   state {
@@ -21,8 +27,14 @@ composition "HoloShell Terminal Event Stream" {
     eventCount: 0
     latestReceiptHash: ""
     latestEventId: ""
+    upstreamContractStatus: "unknown"
+    upstreamEventKindCount: 0
     browserRunCardsReady: false
     endpointExecutesCommand: false
+    endpointExecutesReadOnlyAdapter: false
+    endpointExecutesRawCommand: false
+    browserMayOwnExecution: false
+    adapterSpawnedByEndpoint: false
     destructiveActionsTaken: false
     desktopAutomationExecuted: false
   }
@@ -38,11 +50,35 @@ composition "HoloShell Terminal Event Stream" {
     eventId: ""
     sessionId: ""
     type: "artifact"
+    nativeEventKind: "artifact.detected"
     lifecycle: "observed"
     summary: ""
     receiptHash: ""
     sourceReceipt: ".tmp/holoshell/operator-terminal.json"
+    upstreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    requiredCapabilityLane: "terminal_event_read"
     endpointExecutesCommand: false
+    endpointExecutesReadOnlyAdapter: false
+    endpointExecutesRawCommand: false
+    browserMayOwnExecution: false
+    adapterSpawnedByEndpoint: false
+    destructiveActionsTaken: false
+    desktopAutomationExecuted: false
+  }
+
+  template "TerminalRunLifecycleReceipt" {
+    schemaVersion: "hololand.holoshell.terminal-runner.v0.1.0"
+    adapter: "scripts/holoshell-terminal-runner.mjs"
+    runId: ""
+    sessionId: ""
+    commandId: ""
+    status: "unknown"
+    eventLog: ".tmp/holoshell/operator-terminal-events.jsonl"
+    eventCount: 0
+    nativeEventKinds: ["run.started", "stdout.chunk", "stderr.chunk", "run.exited"]
+    endpointExecutesCommand: false
+    endpointExecutesReadOnlyAdapter: true
+    endpointExecutesRawCommand: false
     destructiveActionsTaken: false
     desktopAutomationExecuted: false
   }
@@ -50,6 +86,10 @@ composition "HoloShell Terminal Event Stream" {
   template "TerminalEventStreamReceipt" {
     schemaVersion: "hololand.holoshell.terminal-event-stream.v0.1.0"
     source: "apps/holoshell/source/holoshell-terminal-event-stream.hsplus"
+    upstreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    upstreamSchemaVersion: "holoscript.holoshell.native-terminal-event-stream.v0.1.0"
+    upstreamContractStatus: "unknown"
+    requiredCapabilityLane: "terminal_event_read"
     adapter: "scripts/holoshell-terminal-event-stream.mjs"
     status: "unknown"
     sessionId: ""
@@ -65,6 +105,17 @@ composition "HoloShell Terminal Event Stream" {
     receiptRequired: true
   }
 
+  policy "UpstreamTerminalEventContractRequired" {
+    appliesTo: ["operator_terminal_event_stream", "terminal_event_read", "browser_run_cards"]
+    upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    upstreamTerminalEventStreamSchema: "holoscript.holoshell.native-terminal-event-stream.v0.1.0"
+    requiredCapabilityLane: "terminal_event_read"
+    eventKindsRequired: ["run.started", "stdout.chunk", "stderr.chunk", "artifact.detected", "approval.required", "run.exited", "receipt.written"]
+    browserMayConsumeEvents: true
+    browserMayOwnExecution: false
+    receiptRequired: true
+  }
+
   policy "TerminalOutputBecomesEventsBeforeUi" {
     appliesTo: ["operator_terminal", "holoclaw_terminal", "browser_run_cards", "replay_bundle"]
     rawShellTextIsEvidenceNotUi: true
@@ -72,6 +123,20 @@ composition "HoloShell Terminal Event Stream" {
     boundedNondeveloperSummaryRequired: true
     browserRunCardsConsumeEvents: true
     receiptRequired: true
+  }
+
+  policy "ReadOnlyAdapterLifecycleRunner" {
+    appliesTo: ["POST /api/operator-terminal/run-readonly", "operator_terminal_readonly_adapter_execution", "browser_run_cards"]
+    runnerScript: "scripts/holoshell-terminal-runner.mjs"
+    allowedEventOrder: ["run.started", "stdout.chunk", "stderr.chunk", "run.exited", "receipt.written"]
+    browserMayRequestRun: true
+    browserMayOwnExecution: false
+    endpointExecutesReadOnlyAdapter: true
+    endpointExecutesRawCommand: false
+    rawCommandLineIncluded: false
+    receiptWrittenEventRequired: true
+    destructiveActionsTaken: false
+    desktopAutomationExecuted: false
   }
 
   policy "ReadOnlyEventProjection" {
@@ -87,6 +152,8 @@ composition "HoloShell Terminal Event Stream" {
     state.sessionId = receipt.sessionId
     state.latestReceiptHash = receipt.receipt.terminalHash
     state.eventCount = receipt.commands.human.length + 2
+    state.upstreamContractStatus = "ready"
+    state.upstreamEventKindCount = 7
     state.browserRunCardsReady = true
     state.endpointExecutesCommand = false
     state.destructiveActionsTaken = false
@@ -98,6 +165,8 @@ composition "HoloShell Terminal Event Stream" {
       sessionId: state.sessionId,
       eventCount: state.eventCount,
       latestReceiptHash: state.latestReceiptHash,
+      upstreamContractStatus: state.upstreamContractStatus,
+      upstreamEventKindCount: state.upstreamEventKindCount,
       browserRunCardsReady: state.browserRunCardsReady,
       endpointExecutesCommand: state.endpointExecutesCommand,
       destructiveActionsTaken: state.destructiveActionsTaken,

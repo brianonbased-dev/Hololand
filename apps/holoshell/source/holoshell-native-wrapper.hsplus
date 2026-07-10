@@ -9,6 +9,15 @@ composition "HoloShell Native Wrapper" {
     owner: "HoloLand"
     sourceLayer: "HoloScript"
     adapterScript: "scripts/holoshell-native-wrapper.mjs"
+    upstreamCapabilityEnvelopeSource: "HoloScript:experiments/holoshell-human-os-frontier/native-holoshell-capability-envelope.hsplus"
+    upstreamCapabilityEnvelopeSchema: "holoscript.holoshell.native-capability-envelope.v0.1.0"
+    upstreamTerminalEventStreamSource: "HoloScript:experiments/holoshell-human-os-frontier/native-terminal-event-stream.hsplus"
+    upstreamTerminalEventStreamSchema: "holoscript.holoshell.native-terminal-event-stream.v0.1.0"
+    upstreamVisualOperatingLayerSource: "HoloScript:experiments/holoshell-human-os-frontier/native-visual-operating-layer.hsplus"
+    upstreamVisualOperatingLayerSchema: "holoscript.holoshell.native-visual-operating-layer.v0.1.0"
+    visualOperatingLayerSource: "apps/holoshell/source/holoshell-visual-operating-layer.hsplus"
+    visualOperatingLayerEndpoint: "GET /api/visual-operating-layer"
+    nativeCapabilityLanes: ["receipt_read", "terminal_event_read", "jetson_appliance_observe", "service_status", "guarded_service_ensure", "guarded_open_url", "break_glass_os_mutation"]
     startupIntegrationSource: "apps/holoshell/source/holoshell-startup-integration.hsplus"
     startupIntegrationAdapter: "scripts/holoshell-startup-integration.mjs"
     startupIntegrationReceipt: ".tmp/holoshell/startup-integration.json"
@@ -18,10 +27,16 @@ composition "HoloShell Native Wrapper" {
     windowsLauncher: "apps/holoshell/native/windows/Start-HoloShellFounderHost.ps1"
     windowsCommandShim: "apps/holoshell/native/windows/Start-HoloShellFounderHost.cmd"
     windowsStartupRegistration: "apps/holoshell/native/windows/Register-HoloShellStartup.ps1"
+    nativeAppSurfaceUrl: "http://holojetson.local:8747"
+    browserSelfTestSurface: "GET /"
+    serviceSupervisorSource: "apps/holoshell/source/holoshell-service-supervisor.hsplus"
+    serviceSupervisorAdapter: "scripts/holoshell-service-supervisor.mjs"
+    serviceSupervisorReceipt: ".tmp/holoshell/service-supervisor.json"
     previewHost: "apps/holoshell/prototype/local-capability-room.html"
     founderHostReceipt: ".tmp/holoshell/founder-host.json"
     profileDir: ".tmp/holoshell/native-profile"
     launchMode: "chromium_app_mode"
+    productTarget: "native_holoshell_app_window"
   }
 
   state {
@@ -35,6 +50,14 @@ composition "HoloShell Native Wrapper" {
     startupRegistered: false
     localMutationExecutionEnabled: false
     primarySurfaceOwnership: "native_wrapper_candidate"
+    upstreamCapabilityEnvelopeStatus: "unknown"
+    nativeCapabilityLaneCount: 0
+    nativeCapabilityLanesReady: false
+    upstreamTerminalEventStreamStatus: "unknown"
+    nativeWindowOwnsDailyOperation: true
+    browserIsBootstrapSelfTestOnly: true
+    holoServicesRunThroughTerminalSupervisor: true
+    visualOperatingLayerRequired: true
     nextMove: "wire_startup_integration_with_approval"
   }
 
@@ -64,6 +87,13 @@ composition "HoloShell Native Wrapper" {
       startup_registered: $startupRegistered
       execute_enabled: $localMutationExecutionEnabled
       primary_surface_ownership: $primarySurfaceOwnership
+      upstream_capability_envelope_status: $upstreamCapabilityEnvelopeStatus
+      native_capability_lane_count: $nativeCapabilityLaneCount
+      native_capability_lanes_ready: $nativeCapabilityLanesReady
+      upstream_terminal_event_stream_status: $upstreamTerminalEventStreamStatus
+      native_window_owns_daily_operation: $nativeWindowOwnsDailyOperation
+      browser_is_bootstrap_self_test_only: $browserIsBootstrapSelfTestOnly
+      holo_services_run_through_terminal_supervisor: $holoServicesRunThroughTerminalSupervisor
       next_move: $nextMove
     }
   }
@@ -71,7 +101,9 @@ composition "HoloShell Native Wrapper" {
   policy "WrapperIsNotStartupTakeover" {
     appliesTo: ["wrapper_launch", "startup_registration", "os_shell_replacement"]
     launcherMayOpenHoloShell: true
+    launcherTargetsJetsonAppWindow: true
     launcherMayClaimOsReplacement: false
+    browserSelfTestBeforePackagingClaim: true
     startupRegistrationRequiresApproval: true
     startupRegistrationAdapterRequired: true
     startupRegisteredRequiresReceipt: true
@@ -82,9 +114,25 @@ composition "HoloShell Native Wrapper" {
   policy "WrapperMutationBoundary" {
     appliesTo: ["daemon_execute", "workflow_execute", "app_mutation"]
     wrapperLaunchIsUserGesture: true
+    holoServicesRunThroughTerminalSupervisor: true
     daemonExecuteDisabledByDefault: true
     appMutationRequiresApprovalBundle: true
     destructiveActionsAllowed: false
+    receiptRequired: true
+  }
+
+  policy "NativeCapabilityEnvelopeSourceOfTruth" {
+    appliesTo: ["native_window", "terminal_events", "service_supervisor", "jetson_appliance", "guarded_actions"]
+    sourceLayer: "HoloScript"
+    upstreamCapabilityEnvelopeRequired: true
+    upstreamTerminalEventStreamRequired: true
+    upstreamVisualOperatingLayerRequired: true
+    capabilityLaneGrantRequired: true
+    visualPanelsRequired: ["service_dock", "terminal_run_timeline", "agent_utility_capsules", "hololand_node_city", "consent_command_palette"]
+    browserMayValidateButNotOwn: true
+    terminalEventsBeforeTerminalUi: true
+    visualOperatingLayerBeforeNativeUiClaim: true
+    jetsonEvidenceMustStaySeparatedFromLaptopEvidence: true
     receiptRequired: true
   }
 
@@ -99,6 +147,10 @@ composition "HoloShell Native Wrapper" {
     state.startupRegistered = snapshot.summary.startupRegistered
     state.localMutationExecutionEnabled = snapshot.summary.localMutationExecutionEnabled
     state.primarySurfaceOwnership = snapshot.summary.primarySurfaceOwnership
+    state.upstreamCapabilityEnvelopeStatus = snapshot.summary.upstreamCapabilityEnvelopeStatus
+    state.nativeCapabilityLaneCount = snapshot.summary.nativeCapabilityLaneCount
+    state.nativeCapabilityLanesReady = snapshot.summary.nativeCapabilityLanesReady
+    state.upstreamTerminalEventStreamStatus = snapshot.summary.upstreamTerminalEventStreamStatus
     state.nextMove = snapshot.summary.nextMove
 
     emit("holoshell:native-wrapper", {
@@ -112,6 +164,10 @@ composition "HoloShell Native Wrapper" {
       startup_registered: state.startupRegistered,
       execute_enabled: state.localMutationExecutionEnabled,
       primary_surface_ownership: state.primarySurfaceOwnership,
+      upstream_capability_envelope_status: state.upstreamCapabilityEnvelopeStatus,
+      native_capability_lane_count: state.nativeCapabilityLaneCount,
+      native_capability_lanes_ready: state.nativeCapabilityLanesReady,
+      upstream_terminal_event_stream_status: state.upstreamTerminalEventStreamStatus,
       next_move: state.nextMove,
       receiptHash: snapshot.receipt.wrapperSnapshotHash
     })
