@@ -5,9 +5,9 @@
   stack (replaces the generic LiteLLM/.desktop draft, which targeted a different system).
 
   $0 BY DESIGN:
-    * Jetson targets HoloLlama as the sovereign local Brain/serving lane; legacy
-      Ollama-compatible tags are only a substrate health probe while HoloLlama
-      serving finishes rollout.
+    * Jetson targets the sealed HoloLlama proxy as the sovereign local Brain/serving
+      lane. Admission requires proxy attribution plus the expected NVMe0 model identity;
+      legacy Ollama is not a readiness signal.
     * Messages land on the Jetson-hosted Brittney/HoloShell surface first.
     * The laptop is the reasoning workstation: Codex/HoloMesh peers inspect, decide,
       validate, and act through HoloShell + HoloMesh while the Jetson keeps the live surface.
@@ -38,11 +38,105 @@ $ErrorActionPreference = 'SilentlyContinue'
 $Hololand    = Split-Path -Parent $PSScriptRoot           # repo root (this file is in scripts/)
 $OperatePort = 8747
 $HoloLlamaPackage = '@holoscript/holollama'
-$LegacyModelTags  = 'http://holojetson.local:11434/api/tags'
+$HoloLlamaEndpoint = 'http://holojetson.local:18080'
+$HoloLlamaHealth = 'http://holojetson.local:18080/health'
+$HoloLlamaModels = 'http://holojetson.local:18080/v1/models'
+$HoloLlamaProxyIdentity = 'holo-inference-proxy/v0'
+$ExpectedHoloLlamaModel = '/mnt/nvme/holo/models/qwen3-4b-instruct.gguf'
+$HoloLlamaMaxBodyBytes = 1048576
 $JetsonSurface = 'http://holojetson.local:8747'  # Jetson-HOSTED Brittney surface (systemd holoshell-surface)
 $HoloScript  = Join-Path (Split-Path -Parent $Hololand) 'HoloScript'  # sibling repo — Studio lives here
 $StudioPort  = 3101                                                   # Studio /create = BrittneyPlus (building)
 $LaptopDesktopBridgePort = 8751
+
+function Invoke-BoundedJsonProbe {
+  param(
+    [Parameter(Mandatory = $true)][string]$Uri,
+    [int]$TimeoutSec = 4,
+    [int]$MaxBodyBytes = 1048576
+  )
+
+  $ErrorActionPreference = 'Stop'
+  Add-Type -AssemblyName System.Net.Http -ErrorAction Stop
+  $handler = New-Object System.Net.Http.HttpClientHandler
+  $handler.AllowAutoRedirect = $false
+  $client = New-Object System.Net.Http.HttpClient($handler)
+  $cts = New-Object System.Threading.CancellationTokenSource
+  $response = $null
+  $stream = $null
+  $buffered = $null
+  try {
+    $deadlineMs = $TimeoutSec * 1000
+    $deadlineClock = [System.Diagnostics.Stopwatch]::StartNew()
+    $cts.CancelAfter($deadlineMs)
+    $requestTask = $client.GetAsync(
+      $Uri,
+      [System.Net.Http.HttpCompletionOption]::ResponseHeadersRead,
+      $cts.Token
+    )
+    $requestDeadline = [System.Threading.Tasks.Task]::Delay($deadlineMs)
+    $requestCompleted = [System.Threading.Tasks.Task]::WhenAny(
+      [System.Threading.Tasks.Task[]]@($requestTask, $requestDeadline)
+    ).GetAwaiter().GetResult()
+    if (-not [object]::ReferenceEquals($requestCompleted, $requestTask)) {
+      $cts.Cancel()
+      throw 'HoloLlama probe exceeded its wall-clock deadline'
+    }
+    $response = $requestTask.GetAwaiter().GetResult()
+    $declaredLength = $response.Content.Headers.ContentLength
+    if ($null -ne $declaredLength -and [long]$declaredLength -gt $MaxBodyBytes) {
+      throw 'HoloLlama probe response exceeds the admitted body limit'
+    }
+
+    $stream = $response.Content.ReadAsStreamAsync().GetAwaiter().GetResult()
+    $buffered = New-Object System.IO.MemoryStream
+    $buffer = New-Object byte[] 8192
+    $totalBytes = 0
+    while ($true) {
+      $remainingMs = $deadlineMs - [int]$deadlineClock.ElapsedMilliseconds
+      if ($remainingMs -le 0) {
+        $cts.Cancel()
+        throw 'HoloLlama probe exceeded its wall-clock deadline'
+      }
+      $readTask = $stream.ReadAsync($buffer, 0, $buffer.Length, $cts.Token)
+      $readDeadline = [System.Threading.Tasks.Task]::Delay($remainingMs)
+      $readCompleted = [System.Threading.Tasks.Task]::WhenAny(
+        [System.Threading.Tasks.Task[]]@($readTask, $readDeadline)
+      ).GetAwaiter().GetResult()
+      if (-not [object]::ReferenceEquals($readCompleted, $readTask)) {
+        $cts.Cancel()
+        throw 'HoloLlama probe exceeded its wall-clock deadline'
+      }
+      $read = $readTask.GetAwaiter().GetResult()
+      if ($read -le 0) { break }
+      $totalBytes += $read
+      if ($totalBytes -gt $MaxBodyBytes) {
+        throw 'HoloLlama probe response exceeds the admitted body limit'
+      }
+      $buffered.Write($buffer, 0, $read)
+    }
+
+    $headerValues = $null
+    $proxyValues = @()
+    if ($response.Headers.TryGetValues('X-Holo-Proxy', [ref]$headerValues)) {
+      $proxyValues = @($headerValues)
+    }
+    $bodyText = [System.Text.Encoding]::UTF8.GetString($buffered.ToArray())
+    return [pscustomobject]@{
+      StatusCode = [int]$response.StatusCode
+      ResponseUri = $response.RequestMessage.RequestUri.AbsoluteUri
+      ProxyValues = $proxyValues
+      Body = $bodyText | ConvertFrom-Json -ErrorAction Stop
+      BodyBytes = $totalBytes
+    }
+  } finally {
+    if ($null -ne $buffered) { $buffered.Dispose() }
+    if ($null -ne $stream) { $stream.Dispose() }
+    if ($null -ne $response) { $response.Dispose() }
+    $cts.Dispose()
+    $client.Dispose()
+  }
+}
 
 function Test-LocalPort([int]$Port) {
   $c = New-Object Net.Sockets.TcpClient
@@ -110,9 +204,69 @@ Write-Host '[Brittney Studio] the laptop is a SCREEN for the Jetson (founder 202
 # (Studio — the heavy Next.js build IDE — is a separate dev tool launched on its own,
 # not part of this screen; it cannot run on the 8GB Jetson alongside the model.)
 
-# 1) Jetson HoloLlama target/substrate reachable?
-$jetson = "Jetson HoloLlama target: $HoloLlamaPackage (legacy substrate probe pending)"
-try { if (Invoke-RestMethod -Uri $LegacyModelTags -TimeoutSec 4) { $jetson = "Jetson HoloLlama target: $HoloLlamaPackage (legacy substrate OK)" } } catch {}
+# 1) Jetson HoloLlama admitted proxy + NVMe0 model brain reachable?
+$jetson = "Jetson HoloLlama target: $HoloLlamaPackage (admission pending at $HoloLlamaEndpoint)"
+try {
+  $healthResponse = Invoke-BoundedJsonProbe -Uri $HoloLlamaHealth -MaxBodyBytes $HoloLlamaMaxBodyBytes
+  $modelsResponse = Invoke-BoundedJsonProbe -Uri $HoloLlamaModels -MaxBodyBytes $HoloLlamaMaxBodyBytes
+  $healthBody = $healthResponse.Body
+  $modelsBody = $modelsResponse.Body
+  $healthProxyValues = @($healthResponse.ProxyValues)
+  $modelsProxyValues = @($modelsResponse.ProxyValues)
+  $healthStatusProperties = @($healthBody.PSObject.Properties | Where-Object { $_.Name -ceq 'status' })
+  $modelsObjectProperties = @($modelsBody.PSObject.Properties | Where-Object { $_.Name -ceq 'object' })
+  $modelsDataProperties = @($modelsBody.PSObject.Properties | Where-Object { $_.Name -ceq 'data' })
+  $healthShapeOk = $healthBody -is [System.Management.Automation.PSCustomObject] -and $healthStatusProperties.Count -eq 1
+  $modelsShapeOk = (
+    $modelsBody -is [System.Management.Automation.PSCustomObject] -and
+    $modelsObjectProperties.Count -eq 1 -and
+    $modelsDataProperties.Count -eq 1
+  )
+  $healthStatus = if ($healthShapeOk) { [string]$healthStatusProperties[0].Value } else { $null }
+  $modelsObject = if ($modelsShapeOk) { [string]$modelsObjectProperties[0].Value } else { $null }
+  $modelsData = $null
+  if ($modelsShapeOk) {
+    $modelsData = $modelsDataProperties[0].Value
+  }
+  $modelsDataIsArray = $modelsShapeOk -and $modelsData -is [System.Array]
+  $modelIds = @()
+  $modelEntriesHaveExactId = $false
+  if ($modelsDataIsArray) {
+    $modelEntries = @($modelsData)
+    if ($modelEntries.Count -eq 1 -and $modelEntries[0] -is [System.Management.Automation.PSCustomObject]) {
+      $modelIdProperties = @($modelEntries[0].PSObject.Properties | Where-Object { $_.Name -ceq 'id' })
+      if ($modelIdProperties.Count -eq 1) {
+        $modelEntriesHaveExactId = $true
+        $modelIds = @([string]$modelIdProperties[0].Value)
+      }
+    }
+  }
+  $proxyIdentityOk = (
+    $healthProxyValues.Count -eq 1 -and
+    $modelsProxyValues.Count -eq 1 -and
+    $healthProxyValues[0] -ceq $HoloLlamaProxyIdentity -and
+    $modelsProxyValues[0] -ceq $HoloLlamaProxyIdentity
+  )
+  $modelIdentityOk = $modelsDataIsArray -and $modelEntriesHaveExactId -and $modelIds.Count -eq 1 -and $modelIds[0] -ceq $ExpectedHoloLlamaModel
+  if (
+    $healthResponse.StatusCode -eq 200 -and
+    $modelsResponse.StatusCode -eq 200 -and
+    $healthResponse.ResponseUri -ceq $HoloLlamaHealth -and
+    $modelsResponse.ResponseUri -ceq $HoloLlamaModels -and
+    $healthShapeOk -and
+    $modelsShapeOk -and
+    $healthStatus -ceq 'ok' -and
+    $modelsObject -ceq 'list' -and
+    $proxyIdentityOk -and
+    $modelIdentityOk
+  ) {
+    $jetson = "Jetson HoloLlama target: $HoloLlamaPackage (sealed proxy + NVMe0 brain OK)"
+  } else {
+    $jetson = "Jetson HoloLlama target: $HoloLlamaPackage (admission mismatch)"
+  }
+} catch {
+  $jetson = "Jetson HoloLlama target: $HoloLlamaPackage (unreachable or invalid admission evidence)"
+}
 
 # 2) Jetson-hosted Brittney surface reachable?
 $surfaceUp = $false
