@@ -1,0 +1,127 @@
+// Model Village observer witness policy.
+//
+// HoloScript+ owns the fail-dark admission contract for observer-only effects.
+// The current HoloLand proof bridge evaluates the structured contract and
+// receipts that adapter boundary; it does not claim native .hsplus execution.
+
+composition "HoloLand Model Village Observer Witness Contract" {
+  config {
+    domain: "agents"
+    version: "0.1.0"
+    source: "source/domains/agents/model-village-observer-witness.hsplus"
+    sourceLayer: "HoloScript"
+    canonicalWorldSource: "source/layers/vr/frontier/model-village/model-village.holo"
+    observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    calibrationSource: "source/layers/vr/frontier/model-village/model-village-render-calibration.holo"
+    physicsManifestSource: "source/proofs/model-village-receipt-loom-physics.hs"
+    executionStatus: "structured_contract_evaluated_by_receipted_hololand_bridge"
+    runtimeBindingStatus: "target_not_observed"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state ModelVillageObserverWitness {
+    authority: "read_only"
+    worldMutationAllowed: false
+    residentObservationWriteAllowed: false
+    clockWriteAllowed: false
+    scheduleWriteAllowed: false
+    promptWriteAllowed: false
+    actionWriteAllowed: false
+    receiptWriteAllowed: false
+    invalidReceiptBehavior: "fail_dark"
+    duplicateReceiptBehavior: "deny_release"
+    tokenReleaseCount: 0
+    lastDecision: "deny"
+    lastRoute: "dark"
+  }
+
+  template "FailDarkReceiptAdmission" {
+    type: "model_village_observer_receipt_admission"
+    requiredBooleanFields: ["receiptPresent", "signatureVerified", "sourceActionHashMatches"]
+    requiredBooleanValue: true
+    requiredHashFields: ["worldSourceHash", "projectionSourceHash", "policySourceHash", "physicsManifestSourceHash"]
+    hashBindingMode: "exact_sha256_against_loaded_sources"
+    decisionField: "decision"
+    supportedDecisions: ["admitted", "blocked"]
+    decisionToRoute: ["admitted:admitted", "blocked:blocked"]
+    oneTokenPerReceipt: true
+    duplicateReceiptDecision: "deny"
+    malformedReceiptDecision: "deny"
+    missingReceiptDecision: "deny"
+    tamperedReceiptDecision: "deny"
+    denyRoute: "dark"
+    defaultDecision: "deny"
+  }
+
+  template "ObserverProjectionAuthority" {
+    type: "read_only_observer_projection_authority"
+    mayRead: ["canonical_object_ids", "public_state_hash", "ordered_verified_receipts", "sealed_physics_snapshots"]
+    mayWrite: []
+    forbiddenWrites: ["canonical_world", "resident_observation", "clock", "schedule", "prompt", "action", "receipt"]
+    residentVisible: false
+    adapterIdentityPresentationAllowed: false
+    conditionIdentityPresentationAllowedBeforeUnblinding: false
+    presentationCanCauseCanonicalDecision: false
+    presentationCanCauseCanonicalConsequence: false
+  }
+
+  template "PhysicsReplayEvidence" {
+    type: "model_village_rigid_body_replay_evidence"
+    engine: "HoloScript PhysicsWorld backed by PhysicsWorldImpl"
+    registrationMethod: "PhysicsWorld.addBodyWithConfig"
+    fixedTimestepNumerator: 1
+    fixedTimestepDenominator: 60
+    steps: 600
+    runs: 3
+    solverIterations: 10
+    gravity: [0, -9.81, 0]
+    requiredDigests: ["ordered_contact", "per_step_sleep", "final_transform"]
+    collisionTimestampInDigest: false
+    dynamicColliderShape: "sphere"
+    staticCatchColliderShape: "box"
+    supportedClaim: "deterministic_cpu_sphere_collider_receipt_tracer_on_named_local_build"
+    unsupportedClaims: ["box_token_colliders", "stacking", "collision_friction", "ccd", "cross_hardware_determinism", "gpu_physics", "webgpu_physics"]
+  }
+
+  template "BrowserRenderEvidence" {
+    type: "model_village_browser_render_evidence"
+    sourceToScenePath: ["HoloCompositionParser", "SceneIRCompiler", "HoloLand Three WebGL adapter"]
+    requiredBackendFields: ["webgl_version", "masked_vendor", "masked_renderer", "unmasked_vendor", "unmasked_renderer", "software_fallback_detected"]
+    requiredColorFields: ["output_color_space", "working_color_space", "tone_mapping", "tone_mapping_exposure"]
+    requiredSceneFields: ["environment_provenance", "material_values", "shadow_mode", "shadow_caster_count", "shadow_receiver_count"]
+    requiredTimingFields: ["frame_cadence_p50_ms", "frame_cadence_p95_ms", "frame_cadence_p99_ms", "cpu_render_submit_p50_ms", "cpu_render_submit_p95_ms"]
+    requiredCaptures: ["1600x900", "390x844"]
+    hdriRequired: false
+    proceduralEnvironmentAllowedWhenReceipted: true
+    nativeBrowserRuntimeClaimed: false
+    webgpuClaimed: false
+    photorealisticClaimed: false
+  }
+
+  action decide_projection_release(receipt, expectedHashes, receiptIdAlreadyConsumed) {
+    if (!receipt.receiptPresent) {
+      return { allowed: false, route: "dark", reason: "missing_receipt" }
+    }
+    if (!receipt.signatureVerified) {
+      return { allowed: false, route: "dark", reason: "signature_not_verified" }
+    }
+    if (!receipt.sourceActionHashMatches) {
+      return { allowed: false, route: "dark", reason: "source_action_hash_mismatch" }
+    }
+    if (
+      receipt.worldSourceHash != expectedHashes.worldSourceHash ||
+      receipt.projectionSourceHash != expectedHashes.projectionSourceHash ||
+      receipt.policySourceHash != expectedHashes.policySourceHash ||
+      receipt.physicsManifestSourceHash != expectedHashes.physicsManifestSourceHash
+    ) {
+      return { allowed: false, route: "dark", reason: "source_hash_mismatch" }
+    }
+    if (receiptIdAlreadyConsumed) {
+      return { allowed: false, route: "dark", reason: "duplicate_receipt" }
+    }
+    if (receipt.decision != "admitted" && receipt.decision != "blocked") {
+      return { allowed: false, route: "dark", reason: "unsupported_decision" }
+    }
+    return { allowed: true, route: receipt.decision, reason: "verified_receipt" }
+  }
+}

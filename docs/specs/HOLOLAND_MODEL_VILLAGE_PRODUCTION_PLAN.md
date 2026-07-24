@@ -2,7 +2,7 @@
 
 **Status:** Experience vision and execution plan
 
-**Version:** 0.2.0
+**Version:** 0.3.0
 
 **Date:** 2026-07-24
 
@@ -42,13 +42,15 @@ state, ordered receipts, and sealed replay data. It may not:
   exists.
 - infer a causal event that the canonical receipt stream does not contain.
 
-The proposed observer source is:
+The observer source is:
 
 `source/layers/vr/frontier/model-village/model-village-observer-projection.holo`
 
-The exact import or projection mechanism must be validated against the active
-HoloScript parser and runtime before implementation. This plan does not invent
-syntax for it.
+The first executing witness keeps the observer composition separate, parses it
+with `HoloCompositionParser`, compiles it with `SceneIRCompiler`, and projects
+the resulting scene through a dedicated HoloLand Three/WebGL adapter. That
+adapter is presentation-only and does not import itself into the canonical
+composition.
 
 ```text
 .holo world truth + .hsplus policy + .hs trial kernel
@@ -77,11 +79,14 @@ receipts.
 | Observed | The local hardware baseline reports an RTX 3060 Laptop GPU with 6 GB VRAM, 32 GB system memory, Node 24, and installed Chrome/Edge browsers. |
 | Observed | Focused current HoloScript physics validation passed 199 tests across rigid-body, advanced-cloth, SPH-fluid, and soft-body trait suites, plus 57 engine tests across PBD, soft-body, thermal, TET10 structural, and DEM granular solvers. |
 | Observed | HoloLand's legacy Three.js adapter source contains WebGL, physical-material, HDRI/PMREM, quality-profile, shadow, SSAO, bloom, color-grading, and FXAA/SMAA paths. This is source evidence, not a production pixel receipt. |
-| Gap | The scene is visually an instrument diagram: small in frame, sparse, primitive, flatly lit, and affected by label and panel collisions. |
+| Observed | The MV-P10 tracer now runs three fresh 600-step, fixed-1/60 HoloScript CPU-physics worlds through one `PhysicsWorld.addBodyWithConfig` path. Two source-bound fixtures release sphere-collider tokens; missing, tampered, and duplicate fixtures fail dark; exactly the admitted-token/admitted-floor and blocked-token/blocked-floor contact starts occur, and contact, sleep, final-transform, and frame-trace roots match locally. |
+| Observed | The MV-P9 witness parsed and compiled the two HoloScript compositions, mapped all 26 source meshes to `MeshPhysicalMaterial`, verified every authored-to-effective physical-material value with only two disclosed decorative-chute overrides, and observed hardware WebGL2 on ANGLE Direct3D 11 / NVIDIA RTX 3060 with no known software-renderer indicator. It applied sRGB output, ACES filmic tone mapping at exposure 1.05, PCF soft shadows, and a hashed local procedural `RoomEnvironment`/PMREM with `hdri: false`. |
+| Observed | The final named-browser sample used 60 warm-up and 180 measured frames. It captured rAF cadence and CPU `renderer.render()` submission percentiles separately, exact 1600 x 900 and 390 x 844 hero images, a settled-contact frame, and a 1600 x 900 calibration image without external network assets. |
+| Gap | The canonical experimental composition remains an intentionally sparse instrument. The new observer proof improves framing, grounding, light response, primary evidence presentation, and material calibration for one Receipt Loom vignette; the portrait provenance footer remains clipped, and the full living village, institutions, authored assets, animation, audio, and XR profiles remain targets. |
 | Gap | `.hsplus` actions, `.hs` pipeline actions, live model turns, state mutations, captured-response replay, and the emergency-stop binding are not yet executed by the current headless path. |
-| Gap | The current CLI baseline launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. It proves semantic visibility, not realistic rendering. |
-| Gap | The React Three Fiber/Rapier path exists in source but has no focused render or physics tests. The native-renderer skeleton labels legacy renderer/R3F output as adapter evidence only, and its checker proves semantic IR rather than pixels. HoloLand's older physics playground is educational material, not production proof. |
-| Unknown | The local browser WebGPU probe was inconclusive because its Playwright dependency was unavailable. Headset performance, sustained frame timing, mobile rendering, and final visual quality have not been measured. |
+| Gap | The older CLI baseline still launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. MV-P9 uses a separate, focused browser witness; it does not silently promote that CLI route. |
+| Gap | The current React Three adapter cannot be cited as an executing Model Village route: its typecheck still imports the removed `R3FCompiler` surface. The dedicated MV-P9 adapter is a bounded proof bridge, not a claim that the general platform renderer is repaired. |
+| Unknown | WebGPU, headset performance, long-duration thermal behavior, browser families beyond the named Chrome run, and cross-hardware pixel or physics agreement remain unmeasured. |
 | Target | A premium browser, desktop, and XR living-observatory experience whose spectacle is HoloScript-authored, receipt-backed, and unable to contaminate the study. |
 
 ### Durable visual before-state
@@ -101,6 +106,22 @@ instrument panels, an isolation line, and an emergency stop. The village is too
 small in the frame, resident silhouettes are not distinctive, labels overlap,
 the panels compete with residents, and the environment lacks architecture,
 terrain, depth, lighting hierarchy, and a hero landmark.
+
+### Durable MV-P9/MV-P10 proof slice
+
+The first bounded observer proof is now recorded in
+[the MV-P9/MV-P10 witness report](../reports/HOLOLAND_MODEL_VILLAGE_MV_P9_P10_WITNESS_2026-07-24.md).
+
+![Receipt Loom falling frame](../assets/model-village/model-village-receipt-loom-hero-2026-07-24.png)
+
+![Receipt Loom settled frame](../assets/model-village/model-village-receipt-loom-settled-2026-07-24.png)
+
+![Model Village material calibration](../assets/model-village/model-village-material-calibration-2026-07-24.png)
+
+These are after-state images for one read-only physics/rendering vignette, not
+evidence that the complete living village or live multi-model experiment is
+finished. The report records the exact source, physics-frame, screenshot,
+backend, material, environment, and timing hashes.
 
 ## Experience thesis: the Living Observatory
 
@@ -337,10 +358,13 @@ The first end-to-end vignette is the **Receipt Loom gravity court**:
 2. An independently valid blocked-action receipt routes its token into a
    different gravity chute.
 3. Missing or tampered receipts release nothing.
-4. Real contact, restitution, stacking, angular response, and sleeping produce
-   the visible motion.
-5. The exhibit seals ordered-contact and final-transform hashes beside the
-   source action receipt.
+4. In the first proven slice, gravity, sphere-versus-box contact, bounded
+   restitution response, and sleeping produce the visible motion.
+5. The exhibit seals ordered-contact, per-step sleep, final-transform, and
+   frame-trace hashes beside the source-bound fixture.
+
+Box-token colliders, stacking, collision-driven angular response, friction
+response, and continuous collision detection remain later promotion gates.
 
 The token motion is evidence visualization, never the cause of the canonical
 decision. After this passes, a constrained counterweight can drive the bridge.
@@ -403,12 +427,12 @@ paths are implemented and visually or numerically receipted.
 
 ## Realistic-rendering lane
 
-The immediate high-fidelity target is to turn one supported Three.js
-**WebGL** adapter path into a captured, tested HoloScript witness—not to rename
-legacy adapter source “production,” and not to begin with an unproven WebGPU
-rewrite.
+The first high-fidelity gate now uses one dedicated Three.js **WebGL2** adapter
+path as a captured, tested HoloScript witness. This does not rename legacy
+adapter source “production,” repair the general React Three route, or imply an
+unproven WebGPU rewrite.
 
-The honest launch wording, after the tracer passes, is:
+The honest wording for this bounded slice is:
 
 > HoloScript-authored world and observer projection, HoloScript CPU physics,
 > rendered through a HoloLand Three/WebGL bridge.
@@ -417,16 +441,17 @@ The honest launch wording, after the tracer passes, is:
 
 | Layer | Present source capability | Model Village use | Promotion evidence |
 |---|---|---|---|
-| Material response | Legacy adapter source exposes `MeshPhysicalMaterial`; base color, normal, roughness, metalness, AO, emissive, clearcoat, transmission, IOR, sheen, and iridescence inputs | Basalt, timber, brushed metal, cloth, wet stone, water, glass, and receipt crystal | Prove preset-to-runtime binding, then capture a neutral material-ball screenshot plus hero closeups under the same exposure. |
-| Environment lighting | Adapter source includes HDRI loading, PMREM filtering, procedural sky, and scene environment maps; another browser path currently falls back from HDR to a color | Dusk frontier sky, believable reflections, and readable shadow fill | Locally custodied environment asset, provenance manifest, exact runtime route, offline load test, and screenshot receipt. |
-| Direct lighting | Legacy fidelity code contains directional, point, spot, and area lights with scalable shadows | Cool moon key, warm Receipt Loom fill, restrained windows | Live shadow-map/profile receipt and no detached or visibly swimming shadows. |
-| Post-processing | Legacy source contains SSAO, bloom, vignette, color grading, FXAA/SMAA, and output conversion; other runtime paths expose future-facing markers rather than proven passes | Contact depth, emissive focus, and final image cohesion | Inspect the active effect chain, capture an on/off comparison and frame cost, and disable effects when cost or artifacts fail the profile. |
+| Material response | The dedicated witness maps source values into 26 effective `MeshPhysicalMaterial` instances and records both source and runtime values | Basalt, timber, brushed metal, cloth, wet stone, water, glass, and receipt crystal | The first eight-sample neutral calibration and Receipt Loom hero captures passed visual inspection; texture-rich production assets remain later work. |
+| Environment lighting | The dedicated witness now hashes a locally bundled Three `RoomEnvironment` module, generates PMREM, performs no network fetch, and explicitly records `hdri: false` | Dusk frontier sky, believable reflections, and readable shadow fill | The procedural local environment satisfies the first neutral calibration gate. A future production HDRI must still be locally custodied, licensed, hashed, loaded offline, and separately receipted. |
+| Direct lighting | The witness applies the compiled ambient, directional, and point lights and records PCF-soft shadow casters, receivers, and allocated shadow maps | Cool moon key, warm Receipt Loom fill, restrained windows | The first hero and calibration captures passed contact/shadow inspection; production tuning and additional hardware profiles remain open. |
+| Post-processing | No SSAO, bloom, depth of field, or motion blur is claimed in MV-P9; ACES output conversion is active and receipted | Contact depth, emissive focus, and final image cohesion | Add an effect only with an executing-chain receipt, on/off images, and frame-cost measurement. |
 | Asset delivery | Loader source includes glTF/GLB, Draco, Meshopt, KTX2, caching, and progressive proxy/preview/full loading | Detailed buildings, inhabitants, terrain props, and texture sets | Asset hashes, exact decoder route, texture residency, time-to-first-frame, offline load, and full-tier promotion receipt. |
 | Adaptive quality | Source contains low/medium/high/ultra settings plus industrial/cinematic/mobile profiles | One source composition across browser, desktop, and XR | Prove effective-setting application, then record profile name, viewport, device, frame timing, and visual receipt. |
 
-Do not hotlink a production HDRI. Mirror or create an appropriately licensed
-environment asset, record provenance, hash it, and prove that the scene loads
-offline.
+Do not hotlink a production HDRI. The MV-P9 proof deliberately uses a hashed
+local procedural environment instead. If a later art pass introduces an HDRI,
+mirror or create an appropriately licensed asset, record provenance, hash it,
+and prove that the scene loads offline.
 
 Native WebGPU is a separate promotion lane. The current native backend defaults
 to an unlit pipeline and does not yet couple its update loop to physics. The
@@ -761,8 +786,8 @@ supported. **Emergence proven** is not.
 | MV-P6 | Receipt Constellation | Observer projection | Every effect waits for a valid receipt; missing evidence fails dark. |
 | MV-P7 | Four-Village Fold | Exhibit replay composition | Four sealed conditions scrub to first divergence without inference calls or early unblinding. |
 | MV-P8 | Platform quality profiles | HoloScript profile source plus browser/hardware receipt harness | Browser, desktop, portrait, WebXR, accessibility, and comfort gates have receipts. |
-| MV-P9 | Rendering truth gate | HoloScript calibration composition plus HoloLand browser witness | WebGL/backend, color space, tone map, local HDRI, physical materials, shadows, frame timing, and screenshots are receipted. |
-| MV-P10 | Receipt Loom rigid-body tracer | HoloScript runtime `PhysicsWorld`/`PhysicsWorldImpl` through one `addBodyWithConfig` registration path | Valid admitted/blocked fixture receipts release tokens into distinct gravity chutes; missing/tampered receipts fail dark; 600 fixed 1/60 steps reproduce contact, sleep, and final-transform hashes. |
+| MV-P9 | Rendering truth gate | HoloScript calibration composition plus HoloLand browser witness | Actual WebGL/backend, color space, tone map, hashed local environment input (`hdri: false` allowed), effective physical-material values, shadows, frame timing, and screenshots are receipted. |
+| MV-P10 | Receipt Loom rigid-body tracer | HoloScript runtime `PhysicsWorld`/`PhysicsWorldImpl` through one `addBodyWithConfig` registration path | Admitted/blocked fixtures marked signature-verified and exact-source-bound release tokens into distinct gravity chutes; missing/tampered/duplicate fixtures fail dark; 600 fixed 1/60 steps reproduce contact, sleep, final-transform, and frame-trace hashes. |
 | MV-P11 | Structural and thermal trust reveal | TET10 structural and thermal adapters plus observer projection | Receipt Loom and bridge fields render from sealed solver state with verified CAEL/SimulationContract evidence, declared deformation scale, and no observation drift. |
 | MV-P12 | Granular, soft-material, and reaction exhibits | DEM, soft-body/cloth, and reaction-diffusion state-frame adapters | Granary, pavilion, and garden replay as observer-only exhibits with exact adapter, limitations, state hashes, and measured render cost. |
 | MV-P13 | Physics Reveal | Exhibit replay composition | A viewer can inspect solver, timestep, geometry/state hashes, receipt, and first divergence for every displayed set piece. |
@@ -772,6 +797,10 @@ MV-P0 and MV-P5 are integrity-critical. MV-P1 may proceed in parallel using
 captured fixture receipts. MV-P9 and MV-P10 are the first physics/render proof
 pair. No live model calls wait on visual polish, and no spectacle bypasses the
 runtime gates.
+
+The bounded MV-P9/MV-P10 slice passed locally on 2026-07-24. MV-P0 remains
+open because the current canonical headless runtime does not expose executed
+schedule, resident-observation, or action-receipt-root hashes.
 
 ## Delivery waves
 

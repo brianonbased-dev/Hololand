@@ -1,0 +1,476 @@
+// HoloLand Model Village observer projection.
+//
+// This composition is a read-only visual instrument. It consumes sealed
+// canonical receipts and physics snapshots; it has no authority to write the
+// experiment, resident observations, clocks, schedules, prompts, or actions.
+
+composition "HoloLand Model Village Observer Projection" {
+  metadata {
+    title: "Model Village Receipt Loom"
+    version: "0.1.0"
+    source: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    canonicalWorldSource: "source/layers/vr/frontier/model-village/model-village.holo"
+    policySource: "source/domains/agents/model-village-experiment.hsplus"
+    trialKernelSource: "source/proofs/model-village-trial-kernel.hs"
+    calibrationSource: "source/layers/vr/frontier/model-village/model-village-render-calibration.holo"
+    productionPlan: "docs/specs/HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md"
+    projectionRole: "read_only_observer"
+    sourceSemanticsRewritten: false
+    bridgeMayOwnPresentationOnly: true
+  }
+
+  environment {
+    mode: "observer_replay"
+    backgroundColor: "#07111f"
+    ambient_light: 0.34
+    shadows: true
+  }
+
+  light "MoonKey" {
+    type: "directional"
+    color: "#b9d7ff"
+    intensity: 2.35
+    position: [-7, 11, 8]
+    cast_shadow: true
+  }
+
+  light "LoomFill" {
+    type: "point"
+    color: "#ffb45f"
+    intensity: 7.5
+    position: [0, 4.2, 0.8]
+    range: 14
+  }
+
+  light "RimLight" {
+    type: "directional"
+    color: "#6ee7ff"
+    intensity: 1.4
+    position: [8, 6, -6]
+    cast_shadow: false
+  }
+
+  state {
+    authority: "read_only"
+    consumes: ["canonical_object_ids", "public_state_hash", "ordered_verified_receipts", "sealed_physics_snapshots"]
+    forbiddenWrites: ["canonical_world", "resident_observation", "clock", "schedule", "prompt", "action", "receipt"]
+    residentVisible: false
+    residentObservationIncluded: false
+    adapterIdentityPresentationAllowed: false
+    conditionIdentityPresentationAllowedBeforeUnblinding: false
+    invalidReceiptBehavior: "fail_dark"
+    receiptReleasePredicate: ["receipt_present", "signature_verified", "source_action_hash_matches", "decision_supported"]
+    supportedDecisions: ["admitted", "blocked"]
+    routeField: "decision"
+    oneTokenPerReceipt: true
+    duplicateReceiptBehavior: "deny_release"
+    projectionCanCauseCanonicalDecision: false
+    projectionCanCauseCanonicalConsequence: false
+    physicsEngine: "HoloScript PhysicsWorld backed by PhysicsWorldImpl"
+    bodyRegistrationMethod: "PhysicsWorld.addBodyWithConfig"
+    fixedTimestepSeconds: 0.016666666666666666
+    fixedSteps: 600
+    replayRuns: 3
+    dynamicColliderShape: "sphere"
+    staticCatchColliderShape: "box"
+    boxTokenColliderSupported: false
+    stackingClaimed: false
+    collisionFrictionAppliedClaimed: false
+    ccdClaimed: false
+    crossHardwareDeterminismClaimed: false
+    collisionTimestampIncludedInDigest: false
+    canonicalProjectionToggleMustPreserve: ["canonical_scene_hash", "public_state_hash", "schedule_hash", "resident_observation_hash", "receipt_root"]
+    fixtureReceipts: [
+      {
+        fixtureId: "valid-admitted",
+        receiptId: "mv-p10-admitted-001",
+        receiptPresent: true,
+        signatureVerified: true,
+        sourceActionHashMatches: true,
+        decision: "admitted",
+        expectedRelease: true,
+        expectedRoute: "admitted"
+      },
+      {
+        fixtureId: "valid-blocked",
+        receiptId: "mv-p10-blocked-001",
+        receiptPresent: true,
+        signatureVerified: true,
+        sourceActionHashMatches: true,
+        decision: "blocked",
+        expectedRelease: true,
+        expectedRoute: "blocked"
+      },
+      {
+        fixtureId: "missing-receipt",
+        receiptId: "mv-p10-missing-001",
+        receiptPresent: false,
+        signatureVerified: false,
+        sourceActionHashMatches: false,
+        decision: "admitted",
+        expectedRelease: false,
+        expectedRoute: "dark"
+      },
+      {
+        fixtureId: "tampered-receipt",
+        receiptId: "mv-p10-tampered-001",
+        receiptPresent: true,
+        signatureVerified: false,
+        sourceActionHashMatches: false,
+        tamperField: "projectionSourceHash",
+        decision: "blocked",
+        expectedRelease: false,
+        expectedRoute: "dark"
+      },
+      {
+        fixtureId: "duplicate-admitted-receipt",
+        receiptId: "mv-p10-admitted-001",
+        receiptPresent: true,
+        signatureVerified: true,
+        sourceActionHashMatches: true,
+        decision: "admitted",
+        expectedRelease: false,
+        expectedRoute: "dark",
+        duplicateOfFixtureId: "valid-admitted"
+      }
+    ]
+    captureViews: {
+      desktop: {
+        width: 1600,
+        height: 900,
+        cameraPosition: [11.8, 7.2, 14.5],
+        cameraTarget: [0, 2.1, 0],
+        fov: 42
+      },
+      portrait: {
+        width: 390,
+        height: 844,
+        cameraPosition: [10.5, 8.5, 17.5],
+        cameraTarget: [0, 2.4, 0],
+        fov: 39
+      }
+    }
+  }
+
+  template "ObserverOnlyMesh" {
+    type: "model_village_observer_projection"
+    observer_access: "read_only"
+    resident_visible: false
+    source_semantics_rewritten: false
+    canonical_write_authority: false
+    receipt_required_for_causal_effect: true
+  }
+
+  template "ReceiptTokenPrototype" {
+    type: "receipt_loom_token"
+    geometry: "sphere"
+    radius: 0.5
+    observer_access: "read_only"
+    resident_visible: false
+    source_semantics_rewritten: false
+    canonical_write_authority: false
+    receipt_required_for_causal_effect: true
+    properties: {
+      prototypeOnly: true
+      physicsBody: {
+        bodyType: "dynamic"
+        colliderShape: "sphere"
+        radius: 0.32
+        mass: 1
+        restitution: 0.12
+        linearDamping: 0.08
+        angularDamping: 0.08
+        registrationMethod: "PhysicsWorld.addBodyWithConfig"
+      }
+    }
+  }
+
+  spatial_group "VillageGround" {
+    object "TerrainBowl" using "ObserverOnlyMesh" {
+      geometry: "cylinder"
+      position: [0, -0.42, 0]
+      scale: [15.0, 0.42, 15.0]
+      material: {
+        color: "#17273a"
+        metalness: 0.04
+        roughness: 0.88
+      }
+      properties: {
+        presentationRole: "terrain"
+        castShadow: false
+        receiveShadow: true
+        causalEffect: false
+      }
+    }
+
+    object "CommonsInlay" using "ObserverOnlyMesh" {
+      geometry: "cylinder"
+      position: [0, 0.02, 0]
+      scale: [11.8, 0.08, 11.8]
+      material: {
+        color: "#233d51"
+        metalness: 0.18
+        roughness: 0.62
+        clearcoat: 0.35
+        clearcoatRoughness: 0.4
+      }
+      properties: {
+        presentationRole: "commons_inlay"
+        castShadow: false
+        receiveShadow: true
+        causalEffect: false
+      }
+    }
+  }
+
+  spatial_group "ReceiptLoomArchitecture" {
+    object "ReceiptLoomCore" using "ObserverOnlyMesh" {
+      geometry: "cylinder"
+      position: [0, 3.1, 0]
+      scale: [1.25, 6.2, 1.25]
+      material: {
+        color: "#a65d23"
+        metalness: 0.78
+        roughness: 0.24
+        emissive: "#f0822b"
+        emissiveIntensity: 0.32
+        clearcoat: 0.55
+      }
+      properties: {
+        presentationRole: "receipt_loom_landmark"
+        castShadow: true
+        receiveShadow: true
+        causalEffect: false
+      }
+    }
+
+    object "ReceiptLoomHalo" using "ObserverOnlyMesh" {
+      geometry: "torus"
+      position: [0, 5.55, 0]
+      scale: [1, 1, 1]
+      rotation: [1.57079632679, 0, 0]
+      material: {
+        color: "#ffd18a"
+        metalness: 0.55
+        roughness: 0.2
+        emissive: "#ff9d42"
+        emissiveIntensity: 1.15
+      }
+      properties: {
+        presentationRole: "loom_halo"
+        visualMajorRadius: 1.4
+        visualTubeRadius: 0.075
+        castShadow: true
+        receiveShadow: false
+        causalEffect: false
+      }
+    }
+
+    object "AdmittedChuteShell" using "ObserverOnlyMesh" {
+      geometry: "cylinder"
+      position: [-3.0, 2.55, 0]
+      scale: [1.05, 4.2, 1.05]
+      material: {
+        color: "#4d2d16"
+        metalness: 0.72
+        roughness: 0.31
+        emissive: "#f4a64e"
+        emissiveIntensity: 0.16
+      }
+      properties: {
+        presentationRole: "admitted_gravity_chute"
+        route: "admitted"
+        decorativeNonCollider: true
+        castShadow: true
+        receiveShadow: true
+      }
+    }
+
+    object "BlockedChuteShell" using "ObserverOnlyMesh" {
+      geometry: "cylinder"
+      position: [3.0, 2.55, 0]
+      scale: [1.05, 4.2, 1.05]
+      material: {
+        color: "#252348"
+        metalness: 0.72
+        roughness: 0.31
+        emissive: "#7469ff"
+        emissiveIntensity: 0.18
+      }
+      properties: {
+        presentationRole: "blocked_gravity_chute"
+        route: "blocked"
+        decorativeNonCollider: true
+        castShadow: true
+        receiveShadow: true
+      }
+    }
+  }
+
+  spatial_group "ReceiptLoomPhysics" {
+    object "AdmittedCatchFloor" using "ObserverOnlyMesh" {
+      geometry: "box"
+      position: [-3.0, 0.22, 0]
+      scale: [1.7, 0.44, 1.7]
+      material: {
+        color: "#bb6f2d"
+        metalness: 0.56
+        roughness: 0.38
+      }
+      properties: {
+        presentationRole: "physics_catch_floor"
+        route: "admitted"
+        castShadow: true
+        receiveShadow: true
+        physicsBody: {
+          bodyId: "admitted-catch-floor"
+          bodyType: "static"
+          colliderShape: "box"
+          mass: 0
+          restitution: 0
+          registrationMethod: "PhysicsWorld.addBodyWithConfig"
+        }
+      }
+    }
+
+    object "BlockedCatchFloor" using "ObserverOnlyMesh" {
+      geometry: "box"
+      position: [3.0, 0.22, 0]
+      scale: [1.7, 0.44, 1.7]
+      material: {
+        color: "#46427f"
+        metalness: 0.56
+        roughness: 0.38
+      }
+      properties: {
+        presentationRole: "physics_catch_floor"
+        route: "blocked"
+        castShadow: true
+        receiveShadow: true
+        physicsBody: {
+          bodyId: "blocked-catch-floor"
+          bodyType: "static"
+          colliderShape: "box"
+          mass: 0
+          restitution: 0
+          registrationMethod: "PhysicsWorld.addBodyWithConfig"
+        }
+      }
+    }
+
+    object "AdmittedTokenPrototype" using "ReceiptTokenPrototype" {
+      position: [-3.0, 5.15, 0]
+      scale: [0.64, 0.64, 0.64]
+      material: {
+        color: "#ffd08a"
+        metalness: 0.76
+        roughness: 0.19
+        emissive: "#ff9b3e"
+        emissiveIntensity: 0.42
+        clearcoat: 0.75
+      }
+      properties: {
+        prototypeOnly: true
+        route: "admitted"
+        spawnPosition: [-3.0, 5.15, 0]
+        visualGeometry: "faceted_crystal"
+        visualGlowColor: "#ffad59"
+        visualGlowIntensity: 1.6
+        visualGlowRange: 2.4
+        disclosedCollider: "sphere"
+        physicsBody: {
+          bodyId: "token-mv-p10-admitted-001"
+          receiptId: "mv-p10-admitted-001"
+          bodyType: "dynamic"
+          colliderShape: "sphere"
+          radius: 0.32
+          mass: 1
+          restitution: 0.12
+          linearDamping: 0.08
+          angularDamping: 0.08
+          registrationMethod: "PhysicsWorld.addBodyWithConfig"
+        }
+      }
+    }
+
+    object "BlockedTokenPrototype" using "ReceiptTokenPrototype" {
+      position: [3.0, 5.85, 0]
+      scale: [0.64, 0.64, 0.64]
+      material: {
+        color: "#a9a3ff"
+        metalness: 0.72
+        roughness: 0.22
+        emissive: "#675cff"
+        emissiveIntensity: 0.46
+        clearcoat: 0.75
+      }
+      properties: {
+        prototypeOnly: true
+        route: "blocked"
+        spawnPosition: [3.0, 5.85, 0]
+        visualGeometry: "faceted_crystal"
+        visualGlowColor: "#877dff"
+        visualGlowIntensity: 1.7
+        visualGlowRange: 2.4
+        disclosedCollider: "sphere"
+        physicsBody: {
+          bodyId: "token-mv-p10-blocked-001"
+          receiptId: "mv-p10-blocked-001"
+          bodyType: "dynamic"
+          colliderShape: "sphere"
+          radius: 0.32
+          mass: 1
+          restitution: 0.08
+          linearDamping: 0.08
+          angularDamping: 0.08
+          registrationMethod: "PhysicsWorld.addBodyWithConfig"
+        }
+      }
+    }
+  }
+
+  spatial_group "ResidentSilhouettes" {
+    object "ObserverResident01" using "ObserverOnlyMesh" {
+      geometry: "capsule"
+      position: [-6.0, 0.76, 3.7]
+      scale: [0.58, 1.35, 0.58]
+      material: { color: "#537b83", metalness: 0.12, roughness: 0.72 }
+      properties: { presentationRole: "blinded_resident_silhouette", seat: 1, adapterIdentity: "absent", causalEffect: false }
+    }
+    object "ObserverResident02" using "ObserverOnlyMesh" {
+      geometry: "capsule"
+      position: [-3.6, 0.76, 5.5]
+      scale: [0.58, 1.35, 0.58]
+      material: { color: "#537b83", metalness: 0.12, roughness: 0.72 }
+      properties: { presentationRole: "blinded_resident_silhouette", seat: 2, adapterIdentity: "absent", causalEffect: false }
+    }
+    object "ObserverResident03" using "ObserverOnlyMesh" {
+      geometry: "capsule"
+      position: [-1.2, 0.76, 6.25]
+      scale: [0.58, 1.35, 0.58]
+      material: { color: "#537b83", metalness: 0.12, roughness: 0.72 }
+      properties: { presentationRole: "blinded_resident_silhouette", seat: 3, adapterIdentity: "absent", causalEffect: false }
+    }
+    object "ObserverResident04" using "ObserverOnlyMesh" {
+      geometry: "capsule"
+      position: [1.2, 0.76, 6.25]
+      scale: [0.58, 1.35, 0.58]
+      material: { color: "#537b83", metalness: 0.12, roughness: 0.72 }
+      properties: { presentationRole: "blinded_resident_silhouette", seat: 4, adapterIdentity: "absent", causalEffect: false }
+    }
+    object "ObserverResident05" using "ObserverOnlyMesh" {
+      geometry: "capsule"
+      position: [3.6, 0.76, 5.5]
+      scale: [0.58, 1.35, 0.58]
+      material: { color: "#537b83", metalness: 0.12, roughness: 0.72 }
+      properties: { presentationRole: "blinded_resident_silhouette", seat: 5, adapterIdentity: "absent", causalEffect: false }
+    }
+    object "ObserverResident06" using "ObserverOnlyMesh" {
+      geometry: "capsule"
+      position: [6.0, 0.76, 3.7]
+      scale: [0.58, 1.35, 0.58]
+      material: { color: "#537b83", metalness: 0.12, roughness: 0.72 }
+      properties: { presentationRole: "blinded_resident_silhouette", seat: 6, adapterIdentity: "absent", causalEffect: false }
+    }
+  }
+}

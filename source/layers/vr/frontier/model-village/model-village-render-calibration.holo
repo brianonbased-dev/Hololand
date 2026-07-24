@@ -1,0 +1,259 @@
+// HoloLand Model Village material calibration source.
+// The HoloLand bridge must receipt the effective browser settings; source
+// declarations alone are not evidence that a renderer applied them.
+
+composition "HoloLand Model Village Render Calibration" {
+  metadata {
+    title: "Model Village Neutral Material Lab"
+    version: "0.1.0"
+    source: "source/layers/vr/frontier/model-village/model-village-render-calibration.holo"
+    observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    outputColorSpaceTarget: "srgb"
+    toneMappingTarget: "aces_filmic"
+    exposureTarget: 1.05
+    shadowMapTarget: "pcf_soft"
+    environmentKind: "three_room_environment_procedural_local"
+    hdri: false
+    environmentProvenanceRequired: true
+    sourceSemanticsRewritten: false
+  }
+
+  environment {
+    mode: "neutral_material_calibration"
+    backgroundColor: "#111923"
+    ambient_light: 0.28
+    shadows: true
+  }
+
+  light "CalibrationKey" {
+    type: "directional"
+    color: "#fff4df"
+    intensity: 3.2
+    position: [-5, 8, 7]
+    cast_shadow: true
+  }
+
+  light "CalibrationFill" {
+    type: "directional"
+    color: "#b9d8ff"
+    intensity: 1.0
+    position: [6, 5, 3]
+    cast_shadow: false
+  }
+
+  light "CalibrationRim" {
+    type: "point"
+    color: "#ffbf7a"
+    intensity: 4.0
+    position: [0, 4, -5]
+    range: 14
+  }
+
+  state {
+    authority: "read_only"
+    rendererOwnsPresentationOnly: true
+    expectedSamples: ["gray_18", "chrome", "rough_dielectric", "wet_stone", "timber", "brushed_metal", "stormglass", "water"]
+    sampleCount: 8
+    distinguishableWithoutLabelsRequired: true
+    browserProfiles: ["browser_safe", "desktop_hero"]
+    expensivePostEffectsRequired: false
+    captureViews: {
+      desktop: {
+        width: 1600,
+        height: 900,
+        cameraPosition: [10.8, 6.4, 13.8],
+        cameraTarget: [0, 1.15, 0],
+        fov: 40
+      },
+      portrait: {
+        width: 390,
+        height: 844,
+        cameraPosition: [10.8, 8.0, 18.5],
+        cameraTarget: [0, 1.1, 0],
+        fov: 38
+      }
+    }
+  }
+
+  template "CalibrationSample" {
+    type: "material_calibration_sample"
+    observer_access: "read_only"
+    source_semantics_rewritten: false
+    cast_shadow: true
+    receive_shadow: true
+  }
+
+  object "CalibrationGround" using "CalibrationSample" {
+    geometry: "box"
+    cast_shadow: false
+    receive_shadow: true
+    position: [0, -0.18, 0]
+    scale: [12, 0.36, 7.6]
+    material: {
+      color: "#29323d"
+      metalness: 0
+      roughness: 0.82
+    }
+    properties: {
+      calibrationRole: "contact_plane"
+    }
+  }
+
+  object "ScaleReference" using "CalibrationSample" {
+    geometry: "box"
+    position: [-5.25, 1.0, 1.8]
+    scale: [0.16, 2.0, 0.16]
+    material: {
+      color: "#f7efe2"
+      metalness: 0
+      roughness: 0.55
+    }
+    properties: {
+      calibrationRole: "two_meter_scale_reference"
+      nominalHeightMeters: 2
+    }
+  }
+
+  spatial_group "CalibrationSamples" {
+    object "Gray18Reference" using "CalibrationSample" {
+      geometry: "box"
+      position: [-3.9, 0.65, 1.6]
+      scale: [1.15, 1.15, 1.15]
+      material: {
+        color: "#777777"
+        metalness: 0
+        roughness: 0.72
+      }
+      properties: {
+        calibrationId: "gray_18"
+        materialClass: "reference"
+      }
+    }
+
+    object "ChromeSample" using "CalibrationSample" {
+      geometry: "sphere"
+      radius: 0.72
+      position: [-1.7, 0.72, 1.6]
+      material: {
+        color: "#d7dde2"
+        metalness: 1
+        roughness: 0.04
+      }
+      properties: {
+        calibrationId: "chrome"
+        materialClass: "conductor"
+      }
+    }
+
+    object "RoughDielectricSample" using "CalibrationSample" {
+      geometry: "sphere"
+      radius: 0.72
+      position: [0.4, 0.72, 1.6]
+      material: {
+        color: "#d9d2c6"
+        metalness: 0
+        roughness: 0.88
+      }
+      properties: {
+        calibrationId: "rough_dielectric"
+        materialClass: "dielectric"
+      }
+    }
+
+    object "WetStoneSample" using "CalibrationSample" {
+      geometry: "sphere"
+      radius: 0.72
+      position: [2.5, 0.72, 1.6]
+      scale: [1.1, 0.72, 1.0]
+      material: {
+        color: "#39444a"
+        metalness: 0.03
+        roughness: 0.28
+        clearcoat: 0.72
+        clearcoatRoughness: 0.18
+      }
+      properties: {
+        calibrationId: "wet_stone"
+        materialClass: "coated_dielectric"
+        wetnessMustReadFromLighting: true
+      }
+    }
+
+    object "TimberSample" using "CalibrationSample" {
+      geometry: "box"
+      position: [-3.7, 0.58, -1.25]
+      scale: [1.75, 1.15, 1.15]
+      material: {
+        color: "#8a522c"
+        metalness: 0
+        roughness: 0.62
+        sheen: 0.18
+        sheenColor: "#c88952"
+      }
+      properties: {
+        calibrationId: "timber"
+        materialClass: "dielectric"
+        proceduralGrainAppliedByBridge: false
+      }
+    }
+
+    object "BrushedMetalSample" using "CalibrationSample" {
+      geometry: "cylinder"
+      position: [-1.25, 0.72, -1.25]
+      scale: [0.82, 1.44, 0.82]
+      material: {
+        color: "#87929d"
+        metalness: 0.92
+        roughness: 0.29
+        anisotropy: 0.72
+      }
+      properties: {
+        calibrationId: "brushed_metal"
+        materialClass: "anisotropic_conductor"
+      }
+    }
+
+    object "StormglassSample" using "CalibrationSample" {
+      geometry: "sphere"
+      radius: 0.72
+      position: [1.15, 0.72, -1.25]
+      material: {
+        color: "#a9c8d2"
+        metalness: 0
+        roughness: 0.08
+        transmission: 0.93
+        thickness: 0.7
+        ior: 1.5
+        transparent: true
+        opacity: 0.78
+      }
+      properties: {
+        calibrationId: "stormglass"
+        materialClass: "transmissive_dielectric"
+      }
+    }
+
+    object "WaterSample" using "CalibrationSample" {
+      geometry: "cylinder"
+      position: [3.65, 0.28, -1.25]
+      scale: [1.45, 0.28, 1.45]
+      material: {
+        color: "#b9e6ef"
+        metalness: 0
+        roughness: 0.06
+        transmission: 0.96
+        thickness: 0.42
+        ior: 1.333
+        transparent: true
+        opacity: 0.76
+        clearcoat: 0.35
+      }
+      properties: {
+        calibrationId: "water"
+        materialClass: "transmissive_dielectric"
+        fluidSimulationClaimed: false
+        waterMustReadFromLighting: true
+      }
+    }
+  }
+}
