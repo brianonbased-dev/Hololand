@@ -4,11 +4,14 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { runModelVillageCheck } from './check-hololand-model-village-experiment.mjs';
+import {
+  compareObserverBoundaryFields,
+  runModelVillageCheck,
+} from './check-hololand-model-village-experiment.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const REPO_ROOT = path.resolve(path.dirname(SCRIPT_PATH), '..');
-const SCHEMA = 'hololand.model-village.physics-witness.v0.1.0';
+const SCHEMA = 'hololand.model-village.physics-witness.v0.2.0';
 const DEFAULT_OUTPUT = path.join('.tmp', 'hololand', 'model-village', 'physics-witness.json');
 
 const SOURCES = {
@@ -405,6 +408,121 @@ function scenePhysicsBindings(projectionIr) {
     }));
 }
 
+function inspectProjectionCapabilitySurface(projectionAst) {
+  const findings = [];
+  const prohibitedNodeTypes = new Set([
+    'Action',
+    'EventHandler',
+    'EmitStatement',
+    'Assignment',
+    'CallStatement',
+    'FunctionCall',
+    'Import',
+    'Mutation',
+    'ProviderCall',
+    'SchedulerCall',
+    'ToolCall',
+  ]);
+  const prohibitedPropertyKeys = new Set([
+    'action',
+    'canonicalwrite',
+    'mutation',
+    'mutationtarget',
+    'provider',
+    'providercall',
+    'receiptwriter',
+    'residentobservationoutput',
+    'scheduler',
+    'tool',
+    'toolcall',
+    'writetarget',
+  ]);
+  const prohibitedCollections = [
+    'imports',
+    'timelines',
+    'transitions',
+    'conditionals',
+    'iterators',
+    'npcs',
+    'quests',
+    'abilities',
+    'dialogues',
+    'stateMachines',
+    'spawnGroups',
+    'triggers',
+    'reactionTriggers',
+    'policyPacks',
+    'domainBlocks',
+  ];
+
+  for (const collection of prohibitedCollections) {
+    if (Array.isArray(projectionAst?.[collection]) && projectionAst[collection].length > 0) {
+      findings.push({
+        path: `projectionAst.${collection}`,
+        kind: 'capability_collection',
+        value: collection,
+      });
+    }
+  }
+  if (projectionAst?.logic) {
+    findings.push({
+      path: 'projectionAst.logic',
+      kind: 'executable_logic_surface',
+      value: 'logic',
+    });
+  }
+
+  function visit(value, currentPath) {
+    if (Array.isArray(value)) {
+      value.forEach((entry, index) => visit(entry, `${currentPath}[${index}]`));
+      return;
+    }
+    if (!value || typeof value !== 'object') return;
+    if (prohibitedNodeTypes.has(value.type)) {
+      findings.push({
+        path: currentPath,
+        kind: 'executable_ast_node',
+        value: value.type,
+      });
+    }
+    if (
+      typeof value.key === 'string'
+      && prohibitedPropertyKeys.has(value.key.replace(/[^a-z0-9]/gi, '').toLowerCase())
+    ) {
+      findings.push({
+        path: `${currentPath}.key`,
+        kind: 'forbidden_dependency_or_write_property',
+        value: value.key,
+      });
+    }
+    for (const [key, child] of Object.entries(value)) {
+      if (
+        (key === 'actions' || key === 'methods' || key === 'directives' || key === 'traits')
+        && Array.isArray(child)
+        && child.length > 0
+      ) {
+        findings.push({
+          path: `${currentPath}.${key}`,
+          kind: 'behavior_attachment',
+          value: key,
+        });
+      }
+      visit(child, `${currentPath}.${key}`);
+    }
+  }
+  visit(projectionAst, 'projectionAst');
+
+  const uniqueFindings = [...new Map(
+    findings.map((finding) => [canonicalJson(finding), finding]),
+  ).values()];
+  return {
+    passed: uniqueFindings.length === 0,
+    method: 'parsed_ast_fail_closed_capability_and_dependency_exclusion',
+    runtimeCapabilityEnforcementClaimed: false,
+    findings: uniqueFindings,
+  };
+}
+
 function validateSourceBoundary(contracts) {
   const projectionState = contracts.projectionState;
   const authority = contracts.authority;
@@ -474,6 +592,18 @@ function validateSourceBoundary(contracts) {
     'action',
     'receipt',
   ];
+  const requiredObserverBoundaryReads = [
+    'canonical_scene_hash',
+    'canonical_pose_hash',
+    'logical_clock_hash',
+    'public_state_hash',
+    'executed_schedule_hash',
+    'resident_observation_hash',
+    'action_receipt_root',
+  ];
+  const projectionCapabilityInspection = inspectProjectionCapabilitySurface(
+    contracts.projectionAst,
+  );
 
   return {
     projectionAuthorityReadOnly:
@@ -483,6 +613,13 @@ function validateSourceBoundary(contracts) {
       Array.isArray(authority.mayWrite)
       && authority.mayWrite.length === 0
       && forbiddenWrites.every((field) => authority.forbiddenWrites.includes(field)),
+    parsedProjectionHasNoExecutableCapabilityOrDependencySurface:
+      projectionCapabilityInspection.passed,
+    observerBoundaryReadContractsAgree:
+      canonicalJson(projectionState.consumes) === canonicalJson(authority.mayRead)
+      && requiredObserverBoundaryReads.every(
+        (field) => projectionState.consumes.includes(field),
+      ),
     absentFromResidentObservation:
       projectionState.residentVisible === false
       && projectionState.residentObservationIncluded === false
@@ -527,6 +664,7 @@ function validateSourceBoundary(contracts) {
       && projectionState.collisionFrictionAppliedClaimed === false
       && projectionState.ccdClaimed === false
       && projectionState.crossHardwareDeterminismClaimed === false,
+    projectionCapabilityInspection,
   };
 }
 
@@ -844,6 +982,7 @@ function runOnePhysicsReplay(
 function canonicalBoundaryProjection(result) {
   if (!result) return null;
   const receipt = result.receipt;
+  const boundaryFields = receipt.observerBoundaryFixture?.canonicalFields || {};
   return {
     sourceHashes: receipt.semanticIr ? {
       world: receipt.semanticIr.world.sourceHash,
@@ -856,6 +995,7 @@ function canonicalBoundaryProjection(result) {
     objectCount: receipt.headlessReplay.objectCount,
     objectIds: [...receipt.headlessReplay.objectIds].sort(),
     experimentDesign: receipt.experimentDesign,
+    ...boundaryFields,
   };
 }
 
@@ -920,7 +1060,7 @@ export async function runPhysicsCheck(options = {}) {
   );
 
   const canonicalBefore = canonicalBoundaryEnabled
-    ? runModelVillageCheck({
+    ? await runModelVillageCheck({
         root,
         output: path.join('.tmp', 'hololand', 'model-village', 'physics-canonical-before.json'),
       })
@@ -935,7 +1075,7 @@ export async function runPhysicsCheck(options = {}) {
     executionContract,
   ));
   const canonicalAfter = canonicalBoundaryEnabled
-    ? runModelVillageCheck({
+    ? await runModelVillageCheck({
         root,
         output: path.join('.tmp', 'hololand', 'model-village', 'physics-canonical-after.json'),
       })
@@ -945,8 +1085,12 @@ export async function runPhysicsCheck(options = {}) {
   const replayRunsMatch = new Set(replayRoots).size === 1;
   const beforeProjection = canonicalBoundaryProjection(canonicalBefore);
   const afterProjection = canonicalBoundaryProjection(canonicalAfter);
+  const observerBoundaryComparison = canonicalBoundaryEnabled
+    ? compareObserverBoundaryFields(beforeProjection, afterProjection)
+    : null;
   const canonicalObservedBoundaryMatch = canonicalBoundaryEnabled
-    ? canonicalJson(beforeProjection) === canonicalJson(afterProjection)
+    ? observerBoundaryComparison.passed
+      && canonicalJson(beforeProjection) === canonicalJson(afterProjection)
     : null;
   const expectedReleasedTokenCount = contracts.replayGate.expectedReleasedTokenCount;
   const expectedFailDarkReleaseCount = contracts.replayGate.missingAndTamperedReleaseCount;
@@ -1018,8 +1162,15 @@ export async function runPhysicsCheck(options = {}) {
       && run.routeContactPairsMatch
     )),
     contactsObserved: replays.every((run) => run.contactCount === 2),
-    canonicalObservedBoundaryPreserved:
+    fixtureBoundaryStableAcrossPhysicsWitness:
       canonicalBoundaryEnabled ? canonicalObservedBoundaryMatch === true : true,
+    canonicalObserverBoundaryFieldsAvailable:
+      canonicalBoundaryEnabled
+        ? observerBoundaryComparison.missingBefore.length === 0
+          && observerBoundaryComparison.missingAfter.length === 0
+          && observerBoundaryComparison.invalidBefore.length === 0
+          && observerBoundaryComparison.invalidAfter.length === 0
+        : true,
   };
 
   const sourcePaths = Object.values(SOURCES);
@@ -1076,10 +1227,34 @@ export async function runPhysicsCheck(options = {}) {
     canonicalBoundary: {
       enabled: canonicalBoundaryEnabled,
       observedBoundaryMatch: canonicalObservedBoundaryMatch,
+      comparisonContext: 'before_vs_after_physics_witness_execution',
+      projectionToggleExecuted: false,
+      fullMvP0ProjectionToggleClaimed: false,
+      observerBoundaryComparison,
       before: beforeProjection,
       after: afterProjection,
-      observedFields: ['canonical source hashes', '12-object scene IDs', 'scene and pose/physics digest', 'experiment-design projection'],
-      unavailableRuntimeFields: ['executed schedule hash', 'resident observation hash', 'action receipt root'],
+      observedFields: [
+        'canonical source hashes',
+        '12-object scene IDs',
+        'canonical scene hash',
+        'canonical pose hash',
+        'source-declared fixture logical-clock hash',
+        'source-declared fixture public-state hash',
+        'source-declared fixture executed-schedule hash',
+        'source-declared fixture resident-observation hash',
+        'source-declared fixture action-receipt root',
+        'experiment-design projection',
+      ],
+      fixtureBridgeFieldsAvailable: [
+        'executed schedule hash',
+        'resident observation hash',
+        'action receipt root',
+      ],
+      nativeHeadlessFieldsStillUnavailable: [
+        'native executed schedule hash',
+        'native resident observation hash',
+        'native action receipt root',
+      ],
     },
     assertions,
     toolchain: {
@@ -1100,8 +1275,11 @@ export async function runPhysicsCheck(options = {}) {
         'missing, tampered, and duplicate fixtures fail dark',
         'two sphere-collider tokens fall under HoloScript CPU physics, contact axis-aligned box catch floors, and sleep',
         'ordered-contact, per-step sleeping, and final-transform digests match across three local 600-step fixed-timestep runs',
+        'the physics-witness side-effect sandwich leaves the seven-field source-declared captured-fixture boundary unchanged',
+        'the parsed observer projection has no executable logic, behavior attachment, import, provider, tool, scheduler, receipt-writer, or resident-observation output surface',
       ],
       notObserved: [
+        'isolated observer projection off/on consumer toggle',
         'box token colliders',
         'stacking',
         'collision friction response',
@@ -1109,7 +1287,9 @@ export async function runPhysicsCheck(options = {}) {
         'cross-hardware determinism',
         'GPU or WebGPU physics',
         'native .hsplus action execution',
-        'executed canonical schedule, resident observation, or action receipt-root invariance',
+        'native .hs pipeline execution',
+        'native headless schedule, resident-observation, or action-receipt-ledger hashes',
+        'native runtime capability enforcement for observer read-only authority',
       ],
       allowedPhrase:
         'Deterministic CPU sphere-collider receipt tracer on the named local HoloScript build.',

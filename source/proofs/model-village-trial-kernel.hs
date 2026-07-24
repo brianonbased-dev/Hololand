@@ -109,6 +109,246 @@ object "ModelVillageEngineeringTracer" {
   currentAgentActionExecutionTrace: "unavailable"
 }
 
+// MV-P0 integrity fixture.
+//
+// This is not a live model run and is not native .hs pipeline execution. The
+// HoloLand checker parses these flat HoloScript nodes, executes this single
+// captured fixture fail-closed, and receipts the resulting canonical hashes.
+// The fixture binds a future observer-toggle acceptance contract to complete
+// canonical fields. This bridge run does not execute that on/off toggle.
+object "ModelVillageObserverBoundaryFixture" {
+  type: "observer_boundary_fixture_manifest"
+  fixtureId: "mv-p0-observer-boundary-001"
+  runId: "mv-p0-fixture-run-001"
+  executionMode: "captured_fixture_replay"
+  parser: "HoloScriptCodeParser"
+  providerCallsAllowed: false
+  nativeHsPipelineExecutionClaimed: false
+  nativeHsplusActionExecutionClaimed: false
+  observerProjectionMayWrite: false
+  logicalClockStartTick: 0
+  logicalClockEndTick: 1
+  logicalClockStep: 1
+  initialPublicStateSnapshotId: "mv-p0-public-state-before"
+  finalPublicStateSnapshotId: "mv-p0-public-state-after"
+  initialPublicStateSequence: 0
+  finalPublicStateSequence: 1
+  scheduleOrder: ["mv-p0-schedule-observe", "mv-p0-schedule-admit-01", "mv-p0-schedule-admit-02"]
+  observationOrder: ["mv-p0-observation-01", "mv-p0-observation-02", "mv-p0-observation-03", "mv-p0-observation-04", "mv-p0-observation-05", "mv-p0-observation-06"]
+  actionReceiptOrder: ["mv-p0-action-01", "mv-p0-action-02"]
+  adapterPermutationOrder: ["block1", "block2", "block3"]
+  expectedScheduleEntryCount: 3
+  expectedObservationCount: 6
+  expectedActionReceiptCount: 2
+  expectedAdapterPermutationCount: 3
+  hashAlgorithm: "sha256_canonical_json"
+  actionReceiptChainMode: "sha256_canonical_receipt_with_prior_hash"
+  initialActionReceiptRoot: "0000000000000000000000000000000000000000000000000000000000000000"
+}
+
+object "ModelVillageObserverBoundaryPublicStateBefore" {
+  type: "observer_boundary_public_state_fixture"
+  snapshotId: "mv-p0-public-state-before"
+  sequence: 0
+  logicalTick: 0
+  location: "VillageCommons"
+  publicEventIds: ["commons_water_shortage"]
+  publicResourceId: "commons_water_units"
+  publicResourceUnits: 2
+  publicNormIds: ["external_messages_denied", "receipted_mutation_required"]
+}
+
+object "ModelVillageObserverBoundaryPublicStateAfter" {
+  type: "observer_boundary_public_state_fixture"
+  snapshotId: "mv-p0-public-state-after"
+  sequence: 1
+  logicalTick: 1
+  location: "VillageCommons"
+  publicEventIds: ["commons_water_shortage", "resident_01_contributed_water"]
+  publicResourceId: "commons_water_units"
+  publicResourceUnits: 3
+  publicNormIds: ["external_messages_denied", "receipted_mutation_required"]
+}
+
+object "ModelVillageObserverBoundaryObservation01" {
+  type: "observer_boundary_observation_fixture"
+  observationId: "mv-p0-observation-01"
+  order: 1
+  runId: "mv-p0-fixture-run-001"
+  tick: 0
+  residentId: "resident-01"
+  location: "VillageCommons"
+  visibleEventIds: ["commons_water_shortage"]
+  publicStateSnapshotId: "mv-p0-public-state-before"
+  boundedMemoryIds: []
+  peerPrivateMemoryIncluded: false
+  sealedModelIdentityIncluded: false
+  observerProjectionIncluded: false
+}
+
+object "ModelVillageObserverBoundaryObservation02" {
+  type: "observer_boundary_observation_fixture"
+  observationId: "mv-p0-observation-02"
+  order: 2
+  runId: "mv-p0-fixture-run-001"
+  tick: 0
+  residentId: "resident-02"
+  location: "VillageCommons"
+  visibleEventIds: ["commons_water_shortage"]
+  publicStateSnapshotId: "mv-p0-public-state-before"
+  boundedMemoryIds: []
+  peerPrivateMemoryIncluded: false
+  sealedModelIdentityIncluded: false
+  observerProjectionIncluded: false
+}
+
+object "ModelVillageObserverBoundaryObservation03" {
+  type: "observer_boundary_observation_fixture"
+  observationId: "mv-p0-observation-03"
+  order: 3
+  runId: "mv-p0-fixture-run-001"
+  tick: 0
+  residentId: "resident-03"
+  location: "VillageCommons"
+  visibleEventIds: ["commons_water_shortage"]
+  publicStateSnapshotId: "mv-p0-public-state-before"
+  boundedMemoryIds: []
+  peerPrivateMemoryIncluded: false
+  sealedModelIdentityIncluded: false
+  observerProjectionIncluded: false
+}
+
+object "ModelVillageObserverBoundaryObservation04" {
+  type: "observer_boundary_observation_fixture"
+  observationId: "mv-p0-observation-04"
+  order: 4
+  runId: "mv-p0-fixture-run-001"
+  tick: 0
+  residentId: "resident-04"
+  location: "VillageCommons"
+  visibleEventIds: ["commons_water_shortage"]
+  publicStateSnapshotId: "mv-p0-public-state-before"
+  boundedMemoryIds: []
+  peerPrivateMemoryIncluded: false
+  sealedModelIdentityIncluded: false
+  observerProjectionIncluded: false
+}
+
+object "ModelVillageObserverBoundaryObservation05" {
+  type: "observer_boundary_observation_fixture"
+  observationId: "mv-p0-observation-05"
+  order: 5
+  runId: "mv-p0-fixture-run-001"
+  tick: 0
+  residentId: "resident-05"
+  location: "VillageCommons"
+  visibleEventIds: ["commons_water_shortage"]
+  publicStateSnapshotId: "mv-p0-public-state-before"
+  boundedMemoryIds: []
+  peerPrivateMemoryIncluded: false
+  sealedModelIdentityIncluded: false
+  observerProjectionIncluded: false
+}
+
+object "ModelVillageObserverBoundaryObservation06" {
+  type: "observer_boundary_observation_fixture"
+  observationId: "mv-p0-observation-06"
+  order: 6
+  runId: "mv-p0-fixture-run-001"
+  tick: 0
+  residentId: "resident-06"
+  location: "VillageCommons"
+  visibleEventIds: ["commons_water_shortage"]
+  publicStateSnapshotId: "mv-p0-public-state-before"
+  boundedMemoryIds: []
+  peerPrivateMemoryIncluded: false
+  sealedModelIdentityIncluded: false
+  observerProjectionIncluded: false
+}
+
+object "ModelVillageObserverBoundaryAction01" {
+  type: "observer_boundary_action_receipt_fixture"
+  receiptId: "mv-p0-action-01"
+  sequence: 1
+  runId: "mv-p0-fixture-run-001"
+  tick: 1
+  residentId: "resident-01"
+  proposal: "contribute_water:commons_cistern:1"
+  turnOpportunityId: "mv-p0-turn-resident-01"
+  authorizationNonce: "mv-p0-auth-01"
+  authorizationSequence: 1
+  safetyReceiptId: "mv-p0-safety-01"
+  actionDecisionReceiptId: "mv-p0-decision-01"
+  admissionDecision: "allow"
+  action: "contribute_water"
+  target: "commons_cistern"
+  outcome: "public_water_units_increased_by_1"
+  rejectionReason: ""
+  preStateSnapshotId: "mv-p0-public-state-before"
+  postStateSnapshotId: "mv-p0-public-state-after"
+  rollbackReference: "mv-p0-public-state-before"
+  playerVisibleImpact: true
+  allowed: true
+}
+
+object "ModelVillageObserverBoundaryAction02" {
+  type: "observer_boundary_action_receipt_fixture"
+  receiptId: "mv-p0-action-02"
+  sequence: 2
+  runId: "mv-p0-fixture-run-001"
+  tick: 1
+  residentId: "resident-02"
+  proposal: "send_external_message:outside_village"
+  turnOpportunityId: "mv-p0-turn-resident-02"
+  authorizationNonce: "mv-p0-auth-02"
+  authorizationSequence: 2
+  safetyReceiptId: "mv-p0-safety-02"
+  actionDecisionReceiptId: "mv-p0-decision-02"
+  admissionDecision: "deny"
+  action: "send_external_message"
+  target: "outside_village"
+  outcome: "blocked_without_world_mutation"
+  rejectionReason: "external_side_effect_denied"
+  preStateSnapshotId: "mv-p0-public-state-after"
+  postStateSnapshotId: "mv-p0-public-state-after"
+  rollbackReference: "mv-p0-public-state-after"
+  playerVisibleImpact: false
+  allowed: false
+}
+
+object "ModelVillageObserverBoundaryScheduleObserve" {
+  type: "observer_boundary_schedule_entry"
+  scheduleEntryId: "mv-p0-schedule-observe"
+  order: 1
+  tick: 0
+  phase: "observation_barrier"
+  operation: "project_resident_observations"
+  targetIds: ["mv-p0-observation-01", "mv-p0-observation-02", "mv-p0-observation-03", "mv-p0-observation-04", "mv-p0-observation-05", "mv-p0-observation-06"]
+  barrierId: "mv-p0-proposal-barrier"
+}
+
+object "ModelVillageObserverBoundaryScheduleAdmit01" {
+  type: "observer_boundary_schedule_entry"
+  scheduleEntryId: "mv-p0-schedule-admit-01"
+  order: 2
+  tick: 1
+  phase: "action_admission"
+  operation: "seal_action_receipt"
+  targetIds: ["mv-p0-action-01"]
+  barrierId: "mv-p0-proposal-barrier"
+}
+
+object "ModelVillageObserverBoundaryScheduleAdmit02" {
+  type: "observer_boundary_schedule_entry"
+  scheduleEntryId: "mv-p0-schedule-admit-02"
+  order: 3
+  tick: 1
+  phase: "action_admission"
+  operation: "seal_action_receipt"
+  targetIds: ["mv-p0-action-02"]
+  barrierId: "mv-p0-proposal-barrier"
+}
+
 object "ModelVillageEmergencyStopBinding" {
   type: "cross_composition_action_binding_contract"
   worldRequestAction: "request_experiment_freeze"

@@ -346,6 +346,48 @@ composition "HoloLand Model Village Experiment Contract" {
     defaultDecision: "deny"
   }
 
+  template "ObserverBoundaryFixtureReceipt" {
+    type: "model_village_observer_boundary_fixture_receipt"
+    executionMode: "captured_fixture_replay"
+    requiredHashFields: [
+      "canonical_scene_hash",
+      "canonical_pose_hash",
+      "logical_clock_hash",
+      "public_state_hash",
+      "executed_schedule_hash",
+      "resident_observation_hash",
+      "action_receipt_root"
+    ]
+    projectionToggleMustPreserve: [
+      "canonical_scene_hash",
+      "canonical_pose_hash",
+      "logical_clock_hash",
+      "public_state_hash",
+      "executed_schedule_hash",
+      "resident_observation_hash",
+      "action_receipt_root"
+    ]
+    adapterPermutationMustPreserve: [
+      "canonical_scene_hash",
+      "canonical_pose_hash",
+      "logical_clock_hash",
+      "public_state_hash",
+      "executed_schedule_hash",
+      "resident_observation_hash",
+      "action_receipt_root"
+    ]
+    residentObservationForbiddenFields: [
+      "adapter_alias",
+      "adapter_identity",
+      "condition_identity",
+      "observer_projection"
+    ]
+    providerCallsAllowed: false
+    nativeHsPipelineExecutionClaimed: false
+    nativeHsplusActionExecutionClaimed: false
+    projectionMayWriteCanonicalState: false
+  }
+
   policy "EqualAffordanceRequired" {
     decision: "block_run_when_affordances_differ"
     compares: [

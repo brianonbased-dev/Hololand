@@ -265,11 +265,11 @@ try {
     root: repoRoot,
     holoScriptRoot,
     outputDir,
-    canonicalBoundary: false,
+    canonicalBoundary: true,
     timeoutMs: 60_000,
   });
 
-  assert.equal(receipt.schema, 'hololand.model-village.rendering-witness.v0.1.0');
+  assert.equal(receipt.schema, 'hololand.model-village.rendering-witness.v0.2.0');
   assert.equal(receipt.status, 'pass');
   assert.ok(Object.values(receipt.assertions).every(Boolean));
   assert.equal(receipt.source.parser, 'HoloCompositionParser');
@@ -277,8 +277,22 @@ try {
   assert.equal(receipt.source.projection.meshCount, 16);
   assert.equal(receipt.source.calibration.meshCount, 10);
   assert.equal(receipt.source.sourceSemanticsRewritten, false);
-  assert.equal(receipt.physics.canonicalBoundary.enabled, false);
-  assert.equal(receipt.physics.canonicalBoundary.observedBoundaryMatch, null);
+  assert.equal(receipt.physics.canonicalBoundary.enabled, true);
+  assert.equal(receipt.physics.canonicalBoundary.observedBoundaryMatch, true);
+  assert.equal(receipt.physics.canonicalBoundary.projectionToggleExecuted, false);
+  assert.equal(receipt.observerBoundary.consumerExecuted, true);
+  assert.equal(receipt.observerBoundary.isolatedProjectionToggleExecuted, false);
+  assert.equal(receipt.observerBoundary.payload.available, true);
+  assert.equal(
+    Object.keys(
+      receipt.observerBoundary.browserObserved.canonicalFields,
+    ).length,
+    7,
+  );
+  assert.match(
+    receipt.source.observerPolicy.browserRenderEvidenceEnforcement,
+    /declarative_template_source_hash_bound/,
+  );
   assert.ok(receipt.physics.frameTraceSha256);
   assert.ok(receipt.physics.visualFrameSha256);
   assert.ok(receipt.physics.settledFrameSha256);
@@ -295,6 +309,29 @@ try {
   assert.equal(receipt.renderer.materialTruth.expectedMeshCount, 26);
   assert.equal(receipt.renderer.materialTruth.observedMaterialCount, 26);
   assert.ok(receipt.renderer.materialTruth.meshes.every((entry) => entry.status === 'pass'));
+  assert.equal(receipt.renderer.portraitUiChrome.status, 'pass');
+  assert.ok(Object.values(receipt.renderer.portraitUiChrome.checks).every(Boolean));
+  assert.ok(receipt.renderer.portraitUiChrome.cardFooterGap >= 8);
+  assert.match(
+    receipt.renderer.portraitUiChrome.uiChrome.admittedLegend.text,
+    /admitted route/i,
+  );
+  assert.match(
+    receipt.renderer.portraitUiChrome.uiChrome.blockedLegend.text,
+    /blocked route/i,
+  );
+  assert.notEqual(
+    receipt.renderer.portraitUiChrome.uiChrome.backendProvenance.textOverflow,
+    'ellipsis',
+  );
+  assert.ok(
+    receipt.renderer.portraitUiChrome.uiChrome.backendProvenance.scrollWidth
+      <= receipt.renderer.portraitUiChrome.uiChrome.backendProvenance.clientWidth + 1,
+  );
+  assert.ok(
+    receipt.renderer.portraitUiChrome.uiChrome.backendProvenance.scrollHeight
+      <= receipt.renderer.portraitUiChrome.uiChrome.backendProvenance.clientHeight + 1,
+  );
   assert.equal(receipt.browser.gl.contextType, 'webgl2');
   assert.equal(receipt.browser.softwareFallback.detected, false);
   assert.notEqual(receipt.browser.backendObserved, 'unclassified WebGL backend');
@@ -316,6 +353,11 @@ try {
     ],
   );
   assert.ok(receipt.screenshots.every((capture) => capture.sha256 && capture.bytes > 25_000));
+  assert.equal(
+    receipt.screenshots.find((capture) => capture.id === 'hero-portrait')
+      .uiChrome.blockedLegend.visible,
+    true,
+  );
   assert.equal(screenshots.length, 4);
   assert.ok(screenshots.every((filePath) => existsSync(filePath)));
   assert.equal(existsSync(receiptPath), true);

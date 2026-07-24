@@ -35,8 +35,9 @@ run. A source file or parser success is not a behavioral result.
 | Register | Current statement |
 |---|---|
 | Observed | In the recorded source-contract check, the three canonical HoloScript sources parsed and two native headless materializations under the receipt's duration/tick settings produced equal canonical scene and pose/physics digests. Runtime statistics were outside that canonical projection. |
+| Observed | The `0.2.0` checker also parses a source-declared, one-tick captured fixture from the canonical `.hs` and `.hsplus` sources. A bounded HoloLand bridge executes three fixture schedule entries, materializes six identity-neutral observation envelopes, and seals two hash-chained action receipts with zero provider calls. It also proves that the three frozen adapter-assignment hashes remain outside this pre-inference canonical projection. This is fixture-replay and static noninterference evidence, not native `.hs` pipeline, `.hsplus` action, or post-inference outcome equivalence. |
 | Target | Locked model adapters drive six residents through identical, seeded village runs; every observation, model turn, action decision, mutation, rollback reference, and run summary is receipted. |
-| Gap | The current headless runtime does not execute `.hs` pipeline actions or `.hsplus` action entrypoints and does not expose ordered event payloads, per-step state snapshots, deterministic model sampling, or captured-response action replay. The visible `.holo` emergency stop currently emits a freeze request but is not yet bound to the `.hsplus` `freeze_run` gate. A trusted validator pin and an atomic receipt-to-mutation transaction are source contracts without observed runtime bindings. Challenge and metric schemas are not yet instantiated as a frozen Phase 1 manifest. |
+| Gap | The current native headless runtime still does not execute `.hs` pipeline actions or `.hsplus` action entrypoints and does not expose runtime-derived schedule, observation, receipt-ledger, ordered event-payload, or per-step state evidence. It also does not provide deterministic model sampling or captured-response action replay. The visible `.holo` emergency stop currently emits a freeze request but is not yet bound to the `.hsplus` `freeze_run` gate. A trusted validator pin and an atomic receipt-to-mutation transaction are source contracts without observed runtime bindings. Challenge and metric schemas are not yet instantiated as a frozen Phase 1 manifest. |
 | Forbidden claim | No emergence, model superiority, population effect, inference determinism, or completed scientific experiment may be claimed from this source-contract pilot. |
 
 ## Canonical three-format split
@@ -363,7 +364,7 @@ Before the twelve-run pilot, the runtime must pass a two-resident tracer:
 - One captured-response replay.
 - Equal ordered action decisions, post-state hashes, and receipt-chain root.
 
-The current `0.1.0` checker proves only:
+The current `0.2.0` checker proves:
 
 - All three source formats parse.
 - The native headless runtime materializes the village.
@@ -371,9 +372,26 @@ The current `0.1.0` checker proves only:
   native headless scene receipt.
 - Two headless materializations have equal canonical scene and pose/physics
   digests. Runtime statistics are not part of that projection.
+- The source-declared MV-P0 captured fixture executes through the bounded
+  HoloLand verification bridge: three schedule entries, six resident
+  observations, and two ordered action-fixture receipts produce one complete
+  seven-field hash boundary. The checker separately proves that the three
+  source-authored assignment vectors are distinct, balanced two-per-adapter,
+  counterbalanced A/B/C once per seat, and excluded by the exact pre-inference
+  resident-observation schema. It does not execute adapter permutations or
+  assert equal post-inference outcomes.
+- The read-only browser witness can consume all seven fields from that one
+  captured fixture. The physics side-effect sandwich leaves them unchanged,
+  but no isolated observer-projection off/on toggle is executed. Full MV-P0
+  therefore remains open.
+- The action root covers the two syntactically chained action-fixture receipts.
+  Denied fixtures must have no visible impact and must report
+  `blocked_without_world_mutation`; the referenced safety and action-decision
+  receipt IDs remain opaque and are not validated as typed receipts.
 - No model-turn or agent-action execution count is available because the
   current headless receipt has no ordered action trace. The checker makes zero
-  provider calls and claims no executed model turns or actions.
+  provider calls and claims no native `.hs` pipeline, `.hsplus` action, model
+  turn, or live experiment action execution.
 
 ## Runtime closure gates
 
@@ -393,14 +411,20 @@ The experiment cannot advance to live model turns until HoloScript exposes:
     exact predicates, formulas, and zero-denominator rules.
 
 These are language/runtime product gaps, not behavior to hide inside a
-JavaScript experiment runner.
+JavaScript experiment runner. The MV-P0 captured fixture is deliberately
+different: every schedule row, public snapshot, observation input, and action
+receipt input is HoloScript-authored, while the HoloLand bridge owns the
+bounded deterministic fixture projection, validation, canonicalization,
+hashing, and fail-closed receipt. It does not own live experiment behavior and
+is not a substitute for the runtime closure gates above.
 
 ## Phase gates
 
 ### Phase 0A - source-contract pilot
 
-Current phase. Parse three formats, materialize the world, verify canonical
-scene/pose projection equality, and emit a bounded capability receipt.
+Current phase. Parse three formats plus the source-bound observer composition,
+materialize the world, verify canonical scene/pose replay, execute the bounded
+captured fixture, and emit a claim-bound capability receipt.
 
 ### Phase 0B - deterministic engineering tracer
 

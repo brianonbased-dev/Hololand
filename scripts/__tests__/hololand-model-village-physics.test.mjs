@@ -37,7 +37,7 @@ const { receipt } = await runPhysicsCheck({
   canonicalBoundary: false,
 });
 
-assert.equal(receipt.schema, 'hololand.model-village.physics-witness.v0.1.0');
+assert.equal(receipt.schema, 'hololand.model-village.physics-witness.v0.2.0');
 assert.equal(receipt.status, 'pass');
 assert.ok(Object.values(receipt.assertions).every(Boolean));
 assert.ok(Object.values(receipt.sourceBoundary).every(Boolean));
@@ -124,6 +124,11 @@ assert.deepEqual(
 );
 assert.equal(receipt.canonicalBoundary.enabled, false);
 assert.equal(receipt.canonicalBoundary.observedBoundaryMatch, null);
+assert.equal(receipt.canonicalBoundary.projectionToggleExecuted, false);
+assert.equal(receipt.canonicalBoundary.fullMvP0ProjectionToggleClaimed, false);
+assert.equal(receipt.canonicalBoundary.observerBoundaryComparison, null);
+assert.equal(receipt.canonicalBoundary.fixtureBridgeFieldsAvailable.length, 3);
+assert.equal(receipt.canonicalBoundary.nativeHeadlessFieldsStillUnavailable.length, 3);
 assert.ok(receipt.toolchain.artifactHashes.runtime);
 assert.ok(receipt.toolchain.artifactHashes.engineSource);
 assert.equal(
@@ -245,6 +250,52 @@ try {
   const negativeReceipt = JSON.parse(readFileSync(negativeOutput, 'utf8'));
   assert.equal(negativeReceipt.status, 'fail');
   assert.equal(negativeReceipt.sourceBoundary.projectionAndManifestBodiesAgree, false);
+
+  const originalProjection = readFileSync(
+    path.join(repoRoot, sourcePaths[1]),
+    'utf8',
+  );
+  writeFileSync(
+    projectionPath,
+    originalProjection.replace(
+      /\n}\s*$/,
+      '\n  action write_canonical_state() {\n'
+        + '    emit("canonical_state_write")\n'
+        + '  }\n'
+        + '}\n',
+    ),
+    'utf8',
+  );
+  const capabilityNegativeOutput = path.join(
+    negativeRoot,
+    '.tmp',
+    'physics-capability-receipt.json',
+  );
+  await assert.rejects(
+    runPhysicsCheck({
+      root: negativeRoot,
+      holoScriptRoot,
+      output: capabilityNegativeOutput,
+      canonicalBoundary: false,
+    }),
+    /sourceBoundaryPasses/,
+  );
+  const capabilityNegativeReceipt = JSON.parse(
+    readFileSync(capabilityNegativeOutput, 'utf8'),
+  );
+  assert.equal(
+    capabilityNegativeReceipt.sourceBoundary
+      .parsedProjectionHasNoExecutableCapabilityOrDependencySurface,
+    false,
+  );
+  assert.equal(
+    capabilityNegativeReceipt.sourceBoundary.projectionCapabilityInspection.passed,
+    false,
+  );
+  assert.ok(
+    capabilityNegativeReceipt.sourceBoundary.projectionCapabilityInspection
+      .findings.length > 0,
+  );
 } finally {
   rmSync(negativeRoot, { recursive: true, force: true });
   rmSync(output, { force: true });

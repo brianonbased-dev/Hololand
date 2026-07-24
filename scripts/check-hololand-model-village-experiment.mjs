@@ -10,8 +10,10 @@ import {
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.1.0';
+const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.2.0';
 const WORLD_SOURCE = 'source/layers/vr/frontier/model-village/model-village.holo';
+const OBSERVER_PROJECTION_SOURCE =
+  'source/layers/vr/frontier/model-village/model-village-observer-projection.holo';
 const POLICY_SOURCE = 'source/domains/agents/model-village-experiment.hsplus';
 const KERNEL_SOURCE = 'source/proofs/model-village-trial-kernel.hs';
 const SPEC_SOURCE = 'docs/specs/HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md';
@@ -32,6 +34,33 @@ const EXPECTED_WORLD_OBJECT_IDS = [
   'IsolationBoundary',
   'EmergencyStop',
 ];
+export const REQUIRED_OBSERVER_BOUNDARY_FIELDS = [
+  'canonicalSceneHash',
+  'canonicalPoseHash',
+  'logicalClockHash',
+  'publicStateHash',
+  'executedScheduleHash',
+  'residentObservationHash',
+  'actionReceiptRoot',
+];
+const CANONICAL_SHA256_PATTERN = /^[a-f0-9]{64}$/;
+const OBSERVER_BOUNDARY_POLICY_FIELDS = [
+  'canonical_scene_hash',
+  'canonical_pose_hash',
+  'logical_clock_hash',
+  'public_state_hash',
+  'executed_schedule_hash',
+  'resident_observation_hash',
+  'action_receipt_root',
+];
+const OBSERVER_BOUNDARY_TYPES = {
+  manifest: 'observer_boundary_fixture_manifest',
+  publicState: 'observer_boundary_public_state_fixture',
+  observation: 'observer_boundary_observation_fixture',
+  actionReceipt: 'observer_boundary_action_receipt_fixture',
+  scheduleEntry: 'observer_boundary_schedule_entry',
+  assignmentMatrix: 'frozen_assignment_matrix',
+};
 
 const FORMAT_BY_EXTENSION = {
   '.holo': '.holo',
@@ -153,6 +182,71 @@ function canonicalJson(value) {
   return JSON.stringify(canonicalize(value));
 }
 
+function canonicalDigest(value) {
+  return sha256(canonicalJson(value));
+}
+
+export function validateObserverBoundaryFields(fields) {
+  const missingFields = REQUIRED_OBSERVER_BOUNDARY_FIELDS.filter(
+    (field) => typeof fields?.[field] !== 'string',
+  );
+  const invalidFields = REQUIRED_OBSERVER_BOUNDARY_FIELDS.filter(
+    (field) => (
+      typeof fields?.[field] === 'string'
+      && !CANONICAL_SHA256_PATTERN.test(fields[field])
+    ),
+  );
+  return {
+    passed: missingFields.length === 0 && invalidFields.length === 0,
+    requiredFields: REQUIRED_OBSERVER_BOUNDARY_FIELDS,
+    hashEncoding: 'lowercase_sha256_hex',
+    missingFields,
+    invalidFields,
+  };
+}
+
+export function compareObserverBoundaryFields(before, after) {
+  const beforeValidation = validateObserverBoundaryFields(before);
+  const afterValidation = validateObserverBoundaryFields(after);
+  const changedFields = REQUIRED_OBSERVER_BOUNDARY_FIELDS.filter(
+    (field) => before?.[field] !== after?.[field],
+  );
+  return {
+    passed:
+      beforeValidation.passed
+      && afterValidation.passed
+      && changedFields.length === 0,
+    requiredFields: REQUIRED_OBSERVER_BOUNDARY_FIELDS,
+    hashEncoding: 'lowercase_sha256_hex',
+    missingBefore: beforeValidation.missingFields,
+    missingAfter: afterValidation.missingFields,
+    invalidBefore: beforeValidation.invalidFields,
+    invalidAfter: afterValidation.invalidFields,
+    changedFields,
+  };
+}
+
+function unsignedReceipt(value) {
+  const { receipt: _receipt, ...unsigned } = value || {};
+  return unsigned;
+}
+
+export function verifyObserverBoundaryFixtureReceipt(fixture) {
+  return Boolean(
+    fixture?.receipt?.receiptHash
+    && CANONICAL_SHA256_PATTERN.test(fixture.receipt.receiptHash)
+    && fixture.receipt.receiptHash === canonicalDigest(unsignedReceipt(fixture)),
+  );
+}
+
+export function verifyModelVillageReceiptHash(receipt) {
+  return Boolean(
+    receipt?.receipt?.receiptHash
+    && CANONICAL_SHA256_PATTERN.test(receipt.receipt.receiptHash)
+    && receipt.receipt.receiptHash === canonicalDigest(unsignedReceipt(receipt)),
+  );
+}
+
 function includesAll(text, snippets) {
   return snippets.every((snippet) => text.includes(snippet));
 }
@@ -234,6 +328,27 @@ function findHoloScriptCli(root) {
   }
 
   return null;
+}
+
+async function loadHoloScriptCore(holoScript) {
+  const corePath = path.join(holoScript.root, 'packages', 'core', 'dist', 'index.js');
+  if (!existsSync(corePath)) {
+    throw new Error(`Built HoloScript core not found: ${corePath}`);
+  }
+  const core = await import(pathToFileURL(corePath).href);
+  if (
+    typeof core.HoloScriptCodeParser !== 'function'
+    || typeof core.HoloScriptPlusParser !== 'function'
+  ) {
+    throw new Error(
+      'Built HoloScript core does not expose HoloScriptCodeParser and HoloScriptPlusParser',
+    );
+  }
+  return {
+    core,
+    corePath,
+    coreSha256: sha256(readFileSync(corePath)),
+  };
 }
 
 export function validateHeadlessReceipt(receipt) {
@@ -384,6 +499,818 @@ function canonicalHeadlessProjection(run) {
   });
 }
 
+function requireExactProperties(properties, expectedKeys, label) {
+  const observed = Object.keys(properties || {}).sort();
+  const expected = [...expectedKeys].sort();
+  if (canonicalJson(observed) !== canonicalJson(expected)) {
+    const missing = expected.filter((key) => !observed.includes(key));
+    const unexpected = observed.filter((key) => !expected.includes(key));
+    throw new Error(
+      `${label} fields differ; missing=${canonicalJson(missing)} unexpected=${canonicalJson(unexpected)}`,
+    );
+  }
+}
+
+function requireUniqueOrderedIds(order, expectedCount, label) {
+  if (!Array.isArray(order) || order.length !== expectedCount) {
+    throw new Error(`${label} must contain exactly ${expectedCount} IDs`);
+  }
+  if (new Set(order).size !== order.length) {
+    throw new Error(`${label} must contain unique IDs`);
+  }
+}
+
+function indexFixtureNodes(nodes, type, idField) {
+  const matching = nodes.filter((node) => node.properties?.type === type);
+  const index = new Map();
+  for (const node of matching) {
+    const id = node.properties?.[idField];
+    if (typeof id !== 'string' || !id) {
+      throw new Error(`${type} is missing ${idField}`);
+    }
+    if (index.has(id)) throw new Error(`${type} duplicates ${idField}=${id}`);
+    index.set(id, node.properties);
+  }
+  return index;
+}
+
+function orderedFixtures(order, index, label) {
+  return order.map((id) => {
+    const fixture = index.get(id);
+    if (!fixture) throw new Error(`${label} references missing fixture ${id}`);
+    return fixture;
+  });
+}
+
+function publicStateProjection(fixture) {
+  return {
+    snapshot_id: fixture.snapshotId,
+    sequence: fixture.sequence,
+    logical_tick: fixture.logicalTick,
+    location: fixture.location,
+    public_event_ids: fixture.publicEventIds,
+    public_resource: {
+      id: fixture.publicResourceId,
+      units: fixture.publicResourceUnits,
+    },
+    public_norm_ids: fixture.publicNormIds,
+  };
+}
+
+function parseObserverBoundarySources(core, kernelSource, policySource) {
+  const kernelResult = new core.HoloScriptCodeParser().parse(kernelSource);
+  const policyResult = new core.HoloScriptPlusParser().parse(policySource);
+  if (!kernelResult.success || !policyResult.success) {
+    throw new Error(
+      `Observer boundary sources failed structured parsing: ${canonicalJson({
+        kernel: kernelResult.errors || [],
+        policy: policyResult.errors || [],
+      })}`,
+    );
+  }
+  const policyComposition = policyResult.ast.children.find(
+    (node) => node.type === 'composition',
+  );
+  const boundaryContract = (policyComposition?.children || []).find(
+    (node) => node.type === 'template' && node.name === 'ObserverBoundaryFixtureReceipt',
+  );
+  if (!boundaryContract) {
+    throw new Error('ObserverBoundaryFixtureReceipt is missing from the .hsplus policy');
+  }
+  return {
+    kernelNodes: kernelResult.ast,
+    boundaryContract: boundaryContract.properties,
+    parseSummary: {
+      kernel: 'HoloScriptCodeParser',
+      policy: 'HoloScriptPlusParser',
+    },
+  };
+}
+
+function executeObserverBoundaryFixtureCore({
+  kernelNodes,
+  boundaryContract,
+  headlessReceipt,
+}) {
+  if (
+    !headlessReceipt
+    || !headlessReceipt.scene
+    || typeof headlessReceipt.scene !== 'object'
+    || !headlessReceipt.posePhysics
+    || typeof headlessReceipt.posePhysics !== 'object'
+  ) {
+    throw new Error(
+      'Observer boundary fixture requires available native headless scene and posePhysics receipts',
+    );
+  }
+  const manifestNodes = kernelNodes.filter(
+    (node) => node.properties?.type === OBSERVER_BOUNDARY_TYPES.manifest,
+  );
+  if (manifestNodes.length !== 1) {
+    throw new Error('Exactly one observer boundary fixture manifest is required');
+  }
+  const manifest = manifestNodes[0].properties;
+  requireExactProperties(manifest, [
+    'type',
+    'fixtureId',
+    'runId',
+    'executionMode',
+    'parser',
+    'providerCallsAllowed',
+    'nativeHsPipelineExecutionClaimed',
+    'nativeHsplusActionExecutionClaimed',
+    'observerProjectionMayWrite',
+    'logicalClockStartTick',
+    'logicalClockEndTick',
+    'logicalClockStep',
+    'initialPublicStateSnapshotId',
+    'finalPublicStateSnapshotId',
+    'initialPublicStateSequence',
+    'finalPublicStateSequence',
+    'scheduleOrder',
+    'observationOrder',
+    'actionReceiptOrder',
+    'adapterPermutationOrder',
+    'expectedScheduleEntryCount',
+    'expectedObservationCount',
+    'expectedActionReceiptCount',
+    'expectedAdapterPermutationCount',
+    'hashAlgorithm',
+    'actionReceiptChainMode',
+    'initialActionReceiptRoot',
+  ], 'observer boundary manifest');
+  if (
+    manifest.executionMode !== 'captured_fixture_replay'
+    || manifest.parser !== 'HoloScriptCodeParser'
+    || manifest.providerCallsAllowed !== false
+    || manifest.nativeHsPipelineExecutionClaimed !== false
+    || manifest.nativeHsplusActionExecutionClaimed !== false
+    || manifest.observerProjectionMayWrite !== false
+    || manifest.hashAlgorithm !== 'sha256_canonical_json'
+    || manifest.actionReceiptChainMode !== 'sha256_canonical_receipt_with_prior_hash'
+    || !/^0{64}$/.test(manifest.initialActionReceiptRoot)
+  ) {
+    throw new Error('Observer boundary manifest exceeds the bounded fixture claim');
+  }
+  if (
+    !Number.isInteger(manifest.logicalClockStartTick)
+    || !Number.isInteger(manifest.logicalClockEndTick)
+    || !Number.isInteger(manifest.logicalClockStep)
+    || !Number.isInteger(manifest.initialPublicStateSequence)
+    || !Number.isInteger(manifest.finalPublicStateSequence)
+    || manifest.logicalClockStep <= 0
+    || manifest.logicalClockEndTick < manifest.logicalClockStartTick
+    || (manifest.logicalClockEndTick - manifest.logicalClockStartTick)
+      % manifest.logicalClockStep !== 0
+    || manifest.finalPublicStateSequence !== manifest.initialPublicStateSequence + 1
+  ) {
+    throw new Error('Observer boundary logical clock is invalid');
+  }
+
+  requireExactProperties(boundaryContract, [
+    'type',
+    'executionMode',
+    'requiredHashFields',
+    'projectionToggleMustPreserve',
+    'adapterPermutationMustPreserve',
+    'residentObservationForbiddenFields',
+    'providerCallsAllowed',
+    'nativeHsPipelineExecutionClaimed',
+    'nativeHsplusActionExecutionClaimed',
+    'projectionMayWriteCanonicalState',
+  ], 'ObserverBoundaryFixtureReceipt');
+  for (const field of [
+    'requiredHashFields',
+    'projectionToggleMustPreserve',
+    'adapterPermutationMustPreserve',
+  ]) {
+    if (canonicalJson(boundaryContract[field]) !== canonicalJson(OBSERVER_BOUNDARY_POLICY_FIELDS)) {
+      throw new Error(`ObserverBoundaryFixtureReceipt ${field} is incomplete or reordered`);
+    }
+  }
+  if (
+    boundaryContract.executionMode !== manifest.executionMode
+    || boundaryContract.providerCallsAllowed !== false
+    || boundaryContract.nativeHsPipelineExecutionClaimed !== false
+    || boundaryContract.nativeHsplusActionExecutionClaimed !== false
+    || boundaryContract.projectionMayWriteCanonicalState !== false
+  ) {
+    throw new Error('ObserverBoundaryFixtureReceipt does not preserve the fixture-only claim');
+  }
+
+  requireUniqueOrderedIds(
+    manifest.scheduleOrder,
+    manifest.expectedScheduleEntryCount,
+    'scheduleOrder',
+  );
+  requireUniqueOrderedIds(
+    manifest.observationOrder,
+    manifest.expectedObservationCount,
+    'observationOrder',
+  );
+  requireUniqueOrderedIds(
+    manifest.actionReceiptOrder,
+    manifest.expectedActionReceiptCount,
+    'actionReceiptOrder',
+  );
+  requireUniqueOrderedIds(
+    manifest.adapterPermutationOrder,
+    manifest.expectedAdapterPermutationCount,
+    'adapterPermutationOrder',
+  );
+
+  const publicStates = indexFixtureNodes(
+    kernelNodes,
+    OBSERVER_BOUNDARY_TYPES.publicState,
+    'snapshotId',
+  );
+  const observations = indexFixtureNodes(
+    kernelNodes,
+    OBSERVER_BOUNDARY_TYPES.observation,
+    'observationId',
+  );
+  const actionReceipts = indexFixtureNodes(
+    kernelNodes,
+    OBSERVER_BOUNDARY_TYPES.actionReceipt,
+    'receiptId',
+  );
+  const scheduleEntries = indexFixtureNodes(
+    kernelNodes,
+    OBSERVER_BOUNDARY_TYPES.scheduleEntry,
+    'scheduleEntryId',
+  );
+  const orderedObservations = orderedFixtures(
+    manifest.observationOrder,
+    observations,
+    'observationOrder',
+  );
+  const orderedActionFixtures = orderedFixtures(
+    manifest.actionReceiptOrder,
+    actionReceipts,
+    'actionReceiptOrder',
+  );
+  const orderedSchedule = orderedFixtures(
+    manifest.scheduleOrder,
+    scheduleEntries,
+    'scheduleOrder',
+  );
+  if (
+    publicStates.size !== 2
+    || observations.size !== manifest.expectedObservationCount
+    || actionReceipts.size !== manifest.expectedActionReceiptCount
+    || scheduleEntries.size !== manifest.expectedScheduleEntryCount
+  ) {
+    throw new Error('Observer boundary fixture contains unreferenced or missing typed nodes');
+  }
+
+  const publicStateFields = [
+    'type',
+    'snapshotId',
+    'sequence',
+    'logicalTick',
+    'location',
+    'publicEventIds',
+    'publicResourceId',
+    'publicResourceUnits',
+    'publicNormIds',
+  ];
+  for (const [snapshotId, fixture] of publicStates) {
+    requireExactProperties(fixture, publicStateFields, `public state ${snapshotId}`);
+    if (
+      !Number.isInteger(fixture.sequence)
+      || !Number.isInteger(fixture.logicalTick)
+      || !Number.isFinite(fixture.publicResourceUnits)
+      || !Array.isArray(fixture.publicEventIds)
+      || !Array.isArray(fixture.publicNormIds)
+    ) {
+      throw new Error(`Public state ${snapshotId} is malformed`);
+    }
+  }
+  if (
+    !publicStates.has(manifest.initialPublicStateSnapshotId)
+    || !publicStates.has(manifest.finalPublicStateSnapshotId)
+  ) {
+    throw new Error('Observer boundary manifest references a missing public state');
+  }
+  const initialPublicState = publicStates.get(manifest.initialPublicStateSnapshotId);
+  const finalPublicState = publicStates.get(manifest.finalPublicStateSnapshotId);
+  if (
+    manifest.initialPublicStateSnapshotId === manifest.finalPublicStateSnapshotId
+    || initialPublicState.sequence !== manifest.initialPublicStateSequence
+    || finalPublicState.sequence !== manifest.finalPublicStateSequence
+    || initialPublicState.logicalTick !== manifest.logicalClockStartTick
+    || finalPublicState.logicalTick !== manifest.logicalClockEndTick
+  ) {
+    throw new Error(
+      'Observer boundary initial/final public-state sequence and clock do not match the manifest',
+    );
+  }
+
+  const observationFields = [
+    'type',
+    'observationId',
+    'order',
+    'runId',
+    'tick',
+    'residentId',
+    'location',
+    'visibleEventIds',
+    'publicStateSnapshotId',
+    'boundedMemoryIds',
+    'peerPrivateMemoryIncluded',
+    'sealedModelIdentityIncluded',
+    'observerProjectionIncluded',
+  ];
+  const forbiddenObservationFields = boundaryContract.residentObservationForbiddenFields || [];
+  const residentIds = new Set();
+  for (let index = 0; index < orderedObservations.length; index += 1) {
+    const fixture = orderedObservations[index];
+    requireExactProperties(
+      fixture,
+      observationFields,
+      `observation ${fixture.observationId}`,
+    );
+    const publicState = publicStates.get(fixture.publicStateSnapshotId);
+    if (
+      fixture.order !== index + 1
+      || fixture.runId !== manifest.runId
+      || fixture.publicStateSnapshotId !== manifest.initialPublicStateSnapshotId
+      || !publicState
+      || fixture.tick !== publicState.logicalTick
+      || fixture.peerPrivateMemoryIncluded !== false
+      || fixture.sealedModelIdentityIncluded !== false
+      || fixture.observerProjectionIncluded !== false
+      || !Array.isArray(fixture.visibleEventIds)
+      || !Array.isArray(fixture.boundedMemoryIds)
+      || !fixture.visibleEventIds.every((eventId) => publicState.publicEventIds.includes(eventId))
+      || forbiddenObservationFields.some((field) => Object.hasOwn(fixture, field))
+    ) {
+      throw new Error(`Observation ${fixture.observationId} violates the resident boundary`);
+    }
+    if (residentIds.has(fixture.residentId)) {
+      throw new Error(`Resident ${fixture.residentId} has duplicate observations`);
+    }
+    residentIds.add(fixture.residentId);
+  }
+  if (residentIds.size !== 6) {
+    throw new Error('Observer boundary fixture must contain six unique resident observations');
+  }
+
+  const actionReceiptFields = [
+    'type',
+    'receiptId',
+    'sequence',
+    'runId',
+    'tick',
+    'residentId',
+    'proposal',
+    'turnOpportunityId',
+    'authorizationNonce',
+    'authorizationSequence',
+    'safetyReceiptId',
+    'actionDecisionReceiptId',
+    'admissionDecision',
+    'action',
+    'target',
+    'outcome',
+    'rejectionReason',
+    'preStateSnapshotId',
+    'postStateSnapshotId',
+    'rollbackReference',
+    'playerVisibleImpact',
+    'allowed',
+  ];
+  const uniqueActionIdentityFields = [
+    'authorizationNonce',
+    'turnOpportunityId',
+    'safetyReceiptId',
+    'actionDecisionReceiptId',
+  ];
+  const seenActionIdentityValues = Object.fromEntries(
+    uniqueActionIdentityFields.map((field) => [field, new Set()]),
+  );
+  for (let index = 0; index < orderedActionFixtures.length; index += 1) {
+    const fixture = orderedActionFixtures[index];
+    requireExactProperties(
+      fixture,
+      actionReceiptFields,
+      `action receipt fixture ${fixture.receiptId}`,
+    );
+    const preState = publicStates.get(fixture.preStateSnapshotId);
+    const postState = publicStates.get(fixture.postStateSnapshotId);
+    if (
+      fixture.sequence !== index + 1
+      || fixture.authorizationSequence !== fixture.sequence
+      || fixture.runId !== manifest.runId
+      || !preState
+      || !postState
+      || fixture.rollbackReference !== fixture.preStateSnapshotId
+      || fixture.tick !== postState.logicalTick
+      || preState.logicalTick > fixture.tick
+      || !['allow', 'deny'].includes(fixture.admissionDecision)
+      || fixture.allowed !== (fixture.admissionDecision === 'allow')
+      || (fixture.allowed && fixture.rejectionReason !== '')
+      || (!fixture.allowed && !fixture.rejectionReason)
+      || (fixture.allowed && (
+        fixture.postStateSnapshotId === fixture.preStateSnapshotId
+        || postState.sequence !== preState.sequence + 1
+        || fixture.playerVisibleImpact !== true
+        || !fixture.outcome
+        || fixture.outcome === 'blocked_without_world_mutation'
+      ))
+      || (!fixture.allowed && (
+        fixture.postStateSnapshotId !== fixture.preStateSnapshotId
+        || postState.sequence !== preState.sequence
+        || fixture.playerVisibleImpact !== false
+        || fixture.outcome !== 'blocked_without_world_mutation'
+      ))
+    ) {
+      throw new Error(`Action receipt fixture ${fixture.receiptId} is malformed`);
+    }
+    for (const field of uniqueActionIdentityFields) {
+      if (
+        typeof fixture[field] !== 'string'
+        || !fixture[field]
+        || seenActionIdentityValues[field].has(fixture[field])
+      ) {
+        throw new Error(
+          `Action receipt fixture ${fixture.receiptId} duplicates or omits ${field}`,
+        );
+      }
+      seenActionIdentityValues[field].add(fixture[field]);
+    }
+  }
+
+  const scheduleFields = [
+    'type',
+    'scheduleEntryId',
+    'order',
+    'tick',
+    'phase',
+    'operation',
+    'targetIds',
+    'barrierId',
+  ];
+  const phaseByOperation = {
+    project_resident_observations: 'observation_barrier',
+    seal_action_receipt: 'action_admission',
+  };
+  let previousScheduleTick = null;
+  for (let index = 0; index < orderedSchedule.length; index += 1) {
+    const fixture = orderedSchedule[index];
+    requireExactProperties(
+      fixture,
+      scheduleFields,
+      `schedule entry ${fixture.scheduleEntryId}`,
+    );
+    if (
+      fixture.order !== index + 1
+      || !Number.isInteger(fixture.tick)
+      || fixture.tick < manifest.logicalClockStartTick
+      || fixture.tick > manifest.logicalClockEndTick
+      || (fixture.tick - manifest.logicalClockStartTick) % manifest.logicalClockStep !== 0
+      || (previousScheduleTick !== null && fixture.tick < previousScheduleTick)
+      || !Array.isArray(fixture.targetIds)
+      || fixture.targetIds.length === 0
+      || !['project_resident_observations', 'seal_action_receipt'].includes(fixture.operation)
+      || fixture.phase !== phaseByOperation[fixture.operation]
+    ) {
+      throw new Error(`Schedule entry ${fixture.scheduleEntryId} is malformed`);
+    }
+    previousScheduleTick = fixture.tick;
+  }
+
+  const assignmentNodes = kernelNodes.filter(
+    (node) => node.properties?.type === OBSERVER_BOUNDARY_TYPES.assignmentMatrix,
+  );
+  if (assignmentNodes.length !== 1) {
+    throw new Error('Exactly one frozen assignment matrix is required');
+  }
+  const assignmentMatrix = assignmentNodes[0].properties;
+  const adapterAssignments = manifest.adapterPermutationOrder.map((permutationId) => {
+    const assignment = assignmentMatrix[permutationId];
+    if (
+      !Array.isArray(assignment)
+      || assignment.length !== 6
+      || !['adapter_a', 'adapter_b', 'adapter_c'].every(
+        (adapter) => assignment.filter((entry) => entry === adapter).length === 2,
+      )
+    ) {
+      throw new Error(`Adapter permutation ${permutationId} is not a balanced six-seat assignment`);
+    }
+    return {
+      permutationId,
+      assignmentHash: canonicalDigest(assignment),
+      assignment,
+    };
+  });
+  if (
+    new Set(adapterAssignments.map((entry) => canonicalJson(entry.assignment))).size
+      !== adapterAssignments.length
+  ) {
+    throw new Error('Adapter permutations must contain distinct assignment vectors');
+  }
+  for (let seatIndex = 0; seatIndex < 6; seatIndex += 1) {
+    const seatAdapters = adapterAssignments.map((entry) => entry.assignment[seatIndex]);
+    if (
+      new Set(seatAdapters).size !== 3
+      || !['adapter_a', 'adapter_b', 'adapter_c'].every(
+        (adapter) => seatAdapters.includes(adapter),
+      )
+    ) {
+      throw new Error(
+        `Adapter permutations do not counterbalance seat ${seatIndex + 1}`,
+      );
+    }
+  }
+
+  const publicStateProjections = new Map(
+    [...publicStates.entries()].map(([id, fixture]) => [id, publicStateProjection(fixture)]),
+  );
+  const publicStateHashes = new Map(
+    [...publicStateProjections.entries()].map(([id, projection]) => [
+      id,
+      canonicalDigest(projection),
+    ]),
+  );
+  const computedObservations = new Map();
+  const computedActionReceipts = new Map();
+  const executedSchedule = [];
+  const executedTicks = new Set();
+  const seenObservationIds = new Set();
+  const seenReceiptIds = new Set();
+  let currentPublicStateId = manifest.initialPublicStateSnapshotId;
+  let actionReceiptRoot = manifest.initialActionReceiptRoot;
+
+  for (const entry of orderedSchedule) {
+    executedTicks.add(entry.tick);
+    const outcomeHashes = [];
+    if (entry.operation === 'project_resident_observations') {
+      if (canonicalJson(entry.targetIds) !== canonicalJson(manifest.observationOrder)) {
+        throw new Error('Observation barrier must project the complete ordered resident set');
+      }
+      for (const observationId of entry.targetIds) {
+        if (seenObservationIds.has(observationId)) {
+          throw new Error(`Observation ${observationId} was projected more than once`);
+        }
+        const fixture = observations.get(observationId);
+        if (
+          !fixture
+          || fixture.tick !== entry.tick
+          || fixture.publicStateSnapshotId !== currentPublicStateId
+        ) {
+          throw new Error(`Schedule cannot project observation ${observationId}`);
+        }
+        const envelope = {
+          run_id: fixture.runId,
+          tick: fixture.tick,
+          resident_id: fixture.residentId,
+          location: fixture.location,
+          visible_event_ids: fixture.visibleEventIds,
+          public_state_hash: publicStateHashes.get(fixture.publicStateSnapshotId),
+          bounded_memory_hash: canonicalDigest(fixture.boundedMemoryIds),
+        };
+        const computed = {
+          ...envelope,
+          observation_hash: canonicalDigest(envelope),
+        };
+        computedObservations.set(observationId, computed);
+        seenObservationIds.add(observationId);
+        outcomeHashes.push(computed.observation_hash);
+      }
+    } else if (entry.operation === 'seal_action_receipt') {
+      if (entry.targetIds.length !== 1) {
+        throw new Error('Each action-admission schedule entry must seal exactly one receipt');
+      }
+      const receiptId = entry.targetIds[0];
+      const fixture = actionReceipts.get(receiptId);
+      if (
+        !fixture
+        || fixture.tick !== entry.tick
+        || fixture.preStateSnapshotId !== currentPublicStateId
+        || seenReceiptIds.has(receiptId)
+      ) {
+        throw new Error(`Schedule cannot seal action receipt ${receiptId}`);
+      }
+      const receipt = {
+        receipt_id: fixture.receiptId,
+        run_id: fixture.runId,
+        tick: fixture.tick,
+        resident_id: fixture.residentId,
+        proposal: fixture.proposal,
+        proposal_hash: sha256(fixture.proposal),
+        turn_opportunity_id: fixture.turnOpportunityId,
+        authorization_nonce: fixture.authorizationNonce,
+        authorization_sequence: fixture.authorizationSequence,
+        safety_receipt_id: fixture.safetyReceiptId,
+        action_decision_receipt_id: fixture.actionDecisionReceiptId,
+        admission_decision: fixture.admissionDecision,
+        action: fixture.action,
+        target: fixture.target,
+        outcome: fixture.outcome,
+        rejection_reason: fixture.rejectionReason,
+        pre_state_hash: publicStateHashes.get(fixture.preStateSnapshotId),
+        post_state_hash: publicStateHashes.get(fixture.postStateSnapshotId),
+        rollback_reference: fixture.rollbackReference,
+        player_visible_impact: fixture.playerVisibleImpact,
+        prior_receipt_hash: actionReceiptRoot,
+        allowed: fixture.allowed,
+      };
+      const receiptHash = canonicalDigest(receipt);
+      computedActionReceipts.set(receiptId, { ...receipt, receipt_hash: receiptHash });
+      seenReceiptIds.add(receiptId);
+      actionReceiptRoot = receiptHash;
+      currentPublicStateId = fixture.postStateSnapshotId;
+      outcomeHashes.push(receiptHash);
+    }
+    executedSchedule.push({
+      schedule_entry_id: entry.scheduleEntryId,
+      order: entry.order,
+      tick: entry.tick,
+      phase: entry.phase,
+      operation: entry.operation,
+      target_ids: entry.targetIds,
+      barrier_id: entry.barrierId,
+      outcome_hashes: outcomeHashes,
+    });
+  }
+
+  if (
+    seenObservationIds.size !== manifest.expectedObservationCount
+    || seenReceiptIds.size !== manifest.expectedActionReceiptCount
+    || currentPublicStateId !== manifest.finalPublicStateSnapshotId
+  ) {
+    throw new Error('Observer boundary fixture execution did not reach its sealed final state');
+  }
+  const logicalClock = {
+    start_tick: manifest.logicalClockStartTick,
+    end_tick: manifest.logicalClockEndTick,
+    step: manifest.logicalClockStep,
+    executed_ticks: [...executedTicks].sort((a, b) => a - b),
+  };
+  const expectedExecutedTicks = [];
+  for (
+    let tick = manifest.logicalClockStartTick;
+    tick <= manifest.logicalClockEndTick;
+    tick += manifest.logicalClockStep
+  ) {
+    expectedExecutedTicks.push(tick);
+  }
+  if (
+    canonicalJson(logicalClock.executed_ticks) !== canonicalJson(expectedExecutedTicks)
+    || finalPublicState.logicalTick !== logicalClock.end_tick
+    || finalPublicState.sequence !== manifest.finalPublicStateSequence
+  ) {
+    throw new Error(
+      'Observer boundary executed clock coverage and final public state do not align',
+    );
+  }
+  const residentObservationEnvelopes = manifest.observationOrder.map(
+    (id) => computedObservations.get(id),
+  );
+  const orderedComputedActionReceipts = manifest.actionReceiptOrder.map(
+    (id) => computedActionReceipts.get(id),
+  );
+  const canonicalFields = {
+    canonicalSceneHash: canonicalDigest(headlessReceipt.scene),
+    canonicalPoseHash: canonicalDigest(headlessReceipt.posePhysics),
+    logicalClockHash: canonicalDigest(logicalClock),
+    publicStateHash: publicStateHashes.get(manifest.finalPublicStateSnapshotId),
+    executedScheduleHash: canonicalDigest(executedSchedule),
+    residentObservationHash: canonicalDigest(residentObservationEnvelopes),
+    actionReceiptRoot,
+  };
+  const fieldValidation = validateObserverBoundaryFields(canonicalFields);
+  if (!fieldValidation.passed) {
+    throw new Error(`Observer boundary fields are invalid: ${canonicalJson(fieldValidation)}`);
+  }
+  const adapterAssignmentExclusion = {
+    status: 'pass',
+    method: 'static_pre_inference_schema_and_dependency_exclusion',
+    assignmentHashes: adapterAssignments.map(({ assignment: _assignment, ...entry }) => entry),
+    forbiddenResidentObservationFields: boundaryContract.residentObservationForbiddenFields,
+    residentObservationExactSchemaEnforced: true,
+    assignmentEntersCanonicalProjection: false,
+    postInferenceOutcomeEquivalenceClaimed: false,
+  };
+
+  return {
+    schema: 'hololand.model-village-observer-boundary-fixture.v1',
+    status: 'pass',
+    fixtureId: manifest.fixtureId,
+    runId: manifest.runId,
+    executionMode: manifest.executionMode,
+    sourceAuthority: {
+      kernel: KERNEL_SOURCE,
+      policy: POLICY_SOURCE,
+      parser: 'HoloScriptCodeParser',
+      bridgeMayValidateAndReceipt: true,
+      fixtureInputsOwnedByHoloScript: true,
+      bridgeOwnsDeterministicFixtureProjection: true,
+      bridgeOwnsExperimentBehavior: false,
+    },
+    claimBoundary: {
+      capturedFixtureReplayExecuted: true,
+      nativeHsPipelineExecutionClaimed: false,
+      nativeHsplusActionExecutionClaimed: false,
+      liveModelTurnsClaimed: false,
+      providerCallsMade: 0,
+      projectionToggleExecuted: false,
+      adapterPermutationExecutionClaimed: false,
+      referencedSafetyDecisionReceiptsValidated: false,
+      actionReceiptRootScope: 'syntactically_chained_action_fixture_receipts_only',
+    },
+    canonicalFields,
+    fieldValidation,
+    adapterAssignmentExclusion,
+    logicalClock,
+    publicStateSnapshots: [...publicStateProjections.values()],
+    executedSchedule,
+    residentObservations: residentObservationEnvelopes,
+    actionReceipts: orderedComputedActionReceipts,
+  };
+}
+
+export function executeObserverBoundaryFixture({
+  core,
+  kernelSource,
+  policySource,
+  headlessReceipt,
+}) {
+  const parsed = parseObserverBoundarySources(core, kernelSource, policySource);
+  const unsignedFixture = {
+    ...executeObserverBoundaryFixtureCore({
+      kernelNodes: parsed.kernelNodes,
+      boundaryContract: parsed.boundaryContract,
+      headlessReceipt,
+    }),
+    parseSummary: parsed.parseSummary,
+  };
+  return {
+    ...unsignedFixture,
+    receipt: {
+      receiptHash: canonicalDigest(unsignedFixture),
+    },
+  };
+}
+
+function failedObserverBoundaryFixture(error) {
+  const canonicalFields = Object.fromEntries(
+    REQUIRED_OBSERVER_BOUNDARY_FIELDS.map((field) => [field, null]),
+  );
+  const unsignedFixture = {
+    schema: 'hololand.model-village-observer-boundary-fixture.v1',
+    status: 'fail',
+    error: {
+      name: error?.name || 'Error',
+      message: error?.message || String(error),
+    },
+    sourceAuthority: {
+      kernel: KERNEL_SOURCE,
+      policy: POLICY_SOURCE,
+      parser: 'HoloScriptCodeParser',
+      bridgeMayValidateAndReceipt: true,
+      fixtureInputsOwnedByHoloScript: true,
+      bridgeOwnsDeterministicFixtureProjection: true,
+      bridgeOwnsExperimentBehavior: false,
+    },
+    claimBoundary: {
+      capturedFixtureReplayExecuted: false,
+      nativeHsPipelineExecutionClaimed: false,
+      nativeHsplusActionExecutionClaimed: false,
+      liveModelTurnsClaimed: false,
+      providerCallsMade: 0,
+      projectionToggleExecuted: false,
+      adapterPermutationExecutionClaimed: false,
+      referencedSafetyDecisionReceiptsValidated: false,
+      actionReceiptRootScope: 'syntactically_chained_action_fixture_receipts_only',
+    },
+    canonicalFields,
+    fieldValidation: validateObserverBoundaryFields(canonicalFields),
+    adapterAssignmentExclusion: {
+      status: 'not_evaluated',
+      method: 'static_pre_inference_schema_and_dependency_exclusion',
+      assignmentHashes: [],
+      forbiddenResidentObservationFields: [],
+      residentObservationExactSchemaEnforced: false,
+      assignmentEntersCanonicalProjection: false,
+      postInferenceOutcomeEquivalenceClaimed: false,
+    },
+    logicalClock: null,
+    publicStateSnapshots: [],
+    executedSchedule: [],
+    residentObservations: [],
+    actionReceipts: [],
+    parseSummary: null,
+  };
+  return {
+    ...unsignedFixture,
+    receipt: {
+      receiptHash: canonicalDigest(unsignedFixture),
+    },
+  };
+}
+
 function buildSemanticIr(texts) {
   return {
     world: {
@@ -395,6 +1322,20 @@ function buildSemanticIr(texts) {
       actions: uniqueMatches(texts.worldCode, /^\s*action\s+([A-Za-z0-9_]+)/gm),
       emits: uniqueMatches(texts.worldCode, /emit\("([^"]+)"/g),
       sourceHash: sha256(normalizeSource(texts.world)),
+    },
+    observerProjection: {
+      source: OBSERVER_PROJECTION_SOURCE,
+      composition:
+        uniqueMatches(
+          texts.observerProjectionCode,
+          /composition\s+"([^"]+)"/g,
+        )[0] || '',
+      actions: uniqueMatches(
+        texts.observerProjectionCode,
+        /^\s*action\s+([A-Za-z0-9_]+)/gm,
+      ),
+      emits: uniqueMatches(texts.observerProjectionCode, /emit\("([^"]+)"/g),
+      sourceHash: sha256(normalizeSource(texts.observerProjection)),
     },
     policy: {
       source: POLICY_SOURCE,
@@ -446,9 +1387,11 @@ function buildAssertions({
   texts,
   semanticIr,
   parsers,
+  observerProjectionParser,
   headlessRuns,
   headlessReplay,
   experimentDesign,
+  observerBoundaryFixture,
 }) {
   const residentSeats = Array.from(
     { length: 6 },
@@ -467,6 +1410,7 @@ function buildAssertions({
     'RunSummaryReceipt',
     'SafetyCheckReceipt',
     'ActionDecisionReceipt',
+    'ObserverBoundaryFixtureReceipt',
   ];
   const requiredPolicies = [
     'EqualAffordanceRequired',
@@ -502,9 +1446,19 @@ function buildAssertions({
   ];
 
   return {
-    threeCanonicalSourcesExist: [WORLD_SOURCE, POLICY_SOURCE, KERNEL_SOURCE, SPEC_SOURCE]
+    canonicalSourcesExist: [
+      WORLD_SOURCE,
+      OBSERVER_PROJECTION_SOURCE,
+      POLICY_SOURCE,
+      KERNEL_SOURCE,
+      SPEC_SOURCE,
+    ]
       .every((source) => existsSync(repoPath(texts.root, source))),
     threeFormatsParse: parsers.length === 3 && parsers.every((parser) => parser.passed),
+    observerProjectionSourceParsesAndHasNoTextualLogic:
+      observerProjectionParser.passed
+      && semanticIr.observerProjection.actions.length === 0
+      && semanticIr.observerProjection.emits.length === 0,
     nativeHeadlessRunsPass: headlessRuns.length === 2 && headlessRuns.every((run) => run.passed),
     headlessReceiptsIdentifyExactModelVillage: headlessRuns.every((run) => (
       run.validation?.passed
@@ -514,6 +1468,30 @@ function buildAssertions({
       && new Set(run.validation.poseIds).size === EXPECTED_WORLD_OBJECT_IDS.length
     )),
     canonicalSceneReplayMatches: headlessReplay.canonicalMatch,
+    capturedObserverBoundaryFixturePasses:
+      observerBoundaryFixture.status === 'pass'
+      && observerBoundaryFixture.claimBoundary.capturedFixtureReplayExecuted === true
+      && observerBoundaryFixture.claimBoundary.providerCallsMade === 0,
+    observerBoundaryFixtureReceiptBindsClaimBoundary:
+      verifyObserverBoundaryFixtureReceipt(observerBoundaryFixture),
+    observerBoundaryFieldsAreAvailable:
+      observerBoundaryFixture.fieldValidation.passed === true
+      && REQUIRED_OBSERVER_BOUNDARY_FIELDS.every(
+        (field) => CANONICAL_SHA256_PATTERN.test(
+          observerBoundaryFixture.canonicalFields[field] || '',
+        ),
+      ),
+    adapterAssignmentsExcludedFromPreInferenceBoundary:
+      observerBoundaryFixture.adapterAssignmentExclusion.status === 'pass'
+      && observerBoundaryFixture.adapterAssignmentExclusion.assignmentHashes.length === 3
+      && observerBoundaryFixture.adapterAssignmentExclusion
+        .assignmentEntersCanonicalProjection === false
+      && observerBoundaryFixture.adapterAssignmentExclusion
+        .postInferenceOutcomeEquivalenceClaimed === false,
+    observerBoundaryDoesNotClaimNativePipelineExecution:
+      observerBoundaryFixture.claimBoundary.nativeHsPipelineExecutionClaimed === false
+      && observerBoundaryFixture.claimBoundary.nativeHsplusActionExecutionClaimed === false
+      && observerBoundaryFixture.claimBoundary.liveModelTurnsClaimed === false,
     worldDefinesSixBlindedResidentSeats: residentSeats
       .every((name) => semanticIr.world.objects.includes(name))
       && includesAll(texts.worldCode, [
@@ -655,6 +1633,18 @@ function buildAssertions({
       'bridgeMayValidateAndReceipt: true',
       'bridgeMayOwnVillageBehavior: false',
     ]),
+    kernelDefinesBoundedObserverBoundaryFixture: includesAll(texts.kernelCode, [
+      'type: "observer_boundary_fixture_manifest"',
+      'executionMode: "captured_fixture_replay"',
+      'providerCallsAllowed: false',
+      'nativeHsPipelineExecutionClaimed: false',
+      'nativeHsplusActionExecutionClaimed: false',
+      'observerProjectionMayWrite: false',
+      'type: "observer_boundary_public_state_fixture"',
+      'type: "observer_boundary_observation_fixture"',
+      'type: "observer_boundary_action_receipt_fixture"',
+      'type: "observer_boundary_schedule_entry"',
+    ]),
     kernelReportsRuntimeGapsHonestly: includesAll(texts.kernelCode, [
       'runtimeStatus: "declarative_pipeline_not_yet_executed_by_headless_runtime"',
       'currentModelTurnExecutionTrace: "unavailable"',
@@ -719,6 +1709,7 @@ function gitProvenance(root) {
       '--porcelain',
       '--',
       WORLD_SOURCE,
+      OBSERVER_PROJECTION_SOURCE,
       POLICY_SOURCE,
       KERNEL_SOURCE,
       SPEC_SOURCE,
@@ -741,7 +1732,7 @@ function gitProvenance(root) {
   };
 }
 
-export function runModelVillageCheck(options = {}) {
+export async function runModelVillageCheck(options = {}) {
   const root = path.resolve(options.root ?? process.cwd());
   const output = options.output ?? DEFAULT_OUTPUT;
   const durationMs = options.durationMs ?? 200;
@@ -753,20 +1744,28 @@ export function runModelVillageCheck(options = {}) {
       'Local HoloScript CLI not found. Set HOLOSCRIPT_ROOT or place HoloScript beside HoloLand.',
     );
   }
+  const holoScriptCore = await loadHoloScriptCore(holoScript);
 
   const texts = {
     root,
     world: read(root, WORLD_SOURCE),
+    observerProjection: read(root, OBSERVER_PROJECTION_SOURCE),
     policy: read(root, POLICY_SOURCE),
     kernel: read(root, KERNEL_SOURCE),
     spec: read(root, SPEC_SOURCE),
     packageJson: read(root, PACKAGE_JSON),
   };
   texts.worldCode = stripLineComments(texts.world);
+  texts.observerProjectionCode = stripLineComments(texts.observerProjection);
   texts.policyCode = stripLineComments(texts.policy);
   texts.kernelCode = stripLineComments(texts.kernel);
   const parsers = [WORLD_SOURCE, POLICY_SOURCE, KERNEL_SOURCE]
     .map((source) => parseSource(root, holoScript.cli, source));
+  const observerProjectionParser = parseSource(
+    root,
+    holoScript.cli,
+    OBSERVER_PROJECTION_SOURCE,
+  );
   const headlessRuns = [
     runHeadless(root, holoScript.cli, { durationMs, tickRate }),
     runHeadless(root, holoScript.cli, { durationMs, tickRate }),
@@ -798,22 +1797,38 @@ export function runModelVillageCheck(options = {}) {
     eventCountUsedAsExperimentEvidence: false,
     orderedEventPayloadTraceAvailable: false,
   };
+  let observerBoundaryFixture;
+  try {
+    observerBoundaryFixture = executeObserverBoundaryFixture({
+      core: holoScriptCore.core,
+      kernelSource: texts.kernel,
+      policySource: texts.policy,
+      headlessReceipt: firstHeadlessReceipt,
+    });
+  } catch (error) {
+    observerBoundaryFixture = failedObserverBoundaryFixture(error);
+  }
   const semanticIr = buildSemanticIr(texts);
   const experimentDesign = buildExperimentDesign(texts.kernelCode);
   const assertions = buildAssertions({
     texts,
     semanticIr,
     parsers,
+    observerProjectionParser,
     headlessRuns,
     headlessReplay,
     experimentDesign,
+    observerBoundaryFixture,
   });
   const failures = assertionFailures(assertions);
   const capabilityStatus = {
     observed: {
-      sourceParsing: parsers.every((parser) => parser.passed),
+      sourceParsing:
+        parsers.every((parser) => parser.passed)
+        && observerProjectionParser.passed,
       worldMaterialization: headlessRuns.every((run) => run.passed),
       canonicalSceneReplay: headlessReplay.canonicalMatch,
+      capturedObserverBoundaryFixtureReplay: observerBoundaryFixture.status === 'pass',
     },
     targetObserved: {
       liveModelAdapterInvocation: false,
@@ -832,87 +1847,90 @@ export function runModelVillageCheck(options = {}) {
     worldObjectsMaterialized: headlessReplay.objectCount,
     baselineEventsCountedWithoutPayloadTrace: headlessReplay.baselineEventCount,
     providerCallsMadeByChecker: 0,
+    capturedFixtureScheduleEntriesExecuted:
+      observerBoundaryFixture.executedSchedule.length,
+    capturedFixtureResidentObservationsMaterialized:
+      observerBoundaryFixture.residentObservations.length,
+    capturedFixtureActionReceiptsSealed:
+      observerBoundaryFixture.actionReceipts.length,
+    capturedFixtureExecutionCountsAvailable: observerBoundaryFixture.status === 'pass',
+    nativeHsPipelineExecutionClaimed: false,
+    nativeHsplusActionExecutionClaimed: false,
   };
   const sourceContract = {
     threeFormat: parsers.map((parser) => parser.format).join(',') === '.holo,.hsplus,.hs',
     formats: {
-      '.holo': 'spatial village and visible experiment controls',
+      '.holo': 'spatial village plus source-bound read-only observer projection',
       '.hsplus': 'resident, adapter, policy, safety, and receipt contracts',
       '.hs': 'trial pipeline, matched conditions, metrics, and closure gates',
     },
     sourceIsCanonical: true,
-    checkerOwnsBehavior: false,
+    checkerOwnsExperimentBehavior: false,
+    checkerOwnsDeterministicFixtureProjection: true,
+    fixtureInputsOwnedByHoloScript: true,
+    isolatedObserverProjectionToggleExecuted: false,
   };
   const toolchain = {
     holoScriptVersion: holoScript.version,
     holoScriptCliSha256: holoScript.cliSha256,
+    holoScriptCoreSha256: holoScriptCore.coreSha256,
     checkerSha256: sha256(normalizeSource(readFileSync(CHECKER_PATH, 'utf8'))),
     nodeVersion: process.version,
     durationMs,
     tickRate,
   };
   const git = gitProvenance(root);
-  const receiptInput = {
-    schemaVersion: SCHEMA_VERSION,
-    sourceHashes: {
-      world: semanticIr.world.sourceHash,
-      policy: semanticIr.policy.sourceHash,
-      kernel: semanticIr.kernel.sourceHash,
-      spec: semanticIr.spec.sourceHash,
-    },
-    parsers: parsers.map(({ stdoutTail: _stdout, stderrTail: _stderr, ...parser }) => parser),
-    headlessReplay: {
-      canonicalMatch: headlessReplay.canonicalMatch,
-      canonicalDigests: headlessReplay.canonicalDigests,
-      rawHeadlessReceiptHashes: headlessReplay.rawHeadlessReceiptHashes,
-      runStats: headlessReplay.runStats,
-      objectCount: headlessReplay.objectCount,
-      objectIds: headlessReplay.objectIds,
-    },
-    toolchain,
-    git,
-    assertions,
-    capabilityStatus,
-    runtimeEvidence,
-    experimentDesign,
+  const claimBoundary = {
+    observed: [
+      'three source formats and the source-bound observer projection parse',
+      'native headless world materialization',
+      'canonical scene and pose replay',
+      'source-declared captured fixture schedule, six resident observations, and action-receipt chain replay through the bounded HoloLand bridge',
+      'static adapter-assignment exclusion from the pre-inference fixture projection',
+    ],
+    targetNotObserved: [
+      'isolated observer projection off/on consumer toggle',
+      'adapter-permutation execution or post-inference outcome equivalence',
+      'validation of the opaque referenced safety and action-decision receipt IDs',
+      'live model turns',
+      'native .hs pipeline execution',
+      'native .hsplus action execution',
+      'receipted action entrypoint execution',
+      'per-step native state replay',
+      'scientific outcomes',
+    ],
+    pilotIsConfirmatory: false,
   };
-  const receipt = {
+  const unsignedModelVillageReceipt = {
     schemaVersion: SCHEMA_VERSION,
     generatedAt: new Date().toISOString(),
     status: failures.length === 0 ? 'pass' : 'fail',
     studyPhase: 'source_contract_pilot',
     sources: {
       world: WORLD_SOURCE,
+      observerProjection: OBSERVER_PROJECTION_SOURCE,
       policy: POLICY_SOURCE,
       kernel: KERNEL_SOURCE,
       spec: SPEC_SOURCE,
     },
     sourceContract,
     parsers,
+    observerProjectionParser,
     semanticIr,
     assertions,
     headlessReplay,
+    observerBoundaryFixture,
     runtimeEvidence,
     capabilityStatus,
     experimentDesign,
     toolchain,
     git,
-    claimBoundary: {
-      observed: [
-        'three source formats parse',
-        'native headless world materialization',
-        'canonical scene and pose replay',
-      ],
-      targetNotObserved: [
-        'live model turns',
-        'receipted action entrypoint execution',
-        'per-step state replay',
-        'scientific outcomes',
-      ],
-      pilotIsConfirmatory: false,
-    },
+    claimBoundary,
+  };
+  const receipt = {
+    ...unsignedModelVillageReceipt,
     receipt: {
-      receiptHash: sha256(canonicalJson(receiptInput)),
+      receiptHash: canonicalDigest(unsignedModelVillageReceipt),
       rawSourceIncluded: false,
       rawModelPromptsIncluded: false,
       rawModelResponsesIncluded: false,
@@ -937,7 +1955,7 @@ export function runModelVillageCheck(options = {}) {
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const args = parseArgs();
-    const { receipt, output } = runModelVillageCheck(args);
+    const { receipt, output } = await runModelVillageCheck(args);
     if (args.json) {
       console.log(JSON.stringify(receipt, null, 2));
     } else {

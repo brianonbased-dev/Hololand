@@ -55,7 +55,7 @@ composition "HoloLand Model Village Observer Witness Contract" {
 
   template "ObserverProjectionAuthority" {
     type: "read_only_observer_projection_authority"
-    mayRead: ["canonical_object_ids", "public_state_hash", "ordered_verified_receipts", "sealed_physics_snapshots"]
+    mayRead: ["canonical_scene_hash", "canonical_pose_hash", "logical_clock_hash", "public_state_hash", "executed_schedule_hash", "resident_observation_hash", "action_receipt_root", "ordered_verified_receipts", "sealed_physics_snapshots"]
     mayWrite: []
     forbiddenWrites: ["canonical_world", "resident_observation", "clock", "schedule", "prompt", "action", "receipt"]
     residentVisible: false
@@ -90,6 +90,9 @@ composition "HoloLand Model Village Observer Witness Contract" {
     requiredColorFields: ["output_color_space", "working_color_space", "tone_mapping", "tone_mapping_exposure"]
     requiredSceneFields: ["environment_provenance", "material_values", "shadow_mode", "shadow_caster_count", "shadow_receiver_count"]
     requiredTimingFields: ["frame_cadence_p50_ms", "frame_cadence_p95_ms", "frame_cadence_p99_ms", "cpu_render_submit_p50_ms", "cpu_render_submit_p95_ms"]
+    requiredObserverBoundaryFields: ["canonical_scene_hash", "canonical_pose_hash", "logical_clock_hash", "public_state_hash", "executed_schedule_hash", "resident_observation_hash", "action_receipt_root"]
+    observerBoundaryConsumptionClaim: "single_captured_fixture_boundary_only"
+    isolatedProjectionToggleExecuted: false
     requiredCaptures: ["1600x900", "390x844"]
     hdriRequired: false
     proceduralEnvironmentAllowedWhenReceipted: true

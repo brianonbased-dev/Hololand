@@ -52,7 +52,7 @@ composition "HoloLand Model Village Observer Projection" {
 
   state {
     authority: "read_only"
-    consumes: ["canonical_object_ids", "public_state_hash", "ordered_verified_receipts", "sealed_physics_snapshots"]
+    consumes: ["canonical_scene_hash", "canonical_pose_hash", "logical_clock_hash", "public_state_hash", "executed_schedule_hash", "resident_observation_hash", "action_receipt_root", "ordered_verified_receipts", "sealed_physics_snapshots"]
     forbiddenWrites: ["canonical_world", "resident_observation", "clock", "schedule", "prompt", "action", "receipt"]
     residentVisible: false
     residentObservationIncluded: false
@@ -79,7 +79,7 @@ composition "HoloLand Model Village Observer Projection" {
     ccdClaimed: false
     crossHardwareDeterminismClaimed: false
     collisionTimestampIncludedInDigest: false
-    canonicalProjectionToggleMustPreserve: ["canonical_scene_hash", "public_state_hash", "schedule_hash", "resident_observation_hash", "receipt_root"]
+    canonicalProjectionToggleMustPreserve: ["canonical_scene_hash", "canonical_pose_hash", "logical_clock_hash", "public_state_hash", "executed_schedule_hash", "resident_observation_hash", "action_receipt_root"]
     fixtureReceipts: [
       {
         fixtureId: "valid-admitted",

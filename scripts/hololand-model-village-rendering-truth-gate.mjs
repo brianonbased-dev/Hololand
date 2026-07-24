@@ -20,7 +20,7 @@ import {
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const REPO_ROOT = path.resolve(path.dirname(SCRIPT_PATH), '..');
-const SCHEMA = 'hololand.model-village.rendering-witness.v0.1.0';
+const SCHEMA = 'hololand.model-village.rendering-witness.v0.2.0';
 const DEFAULT_OUTPUT_DIR = path.join(
   REPO_ROOT,
   '.tmp',
@@ -32,6 +32,17 @@ const PROJECTION_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-observer-projection.holo';
 const CALIBRATION_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-render-calibration.holo';
+const OBSERVER_POLICY_SOURCE =
+  'source/domains/agents/model-village-observer-witness.hsplus';
+const REQUIRED_OBSERVER_BOUNDARY_FIELDS = Object.freeze([
+  'canonicalSceneHash',
+  'canonicalPoseHash',
+  'logicalClockHash',
+  'publicStateHash',
+  'executedScheduleHash',
+  'residentObservationHash',
+  'actionReceiptRoot',
+]);
 const REQUIRED_AUTHORED_MATERIAL_PROPERTIES = Object.freeze([
   'color',
   'metalness',
@@ -519,13 +530,14 @@ function browserApplication(THREE, RoomEnvironment, payload) {
           <div class="evidence-row"><span>Language</span><strong>.holo + .hsplus + .hs</strong></div>
           <div class="evidence-row"><span>Physics</span><strong>CPU sphere colliders</strong></div>
           <div class="evidence-row"><span>Replay</span><strong id="physics-step">step ${payload.heroFrameStep} / ${payload.physics.fixedSteps}</strong></div>
-          <div class="evidence-row"><span>Root</span><strong>${payload.physics.physicsStateHash.slice(0, 12)}</strong></div>
-          <div class="truth-chip">OBSERVER ONLY · NO WORLD WRITE</div>
+          <div class="evidence-row"><span>Boundary</span><strong id="boundary-status">${payload.observerBoundary.available ? '7 / 7 fixture hashes' : 'not captured'}</strong></div>
+          <div class="evidence-row"><span>Physics root</span><strong>${payload.physics.physicsStateHash.slice(0, 12)}</strong></div>
+          <div class="truth-chip">CAPTURED FIXTURE // BRIDGE // ZERO MODEL CALLS</div>
         </aside>
         <footer class="footer">
-          <span><i class="dot admitted"></i> admitted route</span>
-          <span><i class="dot blocked"></i> blocked route</span>
-          <span id="backend-label">probing browser backend…</span>
+          <span data-witness-part="admitted-legend"><i class="dot admitted"></i> admitted route</span>
+          <span data-witness-part="blocked-legend"><i class="dot blocked"></i> blocked route</span>
+          <span id="backend-label" data-witness-part="backend-provenance">probing browser backend…</span>
         </footer>
       </main>
     `;
@@ -566,6 +578,7 @@ function browserApplication(THREE, RoomEnvironment, payload) {
         display: flex; gap: 24px; align-items: center; color: #90a8bb;
         font: 600 10px/1 ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase;
       }
+      .footer span { min-width: 0; }
       .footer span:last-child { margin-left: auto; color: #b8d4e4; }
       .dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; box-shadow: 0 0 12px currentColor; }
       .dot.admitted { color: #f3aa59; background: currentColor; }
@@ -574,12 +587,21 @@ function browserApplication(THREE, RoomEnvironment, payload) {
         .masthead { top: 28px; left: 24px; right: 20px; }
         h1 { font-size: 46px; max-width: 290px; }
         .masthead p { max-width: 300px; font-size: 12px; }
-        .evidence-card { top: auto; bottom: 62px; left: 20px; right: 20px; width: auto; padding: 14px 15px 12px; }
+        .evidence-card { top: auto; bottom: 86px; left: 20px; right: 20px; width: auto; padding: 14px 15px 12px; }
         .evidence-row { padding: 6px 0; }
         .truth-chip { margin-top: 9px; }
-        .footer { left: 22px; right: 22px; bottom: 24px; gap: 14px; }
-        .footer span:nth-child(2) { display: none; }
-        .footer span:last-child { max-width: 160px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .footer {
+          left: 20px; right: 20px; bottom: 16px;
+          display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 7px 12px; align-items: start;
+          font-size: 9px; line-height: 1.25; letter-spacing: .05em;
+        }
+        .footer [data-witness-part="blocked-legend"] { display: block; justify-self: end; }
+        .footer [data-witness-part="backend-provenance"] {
+          grid-column: 1 / -1; width: 100%; margin-left: 0; max-width: none;
+          overflow: visible; white-space: normal; overflow-wrap: anywhere;
+          text-overflow: clip; font-size: 8px; line-height: 1.25; letter-spacing: .02em;
+        }
       }
     `;
     document.head.append(style);
@@ -626,7 +648,7 @@ function browserApplication(THREE, RoomEnvironment, payload) {
       },
     };
     document.querySelector('#backend-label').textContent =
-      `${glReceipt.contextType} · ${glReceipt.unmaskedRenderer || glReceipt.maskedRenderer}`;
+      `${glReceipt.contextType} // ${glReceipt.unmaskedRenderer || glReceipt.maskedRenderer}`;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(42, 1, 0.05, 120);
@@ -1036,6 +1058,55 @@ function browserApplication(THREE, RoomEnvironment, payload) {
     const requiredWarmupFrames = 60;
     const requiredMeasuredFrames = 180;
 
+    function layoutPart(selector) {
+      const element = document.querySelector(selector);
+      if (!element) return null;
+      const bounds = element.getBoundingClientRect();
+      const computed = getComputedStyle(element);
+      return {
+        selector,
+        text: element.textContent.trim(),
+        visible:
+          computed.display !== 'none'
+          && computed.visibility !== 'hidden'
+          && Number(computed.opacity) > 0
+          && bounds.width > 0
+          && bounds.height > 0,
+        bounds: {
+          left: bounds.left,
+          top: bounds.top,
+          right: bounds.right,
+          bottom: bounds.bottom,
+          width: bounds.width,
+          height: bounds.height,
+        },
+        clientWidth: element.clientWidth,
+        clientHeight: element.clientHeight,
+        scrollWidth: element.scrollWidth,
+        scrollHeight: element.scrollHeight,
+        overflowX: computed.overflowX,
+        overflowY: computed.overflowY,
+        textOverflow: computed.textOverflow,
+        whiteSpace: computed.whiteSpace,
+      };
+    }
+
+    function uiChromeState() {
+      return {
+        document: {
+          clientWidth: document.documentElement.clientWidth,
+          clientHeight: document.documentElement.clientHeight,
+          scrollWidth: document.documentElement.scrollWidth,
+          scrollHeight: document.documentElement.scrollHeight,
+        },
+        evidenceCard: layoutPart('.evidence-card'),
+        footer: layoutPart('.footer'),
+        admittedLegend: layoutPart('[data-witness-part="admitted-legend"]'),
+        blockedLegend: layoutPart('[data-witness-part="blocked-legend"]'),
+        backendProvenance: layoutPart('[data-witness-part="backend-provenance"]'),
+      };
+    }
+
     function snapshot() {
       const currentRoot = activeView === 'hero' ? roots.hero : roots.calibration;
       const sampleIds = materialCatalog
@@ -1092,7 +1163,9 @@ function browserApplication(THREE, RoomEnvironment, payload) {
             .sort(),
           framesAvailable: payload.physics.frames.length,
         },
+        observerBoundary: payload.observerBoundary,
         adapterMappings,
+        uiChrome: uiChromeState(),
       };
     }
 
@@ -1152,8 +1225,12 @@ function createBrowserPayload(contracts, physicsReceipt, environmentProvenance) 
       )),
     ]),
   );
+  const boundarySource = physicsReceipt.canonicalBoundary.after || {};
+  const canonicalObserverBoundaryFields = Object.fromEntries(
+    REQUIRED_OBSERVER_BOUNDARY_FIELDS.map((field) => [field, boundarySource[field]]),
+  );
   return {
-    schema: 'hololand.model-village.render-payload.v0.1.0',
+    schema: 'hololand.model-village.render-payload.v0.2.0',
     projection: project(contracts.projection),
     calibration: project(contracts.calibration),
     physics: {
@@ -1163,6 +1240,21 @@ function createBrowserPayload(contracts, physicsReceipt, environmentProvenance) 
       frames: physicsReceipt.physics.firstRun.frames,
       frameTraceHash: physicsReceipt.physics.firstRun.digests.frameTrace,
       visualFrameHashes,
+    },
+    observerBoundary: {
+      available: Boolean(
+        physicsReceipt.canonicalBoundary.enabled
+        && REQUIRED_OBSERVER_BOUNDARY_FIELDS.every(
+          (field) => /^[a-f0-9]{64}$/.test(
+            canonicalObserverBoundaryFields[field] || '',
+          ),
+        )
+      ),
+      source: 'source_authored_captured_fixture_bridge',
+      canonicalFields: canonicalObserverBoundaryFields,
+      requiredFields: REQUIRED_OBSERVER_BOUNDARY_FIELDS,
+      projectionToggleExecuted:
+        physicsReceipt.canonicalBoundary.projectionToggleExecuted === true,
     },
     heroFrameStep,
     settledFrameStep,
@@ -1576,6 +1668,72 @@ function allTrue(value) {
   return Object.values(value).every(Boolean);
 }
 
+function evaluatePortraitUiChrome(capture) {
+  const state = capture?.browserState;
+  const ui = state?.uiChrome;
+  const viewport = state?.viewport;
+  if (!ui || !viewport) {
+    return {
+      status: 'fail',
+      failures: ['portrait capture is missing uiChrome layout evidence'],
+    };
+  }
+  const parts = [
+    ['evidenceCard', ui.evidenceCard],
+    ['footer', ui.footer],
+    ['admittedLegend', ui.admittedLegend],
+    ['blockedLegend', ui.blockedLegend],
+    ['backendProvenance', ui.backendProvenance],
+  ];
+  const withinViewport = Object.fromEntries(parts.map(([name, part]) => [
+    name,
+    Boolean(
+      part?.visible
+      && part.bounds.left >= -1
+      && part.bounds.top >= -1
+      && part.bounds.right <= viewport.width + 1
+      && part.bounds.bottom <= viewport.height + 1
+    ),
+  ]));
+  const labelsVisible = Boolean(
+    ui.admittedLegend?.visible
+    && /admitted route/i.test(ui.admittedLegend.text)
+    && ui.blockedLegend?.visible
+    && /blocked route/i.test(ui.blockedLegend.text),
+  );
+  const backendFits = Boolean(
+    ui.backendProvenance?.visible
+    && ui.backendProvenance.scrollWidth <= ui.backendProvenance.clientWidth + 1
+    && ui.backendProvenance.scrollHeight <= ui.backendProvenance.clientHeight + 1
+    && ui.backendProvenance.overflowX !== 'hidden'
+    && ui.backendProvenance.overflowY !== 'hidden'
+    && ui.backendProvenance.textOverflow !== 'ellipsis',
+  );
+  const cardFooterGap = ui.footer.bounds.top - ui.evidenceCard.bounds.bottom;
+  const cardFooterSeparated = cardFooterGap >= 8;
+  const noDocumentHorizontalOverflow =
+    ui.document.scrollWidth <= ui.document.clientWidth + 1;
+  const checks = {
+    exactPortraitViewport: viewport.width === 390 && viewport.height === 844,
+    allChromeWithinViewport: Object.values(withinViewport).every(Boolean),
+    labelsVisible,
+    backendFits,
+    cardFooterSeparated,
+    noDocumentHorizontalOverflow,
+  };
+  return {
+    status: allTrue(checks) ? 'pass' : 'fail',
+    checks,
+    failures: Object.entries(checks)
+      .filter(([, passed]) => !passed)
+      .map(([name]) => name),
+    viewport,
+    withinViewport,
+    cardFooterGap,
+    uiChrome: ui,
+  };
+}
+
 export async function runRenderingGate(options = {}) {
   const root = path.resolve(options.root || REPO_ROOT);
   const outputDir = path.resolve(options.outputDir || DEFAULT_OUTPUT_DIR);
@@ -1624,6 +1782,8 @@ export async function runRenderingGate(options = {}) {
     heroFrameStep: payload.heroFrameStep,
     settledFrameStep: payload.settledFrameStep,
   });
+  const portraitCapture = browser.captures.find((capture) => capture.id === 'hero-portrait');
+  const portraitUiChrome = evaluatePortraitUiChrome(portraitCapture);
   const softwareFallback = classifySoftwareRenderer(browser.state.gl);
   const backendObserved = inferGraphicsBackend(browser.state.gl);
   const materialTruth = evaluateMaterialTruth(contracts, browser.state.materials);
@@ -1640,6 +1800,7 @@ export async function runRenderingGate(options = {}) {
     dimensions: capture.dimensions,
     camera: capture.browserState.camera,
     viewport: capture.browserState.viewport,
+    uiChrome: capture.browserState.uiChrome,
     visualFrameSha256: capture.view === 'hero'
       ? capture.browserState.physics.visualFrameHash
       : null,
@@ -1658,9 +1819,20 @@ export async function runRenderingGate(options = {}) {
       && Boolean(contracts.calibration.sceneIrHash)
       && Boolean(build.bundleHash),
     physicsReceiptPassed: physicsReceipt.status === 'pass',
-    canonicalBoundaryPreservedWhenEnabled:
+    fixtureBoundaryStableAcrossPhysicsWitnessWhenEnabled:
       !canonicalBoundary
       || physicsReceipt.canonicalBoundary.observedBoundaryMatch === true,
+    browserConsumesCompleteCapturedFixtureBoundaryWhenEnabled:
+      !canonicalBoundary
+      || (
+        payload.observerBoundary.available
+        && browser.state.observerBoundary.available
+        && browser.state.observerBoundary.projectionToggleExecuted === false
+        && canonicalJson(browser.state.observerBoundary.canonicalFields)
+          === canonicalJson(payload.observerBoundary.canonicalFields)
+        && canonicalJson(browser.state.observerBoundary.requiredFields)
+          === canonicalJson(REQUIRED_OBSERVER_BOUNDARY_FIELDS)
+      ),
     physicsFramesBoundToBothTokens:
       browser.state.physics.framesAvailable === physicsReceipt.physics.fixedSteps
       && canonicalJson(browser.state.physics.boundBodyIds)
@@ -1737,6 +1909,7 @@ export async function runRenderingGate(options = {}) {
         && capture.dimensions.width === 390
         && capture.dimensions.height === 844
       )),
+    portraitUiChromeComplete: portraitUiChrome.status === 'pass',
     calibrationCapturePresent:
       screenshotEvidence.some((capture) => (
         capture.id === 'calibration-desktop'
@@ -1777,6 +1950,13 @@ export async function runRenderingGate(options = {}) {
         meshCount: contracts.calibration.meshCount,
         lightCount: contracts.calibration.lightCount,
       },
+      observerPolicy: {
+        path: OBSERVER_POLICY_SOURCE,
+        sha256: physicsReceipt.sourceHashes.policy,
+        parser: physicsReceipt.policy.parser,
+        browserRenderEvidenceEnforcement:
+          'declarative_template_source_hash_bound_via_physics_receipt_not_field_validated_by_render_gate',
+      },
       sourceSemanticsRewritten: false,
       presentationAdapterOwns: [
         'Three object construction from SceneIR',
@@ -1800,6 +1980,14 @@ export async function runRenderingGate(options = {}) {
       colliderDisclosure: 'faceted visual meshes bound to sphere colliders',
       canonicalBoundary: physicsReceipt.canonicalBoundary,
     },
+    observerBoundary: {
+      payload: payload.observerBoundary,
+      browserObserved: browser.state.observerBoundary,
+      consumerExecuted: payload.observerBoundary.available,
+      isolatedProjectionToggleExecuted: false,
+      claim:
+        'read-only browser consumption of one source-authored captured-fixture boundary; no off/on equivalence claim',
+    },
     renderer: {
       route: 'HoloScript sources -> HoloCompositionParser -> SceneIRCompiler -> dedicated HoloLand Three/WebGL adapter',
       existingReactThreeAdapterUsed: false,
@@ -1813,6 +2001,7 @@ export async function runRenderingGate(options = {}) {
       materials: browser.state.materials,
       materialTruth,
       scene: browser.state.scene,
+      portraitUiChrome,
       adapterMappings: browser.state.adapterMappings,
       generatedSurface: {
         html: relativeTo(root, build.htmlPath),
@@ -1851,11 +2040,14 @@ export async function runRenderingGate(options = {}) {
       observed: [
         'local HoloScript .holo sources parsed and compiled to SceneIR',
         'sealed HoloScript CPU physics frames projected into faceted visual tokens',
-        'hardware-backed WebGL2 browser strings with no known software-renderer indicator',
+        'one complete source-authored captured-fixture boundary consumed by the read-only browser witness when the canonical fixture gate is enabled',
+        `WebGL2 context reporting ${backendObserved} with no recognized software-renderer indicator`,
         'source-to-effective Three MeshPhysicalMaterial values with explicitly disclosed presentation-only chute overrides, sRGB output, ACES filmic tone mapping, PCF soft shadows, and a local procedural RoomEnvironment/PMREM',
         'desktop, portrait, and calibration screenshots with frame-cadence and CPU render-submit percentiles',
       ],
       notObserved: [
+        'isolated observer projection off/on consumer toggle',
+        'field-by-field enforcement of the declarative BrowserRenderEvidence template',
         'HDRI asset use',
         'WebGPU rendering',
         'native HoloLand BrowserRuntime or React Three adapter execution',

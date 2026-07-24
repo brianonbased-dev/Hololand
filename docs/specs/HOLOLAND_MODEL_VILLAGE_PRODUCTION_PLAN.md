@@ -82,8 +82,11 @@ receipts.
 | Observed | The MV-P10 tracer now runs three fresh 600-step, fixed-1/60 HoloScript CPU-physics worlds through one `PhysicsWorld.addBodyWithConfig` path. Two source-bound fixtures release sphere-collider tokens; missing, tampered, and duplicate fixtures fail dark; exactly the admitted-token/admitted-floor and blocked-token/blocked-floor contact starts occur, and contact, sleep, final-transform, and frame-trace roots match locally. |
 | Observed | The MV-P9 witness parsed and compiled the two HoloScript compositions, mapped all 26 source meshes to `MeshPhysicalMaterial`, verified every authored-to-effective physical-material value with only two disclosed decorative-chute overrides, and observed hardware WebGL2 on ANGLE Direct3D 11 / NVIDIA RTX 3060 with no known software-renderer indicator. It applied sRGB output, ACES filmic tone mapping at exposure 1.05, PCF soft shadows, and a hashed local procedural `RoomEnvironment`/PMREM with `hdri: false`. |
 | Observed | The final named-browser sample used 60 warm-up and 180 measured frames. It captured rAF cadence and CPU `renderer.render()` submission percentiles separately, exact 1600 x 900 and 390 x 844 hero images, a settled-contact frame, and a 1600 x 900 calibration image without external network assets. |
-| Gap | The canonical experimental composition remains an intentionally sparse instrument. The new observer proof improves framing, grounding, light response, primary evidence presentation, and material calibration for one Receipt Loom vignette; the portrait provenance footer remains clipped, and the full living village, institutions, authored assets, animation, audio, and XR profiles remain targets. |
+| Observed | The MV-P0 captured-fixture bridge now parses its schedule, public snapshots, six resident observations, and two action-fixture receipt inputs from canonical `.hs`/`.hsplus` source and exposes one complete seven-field hash boundary. The physics-witness side-effect sandwich leaves that fixture boundary unchanged. Three source-authored assignment vectors are distinct, balanced, counterbalanced once per seat, and statically excluded from the exact pre-inference observation schema. The browser witness consumes all seven fields when this fixture gate is enabled. No observer off/on toggle, adapter-permutation execution, post-inference outcome equivalence, native pipeline execution, or typed safety/decision-receipt validation is claimed. |
+| Observed | The refreshed 390 x 844 witness shows both admitted and blocked route legends plus the complete WebGL2/ANGLE/NVIDIA/D3D11 provenance. Browser-measured overlay bounds are inside the viewport, the evidence-card/footer gap is at least eight pixels, and neither text nor the document overflows horizontally. |
+| Gap | The canonical experimental composition remains an intentionally sparse instrument. The new observer proof improves framing, grounding, light response, primary evidence presentation, and material calibration for one Receipt Loom vignette; the full living village, institutions, authored assets, animation, audio, and XR profiles remain targets. |
 | Gap | `.hsplus` actions, `.hs` pipeline actions, live model turns, state mutations, captured-response replay, and the emergency-stop binding are not yet executed by the current headless path. |
+| Gap | The isolated observer-projection off/on consumer test remains unimplemented. `BrowserRenderEvidence` is source-hash-bound through the physics receipt but remains a declarative template rather than a field-by-field rendering-gate contract. |
 | Gap | The older CLI baseline still launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. MV-P9 uses a separate, focused browser witness; it does not silently promote that CLI route. |
 | Gap | The current React Three adapter cannot be cited as an executing Model Village route: its typecheck still imports the removed `R3FCompiler` surface. The dedicated MV-P9 adapter is a bounded proof bridge, not a claim that the general platform renderer is repaired. |
 | Unknown | WebGPU, headset performance, long-duration thermal behavior, browser families beyond the named Chrome run, and cross-hardware pixel or physics agreement remain unmeasured. |
@@ -798,9 +801,14 @@ captured fixture receipts. MV-P9 and MV-P10 are the first physics/render proof
 pair. No live model calls wait on visual polish, and no spectacle bypasses the
 runtime gates.
 
-The bounded MV-P9/MV-P10 slice passed locally on 2026-07-24. MV-P0 remains
-open because the current canonical headless runtime does not expose executed
-schedule, resident-observation, or action-receipt-root hashes.
+The bounded MV-P9/MV-P10 slice passed locally on 2026-07-24. The captured-fixture
+portion of MV-P0 now passes with complete schedule, resident-observation, and
+scoped action-fixture-root fields, physics-side-effect stability, parsed-AST
+projection capability exclusion, and pre-inference adapter-assignment
+exclusion. Full MV-P0 remains open until upstream HoloScript native headless
+execution emits recomputable runtime schedule, observation, logical-clock,
+public-state, and receipt-ledger evidence and the isolated observer consumer
+can be toggled around that native execution.
 
 ## Delivery waves
 
