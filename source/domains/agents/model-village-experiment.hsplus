@@ -1,0 +1,831 @@
+// HoloLand Model Village experiment contract.
+// This source owns model-neutral resident seats, equal-affordance policy,
+// safety gates, and receipt envelopes. Provider clients remain adapters.
+
+composition "HoloLand Model Village Experiment Contract" {
+  config {
+    domain: "agents"
+    version: "0.1.0"
+    atlas: "source/runtime-atlas.holo"
+    sourceLayer: "HoloScript"
+    worldSource: "source/layers/vr/frontier/model-village/model-village.holo"
+    trialKernelSource: "source/proofs/model-village-trial-kernel.hs"
+    baseAgentContract: "apps/holoshell/source/hololand-agent-npc-primitive.hsplus"
+    authorityContract: "source/domains/agents/agent-authority.hsplus"
+    receiptEnvelope: "source/domains/receipts/runtime-receipt-envelope.hsplus"
+    safetyAuthority: "source/domains/safety/safety-authority.hsplus"
+    experimentSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md"
+    phase: "source_contract_pilot"
+    trustedValidatorRuntimeBindingStatus: "target_not_observed_phase_1_blocker"
+    mutationTransactionBindingStatus: "target_not_observed_phase_1_blocker"
+    requiredReceipts: ["run_manifest", "observation_recorded", "model_turn", "safety_checked", "agent_action", "action_decision", "run_summary"]
+  }
+
+  state ModelVillageExperimentRuntime {
+    phase: "idle"
+    runId: ""
+    seedBlock: 0
+    condition: ""
+    residentCount: 6
+    modelAdapterCount: 3
+    turnCount: 6
+    cooperativeChallengeWindows: 3
+    fallbackAllowed: false
+    promptEnhancementAllowed: false
+    externalToolsAllowed: false
+    rawCredentialsIncluded: false
+    worldMutationAllowed: false
+    modelTurnsExecuted: 0
+    agentActionsExecuted: 0
+    stagedResidentCount: 0
+    stagedResidentIds: []
+    stagedSeatIds: []
+    residentStagingOpen: false
+    assignmentManifestHash: ""
+    manifestValidated: false
+    manifestValidationReceiptId: ""
+    trustedManifestValidatorConfigured: false
+    trustedManifestValidatorAuthorityId: "hololand_model_village_manifest_validator_v1"
+    trustedManifestValidatorSourceHash: ""
+    trustedManifestValidatorRegistryReceiptId: ""
+    lastManifestValidationSequence: 0
+    lastRegistrationDecision: "deny"
+    emergencyStopState: "armed"
+    safetyDecision: "deny"
+    pendingRunId: ""
+    pendingTick: 0
+    pendingResidentId: ""
+    pendingProposalHash: ""
+    pendingTurnOpportunityId: ""
+    pendingAuthorizationNonce: ""
+    pendingAuthorizationSequence: 0
+    pendingSafetyReceiptId: ""
+    pendingActionDecisionReceiptId: ""
+    lastConsumedAuthorizationSequence: 0
+    lastConsumedActionReceiptId: ""
+    lastActionAdmissionDecision: "deny"
+    runContaminated: false
+    contaminationReason: ""
+    lastReceiptId: ""
+    receiptCount: 0
+  }
+
+  template "ModelVillageStudyDesign" {
+    type: "randomized_block_model_village_study"
+    models: 3
+    residents: 6
+    seedBlocks: 3
+    conditions: ["mixed", "adapter_a_only", "adapter_b_only", "adapter_c_only"]
+    mixedAllocation: ["adapter_a", "adapter_a", "adapter_b", "adapter_b", "adapter_c", "adapter_c"]
+    mixedPersonaRotation: "latin_square_across_seed_blocks"
+    plannedVillageRuns: 12
+    unitOfAnalysis: "village_run"
+    primaryOutcome: "cooperative_event_completion_rate"
+    primaryContrast: "mixed_minus_mean_of_homogeneous_conditions"
+    estimandScope: "exact_locked_adapter_triplet"
+    blockContrast: "mixed_minus_within_block_mean_homogeneous"
+    withinRunObservationsIndependent: false
+    assignmentMatrixHashRequired: true
+    conditionOrderHashRequired: true
+    challengeManifestHashRequired: true
+    interpretation: "mechanism_pilot_and_variance_estimate_only"
+    confirmatoryPopulationClaimAllowed: false
+  }
+
+  template "ModelResidentSeat" {
+    type: "sandboxed_model_resident"
+    requiredIdentityFields: [
+      "resident_id",
+      "seat_id",
+      "run_id",
+      "assignment_manifest_hash",
+      "persona_manifest_hash",
+      "brain_source_hash",
+      "model_instance_id",
+      "adapter_alias",
+      "model_revision_or_file_hash",
+      "route_class",
+      "permission_scope",
+      "memory_scope"
+    ]
+    modelIdentityVisibleToResidents: false
+    peerPrivateMemoryVisible: false
+    publicWorldStateOnly: true
+    actionProposalLimitPerTick: 1
+    actionReceiptRequired: true
+    abstentionAllowed: true
+  }
+
+  template "LockedModelAdapterManifest" {
+    type: "model_adapter_manifest"
+    adapterAliasRequired: true
+    providerAndModelSealedUntilAnalysis: true
+    modelRevisionOrFileHashRequired: true
+    forceProviderRequired: true
+    fallbackAllowed: false
+    promptEnhancementAllowed: false
+    samplingSeedRequestedFieldRequired: true
+    samplingSeedAcceptedFieldRequired: true
+    inferenceDeterminism: "unknown_until_adapter_reports_seed_acceptance"
+    capturedResponseReplayRequired: true
+  }
+
+  template "EqualAffordanceEnvelope" {
+    type: "model_village_equal_affordance_envelope"
+    lockedFields: [
+      "system_scaffold",
+      "persona_schema",
+      "public_observation_function",
+      "memory_limit",
+      "action_vocabulary",
+      "tool_permissions",
+      "token_budget",
+      "temperature",
+      "timeout",
+      "retry_count",
+      "turn_opportunity"
+    ]
+    routeFallbackAllowed: false
+    hiddenContextAllowed: false
+    crossRunMemoryAllowed: false
+    crossVillageCommunicationAllowed: false
+    providerSideCacheStateReceiptRequired: true
+    perResidentCostCeilingRequired: true
+    perRunCostCeilingRequired: true
+    studyCostCeilingRequired: true
+  }
+
+  template "RunManifestReceipt" {
+    type: "model_village_run_manifest_receipt"
+    receiptType: "run_manifest"
+    requiredFields: [
+      "receipt_id",
+      "run_id",
+      "seed_block",
+      "condition",
+      "world_source_hash",
+      "policy_source_hash",
+      "kernel_source_hash",
+      "turn_schedule_hash",
+      "blinded_assignment_hash",
+      "assignment_matrix_hash",
+      "condition_order_hash",
+      "provider_time_batch_id",
+      "challenge_manifest_hash",
+      "metric_spec_hash",
+      "adapter_manifest_hashes",
+      "adapter_request_serializer_hashes",
+      "affordance_envelope_hash",
+      "safety_policy_hash",
+      "budget_ceiling_hash",
+      "manifest_hash"
+    ]
+    rawSecretsIncluded: false
+    replayable: true
+  }
+
+  template "RunManifestValidationReceipt" {
+    type: "model_village_run_manifest_validation_receipt"
+    receiptType: "run_manifest_validation"
+    requiredFields: [
+      "receipt_id",
+      "run_id",
+      "manifest_hash",
+      "validator_authority_id",
+      "validator_source_hash",
+      "validator_registry_receipt_id",
+      "validation_sequence",
+      "signature_verified",
+      "decision",
+      "reason",
+      "allowed"
+    ]
+    trustedValidatorRequired: true
+    defaultDecision: "deny"
+  }
+
+  template "ObservationEnvelope" {
+    type: "model_village_observation_envelope"
+    receiptType: "observation_recorded"
+    requiredFields: [
+      "run_id",
+      "tick",
+      "resident_id",
+      "location",
+      "visible_event_ids",
+      "public_state_hash",
+      "bounded_memory_hash",
+      "observation_hash"
+    ]
+    peerPrivateMemoryIncluded: false
+    sealedModelIdentityIncluded: false
+  }
+
+  template "ModelTurnReceipt" {
+    type: "model_village_model_turn_receipt"
+    receiptType: "model_turn"
+    requiredFields: [
+      "receipt_id",
+      "run_id",
+      "tick",
+      "resident_id",
+      "prompt_hash",
+      "adapter_alias",
+      "model_revision_or_file_hash",
+      "temperature",
+      "token_limit",
+      "seed_requested",
+      "seed_accepted",
+      "response_hash",
+      "parsed_proposal",
+      "token_use",
+      "latency_ms",
+      "fallback_used",
+      "retry_count",
+      "conversation_id",
+      "provider_cache_state"
+    ]
+    rawPromptAndResponseCustody: "local_sealed_research_store"
+    publicReceiptContainsHashesOnly: true
+  }
+
+  template "ModelVillageActionReceipt" {
+    type: "model_village_action_receipt"
+    receiptType: "agent_action"
+    requiredFields: [
+      "receipt_id",
+      "run_id",
+      "tick",
+      "resident_id",
+      "proposal",
+      "proposal_hash",
+      "turn_opportunity_id",
+      "authorization_nonce",
+      "authorization_sequence",
+      "safety_receipt_id",
+      "action_decision_receipt_id",
+      "admission_decision",
+      "action",
+      "target",
+      "outcome",
+      "rejection_reason",
+      "pre_state_hash",
+      "post_state_hash",
+      "rollback_reference",
+      "player_visible_impact",
+      "prior_receipt_hash",
+      "allowed"
+    ]
+    mutationWithoutReceipt: "deny"
+    rollbackRequired: true
+  }
+
+  template "RunSummaryReceipt" {
+    type: "model_village_run_summary_receipt"
+    receiptType: "run_summary"
+    requiredFields: [
+      "run_id",
+      "condition",
+      "cooperative_event_completion_rate",
+      "valid_action_rate",
+      "safety_block_rate",
+      "reciprocity_rate",
+      "interaction_dominance",
+      "accepted_action_type_diversity",
+      "receipt_completeness",
+      "captured_response_replay_success",
+      "route_contamination_count",
+      "analysis_eligibility",
+      "contamination_reasons",
+      "proposal_rate",
+      "abstention_rate",
+      "receipt_chain_root"
+    ]
+    exploratoryFields: ["persona_retention_score"]
+    tokensLatencyAndCostAreDiagnosticsOnly: true
+    scientificClaimRequiresCompletedStudy: true
+  }
+
+  template "SafetyCheckReceipt" {
+    type: "model_village_safety_check_receipt"
+    receiptType: "safety_checked"
+    requiredFields: [
+      "receipt_id",
+      "run_id",
+      "tick",
+      "resident_id",
+      "policy_hash",
+      "proposal_hash",
+      "turn_opportunity_id",
+      "authorization_nonce",
+      "authorization_sequence",
+      "decision",
+      "reason",
+      "allowed"
+    ]
+    defaultDecision: "deny"
+  }
+
+  template "ActionDecisionReceipt" {
+    type: "model_village_action_decision_receipt"
+    receiptType: "action_decision"
+    requiredFields: [
+      "receipt_id",
+      "run_id",
+      "tick",
+      "resident_id",
+      "proposal_hash",
+      "turn_opportunity_id",
+      "authorization_nonce",
+      "authorization_sequence",
+      "action_vocabulary_hash",
+      "decision",
+      "reason",
+      "allowed"
+    ]
+    defaultDecision: "deny"
+  }
+
+  policy "EqualAffordanceRequired" {
+    decision: "block_run_when_affordances_differ"
+    compares: [
+      "system_scaffold",
+      "public_observation_function",
+      "memory_limit",
+      "action_vocabulary",
+      "tool_permissions",
+      "token_budget",
+      "temperature",
+      "timeout",
+      "retry_count",
+      "turn_opportunity"
+    ]
+    receiptRequired: true
+  }
+
+  policy "LockedModelRouteRequired" {
+    decision: "block_fallback_or_hidden_prompt_enhancement"
+    forceProviderRequired: true
+    fallbackAllowed: false
+    promptEnhancementAllowed: false
+    actualModelRevisionReceiptRequired: true
+  }
+
+  policy "WorldAndModelDeterminismSeparated" {
+    decision: "report_determinism_evidence_not_assumption"
+    worldSeedRequired: true
+    deterministicTurnScheduleRequired: true
+    modelSamplingSeedSupportMayBeUnknown: true
+    capturedResponseReplayRequired: true
+    temperatureZeroIsNotDeterminismProof: true
+  }
+
+  policy "ExperimentIsolationRequired" {
+    decision: "deny_external_side_effects"
+    blockedCapabilities: [
+      "filesystem",
+      "browser",
+      "payments",
+      "wallets",
+      "external_messages",
+      "physical_actuation",
+      "cross_run_memory",
+      "cross_village_communication"
+    ]
+    sandboxedCloneRequired: true
+    receiptRequired: true
+  }
+
+  policy "ReceiptedMutationRequired" {
+    decision: "block_unreceipted_world_mutation"
+    preMutationSnapshotRequired: true
+    rollbackReferenceRequired: true
+    priorReceiptHashRequired: true
+    playerVisibleImpactRequired: true
+  }
+
+  policy "BlindedAnalysisRequired" {
+    decision: "metadata_mask_model_identity_until_run_analysis"
+    residentModelKnowledgeAllowed: false
+    observerModelKnowledgeAllowed: false
+    transcriptScoringBlinded: true
+    behavioralIdentityBlindingClaimed: false
+    adapterBundleIsTreatment: true
+  }
+
+  policy "PilotClaimBoundary" {
+    decision: "block_confirmatory_claims_from_pilot"
+    allowedClaims: ["source_contract_present", "source_parses", "world_materializes", "canonical_scene_replays"]
+    blockedClaims: ["emergence_proven", "model_superiority", "population_effect", "fully_deterministic_inference"]
+  }
+
+  policy "HumanObserverConsentBoundary" {
+    decision: "read_only_without_interaction"
+    phaseZeroHumanInteractionAllowed: false
+    interactiveObserverRequiresConsent: true
+    withdrawalAndDeletionPathRequired: true
+    dependencyOptimizationAllowed: false
+  }
+
+  policy "OutcomeDefinitionsFrozenBeforeFirstTurn" {
+    decision: "block_run_without_frozen_outcomes"
+    challengeManifestRequired: true
+    metricSpecRequired: true
+    eventEligibilityFrozenBeforeTreatment: true
+    eventDeadlineRequired: true
+    eventSuccessPredicateRequired: true
+    permittedActionTypesRequired: true
+    minimumDistinctResidentsRequired: true
+  }
+
+  policy "NoSilentRunReplacement" {
+    decision: "preserve_and_mark_contaminated_runs"
+    contaminationTriggers: [
+      "affordance_mismatch",
+      "fallback_used",
+      "model_revision_or_route_drift",
+      "hidden_prompt_augmentation",
+      "missing_receipt",
+      "isolation_failure",
+      "provider_cache_state_unknown"
+    ]
+    replacementRequiresNewRunId: true
+    eligibilityDecidedWithoutOutcomeAccess: true
+    silentRetryOrReplacementAllowed: false
+  }
+
+  action register_run(manifest, validationReceipt) {
+    ModelVillageExperimentRuntime.lastRegistrationDecision = "deny"
+    ModelVillageExperimentRuntime.worldMutationAllowed = false
+    if (ModelVillageExperimentRuntime.phase == "idle") {
+      ModelVillageExperimentRuntime.phase = "blocked_invalid_manifest"
+      ModelVillageExperimentRuntime.manifestValidated = false
+      ModelVillageExperimentRuntime.manifestValidationReceiptId = ""
+      ModelVillageExperimentRuntime.stagedResidentCount = 0
+      ModelVillageExperimentRuntime.stagedResidentIds = []
+      ModelVillageExperimentRuntime.stagedSeatIds = []
+      ModelVillageExperimentRuntime.residentStagingOpen = false
+      ModelVillageExperimentRuntime.assignmentManifestHash = ""
+      ModelVillageExperimentRuntime.safetyDecision = "deny"
+      ModelVillageExperimentRuntime.pendingRunId = ""
+      ModelVillageExperimentRuntime.pendingTick = 0
+      ModelVillageExperimentRuntime.pendingResidentId = ""
+      ModelVillageExperimentRuntime.pendingProposalHash = ""
+      ModelVillageExperimentRuntime.pendingTurnOpportunityId = ""
+      ModelVillageExperimentRuntime.pendingAuthorizationNonce = ""
+      ModelVillageExperimentRuntime.pendingAuthorizationSequence = 0
+      ModelVillageExperimentRuntime.pendingSafetyReceiptId = ""
+      ModelVillageExperimentRuntime.pendingActionDecisionReceiptId = ""
+      ModelVillageExperimentRuntime.runContaminated = false
+      ModelVillageExperimentRuntime.contaminationReason = ""
+      if (ModelVillageExperimentRuntime.trustedManifestValidatorConfigured) {
+        if (validationReceipt.allowed) {
+          if (validationReceipt.signature_verified) {
+            if (validationReceipt.decision == "allow") {
+              if (validationReceipt.run_id == manifest.run_id) {
+                if (validationReceipt.manifest_hash == manifest.manifest_hash) {
+                  if (validationReceipt.validator_authority_id == ModelVillageExperimentRuntime.trustedManifestValidatorAuthorityId) {
+                    if (validationReceipt.validator_source_hash == ModelVillageExperimentRuntime.trustedManifestValidatorSourceHash) {
+                      if (validationReceipt.validator_registry_receipt_id == ModelVillageExperimentRuntime.trustedManifestValidatorRegistryReceiptId) {
+                        if (validationReceipt.validation_sequence > ModelVillageExperimentRuntime.lastManifestValidationSequence) {
+                          ModelVillageExperimentRuntime.manifestValidated = true
+                          ModelVillageExperimentRuntime.manifestValidationReceiptId = validationReceipt.receipt_id
+                          ModelVillageExperimentRuntime.lastManifestValidationSequence = validationReceipt.validation_sequence
+                          ModelVillageExperimentRuntime.lastRegistrationDecision = "allow"
+                          ModelVillageExperimentRuntime.phase = "manifest_registered"
+                          ModelVillageExperimentRuntime.runId = manifest.run_id
+                          ModelVillageExperimentRuntime.seedBlock = manifest.seed_block
+                          ModelVillageExperimentRuntime.condition = manifest.condition
+                          ModelVillageExperimentRuntime.assignmentManifestHash = manifest.blinded_assignment_hash
+                          ModelVillageExperimentRuntime.residentStagingOpen = true
+                          emit("model_village_run_registered", {
+                            run_id: manifest.run_id,
+                            receipt_id: manifest.receipt_id,
+                            manifest_hash: manifest.manifest_hash,
+                            validation_receipt_id: validationReceipt.receipt_id,
+                            validator_authority_id: validationReceipt.validator_authority_id,
+                            validator_registry_receipt_id: validationReceipt.validator_registry_receipt_id,
+                            validation_sequence: validationReceipt.validation_sequence,
+                            condition: manifest.condition,
+                            source_hashes_required: true,
+                            receipt_required: true
+                          })
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (ModelVillageExperimentRuntime.lastRegistrationDecision == "deny") {
+      emit("model_village_run_blocked", {
+        run_id: manifest.run_id,
+        validation_receipt_id: validationReceipt.receipt_id,
+        reason: "lifecycle_or_pinned_validator_admission_failed",
+        world_mutation_allowed: false
+      })
+    }
+  }
+
+  action stage_resident(seat) {
+    if (ModelVillageExperimentRuntime.manifestValidated) {
+      if (ModelVillageExperimentRuntime.residentStagingOpen) {
+        if (ModelVillageExperimentRuntime.stagedResidentCount < ModelVillageExperimentRuntime.residentCount) {
+          if (seat.run_id == ModelVillageExperimentRuntime.runId) {
+            if (seat.assignment_manifest_hash == ModelVillageExperimentRuntime.assignmentManifestHash) {
+              if (!ModelVillageExperimentRuntime.stagedResidentIds.includes(seat.resident_id)) {
+                if (!ModelVillageExperimentRuntime.stagedSeatIds.includes(seat.seat_id)) {
+                  ModelVillageExperimentRuntime.stagedResidentIds.push(seat.resident_id)
+                  ModelVillageExperimentRuntime.stagedSeatIds.push(seat.seat_id)
+                  ModelVillageExperimentRuntime.stagedResidentCount = ModelVillageExperimentRuntime.stagedResidentCount + 1
+                  ModelVillageExperimentRuntime.phase = "resident_staged"
+                  emit("model_village_resident_staged", {
+                    run_id: ModelVillageExperimentRuntime.runId,
+                    resident_id: seat.resident_id,
+                    seat_id: seat.seat_id,
+                    adapter_alias: seat.adapter_alias,
+                    staged_resident_count: ModelVillageExperimentRuntime.stagedResidentCount,
+                    model_identity_blinded: true,
+                    fallback_allowed: false
+                  })
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  action start_run() {
+    ModelVillageExperimentRuntime.worldMutationAllowed = false
+    if (ModelVillageExperimentRuntime.manifestValidated) {
+      if (ModelVillageExperimentRuntime.emergencyStopState == "armed") {
+        if (ModelVillageExperimentRuntime.phase == "resident_staged") {
+          if (ModelVillageExperimentRuntime.stagedResidentCount == ModelVillageExperimentRuntime.residentCount) {
+            ModelVillageExperimentRuntime.residentStagingOpen = false
+            ModelVillageExperimentRuntime.phase = "running"
+            emit("model_village_run_started", {
+              run_id: ModelVillageExperimentRuntime.runId,
+              staged_resident_count: ModelVillageExperimentRuntime.stagedResidentCount,
+              world_mutation_allowed: false,
+              safety_decision: ModelVillageExperimentRuntime.safetyDecision
+            })
+          }
+        }
+      }
+    }
+  }
+
+  action record_safety_decision(safetyReceipt, actionDecisionReceipt) {
+    ModelVillageExperimentRuntime.safetyDecision = "deny"
+    ModelVillageExperimentRuntime.worldMutationAllowed = false
+    ModelVillageExperimentRuntime.pendingRunId = ""
+    ModelVillageExperimentRuntime.pendingTick = 0
+    ModelVillageExperimentRuntime.pendingResidentId = ""
+    ModelVillageExperimentRuntime.pendingProposalHash = ""
+    ModelVillageExperimentRuntime.pendingTurnOpportunityId = ""
+    ModelVillageExperimentRuntime.pendingAuthorizationNonce = ""
+    ModelVillageExperimentRuntime.pendingAuthorizationSequence = 0
+    ModelVillageExperimentRuntime.pendingSafetyReceiptId = ""
+    ModelVillageExperimentRuntime.pendingActionDecisionReceiptId = ""
+    if (ModelVillageExperimentRuntime.manifestValidated) {
+      if (ModelVillageExperimentRuntime.phase == "running") {
+        if (ModelVillageExperimentRuntime.emergencyStopState == "armed") {
+          if (!ModelVillageExperimentRuntime.runContaminated) {
+            if (safetyReceipt.run_id == ModelVillageExperimentRuntime.runId) {
+              if (actionDecisionReceipt.run_id == ModelVillageExperimentRuntime.runId) {
+                if (safetyReceipt.tick == actionDecisionReceipt.tick) {
+                  if (safetyReceipt.resident_id == actionDecisionReceipt.resident_id) {
+                    if (safetyReceipt.proposal_hash == actionDecisionReceipt.proposal_hash) {
+                      if (safetyReceipt.turn_opportunity_id == actionDecisionReceipt.turn_opportunity_id) {
+                        if (safetyReceipt.authorization_nonce == actionDecisionReceipt.authorization_nonce) {
+                          if (safetyReceipt.authorization_sequence == actionDecisionReceipt.authorization_sequence) {
+                            if (safetyReceipt.authorization_sequence == ModelVillageExperimentRuntime.lastConsumedAuthorizationSequence + 1) {
+                              if (safetyReceipt.turn_opportunity_id != "") {
+                                if (safetyReceipt.authorization_nonce != "") {
+                                  if (safetyReceipt.allowed) {
+                                    if (safetyReceipt.decision == "allow") {
+                                      if (actionDecisionReceipt.allowed) {
+                                        if (actionDecisionReceipt.decision == "allow") {
+                                          ModelVillageExperimentRuntime.safetyDecision = "allow"
+                                          ModelVillageExperimentRuntime.pendingRunId = safetyReceipt.run_id
+                                          ModelVillageExperimentRuntime.pendingTick = safetyReceipt.tick
+                                          ModelVillageExperimentRuntime.pendingResidentId = safetyReceipt.resident_id
+                                          ModelVillageExperimentRuntime.pendingProposalHash = safetyReceipt.proposal_hash
+                                          ModelVillageExperimentRuntime.pendingTurnOpportunityId = safetyReceipt.turn_opportunity_id
+                                          ModelVillageExperimentRuntime.pendingAuthorizationNonce = safetyReceipt.authorization_nonce
+                                          ModelVillageExperimentRuntime.pendingAuthorizationSequence = safetyReceipt.authorization_sequence
+                                          ModelVillageExperimentRuntime.pendingSafetyReceiptId = safetyReceipt.receipt_id
+                                          ModelVillageExperimentRuntime.pendingActionDecisionReceiptId = actionDecisionReceipt.receipt_id
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    emit("model_village_safety_decision_recorded", {
+      receipt_id: safetyReceipt.receipt_id,
+      action_decision_receipt_id: actionDecisionReceipt.receipt_id,
+      run_id: safetyReceipt.run_id,
+      tick: safetyReceipt.tick,
+      resident_id: safetyReceipt.resident_id,
+      proposal_hash: safetyReceipt.proposal_hash,
+      turn_opportunity_id: safetyReceipt.turn_opportunity_id,
+      authorization_nonce: safetyReceipt.authorization_nonce,
+      authorization_sequence: safetyReceipt.authorization_sequence,
+      decision: safetyReceipt.decision,
+      authorization_armed: ModelVillageExperimentRuntime.safetyDecision
+    })
+  }
+
+  action record_model_turn(turnReceipt) {
+    ModelVillageExperimentRuntime.worldMutationAllowed = false
+    if (ModelVillageExperimentRuntime.phase == "running") {
+      if (turnReceipt.run_id == ModelVillageExperimentRuntime.runId) {
+        ModelVillageExperimentRuntime.receiptCount = ModelVillageExperimentRuntime.receiptCount + 1
+        ModelVillageExperimentRuntime.lastReceiptId = turnReceipt.receipt_id
+        if (turnReceipt.fallback_used) {
+          ModelVillageExperimentRuntime.runContaminated = true
+          ModelVillageExperimentRuntime.contaminationReason = "fallback_used"
+          ModelVillageExperimentRuntime.safetyDecision = "deny"
+          ModelVillageExperimentRuntime.pendingRunId = ""
+          ModelVillageExperimentRuntime.pendingTick = 0
+          ModelVillageExperimentRuntime.pendingResidentId = ""
+          ModelVillageExperimentRuntime.pendingProposalHash = ""
+          ModelVillageExperimentRuntime.pendingTurnOpportunityId = ""
+          ModelVillageExperimentRuntime.pendingAuthorizationNonce = ""
+          ModelVillageExperimentRuntime.pendingAuthorizationSequence = 0
+          ModelVillageExperimentRuntime.pendingSafetyReceiptId = ""
+          ModelVillageExperimentRuntime.pendingActionDecisionReceiptId = ""
+          emit("model_village_run_contaminated", {
+            run_id: ModelVillageExperimentRuntime.runId,
+            receipt_id: turnReceipt.receipt_id,
+            reason: "fallback_used",
+            preserved_for_disposition: true
+          })
+        }
+        if (!turnReceipt.fallback_used) {
+          ModelVillageExperimentRuntime.modelTurnsExecuted = ModelVillageExperimentRuntime.modelTurnsExecuted + 1
+          emit("model_village_model_turn_recorded", {
+            run_id: ModelVillageExperimentRuntime.runId,
+            receipt_id: turnReceipt.receipt_id,
+            resident_id: turnReceipt.resident_id,
+            response_hash: turnReceipt.response_hash,
+            seed_accepted: turnReceipt.seed_accepted,
+            fallback_used: false
+          })
+        }
+      }
+    }
+  }
+
+  action apply_action_decision(actionReceipt) {
+    ModelVillageExperimentRuntime.lastReceiptId = actionReceipt.receipt_id
+    ModelVillageExperimentRuntime.receiptCount = ModelVillageExperimentRuntime.receiptCount + 1
+    ModelVillageExperimentRuntime.worldMutationAllowed = false
+    ModelVillageExperimentRuntime.lastActionAdmissionDecision = "deny"
+    if (ModelVillageExperimentRuntime.manifestValidated) {
+      if (ModelVillageExperimentRuntime.emergencyStopState == "armed") {
+        if (ModelVillageExperimentRuntime.phase == "running") {
+          if (!ModelVillageExperimentRuntime.runContaminated) {
+            if (ModelVillageExperimentRuntime.safetyDecision == "allow") {
+              if (actionReceipt.run_id == ModelVillageExperimentRuntime.pendingRunId) {
+                if (actionReceipt.run_id == ModelVillageExperimentRuntime.runId) {
+                  if (actionReceipt.tick == ModelVillageExperimentRuntime.pendingTick) {
+                    if (actionReceipt.resident_id == ModelVillageExperimentRuntime.pendingResidentId) {
+                      if (actionReceipt.proposal_hash == ModelVillageExperimentRuntime.pendingProposalHash) {
+                        if (actionReceipt.turn_opportunity_id == ModelVillageExperimentRuntime.pendingTurnOpportunityId) {
+                          if (actionReceipt.authorization_nonce == ModelVillageExperimentRuntime.pendingAuthorizationNonce) {
+                            if (actionReceipt.authorization_sequence == ModelVillageExperimentRuntime.pendingAuthorizationSequence) {
+                              if (actionReceipt.safety_receipt_id == ModelVillageExperimentRuntime.pendingSafetyReceiptId) {
+                                if (actionReceipt.action_decision_receipt_id == ModelVillageExperimentRuntime.pendingActionDecisionReceiptId) {
+                                  if (actionReceipt.allowed) {
+                                    ModelVillageExperimentRuntime.worldMutationAllowed = true
+                                    ModelVillageExperimentRuntime.lastActionAdmissionDecision = "allow"
+                                    ModelVillageExperimentRuntime.agentActionsExecuted = ModelVillageExperimentRuntime.agentActionsExecuted + 1
+                                    emit("model_village_action_admitted", {
+                                      receipt_id: actionReceipt.receipt_id,
+                                      run_id: actionReceipt.run_id,
+                                      tick: actionReceipt.tick,
+                                      resident_id: actionReceipt.resident_id,
+                                      proposal_hash: actionReceipt.proposal_hash,
+                                      turn_opportunity_id: actionReceipt.turn_opportunity_id,
+                                      authorization_nonce: actionReceipt.authorization_nonce,
+                                      authorization_sequence: actionReceipt.authorization_sequence,
+                                      safety_receipt_id: actionReceipt.safety_receipt_id,
+                                      action_decision_receipt_id: actionReceipt.action_decision_receipt_id,
+                                      rollback_reference: actionReceipt.rollback_reference,
+                                      prior_receipt_hash: actionReceipt.prior_receipt_hash,
+                                      authorization_scope: "this_entrypoint_only",
+                                      mutation_transaction_binding_status: "target_not_observed"
+                                    })
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (ModelVillageExperimentRuntime.lastActionAdmissionDecision == "deny") {
+      emit("model_village_action_blocked", {
+        receipt_id: actionReceipt.receipt_id,
+        resident_id: actionReceipt.resident_id,
+        reason: "uncorrelated_denied_or_inactive_authorization"
+      })
+    }
+    if (ModelVillageExperimentRuntime.pendingAuthorizationSequence > ModelVillageExperimentRuntime.lastConsumedAuthorizationSequence) {
+      ModelVillageExperimentRuntime.lastConsumedAuthorizationSequence = ModelVillageExperimentRuntime.pendingAuthorizationSequence
+      ModelVillageExperimentRuntime.lastConsumedActionReceiptId = actionReceipt.receipt_id
+      emit("model_village_action_authorization_consumed", {
+        run_id: ModelVillageExperimentRuntime.runId,
+        action_receipt_id: actionReceipt.receipt_id,
+        authorization_sequence: ModelVillageExperimentRuntime.pendingAuthorizationSequence,
+        admission_decision: ModelVillageExperimentRuntime.lastActionAdmissionDecision
+      })
+    }
+    ModelVillageExperimentRuntime.safetyDecision = "deny"
+    ModelVillageExperimentRuntime.pendingRunId = ""
+    ModelVillageExperimentRuntime.pendingTick = 0
+    ModelVillageExperimentRuntime.pendingResidentId = ""
+    ModelVillageExperimentRuntime.pendingProposalHash = ""
+    ModelVillageExperimentRuntime.pendingTurnOpportunityId = ""
+    ModelVillageExperimentRuntime.pendingAuthorizationNonce = ""
+    ModelVillageExperimentRuntime.pendingAuthorizationSequence = 0
+    ModelVillageExperimentRuntime.pendingSafetyReceiptId = ""
+    ModelVillageExperimentRuntime.pendingActionDecisionReceiptId = ""
+    ModelVillageExperimentRuntime.worldMutationAllowed = false
+  }
+
+  action freeze_run(reason) {
+    ModelVillageExperimentRuntime.emergencyStopState = "triggered"
+    ModelVillageExperimentRuntime.phase = "frozen"
+    ModelVillageExperimentRuntime.safetyDecision = "deny"
+    ModelVillageExperimentRuntime.worldMutationAllowed = false
+    ModelVillageExperimentRuntime.pendingRunId = ""
+    ModelVillageExperimentRuntime.pendingTick = 0
+    ModelVillageExperimentRuntime.pendingResidentId = ""
+    ModelVillageExperimentRuntime.pendingProposalHash = ""
+    ModelVillageExperimentRuntime.pendingTurnOpportunityId = ""
+    ModelVillageExperimentRuntime.pendingAuthorizationNonce = ""
+    ModelVillageExperimentRuntime.pendingAuthorizationSequence = 0
+    ModelVillageExperimentRuntime.pendingSafetyReceiptId = ""
+    ModelVillageExperimentRuntime.pendingActionDecisionReceiptId = ""
+    ModelVillageExperimentRuntime.residentStagingOpen = false
+    ModelVillageExperimentRuntime.manifestValidated = false
+    emit("model_village_run_frozen", {
+      run_id: ModelVillageExperimentRuntime.runId,
+      reason: reason,
+      world_mutation_allowed: false
+    })
+  }
+
+  action close_run(summaryReceipt) {
+    ModelVillageExperimentRuntime.phase = "closed"
+    ModelVillageExperimentRuntime.worldMutationAllowed = false
+    ModelVillageExperimentRuntime.safetyDecision = "deny"
+    ModelVillageExperimentRuntime.residentStagingOpen = false
+    ModelVillageExperimentRuntime.manifestValidated = false
+    ModelVillageExperimentRuntime.pendingRunId = ""
+    ModelVillageExperimentRuntime.pendingTick = 0
+    ModelVillageExperimentRuntime.pendingResidentId = ""
+    ModelVillageExperimentRuntime.pendingProposalHash = ""
+    ModelVillageExperimentRuntime.pendingTurnOpportunityId = ""
+    ModelVillageExperimentRuntime.pendingAuthorizationNonce = ""
+    ModelVillageExperimentRuntime.pendingAuthorizationSequence = 0
+    ModelVillageExperimentRuntime.pendingSafetyReceiptId = ""
+    ModelVillageExperimentRuntime.pendingActionDecisionReceiptId = ""
+    emit("model_village_run_closed", {
+      run_id: ModelVillageExperimentRuntime.runId,
+      receipt_chain_root: summaryReceipt.receipt_chain_root,
+      scientific_claim_allowed: false,
+      next_gate: "captured_response_action_replay"
+    })
+  }
+}

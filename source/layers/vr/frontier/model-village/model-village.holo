@@ -1,0 +1,296 @@
+// HoloLand Model Village
+// Spatial source for a sandboxed, model-neutral agent ecology experiment.
+// Model routing, inference, scoring, and research claims do not belong here.
+
+composition "HoloLand Model Village Pilot" {
+  metadata {
+    title: "HoloLand Model Village Pilot"
+    version: "0.1.0"
+    layer: "vr"
+    atlas: "source/runtime-atlas.holo"
+    source: "source/layers/vr/frontier/model-village/model-village.holo"
+    policySource: "source/domains/agents/model-village-experiment.hsplus"
+    trialKernelSource: "source/proofs/model-village-trial-kernel.hs"
+    receiptEnvelope: "source/domains/receipts/runtime-receipt-envelope.hsplus"
+    experimentSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md"
+  }
+
+  environment {
+    mode: "virtual-reality"
+    theme: "research_village"
+    entry_surface: "browser"
+    target_surfaces: ["browser", "desktop", "webxr", "headset"]
+    social_mode: "sandboxed_experimental"
+    backgroundColor: "#172033"
+    ambient_light: 0.76
+    shadows: true
+  }
+
+  state {
+    place_id: "frontier-model-village"
+    domains: ["identity", "agents", "receipts", "economy", "safety"]
+    verticals: ["education", "entertainment"]
+    surfaces: ["browser", "desktop", "webxr", "headset"]
+    required_receipts: [
+      "run_manifest",
+      "observation_recorded",
+      "model_turn",
+      "safety_checked",
+      "agent_action",
+      "action_decision",
+      "run_summary"
+    ]
+    experimentPhase: "source_contract_pilot"
+    residentCapacity: 6
+    residentSeatsActive: 0
+    modelIdentityVisibleToResidents: false
+    observerAuthority: "read_only"
+    publicWorldStateOnly: true
+    privatePeerMemoryVisible: false
+    externalWorldAccess: false
+    physicalActionAccess: false
+    paymentAccess: false
+    mutationWithoutReceipt: "deny"
+    emergencyStopRequestState: "armed"
+    receiptChainStatus: "target_not_observed"
+    failClosedBehavior: "deny_mutation_and_request_freeze_when_runtime_gate_is_available"
+  }
+
+  template "ModelResidentAvatar" {
+    type: "model_village_resident"
+    mesh: "humanoid_marker"
+    material: "source_owned"
+    visible_to_observers: true
+    model_identity_blinded: true
+    public_state_only: true
+    action_receipt_required: true
+  }
+
+  template "ExperimentSurface" {
+    type: "model_village_experiment_surface"
+    mesh: "panel"
+    material: "inspectable"
+    observer_access: "read_only"
+    receipt_required: true
+  }
+
+  template "ChallengeStation" {
+    type: "cooperative_challenge_station"
+    mesh: "platform"
+    material: "source_owned"
+    scripted_challenge_only: true
+    external_side_effects: false
+    receipt_required: true
+  }
+
+  template "SafetyBoundary" {
+    type: "model_village_safety_boundary"
+    mesh: "boundary_marker"
+    material: "warning"
+    default_policy: "deny"
+    rollback_required: true
+    receipt_required: true
+  }
+
+  spatial_group "ResidentRing" {
+    object "ResidentSeat01" using "ModelResidentAvatar" {
+      label: "Resident 01"
+      position: [-3.0, 1.0, 1.8]
+      scale: [0.68, 1.5, 0.68]
+      material: { color: "#77d4c8", emissive: "#245f5b", emissiveIntensity: 0.12 }
+      properties: {
+        residentId: "resident-01"
+        seatOrdinal: 1
+        assignmentState: "sealed_until_run_manifest"
+        modelAlias: "blinded"
+        personaManifestRequired: true
+      }
+    }
+
+    object "ResidentSeat02" using "ModelResidentAvatar" {
+      label: "Resident 02"
+      position: [-1.8, 1.0, 2.8]
+      scale: [0.68, 1.5, 0.68]
+      material: { color: "#79a8f2", emissive: "#2f4f86", emissiveIntensity: 0.12 }
+      properties: {
+        residentId: "resident-02"
+        seatOrdinal: 2
+        assignmentState: "sealed_until_run_manifest"
+        modelAlias: "blinded"
+        personaManifestRequired: true
+      }
+    }
+
+    object "ResidentSeat03" using "ModelResidentAvatar" {
+      label: "Resident 03"
+      position: [-0.6, 1.0, 3.35]
+      scale: [0.68, 1.5, 0.68]
+      material: { color: "#c69ff2", emissive: "#63457f", emissiveIntensity: 0.12 }
+      properties: {
+        residentId: "resident-03"
+        seatOrdinal: 3
+        assignmentState: "sealed_until_run_manifest"
+        modelAlias: "blinded"
+        personaManifestRequired: true
+      }
+    }
+
+    object "ResidentSeat04" using "ModelResidentAvatar" {
+      label: "Resident 04"
+      position: [0.6, 1.0, 3.35]
+      scale: [0.68, 1.5, 0.68]
+      material: { color: "#f0bb78", emissive: "#78582d", emissiveIntensity: 0.12 }
+      properties: {
+        residentId: "resident-04"
+        seatOrdinal: 4
+        assignmentState: "sealed_until_run_manifest"
+        modelAlias: "blinded"
+        personaManifestRequired: true
+      }
+    }
+
+    object "ResidentSeat05" using "ModelResidentAvatar" {
+      label: "Resident 05"
+      position: [1.8, 1.0, 2.8]
+      scale: [0.68, 1.5, 0.68]
+      material: { color: "#e98eaa", emissive: "#7b3d53", emissiveIntensity: 0.12 }
+      properties: {
+        residentId: "resident-05"
+        seatOrdinal: 5
+        assignmentState: "sealed_until_run_manifest"
+        modelAlias: "blinded"
+        personaManifestRequired: true
+      }
+    }
+
+    object "ResidentSeat06" using "ModelResidentAvatar" {
+      label: "Resident 06"
+      position: [3.0, 1.0, 1.8]
+      scale: [0.68, 1.5, 0.68]
+      material: { color: "#9ccc7b", emissive: "#476b37", emissiveIntensity: 0.12 }
+      properties: {
+        residentId: "resident-06"
+        seatOrdinal: 6
+        assignmentState: "sealed_until_run_manifest"
+        modelAlias: "blinded"
+        personaManifestRequired: true
+      }
+    }
+  }
+
+  spatial_group "VillageInstitutions" {
+    object "VillageCommons" using "ChallengeStation" {
+      label: "Village Commons"
+      position: [0, 0.1, 0]
+      scale: [5.5, 0.2, 5.5]
+      material: { color: "#53657f", opacity: 0.82 }
+      properties: {
+        publicStateKey: "model_village.commons"
+        challengeScheduleSource: "source/proofs/model-village-trial-kernel.hs"
+        cooperativeEventsPredeclared: true
+      }
+    }
+
+    object "PublicStateBoard" using "ExperimentSurface" {
+      label: "Public World State"
+      position: [-2.2, 1.35, -2.4]
+      scale: [1.8, 1.0, 0.08]
+      material: { color: "#63b3ed", emissive: "#2b6b9a", emissiveIntensity: 0.16 }
+      properties: {
+        exposes: ["public_resources", "public_events", "public_norms", "public_action_receipts"]
+        excludes: ["private_peer_memory", "sealed_model_identity", "raw_provider_credentials"]
+      }
+    }
+
+    object "ReceiptLedger" using "ExperimentSurface" {
+      label: "Experiment Receipt Ledger"
+      position: [0, 1.35, -2.8]
+      scale: [1.8, 1.0, 0.08]
+      material: { color: "#e8b96c", emissive: "#8f6729", emissiveIntensity: 0.16 }
+      properties: {
+        appendOnlyTarget: true
+        priorReceiptHashRequired: true
+        receiptChainObserved: false
+        rawSecretsIncluded: false
+        observerReadable: true
+      }
+    }
+
+    object "ObserverDeck" using "ExperimentSurface" {
+      label: "Read-Only Observer Deck"
+      position: [2.2, 1.35, -2.4]
+      scale: [1.8, 1.0, 0.08]
+      material: { color: "#a98be8", emissive: "#604593", emissiveIntensity: 0.16 }
+      properties: {
+        authority: "read_only"
+        residentInteractionAllowed: false
+        modelIdentityBlinded: true
+        transcriptConsentRequiredWhenHumansEnter: true
+      }
+    }
+
+    object "IsolationBoundary" using "SafetyBoundary" {
+      label: "Experiment Isolation Boundary"
+      position: [0, 0.05, 5.4]
+      scale: [12.0, 0.1, 0.12]
+      properties: {
+        blocks: ["filesystem", "browser", "payments", "wallets", "external_messages", "physical_actuation"]
+        crossRunMemoryAllowed: false
+        crossVillageCommunicationAllowed: false
+      }
+    }
+
+    object "EmergencyStop" using "SafetyBoundary" {
+      @interactable
+      label: "Emergency Stop"
+      on_interact: "request_experiment_freeze"
+      position: [4.2, 1.0, -2.2]
+      scale: [0.7, 0.7, 0.7]
+      material: { color: "#ef5350", emissive: "#8f2020", emissiveIntensity: 0.24 }
+      properties: {
+        action: "request_runtime_freeze"
+        authority: "experiment_operator"
+        rollbackSnapshotRequired: true
+        targetPolicyEntrypoint: "ModelVillageExperimentRuntime.freeze_run"
+        bindingStatus: "blocked_until_cross_composition_action_binding"
+      }
+    }
+  }
+
+  logic {
+    action emit_receipt_written_event(kind, payload) {
+      emit("receipt_written", {
+        kind: kind,
+        payload: payload,
+        layer: "vr",
+        place_id: state.place_id,
+        source: "source/layers/vr/frontier/model-village/model-village.holo",
+        receipt_status: "event_only_not_persisted_or_hash_chained"
+      })
+      return true
+    }
+
+    action request_experiment_freeze(reason) {
+      state.emergencyStopRequestState = "triggered"
+      emit("model_village_freeze_requested", {
+        reason: reason,
+        world_mutation_allowed: false,
+        target_policy_entrypoint: "freeze_run",
+        cross_composition_binding_status: "not_observed",
+        safety_receipt_status: "target_not_observed"
+      })
+      emit("model_village_freeze_binding_required")
+    }
+
+    on_start {
+      emit("model_village_world_ready", {
+        status: "world_materialized",
+        phase: state.experimentPhase,
+        resident_capacity: state.residentCapacity,
+        model_turn_trace_available: false,
+        agent_action_trace_available: false,
+        run_manifest_receipt_emitted: false
+      })
+    }
+  }
+}
