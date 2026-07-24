@@ -6,6 +6,7 @@
 
 **Canonical product source:** HoloScript
 **Study class:** Mechanism pilot and rough variance signal, not confirmatory evidence
+**Production plan:** [Logistics, visual quality, and observer experience](./HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md)
 
 ## Purpose
 
