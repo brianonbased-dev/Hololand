@@ -2,7 +2,7 @@
 
 **Status:** Experience vision and execution plan
 
-**Version:** 0.1.0
+**Version:** 0.2.0
 
 **Date:** 2026-07-24
 
@@ -75,9 +75,13 @@ receipts.
 | Observed | The canonical three-format pilot parses, materializes twelve objects, and reproduces its canonical scene and pose/physics projections in two native headless runs. |
 | Observed | A 1600 x 900 HoloScript screenshot was captured from the canonical `.holo` source. |
 | Observed | The local hardware baseline reports an RTX 3060 Laptop GPU with 6 GB VRAM, 32 GB system memory, Node 24, and installed Chrome/Edge browsers. |
+| Observed | Focused current HoloScript physics validation passed 199 tests across rigid-body, advanced-cloth, SPH-fluid, and soft-body trait suites, plus 57 engine tests across PBD, soft-body, thermal, TET10 structural, and DEM granular solvers. |
+| Observed | HoloLand's legacy Three.js adapter source contains WebGL, physical-material, HDRI/PMREM, quality-profile, shadow, SSAO, bloom, color-grading, and FXAA/SMAA paths. This is source evidence, not a production pixel receipt. |
 | Gap | The scene is visually an instrument diagram: small in frame, sparse, primitive, flatly lit, and affected by label and panel collisions. |
 | Gap | `.hsplus` actions, `.hs` pipeline actions, live model turns, state mutations, captured-response replay, and the emergency-stop binding are not yet executed by the current headless path. |
-| Unknown | Browser WebGPU, headset performance, sustained frame timing, mobile rendering, and final visual quality have not been measured. |
+| Gap | The current CLI baseline launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. It proves semantic visibility, not realistic rendering. |
+| Gap | The React Three Fiber/Rapier path exists in source but has no focused render or physics tests. The native-renderer skeleton labels legacy renderer/R3F output as adapter evidence only, and its checker proves semantic IR rather than pixels. HoloLand's older physics playground is educational material, not production proof. |
+| Unknown | The local browser WebGPU probe was inconclusive because its Playwright dependency was unavailable. Headset performance, sustained frame timing, mobile rendering, and final visual quality have not been measured. |
 | Target | A premium browser, desktop, and XR living-observatory experience whose spectacle is HoloScript-authored, receipt-backed, and unable to contaminate the study. |
 
 ### Durable visual before-state
@@ -253,6 +257,221 @@ live treatment.
 An optional **Freeze Lattice** may drain color, close the isolation field, and
 crystallize the last valid receipt. It is forbidden until the real `.hsplus`
 freeze transition and emergency-stop binding are observed.
+
+## Physics and realistic-rendering showcase
+
+The village should demonstrate that HoloScript is not only an agent language.
+It can describe a world whose decisions become physical, whose simulations are
+inspectable, and whose rendering responds convincingly to light, material,
+scale, and motion.
+
+The production target is **physically grounded**, not an unsupported
+“photorealistic” claim. Realism comes from:
+
+- Stable scale and contact.
+- Plausible material response.
+- Environment-based lighting.
+- Soft, correctly placed shadows.
+- Motion with weight, damping, and inertia.
+- Solver-driven consequences.
+- A camera and exposure model that preserve material detail.
+- Receipts that connect every visible physical change to its source state.
+
+### Two physics lanes
+
+Physics is divided into two lanes so visual ambition cannot contaminate the
+experiment.
+
+| Lane | Purpose | May affect residents? | Execution rule |
+|---|---|---|---|
+| Canonical challenge physics | Produces legitimate public challenge state such as valve state, water level, bridge load, or cargo pose. | Yes, only through the same frozen public-state projection for every resident. | Fixed configuration, declared timestep, seeded inputs, canonical state digest, and captured replay are mandatory. |
+| Witness and exhibit physics | Produces richer cloth, fluid, granular, stress, heat, and force visualization for observers. | No. | Consumes sealed state or receipts, has no feedback edge, and may use recorded solver frames instead of live recomputation. |
+
+If a solver cannot reproduce its canonical state digest across the supported
+hardware path, it is not allowed to drive the experiment. It may still appear
+in the observer layer by replaying one sealed, hashed state-frame sequence.
+
+The renderer is a view of solver state, never the owner of solver truth:
+
+```text
+resident action receipt
+-> canonical mutation admission
+-> hashed physics request
+-> fixed-step solver or captured state frames
+-> physics state digest and SimulationContract evidence
+-> canonical public-state summary
+-> read-only high-fidelity observer rendering
+```
+
+The first live bridge should use the HoloScript runtime `PhysicsWorld` backed by
+`PhysicsWorldImpl`, fixed at 1/60 second. Register each body exactly once through
+`addBodyWithConfig`, carry authored friction, restitution, damping, groups, and
+shape into that registration, then hash the synchronized transforms and ordered
+contacts. Do not use the declarative `RigidbodyTrait` unchanged until its basic
+registration, duplicate-gravity, and potential double-registration paths are
+resolved by a focused test.
+
+### Village physics spine
+
+Use a small number of coherent set pieces rather than scattering unrelated
+technical demos around the village.
+
+| Set piece | HoloScript physics surface | Village role | First promotion level | Evidence required |
+|---|---|---|---|---|
+| Receipt Loom load-and-heat scan | `StructuralSolverTET10` plus `ThermalSolver` | The village landmark bends under a receipted load while stress and temperature sweep across its structure. | Sealed analysis overlay first. | Geometry/state digests, solver/config hashes, CAEL trace, convergence result, deformation scale disclosure, and matching replay root. |
+| Kinetic bridge and cargo | `RigidbodyTrait`, `PhysicsWorldImpl`/constraints, or one explicitly selected Rapier adapter path | Cargo has weight and inertia; impacts create believable spin while the bridge carries a receipt-backed load. | Fixed-step rigid-body tracer first. | Exact adapter identity, geometry hash, body-state digest, collision/load receipt, transform synchronization, and matching replay root. |
+| Granular Commons | `DEMSolver` | Luminous grain or resource stones pour, settle, and divide into village stores. | Post-run engine exhibit first. | Fixed-seed determinism result, solver state frames, SimulationContract evidence pack, instanced-render timing, and a dedicated receipt type before canonical use. |
+| Soft-material pavilion | `SoftBodySolver` plus `AdvancedClothSystem` | Deformable lanterns, awnings, sacks, and cushions make the village feel physically inhabited. | Observer-only atmosphere. | Repair and test the current advanced-cloth stepping integration, synchronize mesh state, validate collisions, hash the fixed wind/config, and capture deformation receipts. |
+| Bioluminescent reaction garden | `ReactionDiffusionSolver` with optional thermal coupling | Cooperation receipts seed luminous concentration and heat fields through a post-run analytical garden. | Sealed research/replay overlay. | Adapter, input/output-field hashes, units/range checks, state digest, and a legend that forbids biological-realism claims. |
+| Cistern and Living Water Court | `FluidSimulationTrait` SPH plus `HydraulicSolver`; MLS-MPM remains a conditional later comparison | Water moves when a verified valve or repair changes public state, then becomes a premium observer exhibit. | Sealed witness replay first; canonical only after cross-hardware proof. | Solver/config/source hashes, declared steps, mass or volume invariant, state-frame hashes, action receipt, renderer-buffer binding, sustained timing, and replay verdict. |
+
+Acoustic, electromagnetic, molecular-dynamics, multiphase, and quantum
+surfaces belong in a later engine gallery. Putting every solver into the hero
+village would weaken both legibility and credibility.
+
+### First physics wow sequence
+
+The first end-to-end vignette is the **Receipt Loom gravity court**:
+
+1. A valid admitted-action receipt releases one physical receipt token.
+2. An independently valid blocked-action receipt routes its token into a
+   different gravity chute.
+3. Missing or tampered receipts release nothing.
+4. Real contact, restitution, stacking, angular response, and sleeping produce
+   the visible motion.
+5. The exhibit seals ordered-contact and final-transform hashes beside the
+   source action receipt.
+
+The token motion is evidence visualization, never the cause of the canonical
+decision. After this passes, a constrained counterweight can drive the bridge.
+The materially rich cistern is the next hero shot. It may transition to a
+separately receipted native HoloScript WebGPU water view only after browser
+adapter/device acquisition, an advancing frame counter, exact shader/backend
+identity, screenshot, and sustained timing are observed. Until then it remains
+a WebGL material and sealed-state replay.
+
+### Physics Reveal
+
+After a run closes, the observer can enter **Physics Reveal**:
+
+- Time pauses at a receipted state.
+- Decorative color recedes while forces, contacts, constraints, pressure,
+  stress, temperature, or particle paths become visible.
+- The panel names the solver and adapter actually used.
+- It shows timestep, step count, body or particle count, geometry hash, state
+  hash, receipt ID, replay verdict, and measured solver/render time.
+- Selecting a visible effect jumps to the action, mutation, and solver receipt
+  that caused it.
+
+This is a stronger wow moment than a generic particle burst because it reveals
+the real machinery of the world.
+
+### Simulation proof contract
+
+Every promoted set piece inherits the six SimulationContract guarantees:
+
+1. Solver and rendered geometry hashes agree.
+2. Units and material parameters are validated.
+3. Stepping is fixed, declared, and frame-rate independent.
+4. Interactions carry simulation time and provenance.
+5. Configuration, results, timing, and state digests are recorded.
+6. Replay reaches the declared canonical result.
+
+Thermal and structural solve paths implement CAEL trace metadata and their
+focused trace/replay tests pass. Several other solvers have runtime tests but no
+dedicated receipt type. A test is evidence that a component behaves under its
+fixture; it is not a substitute for a Model Village run receipt. Likewise,
+`@rigidbody` metadata does not yet prove that a `.holo` object automatically
+steps the audited engine world, and the advanced-cloth system still needs its
+handler-to-`step(dt)` integration repaired and proven.
+
+### Current claim boundary
+
+| Phrase | May be used when |
+|---|---|
+| HoloScript-driven physics | A named HoloScript trait or solver produces the displayed state, and the render frame references that state digest. |
+| Deterministic physics replay | The same source/config/input produces the same declared state and receipt root through the target runtime. |
+| Physically grounded rendering | PBR materials, environment lighting, shadows, scale, contact, and motion are visible in an inspected browser screenshot. |
+| Real time | Frame and solver timing receipts meet the named profile on the named device. |
+| GPU accelerated | The exact solver or renderer reports a GPU backend in the captured runtime receipt. |
+| WebGPU | `navigator.gpu`, adapter acquisition, and device creation succeed in the exact browser receipt. |
+| Physically accurate | A domain benchmark and its stated error tolerance support that narrow claim. Never apply it generically to game cloth, fluids, or rigid bodies. |
+
+“Path traced,” “ray-traced global illumination,” “verified SSR,”
+“photorealistic,” and “all physics runs on GPU” are forbidden until those exact
+paths are implemented and visually or numerically receipted.
+
+## Realistic-rendering lane
+
+The immediate high-fidelity target is to turn one supported Three.js
+**WebGL** adapter path into a captured, tested HoloScript witness—not to rename
+legacy adapter source “production,” and not to begin with an unproven WebGPU
+rewrite.
+
+The honest launch wording, after the tracer passes, is:
+
+> HoloScript-authored world and observer projection, HoloScript CPU physics,
+> rendered through a HoloLand Three/WebGL bridge.
+
+### Rendering stack to prove
+
+| Layer | Present source capability | Model Village use | Promotion evidence |
+|---|---|---|---|
+| Material response | Legacy adapter source exposes `MeshPhysicalMaterial`; base color, normal, roughness, metalness, AO, emissive, clearcoat, transmission, IOR, sheen, and iridescence inputs | Basalt, timber, brushed metal, cloth, wet stone, water, glass, and receipt crystal | Prove preset-to-runtime binding, then capture a neutral material-ball screenshot plus hero closeups under the same exposure. |
+| Environment lighting | Adapter source includes HDRI loading, PMREM filtering, procedural sky, and scene environment maps; another browser path currently falls back from HDR to a color | Dusk frontier sky, believable reflections, and readable shadow fill | Locally custodied environment asset, provenance manifest, exact runtime route, offline load test, and screenshot receipt. |
+| Direct lighting | Legacy fidelity code contains directional, point, spot, and area lights with scalable shadows | Cool moon key, warm Receipt Loom fill, restrained windows | Live shadow-map/profile receipt and no detached or visibly swimming shadows. |
+| Post-processing | Legacy source contains SSAO, bloom, vignette, color grading, FXAA/SMAA, and output conversion; other runtime paths expose future-facing markers rather than proven passes | Contact depth, emissive focus, and final image cohesion | Inspect the active effect chain, capture an on/off comparison and frame cost, and disable effects when cost or artifacts fail the profile. |
+| Asset delivery | Loader source includes glTF/GLB, Draco, Meshopt, KTX2, caching, and progressive proxy/preview/full loading | Detailed buildings, inhabitants, terrain props, and texture sets | Asset hashes, exact decoder route, texture residency, time-to-first-frame, offline load, and full-tier promotion receipt. |
+| Adaptive quality | Source contains low/medium/high/ultra settings plus industrial/cinematic/mobile profiles | One source composition across browser, desktop, and XR | Prove effective-setting application, then record profile name, viewport, device, frame timing, and visual receipt. |
+
+Do not hotlink a production HDRI. Mirror or create an appropriately licensed
+environment asset, record provenance, hash it, and prove that the scene loads
+offline.
+
+Native WebGPU is a separate promotion lane. The current native backend defaults
+to an unlit pipeline and does not yet couple its update loop to physics. The
+WebGPU compiler has real adapter/device setup and a differentiated water shader,
+but its general material path is not yet full PBR: it lacks the complete
+metalness/specular/IBL/shadow/texture proof needed for that claim. Promote it as
+**native HoloScript WebGPU water or source-lit shading** only after a real
+hardware frame receipt; do not imply feature parity with the material-rich
+WebGL view.
+
+### Realism calibration scene
+
+Before polishing the village, build a small HoloScript-owned calibration view:
+
+- An 18% gray reference.
+- A chrome sphere.
+- A rough dielectric sphere.
+- A wet stone sample.
+- Timber and brushed-metal samples.
+- Stormglass and water samples.
+- A neutral key/fill environment.
+- A scale reference and contact plane.
+
+Capture it under Browser Safe and Desktop Hero. This catches color-space,
+exposure, missing environment, material-map, contact-shadow, and transmission
+errors before they are hidden inside the art direction.
+
+### Rendering acceptance
+
+- The browser receipt names WebGL or another observed backend; it never infers
+  one from source code.
+- The receipt records whether a known software renderer or GPU-disabled launch
+  path was detected.
+- ACES or another declared tone map and output color space are captured.
+- The chrome, rough dielectric, timber, metal, water, and glass samples remain
+  distinguishable without labels.
+- No crushed blacks, clipped emissive cores, detached shadows, light leaks,
+  obvious texture swimming, or transparent sorting failures appear in the hero
+  frame.
+- Wet stone and water read through lighting and material response, not blue
+  tint alone.
+- Physics contacts do not visibly float or penetrate in the accepted replay.
+- Quality-profile changes preserve canonical physics and experiment hashes.
+- Browser Safe remains compositionally complete when SSAO, bloom, and expensive
+  transparency are disabled.
 
 ## Research and visual integrity gates
 
@@ -433,9 +652,9 @@ chain.
 |---|---|---|
 | Q0 Instrument | Canonical twelve-object world remains deterministic. | Existing source-contract receipt. |
 | Q1 Visual tracer | Hero camera, terrain bowl, resident silhouettes, lighting hierarchy, and decluttered UI. | Inspected desktop and portrait screenshots. |
-| Q2 Living village | Institutions, idle life, Receipt Loom, and receipt-bound reactions. | Browser interaction receipt plus event assertions. |
-| Q3 Spectacle | Genesis, Receipt Constellation, and post-run condition comparison. | Ordered event, receipt, and captured-replay proof. |
-| Q4 Platform polish | Adaptive browser, desktop, WebXR, and headset profiles with accessibility and audio. | Hardware-specific frame, interaction, comfort, and screenshot receipts. |
+| Q2 Living village | Institutions, idle life, Receipt Loom, calibrated PBR materials, and receipt-bound reactions. | Browser interaction receipt, material calibration screenshots, and event assertions. |
+| Q3 Physical spectacle | Genesis, Receipt Constellation, at least one solver-driven set piece, Physics Reveal, and post-run condition comparison. | SimulationContract, ordered event/physics receipts, and captured-replay proof. |
+| Q4 Platform polish | Adaptive browser, desktop, WebXR, and headset profiles with accessibility, audio, and measured physics/render budgets. | Hardware-specific frame, solver timing, interaction, comfort, and screenshot receipts. |
 
 ### Provisional performance budgets
 
@@ -452,6 +671,20 @@ XR profiles disable depth of field, motion blur, heavy transparency, and
 expensive SSAO. Foliage, lanterns, path stones, and receipt particles should be
 instanced.
 
+Physics and rendering receive separate timing columns. The first tracer records
+`solver_ms`, `render_ms`, `frame_ms`, body count, particle count, constraint
+count, substeps, and sleeping-body count. Starting body and particle caps are
+chosen from measured parameter sweeps, not invented here. As a target, physics
+should consume no more than 25% of the Desktop Hero frame budget and 20% of the
+WebXR Safe frame budget; missed targets reduce simulation resolution or switch
+to sealed state-frame replay before lowering experimental integrity.
+
+For a promoted profile, use 600 warm-up frames followed by 1,800 measured
+frames. Report median, p95, and p99 frame time, dropped frames, draw calls,
+triangles, texture count, viewport, DPR, and the exact quality-profile hash.
+Shorter development samples may guide iteration but cannot support a published
+real-time claim.
+
 ### Screenshot and interaction matrix
 
 Capture and inspect:
@@ -462,6 +695,11 @@ Capture and inspect:
 - Browser Safe and Desktop Hero profiles.
 - Emergency-stop state.
 - Receipt event state.
+- Realism calibration materials under neutral lighting.
+- Rigid-body contact and collision state.
+- Fluid, cloth, or soft-body set-piece closeup when its adapter exists.
+- Physics Reveal with solver, state hash, and receipt visible.
+- Browser Safe comparison with expensive effects disabled.
 - Four-condition replay state.
 - WebXR and headset views when hardware exists.
 
@@ -523,10 +761,17 @@ supported. **Emergence proven** is not.
 | MV-P6 | Receipt Constellation | Observer projection | Every effect waits for a valid receipt; missing evidence fails dark. |
 | MV-P7 | Four-Village Fold | Exhibit replay composition | Four sealed conditions scrub to first divergence without inference calls or early unblinding. |
 | MV-P8 | Platform quality profiles | HoloScript profile source plus browser/hardware receipt harness | Browser, desktop, portrait, WebXR, accessibility, and comfort gates have receipts. |
+| MV-P9 | Rendering truth gate | HoloScript calibration composition plus HoloLand browser witness | WebGL/backend, color space, tone map, local HDRI, physical materials, shadows, frame timing, and screenshots are receipted. |
+| MV-P10 | Receipt Loom rigid-body tracer | HoloScript runtime `PhysicsWorld`/`PhysicsWorldImpl` through one `addBodyWithConfig` registration path | Valid admitted/blocked fixture receipts release tokens into distinct gravity chutes; missing/tampered receipts fail dark; 600 fixed 1/60 steps reproduce contact, sleep, and final-transform hashes. |
+| MV-P11 | Structural and thermal trust reveal | TET10 structural and thermal adapters plus observer projection | Receipt Loom and bridge fields render from sealed solver state with verified CAEL/SimulationContract evidence, declared deformation scale, and no observation drift. |
+| MV-P12 | Granular, soft-material, and reaction exhibits | DEM, soft-body/cloth, and reaction-diffusion state-frame adapters | Granary, pavilion, and garden replay as observer-only exhibits with exact adapter, limitations, state hashes, and measured render cost. |
+| MV-P13 | Physics Reveal | Exhibit replay composition | A viewer can inspect solver, timestep, geometry/state hashes, receipt, and first divergence for every displayed set piece. |
+| MV-P14 | Living Water Court | Fluid/hydraulic adapter, then optionally a separately gated native WebGPU water view | A receipted valve event changes sealed water state; WebGL and any native WebGPU view identify their exact backend, share a referenced state receipt, and make no unsupported accuracy or parity claim. |
 
 MV-P0 and MV-P5 are integrity-critical. MV-P1 may proceed in parallel using
-captured fixture receipts. No live model calls wait on visual polish, and no
-spectacle bypasses the runtime gates.
+captured fixture receipts. MV-P9 and MV-P10 are the first physics/render proof
+pair. No live model calls wait on visual polish, and no spectacle bypasses the
+runtime gates.
 
 ## Delivery waves
 
@@ -534,8 +779,8 @@ spectacle bypasses the runtime gates.
 |---|---:|---|
 | 0 - Production lock | 1-2 working days | Projection boundary, budgets, manifests, screenshot matrix, and ownership are frozen. |
 | 1 - Visual tracer | 3-5 working days | Hero greybox, six-seat kit, lighting, terrain, and research/cinematic modes reach Q1. |
-| 2 - Causal spectacle | 5-8 working days | Receipt Loom, receipt-bound reactions, Genesis, and fixture replay reach Q2-Q3. |
-| 3 - Platform polish | 3-5 working days | Browser/desktop profiles, accessibility, performance, and available XR proof reach Q4 where measured. |
+| 2 - Causal spectacle | 5-8 working days | Receipt Loom, rigid-body causal tracer, receipt-bound reactions, Genesis, and fixture replay reach Q2-Q3. |
+| 3 - Physics and platform polish | 5-8 working days | Cistern/bridge set pieces, Physics Reveal, browser/desktop profiles, accessibility, performance, and available XR proof reach Q4 where measured. |
 | 4 - Experiment rehearsal | Measured from tracer p95 | Twelve-run captured fixture rehearsal, incident drill, and sealed replay pass. |
 
 These are planning ranges, not delivery promises. Runtime gaps may change them.
@@ -560,6 +805,11 @@ Paid model calls begin only after:
 8. The observer projection is machine-proven read-only and absent from resident
    observations.
 
+High-fidelity observer physics does not block the live pilot when it remains
+strictly read-only. Any physics promoted into canonical resident-visible
+challenge state adds its SimulationContract and exact replay proof to this
+go/no-go list.
+
 ## Main risks
 
 | Risk | Control |
@@ -574,11 +824,15 @@ Paid model calls begin only after:
 | Cost runaway | Reserve worst-case cost before sealing and deny starts above the study ceiling. |
 | UI occlusion | Enforce screenshot matrix, focus labels, side roster, and no panels behind residents. |
 | XR performance or discomfort | Use explicit profiles, stationary observer posture, reduced effects, and device receipts. |
+| Rendered physics diverges from solver truth | Bind every frame sequence to solver state hashes; renderer interpolation never writes back. |
+| Nondeterminism across hardware | Use one fixed canonical runtime or sealed state-frame replay; never compare conditions produced by different physics paths. |
+| “Realistic” becomes an unbounded claim | Gate material, lighting, contact, motion, backend, and frame claims independently with screenshots and receipts. |
+| Legacy demo mistaken for production engine | Treat the old physics playground and compatibility PBD facade as references only; promote named HoloScript solvers and tested adapters. |
 | Premature scientific language | Maintain observed/target/gap registers and prohibit “emergence proven.” |
 
 ## Immediate build slice
 
-Run two tracks in parallel:
+Run three tracks in parallel:
 
 1. **Scientific closure:** implement the two-resident, one-tick
    captured-response tracer across the canonical `.holo`, `.hsplus`, and `.hs`
@@ -586,6 +840,10 @@ Run two tracks in parallel:
 2. **Visual tracer:** add the separate observer projection with a locked hero
    camera, terrain bowl, six stable silhouettes, Receipt Loom greybox, and
    decluttered research/cinematic modes.
+3. **Physics and rendering truth tracer:** build the neutral material
+   calibration view and one receipt-bound rigid-body impact/load in the
+   observer projection. Capture the exact renderer backend, material settings,
+   fixed physics step, state digest, frame cost, and hero/closeup screenshots.
 
 The visual tracer uses fixture receipts only. Its checker must prove:
 
@@ -595,6 +853,11 @@ The visual tracer uses fixture receipts only. Its checker must prove:
 - No resident-observation change.
 - No VFX without a referenced receipt.
 - A reproducible 1600 x 900 hero screenshot and 390 x 844 portrait screenshot.
+- A reproducible material calibration screenshot.
+- A physics state digest that replays independently of render frame rate.
+- No “GPU,” “WebGPU,” “real time,” or “physically accurate” label without its
+  specific runtime or benchmark evidence.
 
 That is the shortest path from the current diagram to something recognizably
-special while preserving the experiment that makes it meaningful.
+special: a beautiful village, a visible physics engine, and an experiment whose
+meaning remains intact.
