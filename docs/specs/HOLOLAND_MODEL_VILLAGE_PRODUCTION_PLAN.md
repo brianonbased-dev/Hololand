@@ -2,13 +2,15 @@
 
 **Status:** Execution plan with locked art direction
 
-**Version:** 0.5.0
+**Version:** 0.6.0
 
 **Date:** 2026-07-25
 
 **Canonical experiment contract:** [HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md](./HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md)
 
 **Canonical art direction:** [Stormglass Commons / Hearthlight Biorealism](./HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md)
+
+**Model-family embodiment lock:** [2026-07-25 decision and claim boundary](../reports/HOLOLAND_MODEL_VILLAGE_MODEL_FAMILY_EMBODIMENT_LOCK_2026-07-25.md)
 
 **Product source:** HoloScript
 
@@ -39,7 +41,9 @@ state, ordered receipts, and sealed replay data. It may not:
 - Write world state.
 - Change clocks, scheduling, actions, prompts, or mutations.
 - Enter any resident observation.
-- Reveal model or condition identity before the protocol permits unblinding.
+- Reveal family, adapter, model, or condition identity in
+  `research_live_blinded`, or before the post-lock protocol admits the terminal
+  commitment plus typed, verified binding and unblinding receipts.
 - Animate an action, consequence, or freeze before the corresponding receipt
   exists.
 - infer a causal event that the canonical receipt stream does not contain.
@@ -47,6 +51,19 @@ state, ordered receipts, and sealed replay data. It may not:
 The observer source is:
 
 `source/layers/vr/frontier/model-village/model-village-observer-projection.holo`
+
+The detachable public/post-lock family presentation is a separate
+presentation-only HoloScript source:
+
+`source/layers/vr/frontier/model-village/model-village-public-embodiments.holo`
+
+It has no adapter-assignment authority and is forbidden in
+`research_live_blinded`.
+
+The source policy requires typed verification and a fail-neutral result for
+missing, malformed, mismatched, or unverified post-lock evidence. Actual
+post-lock receipt verification and reveal execution remain unobserved until
+that runtime path is implemented and receipted.
 
 The first executing witness keeps the observer composition separate, parses it
 with `HoloCompositionParser`, compiles it with `SceneIRCompiler`, and projects
@@ -76,8 +93,10 @@ receipts.
 
 | Register | 2026-07-25 statement |
 |---|---|
-| Observed | Stormglass Commons, Hearthlight Biorealism, and the six Stormglass Craftfolk are locked in a HoloScript `.holo` / `.hsplus` / `.hs` source triad. A dedicated checker parses all three formats, matches the six identities across world, observer, kit, and proof, recomputes appearance digests, and verifies adapter/condition invariance. |
-| Observed | Two locally custodied concept targets define the production world and resident lineup. They are art targets, not runtime screenshots or proof that authored assets have shipped. |
+| Observed | Stormglass Commons, Hearthlight Biorealism, the neutral six-seat Craftfolk foundation, and a separate presentation-only public family overlay are locked in HoloScript. The focused v2 checker parses all three formats, validates the neutral research array and keyed public family catalog separately, rejects shared neutral/public accent values, recomputes separate research/public digests, verifies adapter/condition research invariance, and proves that the live research projection contains no public family names or mantles. |
+| Locked decision | The public cast is Claude, OpenAI, Gemini, Grok, GLM, and Brittney. The keyed catalog has no array-order experimental identity binding and does not assert six live model adapters. |
+| Locked decision | Neutral research aliases, civic roles, props, silhouettes, glyphs, and accents remain a separate persona layer outside the family mantle digest. |
+| Observed | The world concept, earlier neutral Craftfolk reference, and inspected model-family embodiment lineup are locally custodied art targets. They are not runtime screenshots or proof that authored assets have shipped. |
 | Observed | The refreshed browser witness renders six seat-stable, differently scaled resident proxies while retaining zero observer mutation, the bounded seven-field V4 comparison, WebGL2 hardware evidence, and the existing performance gate. |
 | Observed | The canonical three-format pilot parses, materializes twelve objects, and reproduces its canonical scene and pose/physics projections in two native headless runs. |
 | Observed | A 1600 x 900 HoloScript screenshot was captured from the canonical `.holo` source. |
@@ -97,6 +116,7 @@ receipts.
 | Gap | The bounded observer consumer toggle now passes. Full MV-P0 remains open for the twelve-object lifecycle and executed adapter permutations/post-inference outcome equivalence. The browser proves exact digest consumption of the bounded projection; it does not run the full semantic verifier or claim scientific equivalence. |
 | Gap | The older CLI baseline still launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. MV-P9 uses a separate, focused browser witness; it does not silently promote that CLI route. |
 | Gap | The current React Three adapter cannot be cited as an executing Model Village route: its typecheck still imports the removed `R3FCompiler` surface. The dedicated MV-P9 adapter is a bounded proof bridge, not a claim that the general platform renderer is repaired. |
+| Gap | Detachable mantle assets, profile admission receipts, and production family characters remain targets until their individual evidence gates close. |
 | Unknown | WebGPU, headset performance, long-duration thermal behavior, browser families beyond the named Chrome run, and cross-hardware pixel or physics agreement remain unmeasured. |
 | Target | A premium browser, desktop, and XR living-observatory experience whose spectacle is HoloScript-authored, receipt-backed, and unable to contaminate the study. |
 
@@ -178,9 +198,23 @@ and platform profile passes a closed screenshot and receipt loop.
 
 ![Stormglass Commons concept](../assets/model-village/model-village-stormglass-commons-concept-2026-07-25.png)
 
-![Stormglass Craftfolk lineup](../assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png)
+![Neutral Stormglass Craftfolk reference](../assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png)
 
-These images are locally custodied art targets, not runtime evidence.
+These existing images are locally custodied art targets, not runtime evidence.
+The earlier fictional Craftfolk names are superseded; the lineup remains the
+neutral body, material, silhouette, and role reference for live blinded
+research.
+
+![Stormglass detachable family mantle study](../assets/model-village/model-village-stormglass-family-craftfolk-lineup-2026-07-25.png)
+
+The inspected family lineup is a detachable-public-mantle construction study
+on six identical faceless dress forms. It contains no resident face, body, role
+prop, seat glyph, neutral accent, or research alias to correlate with the
+neutral lineup. Plaque placement is display-only; the machine catalog is keyed
+rather than zipped to the resident array. Its SHA-256 is
+`1925248b8f4b5a65a3cd367022b8e80e03462b771af30d9a5428f4397a135fe1`.
+It is a concept target, not an authored runtime body, rig, mantle, animation,
+live-model route, or post-lock receipt.
 
 ### Composition
 
@@ -200,24 +234,50 @@ provisional 40-50 degree field of view.
 
 ### Residents
 
-The six Stormglass Craftfolk need to read as inhabitants, not colored data
-points.
+The six Stormglass Family Craftfolk need to read as inhabitants, not colored
+data points or corporate mascots.
 
 - Use one shared near-human kit with readable face, head, torso, shoulders,
   hands, practical workwear, and one fixed seat glyph.
-- Distinguish persona/seat through silhouette, number or icon, and restrained
-  accent color together.
-- Keep each persona's appearance identical in every condition.
-- Never encode adapter assignment, model family, provider, performance, or
-  outcome in color, silhouette, label, animation, or sound.
+- Separate the shared body/rig, detachable family mantle, and civic-role prop
+  kit. The civic role remains a neutral persona layer, independent of family
+  and excluded from the family mantle manifest and public-embodiment digest.
+- Distinguish persona/seat through silhouette, number or icon, pattern, and
+  restrained accent color together.
+- Keep each persona's neutral research appearance identical in every condition.
+- In `research_live_blinded`, never encode family, adapter assignment, provider,
+  exact revision, performance, or outcome in color, silhouette, label,
+  animation, or sound.
+- In `village_story_unblinded`, show the public family name and detachable
+  HoloLand-authored mantle with the independent-project disclosure. Do not use
+  copied provider logos, official mascots, or trade dress.
+- In `research_replay_postlock`, fail to the neutral profile unless the terminal
+  commitment, family-binding receipt, and unblinding receipt pass typed
+  verification. Actual execution of this path remains an unclosed runtime gate.
 - Provide neutral idle, listening, and proposal gestures.
 - A gesture may imply an admitted action only after its receipt exists.
-- Use shared rig, materials, atlases, instancing, and three levels of detail.
+- The production asset is specified to use a shared rig, materials, atlases,
+  instancing, and three levels of detail; no authored resident rig or mantle is
+  yet integrated at runtime.
 
-The fixed roster is Nera Fen (water steward), Calder Voss (repairwright),
-Tamsin Reed (seedkeeper), Orren Lark (Commons host), Suri Kest
-(courier-cartographer), and Vale Rook (ledger witness). These roles are
-presentation and persona identity, not capability classes.
+| Public identity | Family ID | Surface |
+|---|---|---|
+| Brittney | `sovereign` | `brittney-holoshell` |
+| Claude | `anthropic` | `claude-desktop` |
+| Gemini | `google` | `gemini-antigravity` |
+| GLM | `ollama` | `ollama-cloud` |
+| Grok | `xai` | `grok-hardware` |
+| OpenAI | `openai` | `codex-hardware` |
+
+The keyed public catalog is treated as an unordered identity set. Display
+position and serialization order are not research seat, alias, persona,
+civic-role, prop, silhouette, neutral-accent, adapter, or exact-model bindings.
+Any post-lock association is created only by a verified family-binding and
+unblinding receipt after terminal commitment. Hidden public catalog objects
+share one inert rest position; gallery layout and post-lock resident placement
+come from separate admitted manifests. All public family presentations carry:
+
+> HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers.
 
 Locked first-pass resident budgets:
 
@@ -280,8 +340,9 @@ notice a public problem
 - **0-5 seconds:** arrive at the observer deck with all six residents, the
   Commons, and the challenge landmark readable in one frame.
 - **5-10 seconds:** HoloScript Genesis assembles and seals the run.
-- **10-18 seconds:** six stable persona silhouettes activate with no model or
-  condition identity.
+- **10-18 seconds:** in `research_live_blinded`, six stable neutral persona
+  silhouettes activate as `Resident 01` through `Resident 06`, with no family,
+  adapter, model, or condition identity.
 - **18-30 seconds:** a public challenge changes the canonical world, followed
   by one receipt-backed proposal, admitted action, or blocked action.
 
@@ -318,7 +379,7 @@ live treatment.
 | The Village Needs Something | A cistern drains, bridge fractures, or harvest lattice destabilizes so the frozen challenge is visually legible. | Canonical public state, identical for every resident and included in its hash. | Challenge-state transition and equal observation projection. |
 | Receipt Constellation | An admitted action weaves a light path from resident to target; a denied external action stops at the isolation boundary. | Observer-only, adapter-neutral, emitted after the receipt. | Displayed receipt ID, prior hash, action status, and pre/post-state evidence. |
 | Consequence Crescendo | Cooperation restores water, reconnects a bridge, or balances a harvest system. | Deterministic rendering of actual state; never an “emergence detected” effect. | Canonical state transition and challenge predicate receipt. |
-| Four-Village Fold | Four miniature villages unfold after closure and replay the same seed across mixed and homogeneous conditions. | Sealed captured-response replay; identities remain blinded until the reveal stage. | Equal replay root, first-divergence index, and comparison receipt. |
+| Four-Village Fold | Four miniature villages unfold after closure and replay the same seed across mixed and homogeneous conditions. | Sealed captured-response replay; identities remain neutral until typed verification admits the terminal commitment plus binding and unblinding receipts for `research_replay_postlock`. Missing, malformed, mismatched, or unverified evidence fails neutral. | Equal replay root, first-divergence index, terminal commitment, family-binding receipt, unblinding receipt, and comparison receipt. |
 
 An optional **Freeze Lattice** may drain color, close the isolation field, and
 crystallize the last valid receipt. It is forbidden until the real `.hsplus`
@@ -549,13 +610,16 @@ The projection cannot be promoted until:
 
 1. Projection on/off produces identical canonical scene, pose, clock, public
    state, and resident `ObservationEnvelope` hashes.
-2. Adapter permutations produce no identity metadata, color, silhouette,
-   label, animation, or audio leakage.
+2. Adapter permutations produce no family, adapter, model, or condition
+   metadata, color, silhouette, label, animation, or audio leakage in
+   `research_live_blinded`.
 3. Every displayed action and consequence resolves to a canonical receipt.
 4. Observer input has no path to model prompts, clocks, actions, or world
    mutations.
 5. Visual workload cannot change logical scheduling.
-6. Comparison labels remain blinded until integrity dispositions are frozen.
+6. Comparison labels remain blinded until integrity dispositions are frozen,
+   the terminal commitment verifies, and binding/unblinding receipts admit the
+   reveal.
 7. Cinematic time compression exists only in sealed replay.
 8. Toggling quality profiles leaves experiment hashes unchanged.
 
@@ -584,6 +648,11 @@ it must not create treatment-dependent retry behavior. A replacement, when the
 frozen rule permits it, receives a new run ID and belongs to a separate
 replacement batch.
 
+The six public family names do not change this scale. Phase 1 still plans three
+sealed adapters rotated across six personas and twelve village-runs. A family
+mantle is not evidence that a corresponding live adapter or exact model revision
+executed.
+
 ## Crew
 
 | Role | Responsibility |
@@ -598,7 +667,10 @@ replacement batch.
 One person may cover protocol lead and data custodian. One person may cover
 visual operation and look-development QA. Do not combine run conductor and
 safety controller during a live pilot. Unblinding should require both protocol
-lead and data custodian.
+lead and data custodian. The observer still requires the terminal commitment,
+typed family-binding receipt, and typed unblinding receipt; human authorization
+does not bypass verification or the fail-neutral presentation gate. Runtime
+execution of that post-lock gate remains unobserved.
 
 ## Production calendar
 
@@ -813,6 +885,9 @@ Use at least five fresh testers for the first qualitative gate:
 - No displayed effect is orphaned from a receipt.
 - No tester can infer adapter assignment from resident presentation before
   unblinding.
+- In public story mode, every tester can distinguish the six original
+  HoloLand-authored family mantles without reading them as provider endorsement
+  or as proof of a live model route.
 
 The language in the experience remains bounded: **coordination trace**,
 **challenge completed**, or **unscripted sequence** are acceptable when
@@ -824,7 +899,7 @@ supported. **Emergence proven** is not.
 |---|---|---|---|
 | MV-P0 | Observer-boundary gate | Observer projection plus Model Village checker | Projection on/off and adapter permutations preserve canonical and observation hashes; no write path exists. |
 | MV-P1 | Hero greybox | `model-village-observer-projection.holo` | New inspected hero and portrait screenshots fix scale, depth, camera, labels, and control placement. |
-| MV-P2 | Six-seat resident kit | HoloScript objects/assets referenced by the observer projection | Six stable silhouettes read at distance and remain invariant across conditions. |
+| MV-P2 | Six-seat resident kit | HoloScript objects/assets referenced by the observer projection | Six stable neutral silhouettes read at distance and remain invariant across conditions; detachable family mantles appear only in admitted public/post-lock profiles. |
 | MV-P3 | Living Commons | Receipt Loom plus one frozen challenge visual | One fixture challenge produces a real, identical public consequence and a receipt-bound visual response. |
 | MV-P4 | Research mezzanine | Read-only observer state and receipt panels | Run, turn, challenge, safety, and chain state are legible without overlapping the village. |
 | MV-P5 | Two-resident causal tracer | Canonical `.holo`, `.hsplus`, `.hs`, and captured fixtures | One admitted action, one blocked external action, one public consequence, and matching captured replay root. |
@@ -895,7 +970,7 @@ go/no-go list.
 |---|---|
 | Viewer-side fiction | Require a canonical receipt or show unverified; never fabricate causality. |
 | Experimental contamination | Separate compositions and prove hash equivalence with projection enabled and disabled. |
-| Visual adapter leakage | Bind appearance only to fixed persona and seat manifests; permutation-test the result. |
+| Visual adapter leakage | Keep neutral research appearance bound to fixed persona/seat manifests, keep public family mantles in a separate digest, and permutation-test the live research profile. |
 | Cinematic pacing changes treatment | Keep live execution unpaced; compress only sealed replay. |
 | Safety theater | Do not show a successful freeze until the runtime-bound stop transition is observed. |
 | Provider or price drift | Pin routes and revisions, hash price/quota snapshots, and freeze on drift. |
@@ -912,19 +987,21 @@ go/no-go list.
 ## Immediate next build slice
 
 The two-resident runtime, visual greybox, physics gate, rendering truth gate,
-and bounded observer consumer now execute. Stormglass Commons, Hearthlight
-Biorealism, and the six Stormglass Craftfolk are now locked in HoloScript
-source. The next three tracks are:
+and bounded observer consumer now execute. Stormglass Commons and Hearthlight
+Biorealism are locked. The public roster is Claude, OpenAI, Gemini, Grok, GLM,
+and Brittney, while the current executing observer remains a neutral capsule
+witness. The next three tracks are:
 
 1. **Six-resident zero-provider rehearsal:** expand the bounded runtime from two
    subject-bound observations to all six seats, preserve the frozen assignment
    matrix, run the deterministic schedule without provider calls, and retain
    the same semantic verifier, stop, persistence, replay, and observer gates.
 2. **Living Commons production pass:** promote the current distinct resident
-   proxies to one locally custodied shared humanoid kit, replace the remaining
-   primitive cottages with one modular authored building kit, add ambient life
-   and audio only after source/asset receipts, and keep every state-driven cue
-   tied to an existing receipt. This remains observer-only work.
+   proxies to one locally custodied shared humanoid kit with a neutral research
+   mantle and detachable family mantles, replace the remaining primitive
+   cottages with one modular authored building kit, add ambient life and audio
+   only after source/asset receipts, and keep every state-driven cue tied to an
+   existing receipt. This remains observer-only work.
 3. **Platform profile proof:** retain the measured desktop and portrait gates,
    then add one real mobile/WebXR or headset profile without weakening material,
    backend, accessibility, comfort, and no-network evidence.
@@ -935,7 +1012,8 @@ physics-fixture evidence. Its checker proves:
 
 - No canonical object-count change.
 - No observer write authority.
-- No adapter-identity presentation field.
+- No family or adapter-identity presentation field in the current live-blinded
+  proxy witness.
 - No bounded resident-observation or authoritative-host-state change.
 - No VFX without a referenced receipt.
 - A reproducible 1600 x 900 hero screenshot and 390 x 844 portrait screenshot.
@@ -969,12 +1047,15 @@ start_run -> stop/end` executes through the canonical lifecycle.
 
 ### MV-V1: one resident asset in shadow mode
 
-Author and locally custody one uncompressed standard GLB for Nera Fen before
-replacing any other capsule. Its HoloScript manifest owns the exact path,
-SHA-256, byte size, triangle/material/texture/bone/clip counts, license,
-provenance, anchors, LOD, and zero-external-URI assertion. The host and browser
-must recompute the same hash; the observer hides Nera's capsule only after the
-verified asset attaches successfully.
+Author and locally custody one uncompressed standard GLB for the shared neutral
+base body, exercised first against Seat 01 and its neutral research mantle,
+before replacing any other capsule. Its
+HoloScript manifest owns the exact path, SHA-256, byte size,
+triangle/material/texture/bone/clip counts, license, provenance, anchors, LOD,
+and zero-external-URI assertion. The host and browser must recompute the same
+hash; the observer hides the Seat 01 capsule only after the verified neutral
+asset attaches successfully. Public mantle manifests are a separate catalog,
+have no static Seat 01 association, and cannot enter `research_live_blinded`.
 
 The first acceptance proves the loader, custody, scale, grounding, shadows,
 profile budget, zero network requests, and zero authoritative mutation. The

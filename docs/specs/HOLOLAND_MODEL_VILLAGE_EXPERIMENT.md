@@ -2,12 +2,13 @@
 
 **Status:** Phase 0B bounded engineering tracer observed; Phase 1 blocked
 
-**Version:** 0.4.1
+**Version:** 0.5.0
 
 **Canonical product source:** HoloScript
 **Study class:** Mechanism pilot and rough variance signal, not confirmatory evidence
 **Production plan:** [Logistics, visual quality, and observer experience](./HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md)
-**Art direction:** [Stormglass Commons and the six fixed residents](./HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md)
+**Art direction:** [Stormglass Commons, public family embodiments, and blinded research aliases](./HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md)
+**Embodiment lock:** [2026-07-25 decision and claim boundary](../reports/HOLOLAND_MODEL_VILLAGE_MODEL_FAMILY_EMBODIMENT_LOCK_2026-07-25.md)
 
 ## Purpose
 
@@ -31,6 +32,49 @@ path.
 This document separates what is observed now from the experiment we intend to
 run. A source file or parser success is not a behavioral result.
 
+## Presentation identity is not treatment identity
+
+The public HoloLand cast embodies six agent families:
+
+| Public identity | Family ID | Surface |
+|---|---|---|
+| Brittney | `sovereign` | `brittney-holoshell` |
+| Claude | `anthropic` | `claude-desktop` |
+| Gemini | `google` | `gemini-antigravity` |
+| GLM | `ollama` | `ollama-cloud` |
+| Grok | `xai` | `grok-hardware` |
+| OpenAI | `openai` | `codex-hardware` |
+
+This is an exhibit identity layer, not the experimental assignment matrix. The
+study still contains three adapters rotated across six personas, four
+conditions per seed block, three seed blocks, and twelve planned village-runs.
+The keyed public catalog is treated as an unordered identity set. Display
+position and serialization order are not bindings to a research seat,
+`Resident 0N` alias, persona, civic role, prop, silhouette, neutral accent,
+adapter, provider route, or exact model revision. Those neutral
+research-persona fields remain in a separate catalog. Public objects share one
+inert rest position; story placement comes from a public gallery manifest, and
+post-lock resident placement comes only from a verified family-binding receipt.
+
+The observer admits one of three profiles:
+
+| Profile | Identity contract |
+|---|---|
+| `village_story_unblinded` | Shows public family names and detachable family mantles, makes no live-adapter claim, and displays the independent-project disclosure. |
+| `research_live_blinded` | Shows only `Resident 01` through `Resident 06` and neutral mantles. Family and adapter metadata remain outside resident observations and live observer presentation. |
+| `research_replay_postlock` | May reveal a bound family identity only after typed verification of the terminal commitment, family-binding receipt, and unblinding receipt. Missing, malformed, mismatched, or unverified evidence fails to the neutral profile. |
+
+The civic-role kit is part of the neutral persona layer, remains independent of
+family, and is excluded from the family mantle manifest and public-embodiment
+digest. All residents retain the same logical affordances. Public/post-lock
+presentations carry:
+
+> HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers.
+
+The source policy requires that typed, fail-neutral admission behavior. Actual
+post-lock receipt verification and reveal execution remain unobserved until the
+runtime implementation exists and produces its own receipt.
+
 ## Claim register
 
 | Register | Current statement |
@@ -43,6 +87,8 @@ run. A source file or parser success is not a behavioral result.
 | Observed | A fresh source replay matches ordered decisions, post-state hashes, action root, and terminal commitment. The visible `.holo` declares the bounded stop reason and target; the bridge hashes that dispatch request, matches it to the signed stop plan and `.hsplus` invocation, dispatches `ModelVillagePhase0BBehavior.freeze_run`, and seals a safety receipt. The full outer verifier requires the external trusted configuration and reverifies both main and stop V4 receipts. Its self-hash check alone proves only receipt self-integrity. |
 | Observed | The Phase 0B observer consumes one sealed four-object V4 execution after sealing, introduces zero experiment executions, and preserves the complete canonical payload plus the seven scene, pose, clock, public-state, schedule, resident-observation, and action-root fields. A separate HoloLand browser off/on sandwich withholds and then SHA-256-acknowledges one canonical payload before presentation; the browser renders only from that parsed acknowledged string while the complete host physics receipt and compiled source hashes remain unchanged. The observer `.holo` and `.hsplus` sources remain hash-bound and read-only. |
 | Observed | The read-only Living Commons presentation derives three public water units, one admitted `contribute_water` action, and one blocked `deny_external_message` action from the bounded receipt. The blocked receipt links to the admitted receipt and equals the terminal action root. A separate binding derived from the fully verified execution ledger anchors both receipt hashes, their link, the root, and the source-run/terminal commitments before the browser may render. Its cistern, hearth, receipt halo, and boundary ward reference those existing fields or action receipts. This is observer evidence only and does not enter resident observations. See the [2026-07-25 witness](../reports/HOLOLAND_MODEL_VILLAGE_PHASE0B_OBSERVER_LIVING_COMMONS_2026-07-25.md). |
+| Locked decision | The public story/replay catalog is Claude, OpenAI, Gemini, Grok, GLM, and Brittney. It is keyed by public-embodiment ID and has no array-order or experimental identity binding. |
+| Locked decision | Live research uses the separate neutral `Resident 01` through `Resident 06` alias catalog. This does not assert six live model adapters or alter the frozen three-adapter study design. |
 | Target | Locked model adapters drive six residents through identical, seeded village runs; every observation, model turn, action decision, mutation, rollback reference, and run summary is receipted. |
 | Gap | Phase 0B proves only the named bounded source subsets and a file-backed single-process bridge. Live models, provider routes, full or native `.hs`/`.hsplus` execution, native `.holo` lifecycle and cross-composition dispatch, physics execution by this tracer, production validator provisioning/custody, process-crash durability, and production multi-process/CAS/fleet durability remain unobserved. The frozen Phase 1 manifests are inputs, not proof that isolation, budgets, six-resident lifecycle, live routing, custody, or the overall Phase 1 go gate is ready. |
 | Forbidden claim | No emergence, model superiority, population effect, inference determinism, production trust or durability, process-crash durability, Phase 1 readiness, or completed scientific experiment may be claimed from this bounded tracer. |
@@ -51,9 +97,10 @@ run. A source file or parser success is not a behavioral result.
 
 | Format | Owns | Canonical source |
 |---|---|---|
-| `.holo` | Village space, six resident embodiments, commons, public state, observer deck, isolation boundary, receipt ledger, emergency stop | `source/layers/vr/frontier/model-village/model-village.holo` |
-| `.hsplus` | Study design, resident and adapter contracts, equal affordances, safety/isolation policy, receipt envelopes, claim boundary | `source/domains/agents/model-village-experiment.hsplus` |
-| `.hs` | Trial pipeline, randomized-block matrix, deterministic world schedule target, metrics, replay and capability gates | `source/proofs/model-village-trial-kernel.hs` |
+| `.holo` | Village space, six neutral research embodiments, commons, public state, observer deck, isolation boundary, receipt ledger, emergency stop | `source/layers/vr/frontier/model-village/model-village.holo` |
+| `.holo` public overlay | Detachable public family manifests with no adapter-assignment authority and no live-research load permission | `source/layers/vr/frontier/model-village/model-village-public-embodiments.holo` |
+| `.hsplus` | Study design, resident and adapter contracts, equal affordances, identity-presentation profiles, safety/isolation policy, receipt envelopes, claim boundary | `source/domains/agents/model-village-experiment.hsplus` |
+| `.hs` | Trial pipeline, randomized-block matrix, deterministic world schedule target, metrics, replay, identity noninterference, and capability gates | `source/proofs/model-village-trial-kernel.hs` |
 
 JavaScript may invoke parsers, invoke the headless runtime, canonicalize receipts,
 and verify hashes. It must not contain resident reasoning, village rules,
@@ -137,12 +184,23 @@ In Phase 1, every resident will receive the same:
 provider controls are not assumed to have equivalent semantics across adapter
 bundles.
 
-In Phase 1, model identity metadata will be sealed until analysis. Residents
-will not receive their own or another resident's adapter identity, and observers
-will see aliases.
+In Phase 1, model and family identity metadata will be sealed until analysis.
+Residents will not receive their own or another resident's family identity,
+family mantle, adapter identity, provider route, or exact revision. Live
+observers will see only `Resident 01` through `Resident 06` and neutral mantles.
+Public family fields are excluded from the research-appearance digest and
+resident observation schema.
 Behavior and writing style may still reveal identity, so behavioral blinding is
 not claimed. Blinded evaluators will record identity guesses and confidence if
 a human-scored outcome is later introduced.
+
+Post-lock replay does not infer a family from behavior. It may reveal a family
+name or mantle only when typed verification admits a terminal commitment,
+family-binding receipt, and unblinding receipt for the completed run. Only that
+verified receipt creates a public-family-to-completed-run association; no
+static catalog order does. Otherwise the observer fails to the neutral research
+profile. This is currently a source-policy requirement, not observed post-lock
+runtime execution.
 
 Phase 1 adapters will disable provider fallback and hidden prompt enhancement.
 Each adapter will receipt its actual provider route, model revision or local
@@ -211,7 +269,8 @@ Will record:
 - Bounded-memory hash.
 - Observation hash.
 
-It excludes peer private memory and sealed model identity. The bounded Phase 0B
+It excludes peer private memory; public family name and mantle; family ID;
+adapter alias; provider route; and sealed model revision. The bounded Phase 0B
 run emitted two subject-bound, identity-neutral observation receipts from one
 public event and public-state snapshot.
 

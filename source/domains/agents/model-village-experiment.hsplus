@@ -5,7 +5,7 @@
 composition "HoloLand Model Village Experiment Contract" {
   config {
     domain: "agents"
-    version: "0.2.0"
+    version: "0.3.0"
     atlas: "source/runtime-atlas.holo"
     sourceLayer: "HoloScript"
     worldSource: "source/layers/vr/frontier/model-village/model-village.holo"
@@ -17,6 +17,7 @@ composition "HoloLand Model Village Experiment Contract" {
     experimentSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md"
     artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
     residentKitSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    publicEmbodimentOverlaySource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
     appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
     phase: "source_contract_pilot"
     trustedValidatorRuntimeBindingStatus: "target_not_observed_phase_1_blocker"
@@ -29,8 +30,23 @@ composition "HoloLand Model Village Experiment Contract" {
     runId: ""
     seedBlock: 0
     condition: ""
+    presentationProfile: "research_live_blinded"
     residentCount: 6
     modelAdapterCount: 3
+    publicEmbodimentCount: 6
+    publicEmbodimentOverlayLoaded: false
+    publicEmbodimentMayDefineAdapterAssignment: false
+    publicCatalogHasStaticResearchJoin: false
+    publicCatalogOrderDefinesResearchSeat: false
+    publicCatalogOrderDefinesAdapterAssignment: false
+    publicEmbodimentIdDefinesResearchSeat: false
+    publicEmbodimentIdDefinesAdapterAssignment: false
+    postlockResearchJoinSource: "verified_family_binding_receipt_only"
+    familyMetadataIncludedInPrompt: false
+    familyMetadataIncludedInObservation: false
+    familyMetadataIncludedInCanonicalHashes: false
+    familyMetadataIncludedInLiveProjection: false
+    exactModelRevisionSource: "sealed_run_manifest_only"
     turnCount: 6
     cooperativeChallengeWindows: 3
     fallbackAllowed: false
@@ -92,6 +108,15 @@ composition "HoloLand Model Village Experiment Contract" {
     conditionOrderHashRequired: true
     challengeManifestHashRequired: true
     interpretation: "mechanism_pilot_and_variance_estimate_only"
+    presentationProfile: "research_live_blinded"
+    publicFamilyEmbodimentOverlayIsTreatment: false
+    publicEmbodimentMayDefineAdapterAssignment: false
+    publicCatalogHasStaticResearchJoin: false
+    publicCatalogOrderDefinesResearchSeat: false
+    publicCatalogOrderDefinesAdapterAssignment: false
+    postlockResearchJoinSource: "verified_family_binding_receipt_only"
+    modelAdaptersRemainThree: true
+    sixLiveModelFamiliesClaimed: false
     confirmatoryPopulationClaimAllowed: false
   }
 
@@ -121,7 +146,69 @@ composition "HoloLand Model Village Experiment Contract" {
     appearanceInvariantAcrossConditions: true
     appearanceMayEncodeAdapterIdentity: false
     appearanceMayEncodeProviderIdentity: false
+    appearanceMayEncodeFamilyIdentity: false
+    appearanceMayEncodeAgentSurfaceIdentity: false
     appearanceMayEncodePerformanceOrOutcome: false
+    liveResearchDisplayNameSource: "research_alias"
+    liveResearchMantleSource: "neutral_seat_mantle"
+    publicEmbodimentOverlayIncludedInPrompt: false
+    publicEmbodimentOverlayIncludedInObservation: false
+    exactModelRevisionSealedPerRun: true
+    exactModelRevisionMayDefinePublicAppearance: false
+  }
+
+  template "PresentationProfileIsolation" {
+    type: "model_village_presentation_profile_isolation"
+    profiles: [
+      "village_story_unblinded",
+      "research_live_blinded",
+      "research_replay_postlock"
+    ]
+    liveResearchProfile: "research_live_blinded"
+    liveResearchIdentitySource: "research_alias"
+    liveResearchMantleSource: "neutral_seat_mantle"
+    liveResearchForbiddenFields: [
+      "public_embodiment_id",
+      "public_story_ordinal",
+      "public_display_name",
+      "family_id",
+      "model_family",
+      "provider",
+      "agent_surface_id",
+      "family_embodiment_manifest_id",
+      "family_mantle_id",
+      "family_mantle_pattern_id",
+      "family_mantle_glyph_id",
+      "exact_model_revision",
+      "embodiment_binding",
+      "embodiment_binding_receipt_hash"
+    ]
+    villageStoryRequirements: [
+      "verified_family_embodiment_manifest",
+      "independent_project_disclosure"
+    ]
+    postlockReplayRequirements: [
+      "verified_terminal_commitment",
+      "verified_family_binding_receipt",
+      "verified_unblinding_receipt",
+      "verified_family_embodiment_manifest",
+      "independent_project_disclosure",
+      "trusted_signer_verification",
+      "canonical_hash_verification",
+      "receipt_chain_verification",
+      "exact_binding_match",
+      "fail_neutral_mismatch_denial"
+    ]
+    villageStoryMayEnterResearchObservationPipeline: false
+    postlockReplayMayRewriteResearchObservation: false
+    publicEmbodimentMayDefineAdapterAssignment: false
+    publicCatalogHasStaticResearchJoin: false
+    publicCatalogOrderDefinesResearchSeat: false
+    publicCatalogOrderDefinesAdapterAssignment: false
+    postlockResearchJoinSource: "verified_family_binding_receipt_only"
+    postlockJoinRequiresExactRunResidentFamilyAdapterManifestBindings: true
+    postlockPolicyExecutionStatus: "declarative_source_contract_not_observed_runtime_execution"
+    exactModelRevisionSource: "sealed_run_manifest_only"
   }
 
   template "LockedModelAdapterManifest" {
@@ -227,6 +314,25 @@ composition "HoloLand Model Village Experiment Contract" {
     ]
     peerPrivateMemoryIncluded: false
     sealedModelIdentityIncluded: false
+    presentationProfile: "research_live_blinded"
+    researchAliasIncluded: true
+    publicEmbodimentOverlayIncluded: false
+    forbiddenIdentityFields: [
+      "public_embodiment_id",
+      "public_story_ordinal",
+      "public_display_name",
+      "family_id",
+      "model_family",
+      "provider",
+      "agent_surface_id",
+      "family_embodiment_manifest_id",
+      "family_mantle_id",
+      "family_mantle_pattern_id",
+      "family_mantle_glyph_id",
+      "exact_model_revision",
+      "embodiment_binding",
+      "embodiment_binding_receipt_hash"
+    ]
   }
 
   template "ModelTurnReceipt" {
@@ -388,6 +494,20 @@ composition "HoloLand Model Village Experiment Contract" {
       "adapter_alias",
       "adapter_identity",
       "condition_identity",
+      "public_embodiment_id",
+      "public_story_ordinal",
+      "public_display_name",
+      "family_id",
+      "model_family",
+      "provider",
+      "agent_surface_id",
+      "family_embodiment_manifest_id",
+      "family_mantle_id",
+      "family_mantle_pattern_id",
+      "family_mantle_glyph_id",
+      "exact_model_revision",
+      "embodiment_binding",
+      "embodiment_binding_receipt_hash",
       "observer_projection"
     ]
     providerCallsAllowed: false
@@ -456,8 +576,18 @@ composition "HoloLand Model Village Experiment Contract" {
 
   policy "BlindedAnalysisRequired" {
     decision: "metadata_mask_model_identity_until_run_analysis"
+    presentationProfile: "research_live_blinded"
     residentModelKnowledgeAllowed: false
     observerModelKnowledgeAllowed: false
+    publicFamilyIdentityKnowledgeAllowed: false
+    publicEmbodimentOverlayLoaded: false
+    verifiedFamilyBindingReceiptRequiredBeforeReveal: true
+    verifiedUnblindingReceiptRequiredBeforeReveal: true
+    verifiedTerminalCommitmentRequiredBeforeReveal: true
+    trustedSignerAndCanonicalHashVerificationRequiredBeforeReveal: true
+    exactReceiptChainBindingRequiredBeforeReveal: true
+    bindingMismatchDecision: "deny"
+    postlockResearchJoinSource: "verified_family_binding_receipt_only"
     transcriptScoringBlinded: true
     behavioralIdentityBlindingClaimed: false
     adapterBundleIsTreatment: true

@@ -1,8 +1,9 @@
 # HoloLand Model Village Art Direction
 
-**Status:** Locked production direction; implementation remains staged
+**Status:** Locked production direction with model-family embodiment amendment;
+implementation remains staged
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 
 **Date:** 2026-07-25
 
@@ -12,10 +13,14 @@
 
 **Product source:** HoloScript
 
+**Embodiment lock:**
+[Model-family embodiment lock, 2026-07-25](../reports/HOLOLAND_MODEL_VILLAGE_MODEL_FAMILY_EMBODIMENT_LOCK_2026-07-25.md)
+
 **Canonical sources:**
 
 - [World composition](../../source/layers/vr/frontier/model-village/model-village.holo)
 - [Resident kit](../../source/layers/vr/frontier/model-village/model-village-resident-kit.holo)
+- [Public family embodiment overlay](../../source/layers/vr/frontier/model-village/model-village-public-embodiments.holo)
 - [Art-direction policy](../../source/domains/agents/model-village-art-direction.hsplus)
 - [Appearance-invariance proof](../../source/proofs/model-village-appearance-invariance.hs)
 
@@ -31,11 +36,36 @@ science fantasy with tactile materials, human-readable silhouettes, controlled
 emission, and enough abstraction to scale from desktop to browser and XR. It is
 neither photorealism nor a cartoon look.
 
-The inhabitants are the **Stormglass Craftfolk**: six fixed, near-human civic
-residents with a shared rig and material language. Their identity comes from
-persona, village role, silhouette, glyph, and restrained seat accent. Their
-appearance never identifies the underlying model adapter, provider, condition,
-performance, or outcome.
+The inhabitants are the **Stormglass Family Craftfolk**: six public
+model-family embodiments named **Claude**, **OpenAI**, **Gemini**, **Grok**,
+**GLM**, and **Brittney**. The production design specifies one shared body/rig
+and material language, but no authored resident rig or detachable mantle is yet
+a runtime asset. A detachable family mantle is specified to communicate the
+public family identity. A separate neutral civic-role kit communicates what a
+research persona tends in the village and grants no different logical
+capability.
+
+This public cast is not the adapter-assignment matrix. The planned study still
+contains three sealed adapters rotated across six personas in twelve
+village-runs. Live research uses `Resident 01` through `Resident 06` with
+neutral mantles. The keyed public catalog has no research-seat, alias, persona,
+role, prop, silhouette, glyph, neutral-accent, or array-order binding. Exact
+provider routes and model revisions remain sealed according to the experiment
+protocol.
+
+The hidden public catalog also has no per-family seat transform: all entries
+share one inert rest position. A public gallery layout supplies story-only
+placement; a verified family-binding receipt supplies any post-lock resident
+target.
+
+Every public presentation of the family cast carries this disclosure:
+
+> HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers.
+
+Its canonical UTF-8 SHA-256 is
+`143ba2f892ea8259b0fbdfe4041aab632ced32225f57d7ffee03e67b4e6a7494`.
+Both the exact text and this digest are admission-bound source values, not
+replaceable descriptive metadata.
 
 This decision resolves two earlier, incomplete directions:
 
@@ -65,11 +95,16 @@ The world keyframe establishes:
 - A visibly separate observer mezzanine outside the experiment boundary.
 - Six residents living inside the world instead of standing as data markers.
 
-### Stormglass Craftfolk
+### Neutral Craftfolk reference
 
 ![Stormglass Craftfolk lineup](../assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png)
 
-The lineup establishes:
+This earlier lineup remains the neutral body, material, silhouette, and
+civic-role reference for `research_live_blinded`. Its fictional names - Nera
+Fen, Calder Voss, Tamsin Reed, Orren Lark, Suri Kest, and Vale Rook - are
+superseded and are not the current public cast.
+
+The reference establishes:
 
 - One coherent construction and material family.
 - Six silhouettes that remain legible without color.
@@ -79,17 +114,35 @@ The lineup establishes:
 - Accent and stormglass emission kept subordinate to cloth, leather, ceramic,
   timber, and metal.
 
+### Model-family embodiment target
+
+![Stormglass detachable family mantle study](../assets/model-village/model-village-stormglass-family-craftfolk-lineup-2026-07-25.png)
+
+This inspected concept is a detachable-mantle construction study on six
+identical faceless dress forms. It contains no resident face, body, role prop,
+seat glyph, neutral accent, or research alias to correlate with the neutral
+lineup. Plaque placement is display-only; the machine catalog is keyed by
+public-embodiment ID and is never zipped to the resident array. The in-image
+footer carries the live-research boundary and a plain-language independent
+project notice. The exact canonical disclosure remains a required rendered UI
+element and is not proved by concept-image text. No copied logo, official
+mascot, or provider trade dress was observed. It is a visual target, not an
+authored shared-rig character asset or runtime claim.
+
+SHA-256:
+`1925248b8f4b5a65a3cd367022b8e80e03462b771af30d9a5428f4397a135fe1`
+
 ### Executing Q0 proxy witness
 
 ![Stormglass resident proxy hero](../assets/model-village/model-village-stormglass-proxy-hero-2026-07-25.png)
 
 ![Stormglass resident proxy portrait](../assets/model-village/model-village-stormglass-proxy-portrait-2026-07-25.png)
 
-These inspected browser captures are the current runtime truth. The six
-residents now have distinct seat-stable proxy scales and complete appearance
-manifests, but they remain capsule geometry. They prove that the locked identity
-system reaches the existing observer without claiming that the concept
-characters have shipped.
+These inspected browser captures are the current runtime truth. The six seats
+have distinct seat-stable proxy scales and complete neutral appearance
+manifests, but they remain capsule geometry. They do not show the family names
+or detachable family mantles and do not prove that the concept characters have
+shipped.
 
 ## Visual pillars
 
@@ -213,17 +266,86 @@ source/asset hashes, screenshot evidence, and measured cost.
 ## The six residents
 
 All six residents have identical logical tools, observations, budgets, action
-vocabulary, locomotion affordances, and animation set. Roles shape persona and
-presentation, not capability.
+vocabulary, locomotion affordances, and animation set. Family identity and civic
+role are presentation layers, not capability classes.
 
-| Seat | Resident | Civic role | Silhouette | Glyph | Accent |
+The public exhibit catalog is an unordered keyed identity set:
+
+| Public identity | Family ID | Surface |
+|---|---|---|
+| Brittney | `sovereign` | `brittney-holoshell` |
+| Claude | `anthropic` | `claude-desktop` |
+| Gemini | `google` | `gemini-antigravity` |
+| GLM | `ollama` | `ollama-cloud` |
+| Grok | `xai` | `grok-hardware` |
+| OpenAI | `openai` | `codex-hardware` |
+
+Display position and serialization order do not bind a family to a research
+seat, alias, persona, adapter, or exact model revision.
+
+The neutral research-persona catalog is a separate layer:
+
+| Research seat | Live research alias | Civic role | Base silhouette | Seat glyph | Accent |
 |---|---|---|---|---|---|
-| 01 | Nera Fen | Water steward | Tall willow, crescent rain collar | Open droplet | `#77D4C8` |
-| 02 | Calder Voss | Repairwright | Short broad square, heavy apron | Bridge knot | `#79A8F2` |
-| 03 | Tamsin Reed | Seedkeeper | A-line, layered seed-pod mantle | Six-part seed | `#C69FF2` |
-| 04 | Orren Lark | Commons host | Compact round, circular shawl | Hearth ring | `#F0BB78` |
-| 05 | Suri Kest | Courier-cartographer | Lean kite, asymmetric cape | Path chevron | `#E98EAA` |
-| 06 | Vale Rook | Ledger witness | Tall angular column, split mantle | Woven square | `#9CCC7B` |
+| 01 | Resident 01 | Water steward | Tall willow, crescent rain collar | Open droplet | `#77D4C8` |
+| 02 | Resident 02 | Repairwright | Short broad square, heavy apron | Bridge knot | `#79A8F2` |
+| 03 | Resident 03 | Seedkeeper | A-line, layered seed-pod mantle | Six-part seed | `#C69FF2` |
+| 04 | Resident 04 | Commons host | Compact round, circular shawl | Hearth ring | `#F0BB78` |
+| 05 | Resident 05 | Courier-cartographer | Lean kite, asymmetric cape | Path chevron | `#E98EAA` |
+| 06 | Resident 06 | Ledger witness | Tall angular column, split mantle | Woven square | `#9CCC7B` |
+
+### Family mantle vocabulary
+
+The public mantle is an original HoloLand interpretation, not a redrawn company
+mark:
+
+| Public identity | Pattern ID | Mantle glyph ID | Visual reading | Avoid |
+|---|---|---|---|---|
+| Claude | `quiet_nested_open_arcs` | `open_arc_weave` | Burnt-clay nested arcs, `#C16F45` | Anthropic wordmark, sunburst imitation, exact brand coral |
+| OpenAI | `recursive_cell_interlock` | `recursive_interlock_glyph` | Pearl recursive-cell interlock, `#D6D1C7` | OpenAI knot/swirl or exact logo geometry |
+| Gemini | `paired_offset_prismatic_panels` | `paired_prism_weave` | Deep-petrol paired prism panels, `#3F6D7A` | Gemini sparkle or Google rainbow treatment |
+| Grok | `off_axis_signal_bands` | `diagonal_signal_weave` | Oxide-red off-axis signal bands, `#A64B3C` | X symbol, black/white trade dress, rebellious caricature |
+| GLM | `modular_phase_lattice` | `phase_lattice_glyph` | Antique-brass modular phase lattice, `#C8A84E` | Zhipu/GLM logo or a generic open-source composite |
+| Brittney | `sovereign_locality_mesh` | `owned_mesh_glyph` | Deep-amethyst sovereign-locality mesh, `#6D5A8C` | Any suggestion that a cloud provider owns the sovereign resident |
+
+Mantle pattern and glyph IDs must remain semantically disjoint from civic roles
+and role props. The checker rejects these stems anywhere in a public pattern or
+glyph ID: `water`, `steward`, `repair`, `wright`, `tool`, `bridge`, `seed`,
+`keeper`, `hearth`, `commons`, `host`, `courier`, `cartograph`, `map`, `path`,
+`ledger`, `witness`, `bowl`, and `gauge`. This keeps public family identity from
+quietly reintroducing a family-to-role mapping.
+
+### Layer contract
+
+The production design specifies three independent layers:
+
+1. A shared body, skeleton, neutral clip set, and locomotion/interaction
+   affordances.
+2. A detachable family mantle used only in an identity-permitted presentation
+   profile.
+3. A civic-role prop kit bound only to the neutral research persona, never to a
+   model family, public display position, or adapter.
+
+Family distinctions live in mantle construction, cloth pattern, original
+glyphs, and plain-text labels. They do not alter face, body type, apparent
+demographics, movement quality, voice, tools, or competence. Provider logos,
+official mascots, copied wordmarks, and trade-dress mimicry are outside the
+accepted asset path. Civic role and role prop are excluded from the family
+mantle manifest and public-embodiment digest.
+
+### Presentation profiles
+
+| Profile | Visible identity | Admission rule |
+|---|---|---|
+| `village_story_unblinded` | Public family name and detachable family mantle | Independent-project disclosure is visible; the presentation makes no claim about a live adapter or exact model revision. |
+| `research_live_blinded` | `Resident 01` through `Resident 06` and neutral seat mantles | Family name, family mantle, provider route, model revision, condition, and adapter assignment remain outside resident observations and live observer presentation. |
+| `research_replay_postlock` | Bound public family identity may be revealed | Reveal requires the terminal commitment, family-binding receipt, and unblinding receipt for that sealed run. Missing or invalid evidence fails to the neutral profile. |
+
+The HoloScript source policy requires typed verification of all three post-lock
+inputs and a fail-neutral result for absent, malformed, mismatched, or
+unverified evidence. That is a source-level admission contract. Actual
+post-lock receipt verification and reveal execution remain unobserved until the
+runtime path is implemented and receipted.
 
 ### Shared construction
 
@@ -255,22 +377,30 @@ custodied, consent-safe, and incapable of revealing adapter assignment.
 
 ## Identity and experiment invariants
 
-Appearance is bound to persona, appearance manifest, and seat. It is not bound
-to:
+The experiment maintains two separate presentation identities:
 
-- Adapter alias.
-- Provider or model family.
-- Model revision.
-- Experimental condition.
-- Performance, latency, cost, or outcome.
+- The **research appearance** is bound to resident ID, persona ID, seat ID,
+  research alias, neutral appearance manifest, base silhouette, seat glyph,
+  accent, and civic-role prop. Its digest must survive mixed and homogeneous
+  adapter permutations.
+- The **public embodiment** digest is bound only to public-catalog fields:
+  public embodiment ID, public family name, family ID, agent surface,
+  model-family label, and detachable mantle manifest/pattern/glyph/accent. It
+  excludes research seat, alias, persona, civic role, role prop, silhouette,
+  seat glyph, neutral accent, and transform, and never enters a live resident
+  observation.
 
-The appearance digest includes resident ID, persona ID, seat ID, public name,
-role, silhouette, glyph, accent, role prop, and appearance manifest ID. The
-same digest must survive mixed and homogeneous adapter permutations.
+Adapter alias, exact provider route, model revision, experimental condition,
+performance, latency, cost, and outcome are excluded from both visual identity
+systems. A family mantle cannot be used to infer or declare an active adapter.
+Only a verified typed post-lock binding and unblinding receipt, admitted after
+terminal commitment, may create an association with a completed run. No static
+catalog order, array index, accent match, or transform creates that association.
 
-Color is never the only identity channel. Every resident is redundantly
-identified by silhouette, glyph, seat number, accent, and text. Grayscale and
-common color-vision-deficiency checks are acceptance gates.
+Color is never the only identity channel. A neutral research persona is
+identified by silhouette, glyph, seat number, and text; a public mantle is
+identified independently by pattern, original mantle glyph, and family text.
+Grayscale and common color-vision-deficiency checks are acceptance gates.
 
 ## Platform budgets
 
@@ -307,9 +437,9 @@ interchangeable file extensions:
 
 | Format | Owns |
 |---|---|
-| `.holo` | Spatial resident kit, silhouette proxies, environment, lights, material and appearance references |
-| `.hsplus` | World identity, art policy, budgets, privacy, presentation admission, claim boundary |
-| `.hs` | Portable adapter/condition appearance-invariance manifest and proof inputs |
+| `.holo` | Spatial resident kit, neutral research aliases, public family manifests, detachable mantle references, environment, lights, and material references |
+| `.hsplus` | World identity, presentation profiles, art policy, budgets, privacy, disclosure, presentation admission, and claim boundary |
+| `.hs` | Portable research-appearance invariance and separate public-embodiment proof inputs |
 
 HoloLand JavaScript may parse, render, measure, and receipt these declarations.
 It may not become a second canonical art or resident policy.
@@ -319,11 +449,11 @@ It may not become a second canonical art or resident policy.
 | Register | Statement |
 |---|---|
 | Observed | The existing observer is a real HoloScript-authored, Three/WebGL2 premium greybox with ACES, sRGB, PCF-soft shadows, a local procedural environment, deterministic CPU sphere-collider replay, and inspected screenshots on the named RTX 3060 path. |
-| Observed | The world and resident concept images exist as locally custodied visual targets and have repository hashes. |
-| Observed | The `.holo`, `.hsplus`, and `.hs` art-direction sources parse with the built HoloScript core. |
-| Target | Authored basalt/timber/stormglass buildings, a shared six-resident humanoid asset kit, facial rig, textures, animation, ambient audio, water, cloth, vegetation, and additional physics exhibits. |
+| Observed | The world concept, earlier neutral Craftfolk reference, and model-family embodiment lineup exist as locally custodied visual targets with repository hashes. |
+| Observed | The focused v2 checker parses the world, neutral resident kit, public family overlay, observer, art policy, and invariance proof with the built HoloScript core. It validates the six-entry neutral research catalog and the separate six-entry public family catalog without treating catalog order as a cross-catalog join, recomputes distinct research-appearance and public-embodiment digests, preserves every neutral appearance across adapter/condition permutations, excludes public family fields from live research, and checks the source-declared typed, fail-neutral presentation policy. |
+| Target | Detachable runtime family mantles, authored basalt/timber/stormglass buildings, a shared six-resident humanoid asset kit, facial rig, textures, animation, ambient audio, water, cloth, vegetation, and additional physics exhibits. |
 | Gap | No tracked production Model Village GLB/glTF/VRM, texture set, HDRI, or audio asset is yet integrated and receipted. |
-| Gap | Current observer residents remain distinct capsule proxies; the concept lineup is not a runtime character claim. |
+| Gap | Current observer residents remain distinct neutral capsule proxies; no public family mantle is a runtime character claim. |
 | Gap | WebGPU feature parity, photorealism, path tracing, ray-traced GI, dynamic weather, advanced physics presentation, and headset support remain unobserved. |
 
 ## Promotion gates
@@ -331,9 +461,19 @@ It may not become a second canonical art or resident policy.
 ### MV-P2 - six-seat resident kit
 
 - Six authored or explicitly proxy residents parse from HoloScript.
-- Names, roles, silhouette IDs, glyphs, and appearance manifest IDs match all
-  canonical surfaces.
-- Adapter and condition permutations preserve each appearance digest.
+- Public names, family IDs, surfaces, and family-mantle manifest IDs form a
+  complete public catalog without a static research-seat join.
+- Research aliases, roles, silhouette IDs, seat glyphs, accents, and neutral
+  appearance manifests form a complete, separate research catalog.
+- Adapter and condition permutations preserve each research-appearance digest.
+- Public-embodiment digests remain separate, and the live research profile
+  cannot present a family mantle.
+- Public and post-lock presentations carry the independent-project disclosure;
+  the implemented post-lock path must type-check all three required receipts
+  and fail neutral on absent, malformed, mismatched, or unverified evidence.
+- Runtime evidence must demonstrate that a post-lock association is created
+  only after terminal commitment; source policy alone is not that execution
+  receipt.
 - Near, mid, far, portrait, and grayscale captures pass visual inspection.
 - Asset manifest records hash, license, provenance, triangles, materials,
   textures, bones, clips, and durations.
@@ -387,8 +527,9 @@ renaming the stable `MV-P0` through `MV-P14` backlog.
 
 1. Validate and receipt this three-format canon and six proxy residents.
 2. Render the updated proxy silhouettes through the existing WebGL2 witness.
-3. Build one locally custodied shared resident GLB/VRM kit with LOD0-2 and the
-   four neutral clips.
+3. Build one locally custodied shared resident GLB/VRM kit with LOD0-2, the
+   four neutral clips, one neutral research mantle, and detachable family
+   mantles.
 4. Replace the two primitive cottages with one authored modular building kit.
 5. Promote the water court, bridge, harvest lattice, and forge one receipted
    physics adapter at a time.

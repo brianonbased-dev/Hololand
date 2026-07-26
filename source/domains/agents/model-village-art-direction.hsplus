@@ -8,7 +8,7 @@
 composition "HoloLand Model Village Art Direction Contract" {
   config {
     domain: "agents"
-    version: "1.0.0"
+    version: "1.1.0"
     source: "source/domains/agents/model-village-art-direction.hsplus"
     sourceLayer: "HoloScript"
     worldName: "Stormglass Commons"
@@ -18,10 +18,14 @@ composition "HoloLand Model Village Art Direction Contract" {
     canonicalWorldSource: "source/layers/vr/frontier/model-village/model-village.holo"
     observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
     residentKitSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    publicEmbodimentOverlaySource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
     appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
     artDirectionSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md"
     worldConceptAsset: "docs/assets/model-village/model-village-stormglass-commons-concept-2026-07-25.png"
-    residentConceptAsset: "docs/assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png"
+    neutralResearchResidentConceptAsset: "docs/assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png"
+    publicFamilyEmbodimentConceptAsset: "docs/assets/model-village/model-village-stormglass-family-craftfolk-lineup-2026-07-25.png"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    independentProjectDisclosureHash: "143ba2f892ea8259b0fbdfe4041aab632ced32225f57d7ffee03e67b4e6a7494"
     status: "locked_production_direction"
     executionStatus: "structured_contract_target_observed_only_where_receipted"
     authoredProductionAssetsObserved: false
@@ -36,8 +40,18 @@ composition "HoloLand Model Village Art Direction Contract" {
     canonicalResidentCount: 6
     currentVisualTier: "executing_premium_greybox"
     targetVisualTier: "stylized_physically_grounded_living_village"
-    providerIdentityPresentationAllowed: false
-    modelIdentityPresentationAllowed: false
+    presentationProfile: "research_live_blinded"
+    supportedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_live_blinded",
+      "research_replay_postlock"
+    ]
+    providerIdentityPresentationAllowedByDefault: false
+    familyIdentityPresentationAllowedInVillageStory: true
+    familyIdentityPresentationAllowedInLiveResearch: false
+    familyIdentityPresentationAllowedInPostlockReplay: true
+    exactProviderRoutePresentationAllowed: false
+    exactModelRevisionPresentationAllowed: false
     conditionIdentityPresentationAllowedBeforeUnblinding: false
     performanceCuePresentationAllowed: false
     outcomeCueBeforeReceiptAllowed: false
@@ -129,6 +143,9 @@ composition "HoloLand Model Village Art Direction Contract" {
     sharedMaterialFamilyRequired: true
     sharedPhysicalAffordancesRequired: true
     sharedNeutralClips: ["idle", "listen", "propose", "settle"]
+    neutralSeatMantleRequiredInLiveResearch: true
+    familyMantleIsDetachableOverlay: true
+    familyMantleSharesBaseRigAndAffordances: true
     rolePropsGrantExclusiveCapability: false
     accentCoverageMaximumPercent: 15
     emissiveCoverageMaximumPercent: 15
@@ -142,16 +159,50 @@ composition "HoloLand Model Village Art Direction Contract" {
 
   template "ResidentPresentationInvariance" {
     type: "model_village_resident_presentation_invariance"
-    appearanceBoundTo: ["persona_manifest", "appearance_manifest", "seat"]
-    appearanceMustIgnore: [
+    researchAppearanceBoundTo: ["persona_manifest", "appearance_manifest", "seat"]
+    researchAppearanceMustIgnore: [
       "adapter_alias",
       "provider",
+      "public_embodiment_id",
+      "public_story_ordinal",
+      "family_id",
       "model_family",
       "model_revision",
+      "exact_model_revision",
+      "agent_surface_id",
+      "public_display_name",
+      "family_embodiment_manifest_id",
+      "family_mantle_id",
+      "family_mantle_pattern_id",
+      "family_mantle_glyph_id",
+      "embodiment_binding",
+      "embodiment_binding_receipt_hash",
       "condition",
       "performance",
       "outcome"
     ]
+    publicEmbodimentBoundTo: ["public_embodiment_id", "family_embodiment_manifest"]
+    publicEmbodimentMustNotBind: [
+      "research_resident",
+      "research_seat",
+      "research_persona",
+      "village_role",
+      "role_prop",
+      "adapter_alias",
+      "exact_model_revision",
+      "condition",
+      "performance",
+      "outcome"
+    ]
+    publicCatalogHasStaticResearchJoin: false
+    publicCatalogOrderDefinesResearchSeat: false
+    publicCatalogOrderDefinesAdapterAssignment: false
+    publicCatalogHasStaticSpatialJoin: false
+    staticTransformsMayTargetResearchSeats: false
+    catalogRestPosition: [0, 0, 0]
+    villageStoryPlacementSource: "public_gallery_layout_manifest"
+    postlockPlacementSource: "verified_family_binding_receipt_resident_target"
+    postlockResearchJoinSource: "verified_family_binding_receipt_only"
     redundantIdentityChannels: ["silhouette", "seat_glyph", "seat_number", "accent_color", "text"]
     colorAloneSufficient: false
     adapterPermutationMustPreserveAppearanceDigest: true
@@ -160,6 +211,135 @@ composition "HoloLand Model Village Art Direction Contract" {
     stateSpecificAnimationRequiresReceipt: true
     admittedActionAnimationRequiresReceipt: true
     blockedActionMayShowSuccessAnimation: false
+  }
+
+  template "ModelVillagePresentationProfiles" {
+    type: "model_village_presentation_profiles"
+    profiles: [
+      "village_story_unblinded",
+      "research_live_blinded",
+      "research_replay_postlock"
+    ]
+    defaultResearchProfile: "research_live_blinded"
+    villageStoryRequirements: [
+      "verified_family_embodiment_manifest",
+      "independent_project_disclosure"
+    ]
+    liveResearchIdentitySource: "research_alias"
+    liveResearchMantleSource: "neutral_seat_mantle"
+    liveResearchForbiddenIdentityFields: [
+      "public_embodiment_id",
+      "public_story_ordinal",
+      "public_display_name",
+      "family_id",
+      "model_family",
+      "provider",
+      "agent_surface_id",
+      "family_embodiment_manifest_id",
+      "family_mantle_id",
+      "family_mantle_pattern_id",
+      "family_mantle_glyph_id",
+      "embodiment_binding",
+      "embodiment_binding_receipt_hash",
+      "exact_model_revision"
+    ]
+    postlockReplayRequirements: [
+      "verified_terminal_commitment",
+      "verified_family_binding_receipt",
+      "verified_unblinding_receipt",
+      "verified_family_embodiment_manifest",
+      "independent_project_disclosure",
+      "trusted_signer_verification",
+      "canonical_hash_verification",
+      "receipt_chain_verification",
+      "exact_binding_match",
+      "fail_neutral_mismatch_denial"
+    ]
+    postlockEvidenceContracts: [
+      "VerifiedTerminalCommitment",
+      "VerifiedFamilyBindingReceipt",
+      "VerifiedUnblindingReceipt",
+      "VerifiedFamilyEmbodimentManifest"
+    ]
+    postlockPolicyExecutionStatus: "declarative_source_contract_not_observed_runtime_execution"
+  }
+
+  template "StormglassFamilyMantleKit" {
+    type: "model_village_family_mantle_kit"
+    source: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
+    publicEmbodimentCount: 6
+    presentationOnly: true
+    detachableFromNeutralResearchKit: true
+    adapterAssignmentAuthority: false
+    impliesSixLiveModelFamilies: false
+    exactModelRevisionVisible: false
+    exactProviderRouteVisible: false
+    providerLogosRequired: false
+    copiedProviderTradeDressAllowed: false
+    providerEndorsementClaimed: false
+    civicRoleKitIndependent: true
+    publicMantleRoleSemanticBinding: "none"
+    forbiddenPublicMantleRoleSemanticStems: [
+      "water",
+      "steward",
+      "repair",
+      "wright",
+      "tool",
+      "bridge",
+      "seed",
+      "keeper",
+      "hearth",
+      "commons",
+      "host",
+      "courier",
+      "cartograph",
+      "map",
+      "path",
+      "ledger",
+      "witness",
+      "bowl",
+      "gauge"
+    ]
+    familyMantlesGrantExclusiveCapability: false
+    sameSharedRigRequired: true
+    sameNeutralClipsRequired: true
+    samePhysicalAffordancesRequired: true
+    publicCatalogHasStaticResearchJoin: false
+    publicCatalogOrderDefinesResearchSeat: false
+    publicCatalogOrderDefinesAdapterAssignment: false
+    publicCatalogHasStaticSpatialJoin: false
+    staticTransformsMayTargetResearchSeats: false
+    catalogRestPosition: [0, 0, 0]
+    villageStoryPlacementSource: "public_gallery_layout_manifest"
+    postlockPlacementSource: "verified_family_binding_receipt_resident_target"
+  }
+
+  template "PublicFamilyEmbodimentManifest" {
+    type: "model_village_public_family_embodiment_manifest"
+    source: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
+    canonicalPublicEmbodimentCount: 6
+    canonicalPublicNames: ["Claude", "OpenAI", "Gemini", "Grok", "GLM", "Brittney"]
+    canonicalFamilyIds: ["anthropic", "openai", "google", "xai", "ollama", "sovereign"]
+    familyNamesArePresentationIdentityNotAdapterAssignment: true
+    publicEmbodimentIdentifiers: [
+      "public-embodiment-anthropic",
+      "public-embodiment-openai",
+      "public-embodiment-google",
+      "public-embodiment-xai",
+      "public-embodiment-ollama",
+      "public-embodiment-sovereign"
+    ]
+    publicCatalogHasStaticResearchJoin: false
+    publicCatalogOrderDefinesResearchSeat: false
+    publicCatalogOrderDefinesAdapterAssignment: false
+    researchSeatBinding: "none"
+    researchPersonaBinding: "none"
+    researchRoleBinding: "none"
+    adapterAssignmentBinding: "none"
+    postlockResearchJoinSource: "verified_family_binding_receipt_only"
+    independentProjectDisclosureRequired: true
+    providerEndorsementClaimed: false
+    exactModelRevisionSource: "sealed_run_manifest_only"
   }
 
   template "ResidentPlatformBudgets" {
@@ -214,22 +394,395 @@ composition "HoloLand Model Village Art Direction Contract" {
     ]
   }
 
-  action admit_resident_presentation(candidate) {
-    if (candidate.providerIdentityPresent) {
-      return { allowed: false, reason: "provider_identity_present" }
-    }
-    if (candidate.modelIdentityPresent) {
-      return { allowed: false, reason: "model_identity_present" }
-    }
-    if (!candidate.appearanceManifestPresent) {
-      return { allowed: false, reason: "appearance_manifest_missing" }
-    }
-    if (!candidate.appearanceDigestInvariantAcrossAssignments) {
-      return { allowed: false, reason: "appearance_digest_not_invariant" }
-    }
+  action admit_resident_presentation(candidate: ResidentPresentationCandidate) {
     if (candidate.stateSpecificCue && !candidate.receiptPresent) {
       return { allowed: false, reason: "state_specific_cue_without_receipt" }
     }
-    return { allowed: true, reason: "presentation_contract_satisfied" }
+    if (candidate.presentationProfile == "research_live_blinded") {
+      if (!candidate.appearanceManifestPresent) {
+        return { allowed: false, reason: "appearance_manifest_missing" }
+      }
+      if (!candidate.appearanceDigestInvariantAcrossAssignments) {
+        return { allowed: false, reason: "appearance_digest_not_invariant" }
+      }
+      if (
+        candidate.publicIdentityPresent ||
+        candidate.familyIdentityPresent ||
+        candidate.providerIdentityPresent ||
+        candidate.modelIdentityPresent ||
+        candidate.agentSurfaceIdentityPresent ||
+        candidate.familyMantlePresent ||
+        candidate.publicEmbodimentOverlayLoaded
+      ) {
+        return { allowed: false, reason: "identity_overlay_forbidden_in_live_research" }
+      }
+      return { allowed: true, reason: "neutral_research_presentation_contract_satisfied" }
+    }
+    if (candidate.presentationProfile == "village_story_unblinded") {
+      if (!candidate.familyEmbodimentManifestPresent) {
+        return { allowed: false, reason: "family_embodiment_manifest_missing" }
+      }
+      if (!candidate.familyEmbodimentManifest) {
+        return { allowed: false, reason: "family_embodiment_manifest_object_missing" }
+      }
+      if (
+        !candidate.familyId ||
+        !candidate.publicEmbodimentId ||
+        !candidate.familyEmbodimentManifestId ||
+        !candidate.independentProjectDisclosureText ||
+        !candidate.independentProjectDisclosureHash ||
+        !candidate.familyEmbodimentManifest.manifestId ||
+        !candidate.familyEmbodimentManifest.canonicalHash ||
+        !candidate.familyEmbodimentManifest.signature ||
+        !candidate.familyEmbodimentManifest.signerId ||
+        !candidate.familyEmbodimentManifest.publicEmbodimentId ||
+        !candidate.familyEmbodimentManifest.familyId ||
+        !candidate.familyEmbodimentManifest.independentProjectDisclosureHash
+      ) {
+        return { allowed: false, reason: "public_story_evidence_required_string_missing" }
+      }
+      if (
+        !candidate.familyEmbodimentManifest.verified ||
+        !candidate.familyEmbodimentManifest.canonicalHashVerified ||
+        !candidate.familyEmbodimentManifest.signatureVerified ||
+        !candidate.familyEmbodimentManifest.trustedSigner ||
+        !candidate.familyEmbodimentManifest.failNeutral
+      ) {
+        return { allowed: false, reason: "family_embodiment_manifest_not_verified" }
+      }
+      if (
+        candidate.familyEmbodimentManifest.manifestId != candidate.familyEmbodimentManifestId ||
+        candidate.familyEmbodimentManifest.familyId != candidate.familyId ||
+        candidate.familyEmbodimentManifest.publicEmbodimentId != candidate.publicEmbodimentId
+      ) {
+        return { allowed: false, reason: "family_embodiment_manifest_binding_mismatch" }
+      }
+      if (
+        !candidate.independentProjectDisclosurePresent ||
+        !candidate.independentProjectDisclosureHashPresent
+      ) {
+        return { allowed: false, reason: "independent_project_disclosure_evidence_missing" }
+      }
+      if (
+        candidate.independentProjectDisclosureText !=
+        "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers." ||
+        candidate.independentProjectDisclosureHash !=
+        "143ba2f892ea8259b0fbdfe4041aab632ced32225f57d7ffee03e67b4e6a7494" ||
+        candidate.familyEmbodimentManifest.independentProjectDisclosureHash !=
+        candidate.independentProjectDisclosureHash
+      ) {
+        return { allowed: false, reason: "independent_project_disclosure_canonical_mismatch" }
+      }
+      if (candidate.exactModelRevisionPresent || candidate.exactProviderRoutePresent) {
+        return { allowed: false, reason: "sealed_runtime_identity_present_in_public_story" }
+      }
+      return { allowed: true, reason: "public_story_embodiment_contract_satisfied" }
+    }
+    if (candidate.presentationProfile == "research_replay_postlock") {
+      if (!candidate.appearanceManifestPresent) {
+        return { allowed: false, reason: "appearance_manifest_missing" }
+      }
+      if (!candidate.appearanceDigestInvariantAcrossAssignments) {
+        return { allowed: false, reason: "appearance_digest_not_invariant" }
+      }
+      if (!candidate.terminalCommitmentPresent) {
+        return { allowed: false, reason: "terminal_commitment_missing" }
+      }
+      if (!candidate.familyBindingReceiptPresent) {
+        return { allowed: false, reason: "family_binding_receipt_missing" }
+      }
+      if (!candidate.unblindingReceiptPresent) {
+        return { allowed: false, reason: "unblinding_receipt_missing" }
+      }
+      if (!candidate.familyEmbodimentManifestPresent) {
+        return { allowed: false, reason: "family_embodiment_manifest_missing" }
+      }
+      if (
+        !candidate.terminalCommitment ||
+        !candidate.familyBindingReceipt ||
+        !candidate.unblindingReceipt ||
+        !candidate.familyEmbodimentManifest
+      ) {
+        return { allowed: false, reason: "postlock_evidence_object_missing" }
+      }
+      if (!candidate.adapterManifestHashPresent) {
+        return { allowed: false, reason: "adapter_manifest_hash_missing" }
+      }
+      if (
+        !candidate.assignmentManifestHashPresent ||
+        !candidate.finalObservationRootPresent
+      ) {
+        return { allowed: false, reason: "terminal_commitment_binding_evidence_missing" }
+      }
+      if (
+        !candidate.independentProjectDisclosurePresent ||
+        !candidate.independentProjectDisclosureHashPresent
+      ) {
+        return { allowed: false, reason: "independent_project_disclosure_evidence_missing" }
+      }
+      if (
+        !candidate.runId ||
+        !candidate.residentId ||
+        !candidate.familyId ||
+        !candidate.publicEmbodimentId ||
+        !candidate.adapterManifestHash ||
+        !candidate.assignmentManifestHash ||
+        !candidate.finalObservationRoot ||
+        !candidate.familyEmbodimentManifestId ||
+        !candidate.independentProjectDisclosureText ||
+        !candidate.independentProjectDisclosureHash ||
+        !candidate.terminalCommitment.commitmentId ||
+        !candidate.terminalCommitment.canonicalHash ||
+        !candidate.terminalCommitment.signature ||
+        !candidate.terminalCommitment.signerId ||
+        !candidate.terminalCommitment.runId ||
+        !candidate.terminalCommitment.assignmentManifestHash ||
+        !candidate.terminalCommitment.finalObservationRoot ||
+        !candidate.familyBindingReceipt.receiptId ||
+        !candidate.familyBindingReceipt.canonicalHash ||
+        !candidate.familyBindingReceipt.signature ||
+        !candidate.familyBindingReceipt.signerId ||
+        !candidate.familyBindingReceipt.priorReceiptHash ||
+        !candidate.familyBindingReceipt.runId ||
+        !candidate.familyBindingReceipt.residentId ||
+        !candidate.familyBindingReceipt.familyId ||
+        !candidate.familyBindingReceipt.publicEmbodimentId ||
+        !candidate.familyBindingReceipt.adapterManifestHash ||
+        !candidate.familyBindingReceipt.familyEmbodimentManifestId ||
+        !candidate.familyBindingReceipt.familyEmbodimentManifestHash ||
+        !candidate.familyBindingReceipt.terminalCommitmentId ||
+        !candidate.familyBindingReceipt.terminalCommitmentHash ||
+        !candidate.familyBindingReceipt.unblindingReceiptId ||
+        !candidate.familyBindingReceipt.unblindingReceiptHash ||
+        !candidate.familyBindingReceipt.mismatchDecision ||
+        !candidate.unblindingReceipt.receiptId ||
+        !candidate.unblindingReceipt.canonicalHash ||
+        !candidate.unblindingReceipt.signature ||
+        !candidate.unblindingReceipt.signerId ||
+        !candidate.unblindingReceipt.priorReceiptHash ||
+        !candidate.unblindingReceipt.runId ||
+        !candidate.unblindingReceipt.residentId ||
+        !candidate.unblindingReceipt.familyId ||
+        !candidate.unblindingReceipt.adapterManifestHash ||
+        !candidate.unblindingReceipt.terminalCommitmentId ||
+        !candidate.unblindingReceipt.terminalCommitmentHash ||
+        !candidate.unblindingReceipt.mismatchDecision ||
+        !candidate.familyEmbodimentManifest.manifestId ||
+        !candidate.familyEmbodimentManifest.canonicalHash ||
+        !candidate.familyEmbodimentManifest.signature ||
+        !candidate.familyEmbodimentManifest.signerId ||
+        !candidate.familyEmbodimentManifest.publicEmbodimentId ||
+        !candidate.familyEmbodimentManifest.familyId ||
+        !candidate.familyEmbodimentManifest.independentProjectDisclosureHash
+      ) {
+        return { allowed: false, reason: "postlock_evidence_required_string_missing" }
+      }
+      if (
+        candidate.independentProjectDisclosureText !=
+        "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers." ||
+        candidate.independentProjectDisclosureHash !=
+        "143ba2f892ea8259b0fbdfe4041aab632ced32225f57d7ffee03e67b4e6a7494"
+      ) {
+        return { allowed: false, reason: "independent_project_disclosure_canonical_mismatch" }
+      }
+      if (
+        !candidate.terminalCommitment.verified ||
+        !candidate.terminalCommitment.canonicalHashVerified ||
+        !candidate.terminalCommitment.signatureVerified ||
+        !candidate.terminalCommitment.trustedSigner ||
+        !candidate.terminalCommitment.failNeutral
+      ) {
+        return { allowed: false, reason: "terminal_commitment_not_verified" }
+      }
+      if (
+        !candidate.familyBindingReceipt.verified ||
+        !candidate.familyBindingReceipt.canonicalHashVerified ||
+        !candidate.familyBindingReceipt.signatureVerified ||
+        !candidate.familyBindingReceipt.trustedSigner ||
+        !candidate.familyBindingReceipt.chainVerified ||
+        !candidate.familyBindingReceipt.failNeutral ||
+        candidate.familyBindingReceipt.mismatchDecision != "deny"
+      ) {
+        return { allowed: false, reason: "family_binding_receipt_not_verified" }
+      }
+      if (
+        !candidate.unblindingReceipt.verified ||
+        !candidate.unblindingReceipt.canonicalHashVerified ||
+        !candidate.unblindingReceipt.signatureVerified ||
+        !candidate.unblindingReceipt.trustedSigner ||
+        !candidate.unblindingReceipt.chainVerified ||
+        !candidate.unblindingReceipt.failNeutral ||
+        candidate.unblindingReceipt.mismatchDecision != "deny"
+      ) {
+        return { allowed: false, reason: "unblinding_receipt_not_verified" }
+      }
+      if (
+        !candidate.familyEmbodimentManifest.verified ||
+        !candidate.familyEmbodimentManifest.canonicalHashVerified ||
+        !candidate.familyEmbodimentManifest.signatureVerified ||
+        !candidate.familyEmbodimentManifest.trustedSigner ||
+        !candidate.familyEmbodimentManifest.failNeutral
+      ) {
+        return { allowed: false, reason: "family_embodiment_manifest_not_verified" }
+      }
+      if (
+        candidate.terminalCommitment.runId != candidate.runId ||
+        candidate.terminalCommitment.assignmentManifestHash != candidate.assignmentManifestHash ||
+        candidate.terminalCommitment.finalObservationRoot != candidate.finalObservationRoot ||
+        candidate.familyBindingReceipt.runId != candidate.runId ||
+        candidate.unblindingReceipt.runId != candidate.runId ||
+        candidate.familyBindingReceipt.residentId != candidate.residentId ||
+        candidate.familyBindingReceipt.familyId != candidate.familyId ||
+        candidate.familyBindingReceipt.publicEmbodimentId != candidate.publicEmbodimentId ||
+        candidate.familyBindingReceipt.adapterManifestHash != candidate.adapterManifestHash ||
+        candidate.unblindingReceipt.residentId != candidate.residentId ||
+        candidate.unblindingReceipt.familyId != candidate.familyId ||
+        candidate.unblindingReceipt.adapterManifestHash != candidate.adapterManifestHash ||
+        candidate.familyBindingReceipt.familyEmbodimentManifestId != candidate.familyEmbodimentManifest.manifestId ||
+        candidate.familyBindingReceipt.familyEmbodimentManifestHash != candidate.familyEmbodimentManifest.canonicalHash ||
+        candidate.familyBindingReceipt.terminalCommitmentId != candidate.terminalCommitment.commitmentId ||
+        candidate.familyBindingReceipt.terminalCommitmentHash != candidate.terminalCommitment.canonicalHash ||
+        candidate.familyBindingReceipt.unblindingReceiptId != candidate.unblindingReceipt.receiptId ||
+        candidate.familyBindingReceipt.unblindingReceiptHash != candidate.unblindingReceipt.canonicalHash ||
+        candidate.familyBindingReceipt.priorReceiptHash != candidate.unblindingReceipt.canonicalHash ||
+        candidate.unblindingReceipt.terminalCommitmentId != candidate.terminalCommitment.commitmentId ||
+        candidate.unblindingReceipt.terminalCommitmentHash != candidate.terminalCommitment.canonicalHash ||
+        candidate.unblindingReceipt.priorReceiptHash != candidate.terminalCommitment.canonicalHash ||
+        candidate.familyEmbodimentManifest.manifestId != candidate.familyEmbodimentManifestId ||
+        candidate.familyEmbodimentManifest.familyId != candidate.familyId ||
+        candidate.familyEmbodimentManifest.publicEmbodimentId != candidate.publicEmbodimentId ||
+        candidate.familyEmbodimentManifest.independentProjectDisclosureHash != candidate.independentProjectDisclosureHash
+      ) {
+        return { allowed: false, reason: "verified_receipt_binding_mismatch" }
+      }
+      if (candidate.exactModelRevisionPresent || candidate.exactProviderRoutePresent) {
+        return { allowed: false, reason: "sealed_runtime_identity_present_in_postlock_mantle" }
+      }
+      return { allowed: true, reason: "postlock_replay_embodiment_contract_satisfied" }
+    }
+    return { allowed: false, reason: "unsupported_presentation_profile" }
   }
+}
+
+// Typed evidence contracts for presentation admission. These structs define
+// what a future runtime validator must verify; their presence in source is not
+// a claim that verification execution has been observed.
+struct VerifiedFamilyEmbodimentManifest {
+  manifestId: string
+  verified: boolean
+  canonicalHash: string
+  canonicalHashVerified: boolean
+  signature: string
+  signatureVerified: boolean
+  signerId: string
+  trustedSigner: boolean
+  publicEmbodimentId: string
+  familyId: string
+  independentProjectDisclosureHash: string
+  failNeutral: boolean
+}
+
+struct VerifiedTerminalCommitment {
+  commitmentId: string
+  verified: boolean
+  canonicalHash: string
+  canonicalHashVerified: boolean
+  signature: string
+  signatureVerified: boolean
+  signerId: string
+  trustedSigner: boolean
+  runId: string
+  assignmentManifestHash: string
+  finalObservationRoot: string
+  failNeutral: boolean
+}
+
+struct VerifiedUnblindingReceipt {
+  receiptId: string
+  verified: boolean
+  canonicalHash: string
+  canonicalHashVerified: boolean
+  signature: string
+  signatureVerified: boolean
+  signerId: string
+  trustedSigner: boolean
+  chainVerified: boolean
+  priorReceiptHash: string
+  runId: string
+  residentId: string
+  familyId: string
+  adapterManifestHash: string
+  terminalCommitmentId: string
+  terminalCommitmentHash: string
+  failNeutral: boolean
+  mismatchDecision: string
+}
+
+struct VerifiedFamilyBindingReceipt {
+  receiptId: string
+  verified: boolean
+  canonicalHash: string
+  canonicalHashVerified: boolean
+  signature: string
+  signatureVerified: boolean
+  signerId: string
+  trustedSigner: boolean
+  chainVerified: boolean
+  priorReceiptHash: string
+  runId: string
+  residentId: string
+  familyId: string
+  publicEmbodimentId: string
+  adapterManifestHash: string
+  familyEmbodimentManifestId: string
+  familyEmbodimentManifestHash: string
+  terminalCommitmentId: string
+  terminalCommitmentHash: string
+  unblindingReceiptId: string
+  unblindingReceiptHash: string
+  failNeutral: boolean
+  mismatchDecision: string
+}
+
+// Admission is branch-sensitive, so only presentationProfile is universally
+// required. Every branch-specific value is typed here and then explicitly
+// checked for presence before any equality comparison can admit a candidate.
+struct ResidentPresentationCandidate {
+  presentationProfile: string
+  stateSpecificCue?: boolean
+  receiptPresent?: boolean
+  appearanceManifestPresent?: boolean
+  appearanceDigestInvariantAcrossAssignments?: boolean
+  publicIdentityPresent?: boolean
+  familyIdentityPresent?: boolean
+  providerIdentityPresent?: boolean
+  modelIdentityPresent?: boolean
+  agentSurfaceIdentityPresent?: boolean
+  familyMantlePresent?: boolean
+  publicEmbodimentOverlayLoaded?: boolean
+  familyEmbodimentManifestPresent?: boolean
+  familyEmbodimentManifest?: VerifiedFamilyEmbodimentManifest
+  familyId?: string
+  publicEmbodimentId?: string
+  familyEmbodimentManifestId?: string
+  independentProjectDisclosurePresent?: boolean
+  independentProjectDisclosureHashPresent?: boolean
+  independentProjectDisclosureText?: string
+  independentProjectDisclosureHash?: string
+  exactModelRevisionPresent?: boolean
+  exactProviderRoutePresent?: boolean
+  terminalCommitmentPresent?: boolean
+  terminalCommitment?: VerifiedTerminalCommitment
+  familyBindingReceiptPresent?: boolean
+  familyBindingReceipt?: VerifiedFamilyBindingReceipt
+  unblindingReceiptPresent?: boolean
+  unblindingReceipt?: VerifiedUnblindingReceipt
+  adapterManifestHashPresent?: boolean
+  adapterManifestHash?: string
+  assignmentManifestHashPresent?: boolean
+  assignmentManifestHash?: string
+  finalObservationRootPresent?: boolean
+  finalObservationRoot?: string
+  runId?: string
+  residentId?: string
 }

@@ -5,7 +5,7 @@
 composition "HoloLand Model Village Pilot" {
   metadata {
     title: "HoloLand Model Village Pilot"
-    version: "0.2.0"
+    version: "0.3.0"
     layer: "vr"
     atlas: "source/runtime-atlas.holo"
     source: "source/layers/vr/frontier/model-village/model-village.holo"
@@ -15,6 +15,7 @@ composition "HoloLand Model Village Pilot" {
     experimentSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md"
     artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
     residentKitSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    publicEmbodimentOverlaySource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
     appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
     artDirectionSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md"
     worldName: "Stormglass Commons"
@@ -48,9 +49,23 @@ composition "HoloLand Model Village Pilot" {
       "run_summary"
     ]
     experimentPhase: "source_contract_pilot"
+    presentationProfile: "research_live_blinded"
+    supportedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_live_blinded",
+      "research_replay_postlock"
+    ]
     residentCapacity: 6
     residentSeatsActive: 0
+    activeResidentIdentitySource: "research_alias"
     modelIdentityVisibleToResidents: false
+    familyIdentityVisibleToResidents: false
+    publicEmbodimentOverlayLoaded: false
+    publicEmbodimentOverlayAllowedInLiveResearch: false
+    familyMetadataIncludedInPrompt: false
+    familyMetadataIncludedInObservation: false
+    familyMetadataIncludedInCanonicalHashes: false
+    exactModelRevisionSource: "sealed_run_manifest_only"
     observerAuthority: "read_only"
     publicWorldStateOnly: true
     privatePeerMemoryVisible: false
@@ -69,6 +84,9 @@ composition "HoloLand Model Village Pilot" {
     material: "source_owned"
     visible_to_observers: true
     model_identity_blinded: true
+    family_identity_blinded: true
+    identity_overlay_loaded: false
+    neutral_seat_mantle_required: true
     public_state_only: true
     action_receipt_required: true
   }
@@ -110,11 +128,13 @@ composition "HoloLand Model Village Pilot" {
         personaId: "persona-01"
         seatId: "seat-01"
         seatOrdinal: 1
-        displayName: "Nera Fen"
+        displayName: "Resident 01"
+        researchAlias: "Resident 01"
         villageRole: "water_steward"
         silhouetteId: "willow_crescent"
         glyphId: "open_droplet"
         accentColor: "#77D4C8"
+        neutralSeatMantleId: "neutral-seat-mantle-01"
         appearanceManifestId: "stormglass-appearance-01-v1"
         appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
@@ -133,11 +153,13 @@ composition "HoloLand Model Village Pilot" {
         personaId: "persona-02"
         seatId: "seat-02"
         seatOrdinal: 2
-        displayName: "Calder Voss"
+        displayName: "Resident 02"
+        researchAlias: "Resident 02"
         villageRole: "repairwright"
         silhouetteId: "broad_square"
         glyphId: "bridge_knot"
         accentColor: "#79A8F2"
+        neutralSeatMantleId: "neutral-seat-mantle-02"
         appearanceManifestId: "stormglass-appearance-02-v1"
         appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
@@ -156,11 +178,13 @@ composition "HoloLand Model Village Pilot" {
         personaId: "persona-03"
         seatId: "seat-03"
         seatOrdinal: 3
-        displayName: "Tamsin Reed"
+        displayName: "Resident 03"
+        researchAlias: "Resident 03"
         villageRole: "seedkeeper"
         silhouetteId: "a_line_seedpod"
         glyphId: "six_part_seed"
         accentColor: "#C69FF2"
+        neutralSeatMantleId: "neutral-seat-mantle-03"
         appearanceManifestId: "stormglass-appearance-03-v1"
         appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
@@ -179,11 +203,13 @@ composition "HoloLand Model Village Pilot" {
         personaId: "persona-04"
         seatId: "seat-04"
         seatOrdinal: 4
-        displayName: "Orren Lark"
+        displayName: "Resident 04"
+        researchAlias: "Resident 04"
         villageRole: "commons_host"
         silhouetteId: "compact_hearth_ring"
         glyphId: "hearth_ring"
         accentColor: "#F0BB78"
+        neutralSeatMantleId: "neutral-seat-mantle-04"
         appearanceManifestId: "stormglass-appearance-04-v1"
         appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
@@ -202,11 +228,13 @@ composition "HoloLand Model Village Pilot" {
         personaId: "persona-05"
         seatId: "seat-05"
         seatOrdinal: 5
-        displayName: "Suri Kest"
+        displayName: "Resident 05"
+        researchAlias: "Resident 05"
         villageRole: "courier_cartographer"
         silhouetteId: "lean_kite"
         glyphId: "path_chevron"
         accentColor: "#E98EAA"
+        neutralSeatMantleId: "neutral-seat-mantle-05"
         appearanceManifestId: "stormglass-appearance-05-v1"
         appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
@@ -225,11 +253,13 @@ composition "HoloLand Model Village Pilot" {
         personaId: "persona-06"
         seatId: "seat-06"
         seatOrdinal: 6
-        displayName: "Vale Rook"
+        displayName: "Resident 06"
+        researchAlias: "Resident 06"
         villageRole: "ledger_witness"
         silhouetteId: "tall_angular_column"
         glyphId: "woven_square"
         accentColor: "#9CCC7B"
+        neutralSeatMantleId: "neutral-seat-mantle-06"
         appearanceManifestId: "stormglass-appearance-06-v1"
         appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
@@ -286,6 +316,9 @@ composition "HoloLand Model Village Pilot" {
         authority: "read_only"
         residentInteractionAllowed: false
         modelIdentityBlinded: true
+        presentationProfile: "research_live_blinded"
+        publicEmbodimentOverlayLoaded: false
+        familyIdentityBlinded: true
         transcriptConsentRequiredWhenHumansEnter: true
       }
     }
@@ -364,6 +397,8 @@ composition "HoloLand Model Village Pilot" {
         status: "world_materialized",
         phase: state.experimentPhase,
         resident_capacity: state.residentCapacity,
+        presentation_profile: state.presentationProfile,
+        family_embodiment_overlay_loaded: false,
         model_turn_trace_available: false,
         agent_action_trace_available: false,
         run_manifest_receipt_emitted: false

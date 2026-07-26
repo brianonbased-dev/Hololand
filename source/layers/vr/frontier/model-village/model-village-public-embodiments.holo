@@ -1,0 +1,270 @@
+// Model Village public model-family embodiment overlay.
+//
+// This composition is a story-only family catalog. Its ordering, transforms,
+// and identifiers do not bind a public embodiment to any research resident,
+// seat, persona, village role, or adapter. It is never loaded into live blinded
+// research. `village_story_unblinded` uses a verified family-embodiment
+// manifest; `research_replay_postlock` additionally requires verified terminal,
+// binding, and unblinding receipts with exact chain bindings.
+
+composition "HoloLand Model Village Public Family Embodiments" {
+  metadata {
+    title: "Stormglass Model-Family Embodiments"
+    version: "1.0.0"
+    source: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
+    canonicalWorldSource: "source/layers/vr/frontier/model-village/model-village.holo"
+    neutralResidentKitSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
+    appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
+    artStyle: "hearthlight_biorealism"
+    authority: "presentation_only"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    independentProjectDisclosureHash: "143ba2f892ea8259b0fbdfe4041aab632ced32225f57d7ffee03e67b4e6a7494"
+  }
+
+  environment {
+    mode: "presentation_overlay"
+    theme: "stormglass_commons"
+    backgroundColor: "#07111F"
+    ambient_light: 0.32
+    shadows: true
+  }
+
+  state {
+    publicEmbodimentCount: 6
+    supportedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    forbiddenPresentationProfiles: ["research_live_blinded"]
+    defaultVisibility: false
+    liveResearchLoadAllowed: false
+    publicStoryRequirements: [
+      "verified_family_embodiment_manifest",
+      "independent_project_disclosure"
+    ]
+    postlockReplayRequirements: [
+      "verified_terminal_commitment",
+      "verified_family_binding_receipt",
+      "verified_unblinding_receipt",
+      "verified_family_embodiment_manifest",
+      "independent_project_disclosure",
+      "trusted_signer_verification",
+      "canonical_hash_verification",
+      "receipt_chain_verification",
+      "exact_binding_match",
+      "fail_neutral_mismatch_denial"
+    ]
+    exactModelRevisionSource: "sealed_run_manifest_only"
+    exactModelRevisionVisibleByMantle: false
+    familyEmbodimentImpliesLiveAdapterBinding: false
+    publicCatalogHasStaticResearchJoin: false
+    publicCatalogOrderDefinesResearchSeat: false
+    publicCatalogOrderDefinesAdapterAssignment: false
+    publicEmbodimentIdDefinesResearchSeat: false
+    publicEmbodimentIdDefinesAdapterAssignment: false
+    publicCatalogHasStaticSpatialJoin: false
+    staticTransformsMayTargetResearchSeats: false
+    catalogRestPosition: [0, 0, 0]
+    villageStoryPlacementSource: "public_gallery_layout_manifest"
+    postlockPlacementSource: "verified_family_binding_receipt_resident_target"
+    postlockResearchJoinSource: "verified_family_binding_receipt_only"
+    sixLiveModelFamiliesClaimed: false
+    providerEndorsementClaimed: false
+    familyMantlesDetachable: true
+    civicRoleKitsIndependentFromFamilyMantles: true
+    publicMantleRoleSemanticBinding: "none"
+    forbiddenPublicMantleRoleSemanticStems: [
+      "water",
+      "steward",
+      "repair",
+      "wright",
+      "tool",
+      "bridge",
+      "seed",
+      "keeper",
+      "hearth",
+      "commons",
+      "host",
+      "courier",
+      "cartograph",
+      "map",
+      "path",
+      "ledger",
+      "witness",
+      "bowl",
+      "gauge"
+    ]
+  }
+
+  template "StormglassFamilyEmbodimentOverlay" {
+    type: "model_village_family_embodiment_overlay"
+    geometry: "capsule"
+    material: "shared_basalt_cloth_proxy"
+    visible_by_default: false
+    canonical_write_authority: false
+    adapter_assignment_authority: false
+    excluded_from_live_research_prompt: true
+    excluded_from_live_research_observation: true
+    excluded_from_live_research_hashes: true
+    excluded_from_live_research_projection: true
+    verified_family_manifest_required: true
+    independent_project_disclosure_required: true
+    verified_postlock_binding_receipts_required: true
+    research_resident_binding: "none"
+    research_seat_binding: "none"
+    research_persona_binding: "none"
+    research_role_binding: "none"
+    adapter_assignment_binding: "none"
+    spatial_binding: "none"
+    asset_status: "q0_proxy_production_mantle_not_custodied"
+  }
+
+  spatial_group "PublicFamilyEmbodimentCatalog" {
+    object "BrittneyEmbodiment" using "StormglassFamilyEmbodimentOverlay" {
+      label: "Brittney"
+      position: [0, 0, 0]
+      scale: [0.60, 1.35, 0.60]
+      material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
+      properties: {
+        publicEmbodimentId: "public-embodiment-sovereign"
+        publicDisplayName: "Brittney"
+        familyId: "sovereign"
+        agentSurfaceId: "brittney-holoshell"
+        modelFamily: "brittney"
+        familyEmbodimentManifestId: "stormglass-family-embodiment-sovereign-v1"
+        familyMantleId: "stormglass-mantle-sovereign-v1"
+        familyMantlePatternId: "sovereign_locality_mesh"
+        familyMantleGlyphId: "owned_mesh_glyph"
+        familyMantleAccentColor: "#6D5A8C"
+        researchResidentBinding: "none"
+        researchSeatBinding: "none"
+        researchPersonaBinding: "none"
+        researchRoleBinding: "none"
+        adapterAssignmentBinding: "none"
+      }
+    }
+
+    object "ClaudeEmbodiment" using "StormglassFamilyEmbodimentOverlay" {
+      label: "Claude"
+      position: [0, 0, 0]
+      scale: [0.60, 1.35, 0.60]
+      material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
+      properties: {
+        publicEmbodimentId: "public-embodiment-anthropic"
+        publicDisplayName: "Claude"
+        familyId: "anthropic"
+        agentSurfaceId: "claude-desktop"
+        modelFamily: "claude"
+        familyEmbodimentManifestId: "stormglass-family-embodiment-anthropic-v1"
+        familyMantleId: "stormglass-mantle-anthropic-v1"
+        familyMantlePatternId: "quiet_nested_open_arcs"
+        familyMantleGlyphId: "open_arc_weave"
+        familyMantleAccentColor: "#C16F45"
+        researchResidentBinding: "none"
+        researchSeatBinding: "none"
+        researchPersonaBinding: "none"
+        researchRoleBinding: "none"
+        adapterAssignmentBinding: "none"
+      }
+    }
+
+    object "OpenAIEmbodiment" using "StormglassFamilyEmbodimentOverlay" {
+      label: "OpenAI"
+      position: [0, 0, 0]
+      scale: [0.60, 1.35, 0.60]
+      material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
+      properties: {
+        publicEmbodimentId: "public-embodiment-openai"
+        publicDisplayName: "OpenAI"
+        embodimentTitle: "Codex"
+        familyId: "openai"
+        agentSurfaceId: "codex-hardware"
+        modelFamily: "gpt"
+        familyEmbodimentManifestId: "stormglass-family-embodiment-openai-v1"
+        familyMantleId: "stormglass-mantle-openai-v1"
+        familyMantlePatternId: "recursive_cell_interlock"
+        familyMantleGlyphId: "recursive_interlock_glyph"
+        familyMantleAccentColor: "#D6D1C7"
+        researchResidentBinding: "none"
+        researchSeatBinding: "none"
+        researchPersonaBinding: "none"
+        researchRoleBinding: "none"
+        adapterAssignmentBinding: "none"
+      }
+    }
+
+    object "GeminiEmbodiment" using "StormglassFamilyEmbodimentOverlay" {
+      label: "Gemini"
+      position: [0, 0, 0]
+      scale: [0.60, 1.35, 0.60]
+      material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
+      properties: {
+        publicEmbodimentId: "public-embodiment-google"
+        publicDisplayName: "Gemini"
+        familyId: "google"
+        agentSurfaceId: "gemini-antigravity"
+        modelFamily: "gemini"
+        familyEmbodimentManifestId: "stormglass-family-embodiment-google-v1"
+        familyMantleId: "stormglass-mantle-google-v1"
+        familyMantlePatternId: "paired_offset_prismatic_panels"
+        familyMantleGlyphId: "paired_prism_weave"
+        familyMantleAccentColor: "#3F6D7A"
+        researchResidentBinding: "none"
+        researchSeatBinding: "none"
+        researchPersonaBinding: "none"
+        researchRoleBinding: "none"
+        adapterAssignmentBinding: "none"
+      }
+    }
+
+    object "GrokEmbodiment" using "StormglassFamilyEmbodimentOverlay" {
+      label: "Grok"
+      position: [0, 0, 0]
+      scale: [0.60, 1.35, 0.60]
+      material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
+      properties: {
+        publicEmbodimentId: "public-embodiment-xai"
+        publicDisplayName: "Grok"
+        familyId: "xai"
+        agentSurfaceId: "grok-hardware"
+        modelFamily: "grok"
+        familyEmbodimentManifestId: "stormglass-family-embodiment-xai-v1"
+        familyMantleId: "stormglass-mantle-xai-v1"
+        familyMantlePatternId: "off_axis_signal_bands"
+        familyMantleGlyphId: "diagonal_signal_weave"
+        familyMantleAccentColor: "#A64B3C"
+        researchResidentBinding: "none"
+        researchSeatBinding: "none"
+        researchPersonaBinding: "none"
+        researchRoleBinding: "none"
+        adapterAssignmentBinding: "none"
+      }
+    }
+
+    object "GLMEmbodiment" using "StormglassFamilyEmbodimentOverlay" {
+      label: "GLM"
+      position: [0, 0, 0]
+      scale: [0.60, 1.35, 0.60]
+      material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
+      properties: {
+        publicEmbodimentId: "public-embodiment-ollama"
+        publicDisplayName: "GLM"
+        familyId: "ollama"
+        agentSurfaceId: "ollama-cloud"
+        modelFamily: "glm"
+        familyEmbodimentManifestId: "stormglass-family-embodiment-ollama-v1"
+        familyMantleId: "stormglass-mantle-ollama-v1"
+        familyMantlePatternId: "modular_phase_lattice"
+        familyMantleGlyphId: "phase_lattice_glyph"
+        familyMantleAccentColor: "#C8A84E"
+        researchResidentBinding: "none"
+        researchSeatBinding: "none"
+        researchPersonaBinding: "none"
+        researchRoleBinding: "none"
+        adapterAssignmentBinding: "none"
+      }
+    }
+
+  }
+}

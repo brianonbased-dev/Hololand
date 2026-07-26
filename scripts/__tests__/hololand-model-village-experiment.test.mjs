@@ -239,6 +239,37 @@ assert.equal(
     .postInferenceOutcomeEquivalenceClaimed,
   false,
 );
+const forbiddenPublicIdentityFields = [
+  'public_embodiment_id',
+  'public_story_ordinal',
+  'public_display_name',
+  'family_id',
+  'model_family',
+  'provider',
+  'agent_surface_id',
+  'family_embodiment_manifest_id',
+  'family_mantle_id',
+  'family_mantle_pattern_id',
+  'family_mantle_glyph_id',
+  'exact_model_revision',
+  'embodiment_binding',
+  'embodiment_binding_receipt_hash',
+];
+assert.equal(
+  forbiddenPublicIdentityFields.every((field) => (
+    receipt.observerBoundaryFixture.adapterAssignmentExclusion
+      .forbiddenResidentObservationFields.includes(field)
+  )),
+  true,
+);
+assert.equal(
+  receipt.observerBoundaryFixture.residentObservations.every(
+    (observation) => forbiddenPublicIdentityFields.every(
+      (field) => !Object.hasOwn(observation, field),
+    ),
+  ),
+  true,
+);
 assert.equal(
   receipt.observerBoundaryFixture.claimBoundary.referencedSafetyDecisionReceiptsValidated,
   false,

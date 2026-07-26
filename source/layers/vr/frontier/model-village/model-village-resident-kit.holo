@@ -1,19 +1,22 @@
-// Stormglass Craftfolk resident-kit source.
+// Stormglass Craftfolk neutral resident-kit source.
 //
-// This is the Q0 spatial and appearance manifest for the six fixed Model
-// Village personas. Capsule geometry is an honest proxy. The authored
-// humanoid GLB/VRM kit, facial rig, textures, and animation remain targets.
+// This is the Q0 spatial and research-appearance manifest for the six fixed
+// Model Village personas. Family identity belongs to the separately gated
+// public embodiment overlay and cannot enter a live research projection.
+// Capsule geometry is an honest proxy. The authored humanoid GLB/VRM kit,
+// facial rig, textures, and animation remain targets.
 
-composition "HoloLand Model Village Stormglass Craftfolk Kit" {
+composition "HoloLand Model Village Neutral Stormglass Craftfolk Kit" {
   metadata {
-    title: "Stormglass Craftfolk"
-    version: "1.0.0"
+    title: "Neutral Stormglass Craftfolk"
+    version: "1.1.0"
     source: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
     artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
     appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
     canonicalWorldSource: "source/layers/vr/frontier/model-village/model-village.holo"
     observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
-    conceptAsset: "docs/assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png"
+    publicEmbodimentOverlaySource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
+    neutralResearchConceptAsset: "docs/assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png"
     artStyle: "hearthlight_biorealism"
     assetTier: "q0_proxy"
     authoredProductionAssetsObserved: false
@@ -51,8 +54,19 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
     sharedNeutralClips: ["idle", "listen", "propose", "settle"]
     currentGeometry: "capsule_proxy"
     productionGeometry: "authored_humanoid_glb_or_vrm_target"
+    presentationProfile: "research_live_blinded"
+    supportedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_live_blinded",
+      "research_replay_postlock"
+    ]
+    activeIdentitySource: "research_alias"
     providerIdentityVisible: false
     modelIdentityVisible: false
+    familyIdentityVisible: false
+    publicEmbodimentOverlayLoaded: false
+    publicEmbodimentOverlayAllowedInLiveResearch: false
+    exactModelRevisionVisible: false
     appearanceAssignmentInvariant: true
     rolePropsGrantExclusiveCapability: false
   }
@@ -64,6 +78,9 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
     visible_to_observers: true
     model_identity_blinded: true
     provider_identity_blinded: true
+    family_identity_blinded: true
+    neutral_seat_mantle_required: true
+    family_embodiment_overlay_loaded: false
     public_state_only: true
     action_receipt_required: true
     asset_status: "q0_proxy_production_asset_not_custodied"
@@ -71,7 +88,7 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
 
   spatial_group "ResidentLineup" {
     object "StormglassResident01" using "StormglassCraftfolkProxy" {
-      label: "Nera Fen"
+      label: "Resident 01"
       position: [-5.0, 1.0, 0]
       scale: [0.50, 1.50, 0.50]
       material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
@@ -79,12 +96,14 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
         residentId: "resident-01"
         personaId: "persona-01"
         seatId: "seat-01"
-        displayName: "Nera Fen"
+        displayName: "Resident 01"
+        researchAlias: "Resident 01"
         villageRole: "water_steward"
         silhouetteId: "willow_crescent"
         glyphId: "open_droplet"
         accentColor: "#77D4C8"
         roleProp: "ceramic_water_measure"
+        neutralSeatMantleId: "neutral-seat-mantle-01"
         appearanceManifestId: "stormglass-appearance-01-v1"
         assignmentInvariant: true
         adapterIdentity: "absent"
@@ -92,7 +111,7 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
     }
 
     object "StormglassResident02" using "StormglassCraftfolkProxy" {
-      label: "Calder Voss"
+      label: "Resident 02"
       position: [-3.0, 1.0, 0]
       scale: [0.72, 1.22, 0.64]
       material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
@@ -100,12 +119,14 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
         residentId: "resident-02"
         personaId: "persona-02"
         seatId: "seat-02"
-        displayName: "Calder Voss"
+        displayName: "Resident 02"
+        researchAlias: "Resident 02"
         villageRole: "repairwright"
         silhouetteId: "broad_square"
         glyphId: "bridge_knot"
         accentColor: "#79A8F2"
         roleProp: "folding_gauge"
+        neutralSeatMantleId: "neutral-seat-mantle-02"
         appearanceManifestId: "stormglass-appearance-02-v1"
         assignmentInvariant: true
         adapterIdentity: "absent"
@@ -113,7 +134,7 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
     }
 
     object "StormglassResident03" using "StormglassCraftfolkProxy" {
-      label: "Tamsin Reed"
+      label: "Resident 03"
       position: [-1.0, 1.0, 0]
       scale: [0.62, 1.34, 0.62]
       material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
@@ -121,12 +142,14 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
         residentId: "resident-03"
         personaId: "persona-03"
         seatId: "seat-03"
-        displayName: "Tamsin Reed"
+        displayName: "Resident 03"
+        researchAlias: "Resident 03"
         villageRole: "seedkeeper"
         silhouetteId: "a_line_seedpod"
         glyphId: "six_part_seed"
         accentColor: "#C69FF2"
         roleProp: "seed_archive_case"
+        neutralSeatMantleId: "neutral-seat-mantle-03"
         appearanceManifestId: "stormglass-appearance-03-v1"
         assignmentInvariant: true
         adapterIdentity: "absent"
@@ -134,7 +157,7 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
     }
 
     object "StormglassResident04" using "StormglassCraftfolkProxy" {
-      label: "Orren Lark"
+      label: "Resident 04"
       position: [1.0, 1.0, 0]
       scale: [0.70, 1.20, 0.70]
       material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
@@ -142,12 +165,14 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
         residentId: "resident-04"
         personaId: "persona-04"
         seatId: "seat-04"
-        displayName: "Orren Lark"
+        displayName: "Resident 04"
+        researchAlias: "Resident 04"
         villageRole: "commons_host"
         silhouetteId: "compact_hearth_ring"
         glyphId: "hearth_ring"
         accentColor: "#F0BB78"
         roleProp: "shared_serving_bowl"
+        neutralSeatMantleId: "neutral-seat-mantle-04"
         appearanceManifestId: "stormglass-appearance-04-v1"
         assignmentInvariant: true
         adapterIdentity: "absent"
@@ -155,7 +180,7 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
     }
 
     object "StormglassResident05" using "StormglassCraftfolkProxy" {
-      label: "Suri Kest"
+      label: "Resident 05"
       position: [3.0, 1.0, 0]
       scale: [0.48, 1.42, 0.54]
       material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
@@ -163,12 +188,14 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
         residentId: "resident-05"
         personaId: "persona-05"
         seatId: "seat-05"
-        displayName: "Suri Kest"
+        displayName: "Resident 05"
+        researchAlias: "Resident 05"
         villageRole: "courier_cartographer"
         silhouetteId: "lean_kite"
         glyphId: "path_chevron"
         accentColor: "#E98EAA"
         roleProp: "rolled_map_case"
+        neutralSeatMantleId: "neutral-seat-mantle-05"
         appearanceManifestId: "stormglass-appearance-05-v1"
         assignmentInvariant: true
         adapterIdentity: "absent"
@@ -176,7 +203,7 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
     }
 
     object "StormglassResident06" using "StormglassCraftfolkProxy" {
-      label: "Vale Rook"
+      label: "Resident 06"
       position: [5.0, 1.0, 0]
       scale: [0.52, 1.52, 0.52]
       material: { color: "#46545E", metalness: 0.05, roughness: 0.86 }
@@ -184,12 +211,14 @@ composition "HoloLand Model Village Stormglass Craftfolk Kit" {
         residentId: "resident-06"
         personaId: "persona-06"
         seatId: "seat-06"
-        displayName: "Vale Rook"
+        displayName: "Resident 06"
+        researchAlias: "Resident 06"
         villageRole: "ledger_witness"
         silhouetteId: "tall_angular_column"
         glyphId: "woven_square"
         accentColor: "#9CCC7B"
         roleProp: "civic_ledger"
+        neutralSeatMantleId: "neutral-seat-mantle-06"
         appearanceManifestId: "stormglass-appearance-06-v1"
         assignmentInvariant: true
         adapterIdentity: "absent"

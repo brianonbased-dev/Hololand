@@ -10,6 +10,13 @@
 
 **Residents:** Stormglass Craftfolk
 
+> **Supersession note:** This report preserves the initial neutral Craftfolk art
+> lock, its asset hashes, validation record, and durable receipt. The fictional
+> resident names below are no longer the public cast; they remain historical
+> neutral concept references for blinded research. The current public roster and
+> dual-profile identity contract are recorded in the
+> [Model-Family Embodiment Lock](./HOLOLAND_MODEL_VILLAGE_MODEL_FAMILY_EMBODIMENT_LOCK_2026-07-25.md).
+
 ## Outcome
 
 The Model Village now has one explicit world and resident identity:

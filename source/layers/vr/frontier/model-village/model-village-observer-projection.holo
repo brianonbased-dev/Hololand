@@ -7,7 +7,7 @@
 composition "HoloLand Model Village Observer Projection" {
   metadata {
     title: "Model Village Living Commons"
-    version: "0.3.0"
+    version: "0.4.0"
     source: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
     canonicalWorldSource: "source/layers/vr/frontier/model-village/model-village.holo"
     policySource: "source/domains/agents/model-village-observer-witness.hsplus"
@@ -17,6 +17,7 @@ composition "HoloLand Model Village Observer Projection" {
     productionPlan: "docs/specs/HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md"
     artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
     residentKitSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    publicEmbodimentOverlaySource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
     appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
     artDirectionSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md"
     worldName: "Stormglass Commons"
@@ -76,11 +77,44 @@ composition "HoloLand Model Village Observer Projection" {
 
   state {
     authority: "read_only"
+    presentationProfile: "research_live_blinded"
+    supportedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_live_blinded",
+      "research_replay_postlock"
+    ]
     consumes: ["canonical_scene_hash", "canonical_pose_hash", "logical_clock_hash", "public_state_hash", "executed_schedule_hash", "resident_observation_hash", "action_receipt_root", "ordered_verified_receipts", "sealed_physics_snapshots"]
     forbiddenWrites: ["canonical_world", "resident_observation", "clock", "schedule", "prompt", "action", "receipt"]
     residentVisible: false
     residentObservationIncluded: false
     adapterIdentityPresentationAllowed: false
+    familyIdentityPresentationAllowed: false
+    publicEmbodimentOverlayLoaded: false
+    publicEmbodimentOverlayAllowedInLiveResearch: false
+    activeResidentIdentitySource: "research_alias"
+    activeResidentMantleSource: "neutral_seat_mantle"
+    familyIdentityRevealRequires: [
+      "terminal_commitment",
+      "family_binding_receipt",
+      "unblinding_receipt"
+    ]
+    projectionInputExcludes: [
+      "public_embodiment_id",
+      "public_story_ordinal",
+      "public_display_name",
+      "family_id",
+      "model_family",
+      "provider",
+      "agent_surface_id",
+      "family_embodiment_manifest_id",
+      "family_mantle_id",
+      "family_mantle_pattern_id",
+      "family_mantle_glyph_id",
+      "embodiment_binding",
+      "embodiment_binding_receipt_hash",
+      "exact_model_revision"
+    ]
+    exactModelRevisionSource: "sealed_run_manifest_only"
     conditionIdentityPresentationAllowedBeforeUnblinding: false
     invalidReceiptBehavior: "fail_dark"
     receiptReleasePredicate: ["receipt_present", "signature_verified", "source_action_hash_matches", "decision_supported"]
@@ -185,6 +219,9 @@ composition "HoloLand Model Village Observer Projection" {
     resident_visible: false
     source_semantics_rewritten: false
     canonical_write_authority: false
+    presentation_profile: "research_live_blinded"
+    family_identity_blinded: true
+    family_embodiment_overlay_loaded: false
     receipt_required_for_causal_effect: true
   }
 
@@ -705,42 +742,42 @@ composition "HoloLand Model Village Observer Projection" {
       position: [-6.0, 0.84, 3.7]
       scale: [0.50, 1.50, 0.50]
       material: { color: "#46545e", metalness: 0.05, roughness: 0.86 }
-      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-01", personaId: "persona-01", seatId: "seat-01", seat: 1, displayName: "Nera Fen", villageRole: "water_steward", silhouetteId: "willow_crescent", glyphId: "open_droplet", accentColor: "#77D4C8", appearanceManifestId: "stormglass-appearance-01-v1", assignmentInvariant: true, adapterIdentity: "absent", causalEffect: false, assetStatus: "q0_proxy" }
+      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-01", personaId: "persona-01", seatId: "seat-01", seat: 1, displayName: "Resident 01", researchAlias: "Resident 01", villageRole: "water_steward", silhouetteId: "willow_crescent", glyphId: "open_droplet", accentColor: "#77D4C8", neutralSeatMantleId: "neutral-seat-mantle-01", familyMantleVisible: false, appearanceManifestId: "stormglass-appearance-01-v1", assignmentInvariant: true, adapterIdentity: "absent", publicEmbodimentOverlayLoaded: false, causalEffect: false, assetStatus: "q0_proxy" }
     }
     object "ObserverResident02" using "ObserverOnlyMesh" {
       geometry: "capsule"
       position: [-3.6, 0.72, 5.5]
       scale: [0.72, 1.22, 0.64]
       material: { color: "#46545e", metalness: 0.05, roughness: 0.86 }
-      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-02", personaId: "persona-02", seatId: "seat-02", seat: 2, displayName: "Calder Voss", villageRole: "repairwright", silhouetteId: "broad_square", glyphId: "bridge_knot", accentColor: "#79A8F2", appearanceManifestId: "stormglass-appearance-02-v1", assignmentInvariant: true, adapterIdentity: "absent", causalEffect: false, assetStatus: "q0_proxy" }
+      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-02", personaId: "persona-02", seatId: "seat-02", seat: 2, displayName: "Resident 02", researchAlias: "Resident 02", villageRole: "repairwright", silhouetteId: "broad_square", glyphId: "bridge_knot", accentColor: "#79A8F2", neutralSeatMantleId: "neutral-seat-mantle-02", familyMantleVisible: false, appearanceManifestId: "stormglass-appearance-02-v1", assignmentInvariant: true, adapterIdentity: "absent", publicEmbodimentOverlayLoaded: false, causalEffect: false, assetStatus: "q0_proxy" }
     }
     object "ObserverResident03" using "ObserverOnlyMesh" {
       geometry: "capsule"
       position: [-1.2, 0.78, 6.25]
       scale: [0.62, 1.34, 0.62]
       material: { color: "#46545e", metalness: 0.05, roughness: 0.86 }
-      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-03", personaId: "persona-03", seatId: "seat-03", seat: 3, displayName: "Tamsin Reed", villageRole: "seedkeeper", silhouetteId: "a_line_seedpod", glyphId: "six_part_seed", accentColor: "#C69FF2", appearanceManifestId: "stormglass-appearance-03-v1", assignmentInvariant: true, adapterIdentity: "absent", causalEffect: false, assetStatus: "q0_proxy" }
+      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-03", personaId: "persona-03", seatId: "seat-03", seat: 3, displayName: "Resident 03", researchAlias: "Resident 03", villageRole: "seedkeeper", silhouetteId: "a_line_seedpod", glyphId: "six_part_seed", accentColor: "#C69FF2", neutralSeatMantleId: "neutral-seat-mantle-03", familyMantleVisible: false, appearanceManifestId: "stormglass-appearance-03-v1", assignmentInvariant: true, adapterIdentity: "absent", publicEmbodimentOverlayLoaded: false, causalEffect: false, assetStatus: "q0_proxy" }
     }
     object "ObserverResident04" using "ObserverOnlyMesh" {
       geometry: "capsule"
       position: [1.2, 0.70, 6.25]
       scale: [0.70, 1.20, 0.70]
       material: { color: "#46545e", metalness: 0.05, roughness: 0.86 }
-      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-04", personaId: "persona-04", seatId: "seat-04", seat: 4, displayName: "Orren Lark", villageRole: "commons_host", silhouetteId: "compact_hearth_ring", glyphId: "hearth_ring", accentColor: "#F0BB78", appearanceManifestId: "stormglass-appearance-04-v1", assignmentInvariant: true, adapterIdentity: "absent", causalEffect: false, assetStatus: "q0_proxy" }
+      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-04", personaId: "persona-04", seatId: "seat-04", seat: 4, displayName: "Resident 04", researchAlias: "Resident 04", villageRole: "commons_host", silhouetteId: "compact_hearth_ring", glyphId: "hearth_ring", accentColor: "#F0BB78", neutralSeatMantleId: "neutral-seat-mantle-04", familyMantleVisible: false, appearanceManifestId: "stormglass-appearance-04-v1", assignmentInvariant: true, adapterIdentity: "absent", publicEmbodimentOverlayLoaded: false, causalEffect: false, assetStatus: "q0_proxy" }
     }
     object "ObserverResident05" using "ObserverOnlyMesh" {
       geometry: "capsule"
       position: [3.6, 0.80, 5.5]
       scale: [0.48, 1.42, 0.54]
       material: { color: "#46545e", metalness: 0.05, roughness: 0.86 }
-      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-05", personaId: "persona-05", seatId: "seat-05", seat: 5, displayName: "Suri Kest", villageRole: "courier_cartographer", silhouetteId: "lean_kite", glyphId: "path_chevron", accentColor: "#E98EAA", appearanceManifestId: "stormglass-appearance-05-v1", assignmentInvariant: true, adapterIdentity: "absent", causalEffect: false, assetStatus: "q0_proxy" }
+      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-05", personaId: "persona-05", seatId: "seat-05", seat: 5, displayName: "Resident 05", researchAlias: "Resident 05", villageRole: "courier_cartographer", silhouetteId: "lean_kite", glyphId: "path_chevron", accentColor: "#E98EAA", neutralSeatMantleId: "neutral-seat-mantle-05", familyMantleVisible: false, appearanceManifestId: "stormglass-appearance-05-v1", assignmentInvariant: true, adapterIdentity: "absent", publicEmbodimentOverlayLoaded: false, causalEffect: false, assetStatus: "q0_proxy" }
     }
     object "ObserverResident06" using "ObserverOnlyMesh" {
       geometry: "capsule"
       position: [6.0, 0.85, 3.7]
       scale: [0.52, 1.52, 0.52]
       material: { color: "#46545e", metalness: 0.05, roughness: 0.86 }
-      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-06", personaId: "persona-06", seatId: "seat-06", seat: 6, displayName: "Vale Rook", villageRole: "ledger_witness", silhouetteId: "tall_angular_column", glyphId: "woven_square", accentColor: "#9CCC7B", appearanceManifestId: "stormglass-appearance-06-v1", assignmentInvariant: true, adapterIdentity: "absent", causalEffect: false, assetStatus: "q0_proxy" }
+      properties: { presentationRole: "blinded_resident_proxy", residentId: "resident-06", personaId: "persona-06", seatId: "seat-06", seat: 6, displayName: "Resident 06", researchAlias: "Resident 06", villageRole: "ledger_witness", silhouetteId: "tall_angular_column", glyphId: "woven_square", accentColor: "#9CCC7B", neutralSeatMantleId: "neutral-seat-mantle-06", familyMantleVisible: false, appearanceManifestId: "stormglass-appearance-06-v1", assignmentInvariant: true, adapterIdentity: "absent", publicEmbodimentOverlayLoaded: false, causalEffect: false, assetStatus: "q0_proxy" }
     }
   }
 }
