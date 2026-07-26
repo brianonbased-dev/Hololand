@@ -74,7 +74,7 @@
     "test:holoshell-terminal-runner": "node scripts/__tests__/holoshell-terminal-runner.test.mjs",
     "test:holoshell-founder-host": "node scripts/__tests__/holoshell-founder-host.test.mjs",
     "test:holoshell-sovereign-worldgen-demo": "node scripts/__tests__/holoshell-sovereign-worldgen-demo.test.mjs",
-    "test:hololand-model-village": "node scripts/__tests__/model-village-phase0b-runtime.test.mjs && node scripts/__tests__/hololand-model-village-experiment.test.mjs",
+    "test:hololand-model-village": "node --test scripts/__tests__/model-village-canonical-lifecycle.test.mjs && node scripts/__tests__/model-village-phase0b-runtime.test.mjs && node scripts/__tests__/hololand-model-village-experiment.test.mjs",
     "test:hololand-model-village-art-direction": "node scripts/__tests__/hololand-model-village-art-direction.test.mjs",
     "test:hololand-model-village-phase0b-runtime": "node scripts/__tests__/model-village-phase0b-runtime.test.mjs",
     "test:hololand-model-village-physics": "node scripts/__tests__/hololand-model-village-physics.test.mjs",

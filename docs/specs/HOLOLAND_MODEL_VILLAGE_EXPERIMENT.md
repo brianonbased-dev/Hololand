@@ -1,8 +1,8 @@
 # HoloLand Model Village Experiment
 
-**Status:** Phase 0B bounded engineering tracer observed; Phase 1 blocked
+**Status:** Phase 0B canonical lifecycle closure observed; Phase 1 blocked
 
-**Version:** 0.5.0
+**Version:** 0.6.0
 
 **Canonical product source:** HoloScript
 **Study class:** Mechanism pilot and rough variance signal, not confirmatory evidence
@@ -86,11 +86,12 @@ runtime implementation exists and produces its own receipt.
 | Observed | Atomic persistence accepts only an action and post-action snapshot extracted from a reverified HoloScript V4 source run. Target mismatch and missing or malformed state-hash attempts each burn one authorization, deny, and leave the world unchanged. Persistent-state validation checks the authorization, outbox, ledger-chain, and terminal-world invariants. A fresh Node process rereads the same validated file state. Injected process-level faults immediately before and after rename expose the old or complete state; they are not process-crash tests. |
 | Observed | A fresh source replay matches ordered decisions, post-state hashes, action root, and terminal commitment. The visible `.holo` declares the bounded stop reason and target; the bridge hashes that dispatch request, matches it to the signed stop plan and `.hsplus` invocation, dispatches `ModelVillagePhase0BBehavior.freeze_run`, and seals a safety receipt. The full outer verifier requires the external trusted configuration and reverifies both main and stop V4 receipts. Its self-hash check alone proves only receipt self-integrity. |
 | Observed | The Phase 0B observer consumes one sealed four-object V4 execution after sealing, introduces zero experiment executions, and preserves the complete canonical payload plus the seven scene, pose, clock, public-state, schedule, resident-observation, and action-root fields. A separate HoloLand browser off/on sandwich withholds and then SHA-256-acknowledges one canonical payload before presentation; the browser renders only from that parsed acknowledged string while the complete host physics receipt and compiled source hashes remain unchanged. The observer `.holo` and `.hsplus` sources remain hash-bound and read-only. |
+| Observed | MV-L12 derives a bounded engine projection from the canonical twelve-object `.holo`, lifecycle actions in `model-village-experiment.hsplus`, and frozen matrix in `model-village-trial-kernel.hs`. It validates the exact object IDs, positions, and scales, then executes `register_run`, six ordered `stage_resident` calls, `start_run`, `freeze_run`, and `close_run` for each of the three adapter blocks. The receipt contains 30 action entries, 18 exact resident/persona/seat bindings, 33 public-state snapshots, replay verification, observer noninterference, the production-lock ancestor, and zero provider calls. |
 | Observed | The read-only Living Commons presentation derives three public water units, one admitted `contribute_water` action, and one blocked `deny_external_message` action from the bounded receipt. The blocked receipt links to the admitted receipt and equals the terminal action root. A separate binding derived from the fully verified execution ledger anchors both receipt hashes, their link, the root, and the source-run/terminal commitments before the browser may render. Its cistern, hearth, receipt halo, and boundary ward reference those existing fields or action receipts. This is observer evidence only and does not enter resident observations. See the [2026-07-25 witness](../reports/HOLOLAND_MODEL_VILLAGE_PHASE0B_OBSERVER_LIVING_COMMONS_2026-07-25.md). |
 | Locked decision | The public story/replay catalog is Claude, OpenAI, Gemini, Grok, GLM, and Brittney. It is keyed by public-embodiment ID and has no array-order or experimental identity binding. |
 | Locked decision | Live research uses the separate neutral `Resident 01` through `Resident 06` alias catalog. This does not assert six live model adapters or alter the frozen three-adapter study design. |
 | Target | Locked model adapters drive six residents through identical, seeded village runs; every observation, model turn, action decision, mutation, rollback reference, and run summary is receipted. |
-| Gap | Phase 0B proves only the named bounded source subsets and a file-backed single-process bridge. Live models, provider routes, full or native `.hs`/`.hsplus` execution, native `.holo` lifecycle and cross-composition dispatch, physics execution by this tracer, production validator provisioning/custody, process-crash durability, and production multi-process/CAS/fleet durability remain unobserved. The frozen Phase 1 manifests are inputs, not proof that isolation, budgets, six-resident lifecycle, live routing, custody, or the overall Phase 1 go gate is ready. |
+| Gap | Phase 0B proves only the named bounded source subsets and file-backed single-process bridges. Live models, provider routes, post-inference adapter outcome equivalence, full or native `.hs`/`.hsplus` execution, native `.holo` lifecycle and cross-composition dispatch, physics execution by these tracers, production validator provisioning/custody, process-crash durability, and production multi-process/CAS/fleet durability remain unobserved. The frozen Phase 1 manifests and bounded six-resident lifecycle are not proof that live isolation, budgets, routing, custody, or the overall Phase 1 go gate is ready. |
 | Forbidden claim | No emergence, model superiority, population effect, inference determinism, production trust or durability, process-crash durability, Phase 1 readiness, or completed scientific experiment may be claimed from this bounded tracer. |
 
 ## Canonical three-format split
@@ -532,6 +533,33 @@ exercise physics, native `.holo` lifecycle dispatch, full/native `.hs` or
 `.hsplus`, distributed concurrency, a six-resident production run, or a
 scientific outcome.
 
+### MV-L12 canonical lifecycle closure
+
+The bounded canonical lifecycle closure now passes alongside the original
+two-resident tracer:
+
+- The bridge re-extracts the exact twelve object IDs, positions, and scales from
+  the canonical world and fails closed on transform drift.
+- It derives its executable state and five lifecycle actions from the canonical
+  `.hsplus` policy. Unsupported `emit()` calls are represented by the engine
+  receipt ledger; exact unique resident/persona/seat bindings are host-validated
+  before the bounded action subset executes.
+- Every frozen adapter block executes `register_run -> stage_resident x6 ->
+  start_run -> freeze_run -> close_run`, reaches `closed` with the stop
+  triggered, and keeps world mutation denied.
+- Across the three blocks, each fixed persona/seat receives each adapter once.
+  The sealed evidence contains 30 actions, 18 staged bindings, 33 public-state
+  snapshots, fresh replay matches, and observer noninterference.
+- Canonical world, policy, and kernel hashes plus production lock
+  `a1c8c9ad6142ba4795385dac6551a4131befa809` bind the receipt. The bridge makes
+  zero provider calls and claims neither production validator trust nor
+  scientific outcomes.
+
+This closes `worldRuntimeLifecycleExecuted` only for the source-derived bounded
+twelve-object runtime profile. Full/native language execution, native `.holo`
+dispatch, live providers, production custody, and the Phase 1 go decision remain
+open.
+
 ## Runtime closure gates
 
 The V4 source-run and HoloLand bridge close several gates only for the bounded
@@ -550,7 +578,8 @@ Phase 0B profile:
 | Self-integrity | V4 seals source, ledgers, terminal commitment, and seven canonical fields; the outer self-hash detects artifact mutation. | External trust requires the full verifier and trusted configuration; self-hash alone is not authenticity. |
 | File-state fault boundary | A fresh Node process rereads the validated state. Process-level exceptions immediately before/after rename expose the old or complete file state. | Process-crash durability testing, multi-process recovery, and fleet durability. |
 | Emergency stop | `.holo` declares reason/target; the hashed request matches the signed stop plan and bounded `.hsplus` invocation before `freeze_run` seals a safety receipt. | Native `.holo` lifecycle/cross-composition dispatch and production resume policy. |
-| Observer consumer | One sealed four-object V4 receipt has equal pre/post canonical payload and seven-field hashes; the HoloLand browser withholds then digest-acknowledges the same source-bound read-only projection with zero host authoritative mutation. | Full twelve-object lifecycle execution, adapter-permutation/post-inference equivalence, and production observer deployment profiles. |
+| Observer consumer | One sealed four-object V4 receipt has equal pre/post canonical payload and seven-field hashes; the HoloLand browser withholds then digest-acknowledges the same source-bound read-only projection with zero host authoritative mutation. The MV-L12 bridge additionally proves observer noninterference for all three twelve-object lifecycle runs. | Browser deployment of the twelve-object consumer, post-inference adapter outcome equivalence, and production observer profiles. |
+| Canonical lifecycle and matrix | Three source-derived twelve-object runs execute register, six resident stages, start, freeze, and close with the exact frozen block assignments, replay verification, 33 snapshots, and zero provider calls. | Native `.holo` dispatch, full/native `.hsplus`, live provider isolation, production trust/custody, and fleet durability. |
 | Challenge and metric inputs | Three challenge definitions and one metric specification are frozen and hashed. | Phase 1 operational admission, execution, custody, and overall go decision. |
 
 The bridge is evidence for HoloScript-authored behavior executed through named
@@ -568,20 +597,23 @@ claim-bound capability receipt.
 
 ### Phase 0B - deterministic engineering tracer
 
-Observed for the bounded bridge described above. The two-resident synthetic
+Observed for the bounded bridges described above. The two-resident synthetic
 captured-response tracer, fresh replay, separated public trust-policy and
 fixture-signing inputs, reverified-V4 atomic admission, fresh-process reread,
 process-level rename-fault drills, and bounded emergency-stop dispatch pass with
 zero provider calls. The single-receipt observer and browser consumer sandwich
-also pass for this bounded scope. This is not a live model run, full
-twelve-object or native lifecycle proof, production trust or durability claim,
+also pass for that scope. MV-L12 additionally closes the source-derived
+twelve-object `register -> stage six -> start -> freeze -> close` lifecycle and
+frozen three-block adapter matrix with replay and observer gates. This is not a
+live model run, native lifecycle proof, production trust or durability claim,
 process-crash test, or scientific result.
 
 ### Phase 1 - small live pilot
 
-Blocked. The challenge and metric inputs are frozen, but Phase 1 still requires
-the six-resident lifecycle, locked live adapters and provider receipts, sealed
-response custody, production isolation and ceilings, native lifecycle/stop
+Blocked. The challenge and metric inputs are frozen and the bounded
+six-resident lifecycle closes, but Phase 1 still requires locked live adapters
+and provider receipts, sealed response custody, production isolation and
+ceilings, native lifecycle/stop
 binding, production validator provisioning/custody, process-crash durability,
 multi-process/CAS and fleet durability, and an explicit operational go decision.
 If admitted later, run the twelve-village matrix only for mechanism

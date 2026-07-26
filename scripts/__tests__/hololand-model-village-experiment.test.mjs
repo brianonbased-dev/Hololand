@@ -43,8 +43,8 @@ const { receipt } = await runModelVillageCheck({
   tickRate: 10,
 });
 
-assert.equal(receipt.schemaVersion, 'hololand.model-village-experiment.v0.4.0');
-assert.equal(receipt.studyPhase, 'phase0b_bounded_engineering_tracer');
+assert.equal(receipt.schemaVersion, 'hololand.model-village-experiment.v0.5.0');
+assert.equal(receipt.studyPhase, 'phase0b_canonical_lifecycle_closure');
 assert.equal(receipt.status, 'pass');
 assert.equal(receipt.sourceContract.threeFormat, true);
 assert.deepEqual(
@@ -95,10 +95,32 @@ assert.deepEqual(receipt.runtimeEvidence.boundedPhase0B, {
   providerCallsMade: 0,
   transactionScope: 'verified_v4_per_action_single_host_file_atomic_bridge',
 });
+assert.deepEqual(receipt.runtimeEvidence.canonicalLifecycle, {
+  adapterBlocksExecuted: 3,
+  lifecycleActionsExecuted: 30,
+  lifecycleSequence: [
+    'register_run',
+    'stage_resident_x6',
+    'start_run',
+    'freeze_run',
+    'close_run',
+  ],
+  observerNoninterferenceVerified: true,
+  providerCallsMade: 0,
+  publicStateSnapshotsMaterialized: 33,
+  replayVerified: true,
+  residentPersonaSeatBindingsStaged: 18,
+  worldObjectsProjected: 12,
+  worldRuntimeLifecycleExecuted: true,
+});
 assert.equal(receipt.capabilityStatus.observed.worldMaterialization, true);
 assert.equal(receipt.capabilityStatus.observed.canonicalSceneReplay, true);
 assert.equal(receipt.capabilityStatus.observed.capturedObserverBoundaryFixtureReplay, true);
 assert.equal(receipt.capabilityStatus.observed.boundedPhase0BEngineeringTracer, true);
+assert.equal(
+  receipt.capabilityStatus.observed.canonicalTwelveObjectLifecycleAndAdapterMatrix,
+  true,
+);
 assert.equal(
   receipt.capabilityStatus.targetObservedScope,
   'live_full_native_and_scientific_experiment',
@@ -117,6 +139,9 @@ assert.deepEqual(receipt.capabilityStatus.boundedBridgeObserved, {
   invalidAuthorizationAttemptsBurnedAndDenied: true,
   emergencyStopBridge: true,
   boundedHoloToHsplusStopDispatch: true,
+  canonicalLifecycleSourceProjection: true,
+  canonicalTwelveObjectLifecycle: true,
+  frozenAdapterMatrixExecution: true,
 });
 assert.equal(receipt.capabilityStatus.targetObserved.liveModelAdapterInvocation, false);
 assert.equal(receipt.capabilityStatus.targetObserved.receiptedActionExecution, false);
@@ -134,8 +159,13 @@ assert.equal(
 );
 assert.equal(
   receipt.sourceContract.canonicalTwelveObjectObserverProjectionToggleExecuted,
-  false,
+  true,
 );
+assert.equal(
+  receipt.sourceContract.canonicalTwelveObjectRuntimeLifecycleExecuted,
+  true,
+);
+assert.equal(receipt.sourceContract.frozenThreeBlockAdapterMatrixExecuted, true);
 assert.equal(
   Object.values(receipt.engineeringTracer.assertions).every((passed) => passed === true),
   true,
@@ -222,6 +252,29 @@ assert.equal(
   'verified_v4_per_action_single_host_file_atomic_bridge',
 );
 assert.equal(receipt.engineeringTracer.claimBoundary.worldRuntimeLifecycleExecuted, false);
+assert.equal(receipt.canonicalLifecycle.status, 'pass');
+assert.equal(receipt.canonicalLifecycle.world.objectCount, 12);
+assert.equal(receipt.canonicalLifecycle.blocks.length, 3);
+assert.equal(
+  receipt.canonicalLifecycle.claimBoundary.worldRuntimeLifecycleExecuted,
+  true,
+);
+assert.equal(
+  receipt.canonicalLifecycle.claimBoundary.adapterPermutationExecutionClaimed,
+  true,
+);
+assert.equal(
+  receipt.canonicalLifecycle.claimBoundary.fullHoloWorldExecutionClaimed,
+  false,
+);
+assert.equal(
+  receipt.canonicalLifecycle.claimBoundary.productionValidatorTrustClaimed,
+  false,
+);
+assert.equal(
+  receipt.assertions.canonicalTwelveObjectLifecycleAndAdapterMatrixClose,
+  true,
+);
 assert.equal(receipt.experimentDesign.models, 3);
 assert.equal(receipt.experimentDesign.residents, 6);
 assert.equal(receipt.experimentDesign.conditions.length, 4);

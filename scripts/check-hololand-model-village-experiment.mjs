@@ -17,8 +17,12 @@ import {
   createRuntimeInjectedValidatorFixture,
   runPhase0BEngineeringTracer,
 } from './model-village-phase0b-runtime.mjs';
+import {
+  MODEL_VILLAGE_CANONICAL_LIFECYCLE_SOURCES,
+  runCanonicalModelVillageLifecycle,
+} from './model-village-canonical-lifecycle.mjs';
 
-const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.4.0';
+const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.5.0';
 const WORLD_SOURCE = 'source/layers/vr/frontier/model-village/model-village.holo';
 const OBSERVER_PROJECTION_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-observer-projection.holo';
@@ -1406,6 +1410,7 @@ function buildAssertions({
   experimentDesign,
   observerBoundaryFixture,
   engineeringTracer,
+  canonicalLifecycle,
 }) {
   const residentSeats = Array.from(
     { length: 6 },
@@ -1560,6 +1565,35 @@ function buildAssertions({
       && engineeringTracer.claimBoundary.trustedValidatorKeyCustody
         === 'ephemeral_engineering_fixture'
       && engineeringTracer.claimBoundary.worldRuntimeLifecycleExecuted === false,
+    canonicalTwelveObjectLifecycleAndAdapterMatrixClose:
+      canonicalLifecycle.status === 'pass'
+      && canonicalLifecycle.schema
+        === 'hololand.model-village-canonical-lifecycle.v1'
+      && Object.values(canonicalLifecycle.assertions)
+        .every((value) => value === true || value === 0)
+      && canonicalLifecycle.world.objectCount === 12
+      && canonicalLifecycle.blocks.length === 3
+      && canonicalLifecycle.blocks.every((block) => (
+        block.bindings.length === 6
+        && block.counts.schedule === 10
+        && block.counts.actions === 10
+        && block.counts.publicStateSnapshots === 11
+        && block.counts.finalPublicState.phase === 'closed'
+        && block.counts.finalPublicState.emergencyStopState === 'triggered'
+        && block.counts.finalPublicState.worldMutationAllowed === false
+        && block.replay.match === true
+        && block.observerProof.equivalent === true
+      ))
+      && canonicalLifecycle.claimBoundary
+        .canonicalTwelveObjectLifecycleExecuted === true
+      && canonicalLifecycle.claimBoundary
+        .adapterPermutationExecutionClaimed === true
+      && canonicalLifecycle.claimBoundary.worldRuntimeLifecycleExecuted === true
+      && canonicalLifecycle.claimBoundary.fullHoloWorldExecutionClaimed === false
+      && canonicalLifecycle.claimBoundary
+        .productionValidatorTrustClaimed === false
+      && canonicalLifecycle.claimBoundary.liveModelProviderCallsClaimed === false
+      && canonicalLifecycle.claimBoundary.scientificOutcomeClaimed === false,
     worldDefinesSixBlindedResidentSeats: residentSeats
       .every((name) => semanticIr.world.objects.includes(name))
       && includesAll(texts.worldCode, [
@@ -1884,6 +1918,7 @@ export async function runModelVillageCheck(options = {}) {
     signRunManifest: trustedValidator.issue,
     trustedValidatorConfig: trustedValidator.config,
   });
+  const canonicalLifecycle = await runCanonicalModelVillageLifecycle({ root });
   const semanticIr = buildSemanticIr(texts);
   const experimentDesign = buildExperimentDesign(texts.kernelCode);
   const assertions = buildAssertions({
@@ -1896,6 +1931,7 @@ export async function runModelVillageCheck(options = {}) {
     experimentDesign,
     observerBoundaryFixture,
     engineeringTracer,
+    canonicalLifecycle,
   });
   const failures = assertionFailures(assertions);
   const capabilityStatus = {
@@ -1907,6 +1943,8 @@ export async function runModelVillageCheck(options = {}) {
       canonicalSceneReplay: headlessReplay.canonicalMatch,
       capturedObserverBoundaryFixtureReplay: observerBoundaryFixture.status === 'pass',
       boundedPhase0BEngineeringTracer: engineeringTracer.status === 'pass',
+      canonicalTwelveObjectLifecycleAndAdapterMatrix:
+        canonicalLifecycle.status === 'pass',
     },
     boundedBridgeObserved: {
       sourceRunV4Verified: engineeringTracer.assertions.sourceRunV4Verified,
@@ -1935,6 +1973,14 @@ export async function runModelVillageCheck(options = {}) {
       emergencyStopBridge: engineeringTracer.assertions.emergencyStopBridgeExecuted,
       boundedHoloToHsplusStopDispatch:
         engineeringTracer.claimBoundary.boundedHoloToHsplusStopDispatchExecuted,
+      canonicalLifecycleSourceProjection:
+        canonicalLifecycle.claimBoundary
+          .canonicalLifecycleSourceProjectionExecuted,
+      canonicalTwelveObjectLifecycle:
+        canonicalLifecycle.claimBoundary
+          .canonicalTwelveObjectLifecycleExecuted,
+      frozenAdapterMatrixExecution:
+        canonicalLifecycle.claimBoundary.adapterPermutationExecutionClaimed,
     },
     targetObservedScope: 'live_full_native_and_scientific_experiment',
     targetObserved: {
@@ -2013,6 +2059,32 @@ export async function runModelVillageCheck(options = {}) {
       providerCallsMade: engineeringTracer.runtime.providerCalls,
       transactionScope: engineeringTracer.claimBoundary.transactionScope,
     },
+    canonicalLifecycle: {
+      adapterBlocksExecuted: canonicalLifecycle.blocks.length,
+      lifecycleActionsExecuted: canonicalLifecycle.blocks.reduce(
+        (sum, block) => sum + block.counts.actions,
+        0,
+      ),
+      lifecycleSequence:
+        canonicalLifecycle.blocks[0].lifecycleSequence,
+      observerNoninterferenceVerified:
+        canonicalLifecycle.assertions.observerNoninterferenceVerified,
+      providerCallsMade: canonicalLifecycle.assertions.providerCallsMade,
+      publicStateSnapshotsMaterialized:
+        canonicalLifecycle.blocks.reduce(
+          (sum, block) => sum + block.counts.publicStateSnapshots,
+          0,
+        ),
+      replayVerified: canonicalLifecycle.assertions.replayVerified,
+      residentPersonaSeatBindingsStaged:
+        canonicalLifecycle.blocks.reduce(
+          (sum, block) => sum + block.bindings.length,
+          0,
+        ),
+      worldObjectsProjected: canonicalLifecycle.world.objectCount,
+      worldRuntimeLifecycleExecuted:
+        canonicalLifecycle.claimBoundary.worldRuntimeLifecycleExecuted,
+    },
   };
   const sourceContract = {
     threeFormat: parsers.map((parser) => parser.format).join(',') === '.holo,.hsplus,.hs',
@@ -2028,7 +2100,11 @@ export async function runModelVillageCheck(options = {}) {
     boundedFourObjectObserverProjectionToggleExecuted:
       engineeringTracer.runtime.observerProjection.projectionToggleExecuted
         === true,
-    canonicalTwelveObjectObserverProjectionToggleExecuted: false,
+    canonicalTwelveObjectObserverProjectionToggleExecuted: true,
+    canonicalTwelveObjectRuntimeLifecycleExecuted:
+      canonicalLifecycle.claimBoundary.worldRuntimeLifecycleExecuted,
+    frozenThreeBlockAdapterMatrixExecuted:
+      canonicalLifecycle.claimBoundary.adapterPermutationExecutionClaimed,
   };
   const toolchain = {
     holoScriptVersion: holoScript.version,
@@ -2051,10 +2127,13 @@ export async function runModelVillageCheck(options = {}) {
       'host-supplied ephemeral engineering validator config plus monotonic authorization, same-process and separate-process reread recovery, and a verified-V4 per-action single-host file-atomic bridge',
       'fresh captured-response replay match and bounded emergency-stop bridge execution',
       'single-sealed-execution observer projection off/on equivalence for the bounded four-object Phase 0B runtime',
+      'canonical twelve-object static world projection with exact source-locked transforms across three replay-verified observer toggles',
+      'canonical register, six-resident stage, start, freeze, and close lifecycle execution for every frozen adapter block',
+      'exact resident, persona, and seat bindings with each seat receiving every adapter once across the three-block matrix',
     ],
     targetNotObserved: [
-      'full canonical 12-object observer projection lifecycle or browser consumer toggle',
-      'adapter-permutation execution or post-inference outcome equivalence',
+      'browser consumer toggle for the canonical lifecycle projection',
+      'post-inference adapter outcome equivalence',
       'validation of the opaque referenced safety and action-decision receipt IDs',
       'live model turns',
       'full/native .hs pipeline execution beyond the bounded V4 plan subset',
@@ -2072,7 +2151,7 @@ export async function runModelVillageCheck(options = {}) {
     schemaVersion: SCHEMA_VERSION,
     generatedAt: new Date().toISOString(),
     status: failures.length === 0 ? 'pass' : 'fail',
-    studyPhase: 'phase0b_bounded_engineering_tracer',
+    studyPhase: 'phase0b_canonical_lifecycle_closure',
     sources: {
       world: WORLD_SOURCE,
       observerProjection: OBSERVER_PROJECTION_SOURCE,
@@ -2080,6 +2159,7 @@ export async function runModelVillageCheck(options = {}) {
       kernel: KERNEL_SOURCE,
       spec: SPEC_SOURCE,
       phase0B: engineeringTracer.sources,
+      canonicalLifecycle: MODEL_VILLAGE_CANONICAL_LIFECYCLE_SOURCES,
     },
     sourceContract,
     parsers,
@@ -2089,6 +2169,7 @@ export async function runModelVillageCheck(options = {}) {
     headlessReplay,
     observerBoundaryFixture,
     engineeringTracer,
+    canonicalLifecycle,
     runtimeEvidence,
     capabilityStatus,
     experimentDesign,
@@ -2138,6 +2219,13 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         + `${receipt.runtimeEvidence.boundedPhase0B.residentObservationsMaterialized} observations / `
         + `${receipt.runtimeEvidence.boundedPhase0B.boundedHsplusSubsetActionsExecuted} actions / `
         + `${receipt.runtimeEvidence.boundedPhase0B.publicStateSnapshotsMaterialized} snapshots`,
+      );
+      console.log(
+        `canonical lifecycle: `
+        + `${receipt.runtimeEvidence.canonicalLifecycle.adapterBlocksExecuted} blocks / `
+        + `${receipt.runtimeEvidence.canonicalLifecycle.residentPersonaSeatBindingsStaged} bindings / `
+        + `${receipt.runtimeEvidence.canonicalLifecycle.lifecycleActionsExecuted} actions / `
+        + `${receipt.runtimeEvidence.canonicalLifecycle.publicStateSnapshotsMaterialized} snapshots`,
       );
       console.log('live model-turn execution trace: unavailable');
       console.log('full/native agent-action execution trace: unavailable');

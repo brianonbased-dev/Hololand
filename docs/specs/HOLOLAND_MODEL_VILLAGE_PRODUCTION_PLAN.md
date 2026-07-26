@@ -2,7 +2,7 @@
 
 **Status:** Execution plan with locked art direction
 
-**Version:** 0.6.0
+**Version:** 0.7.0
 
 **Date:** 2026-07-25
 
@@ -11,6 +11,8 @@
 **Canonical art direction:** [Stormglass Commons / Hearthlight Biorealism](./HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md)
 
 **Model-family embodiment lock:** [2026-07-25 decision and claim boundary](../reports/HOLOLAND_MODEL_VILLAGE_MODEL_FAMILY_EMBODIMENT_LOCK_2026-07-25.md)
+
+**MV-V1 neutral resident witness:** [2026-07-25 bounded runtime receipt](../reports/HOLOLAND_MODEL_VILLAGE_MV_V1_NEUTRAL_RESIDENT_RUNTIME_2026-07-25.md)
 
 **Product source:** HoloScript
 
@@ -98,6 +100,7 @@ receipts.
 | Locked decision | Neutral research aliases, civic roles, props, silhouettes, glyphs, and accents remain a separate persona layer outside the family mantle digest. |
 | Observed | The world concept, earlier neutral Craftfolk reference, and inspected model-family embodiment lineup are locally custodied art targets. They are not runtime screenshots or proof that authored assets have shipped. |
 | Observed | The refreshed browser witness renders six seat-stable, differently scaled resident proxies while retaining zero observer mutation, the bounded seven-field V4 comparison, WebGL2 hardware evidence, and the existing performance gate. |
+| Observed | MV-V1 now locally custodies one neutral Seat 01 LOD0 HoloScript source and a byte-reproducible 360,952-byte GLB projection. The v0.4 browser witness recomputes the manifest hash on host and browser, parses 30 attached meshes and 5,380 triangles from embedded bytes, verifies seven anchors, 2.47 m scale, grounding, 30 shadow casters/receivers, five remaining capsules, zero asset requests, and zero authoritative mutation. This is a technical loader candidate, not the complete Stormglass production resident kit. |
 | Observed | The canonical three-format pilot parses, materializes twelve objects, and reproduces its canonical scene and pose/physics projections in two native headless runs. |
 | Observed | A 1600 x 900 HoloScript screenshot was captured from the canonical `.holo` source. |
 | Observed | The local hardware baseline reports an RTX 3060 Laptop GPU with 6 GB VRAM, 32 GB system memory, Node 24, and installed Chrome/Edge browsers. |
@@ -111,7 +114,7 @@ receipts.
 | Observed | The Living Commons witness binds the admitted water receipt to the cistern level and receipt halo, the accepted-action count to the hearth, and the blocked external-message receipt to the boundary ward. The blocked receipt links to the admitted receipt and equals the action root. A separate binding derived from the fully verified execution ledger anchors both receipt hashes, their link, the root, and the run commitments before the browser may render. Every receipt-driven cue references an existing V4 action receipt; raw model content and adapter identity are absent. |
 | Observed | The original captured-fixture bridge still materializes six identity-neutral observation envelopes and two syntactically chained fixture receipts. Three source-authored assignment vectors remain distinct, balanced, counterbalanced once per seat, and statically excluded from the exact pre-inference observation schema. That fixture lane remains separate from the bounded two-resident V4 execution. |
 | Observed | The refreshed 390 x 844 witness shows both admitted and blocked route legends plus the complete WebGL2/ANGLE/NVIDIA/D3D11 provenance. Browser-measured overlay bounds are inside the viewport, the evidence-card/footer gap is at least eight pixels, and neither text nor the document overflows horizontally. |
-| Gap | The observer is now an executing premium greybox with a receipt-driven cistern, hearth, two warm cottages, six stable silhouettes, Receipt Loom, and boundary ward. Authored production assets, character animation, ambient life, audio, fluid simulation, texture-rich materials, WebXR, and the complete living village remain targets. |
+| Gap | The observer is now an executing premium greybox with a receipt-driven cistern, hearth, two warm cottages, one verified neutral resident loader candidate, five capsule fallbacks, Receipt Loom, and boundary ward. Production-authored residents, a bound humanoid rig, authored LOD1/LOD2, character animation, ambient life, audio, fluid simulation, texture-rich materials, WebXR, and the complete living village remain targets. |
 | Gap | Phase 0B executes only the named four-object V4 scene, `.hs` plan entrypoint, deterministic engine-owned `.hsplus` action subset, and bounded stop bridge. Live model turns, provider routes, full/native `.hs` and `.hsplus` language execution, native `.holo` lifecycle, full twelve-object lifecycle, production trust custody, and fleet durability remain unobserved. |
 | Gap | The bounded observer consumer toggle now passes. Full MV-P0 remains open for the twelve-object lifecycle and executed adapter permutations/post-inference outcome equivalence. The browser proves exact digest consumption of the bounded projection; it does not run the full semantic verifier or claim scientific equivalence. |
 | Gap | The older CLI baseline still launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. MV-P9 uses a separate, focused browser witness; it does not silently promote that CLI route. |
@@ -1044,6 +1047,16 @@ six-resident zero-provider rehearsal. It must keep
 `worldRuntimeLifecycleExecuted`, native `.holo` lifecycle execution, and full
 twelve-object lifecycle closure false until `register_run -> stage residents ->
 start_run -> stop/end` executes through the canonical lifecycle.
+
+**MV-L12 closure (2026-07-25):** the source-derived bounded runtime now executes
+that lifecycle for all three frozen adapter blocks. It validates the exact
+twelve canonical IDs and transforms, stages the exact six
+resident/persona/seat bindings per block, produces 30 action receipts and 33
+public-state snapshots, verifies fresh replay and observer noninterference, and
+makes zero provider calls. `worldRuntimeLifecycleExecuted` is therefore true for
+this bounded canonical profile. Native `.holo` dispatch, full/native language
+execution, the browser consumer toggle, live adapter outcomes, production
+validator custody, and Phase 1 admission remain open.
 
 ### MV-V1: one resident asset in shadow mode
 
