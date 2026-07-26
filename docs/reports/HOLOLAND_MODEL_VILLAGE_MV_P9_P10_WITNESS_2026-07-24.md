@@ -5,6 +5,12 @@
 **Verdict:** Pass for the bounded local WebGL2 rendering witness and CPU
 sphere-collider receipt tracer described here.
 
+> **Historical visual receipt:** The mesh counts, screenshots, timings, and
+> fixture-only observer boundary below describe the 2026-07-24 witness. The
+> refreshed 2026-07-25 Living Commons witness adds a bounded V4 browser
+> consumer toggle and 29 observer meshes without rewriting this receipt. See
+> [the newer report](./HOLOLAND_MODEL_VILLAGE_PHASE0B_OBSERVER_LIVING_COMMONS_2026-07-25.md).
+
 This is not a declaration that the full Model Village experiment, general
 HoloLand renderer, native HoloScript+ action runtime, WebGPU path, or future
 physics showcase is complete.

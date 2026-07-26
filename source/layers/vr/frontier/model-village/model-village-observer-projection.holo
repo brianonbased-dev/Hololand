@@ -6,11 +6,12 @@
 
 composition "HoloLand Model Village Observer Projection" {
   metadata {
-    title: "Model Village Receipt Loom"
-    version: "0.1.0"
+    title: "Model Village Living Commons"
+    version: "0.2.0"
     source: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
     canonicalWorldSource: "source/layers/vr/frontier/model-village/model-village.holo"
-    policySource: "source/domains/agents/model-village-experiment.hsplus"
+    policySource: "source/domains/agents/model-village-observer-witness.hsplus"
+    physicsManifestSource: "source/proofs/model-village-receipt-loom-physics.hs"
     trialKernelSource: "source/proofs/model-village-trial-kernel.hs"
     calibrationSource: "source/layers/vr/frontier/model-village/model-village-render-calibration.holo"
     productionPlan: "docs/specs/HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md"
@@ -50,6 +51,22 @@ composition "HoloLand Model Village Observer Projection" {
     cast_shadow: false
   }
 
+  light "WestCottageWarmth" {
+    type: "point"
+    color: "#ffbd72"
+    intensity: 2.4
+    position: [-6.1, 1.8, -1.5]
+    range: 5.5
+  }
+
+  light "EastCottageWarmth" {
+    type: "point"
+    color: "#ffbd72"
+    intensity: 2.4
+    position: [6.1, 1.8, -1.5]
+    range: 5.5
+  }
+
   state {
     authority: "read_only"
     consumes: ["canonical_scene_hash", "canonical_pose_hash", "logical_clock_hash", "public_state_hash", "executed_schedule_hash", "resident_observation_hash", "action_receipt_root", "ordered_verified_receipts", "sealed_physics_snapshots"]
@@ -66,6 +83,9 @@ composition "HoloLand Model Village Observer Projection" {
     duplicateReceiptBehavior: "deny_release"
     projectionCanCauseCanonicalDecision: false
     projectionCanCauseCanonicalConsequence: false
+    browserConsumerToggleScope: "same_verified_projection_payload_withheld_then_consumed"
+    boundedRuntimeSceneObjectCount: 4
+    fullCanonicalTwelveObjectLifecycleClaimed: false
     physicsEngine: "HoloScript PhysicsWorld backed by PhysicsWorldImpl"
     bodyRegistrationMethod: "PhysicsWorld.addBodyWithConfig"
     fixedTimestepSeconds: 0.016666666666666666
@@ -223,11 +243,254 @@ composition "HoloLand Model Village Observer Projection" {
     }
   }
 
+  spatial_group "LivingCommons" {
+    object "CommonsFootpath" using "ObserverOnlyMesh" {
+      geometry: "box"
+      position: [0, 0.13, 1.55]
+      scale: [1.25, 0.12, 7.4]
+      material: {
+        color: "#6d5942"
+        metalness: 0.06
+        roughness: 0.92
+      }
+      properties: {
+        presentationRole: "commons_footpath"
+        castShadow: false
+        receiveShadow: true
+        causalEffect: false
+      }
+    }
+
+    object "CommonsCisternBasin" using "ObserverOnlyMesh" {
+      geometry: "cylinder"
+      position: [0, 0.45, 3.4]
+      scale: [2.35, 0.78, 2.35]
+      material: {
+        color: "#365569"
+        metalness: 0.36
+        roughness: 0.44
+        clearcoat: 0.28
+      }
+      properties: {
+        presentationRole: "commons_cistern"
+        semanticTarget: "commons_cistern"
+        castShadow: true
+        receiveShadow: true
+        causalEffect: false
+      }
+    }
+
+    object "CommonsCisternWater" using "ObserverOnlyMesh" {
+      geometry: "cylinder"
+      position: [0, 0.88, 3.4]
+      scale: [1.92, 0.10, 1.92]
+      material: {
+        color: "#67d7e8"
+        metalness: 0.18
+        roughness: 0.14
+        emissive: "#1597b2"
+        emissiveIntensity: 0.38
+        clearcoat: 0.92
+        transmission: 0.18
+        opacity: 0.88
+      }
+      properties: {
+        presentationRole: "receipt_driven_cistern_water"
+        receiptBinding: {
+          source: "verified_public_state"
+          field: "publicWaterUnits"
+          semanticTarget: "commons_cistern"
+          visualChannel: "water_level"
+          baseScaleY: 0.055
+          scalePerUnit: 0.022
+          basePositionY: 0.78
+          positionPerUnit: 0.035
+        }
+        causalEffect: false
+        canonicalWriteAuthority: false
+      }
+    }
+
+    object "CisternReceiptHalo" using "ObserverOnlyMesh" {
+      geometry: "torus"
+      position: [0, 1.38, 3.4]
+      rotation: [1.57079632679, 0, 0]
+      material: {
+        color: "#a7f3ff"
+        metalness: 0.42
+        roughness: 0.16
+        emissive: "#45d8f0"
+        emissiveIntensity: 1.1
+      }
+      properties: {
+        presentationRole: "verified_action_receipt_halo"
+        visualMajorRadius: 2.15
+        visualTubeRadius: 0.045
+        receiptBinding: {
+          source: "verified_action_receipt"
+          entrypoint: "contribute_water"
+          expectedAllowed: true
+          semanticTarget: "commons_cistern"
+          visualChannel: "admitted_receipt_halo"
+        }
+        causalEffect: false
+        canonicalWriteAuthority: false
+      }
+    }
+
+    object "CommonsHearthPlinth" using "ObserverOnlyMesh" {
+      geometry: "cylinder"
+      position: [0, 0.36, -4.0]
+      scale: [1.55, 0.44, 1.55]
+      material: {
+        color: "#6a432b"
+        metalness: 0.18
+        roughness: 0.74
+      }
+      properties: {
+        presentationRole: "commons_hearth_plinth"
+        castShadow: true
+        receiveShadow: true
+        causalEffect: false
+      }
+    }
+
+    object "CommonsHearthGlow" using "ObserverOnlyMesh" {
+      geometry: "sphere"
+      position: [0, 1.05, -4.0]
+      scale: [0.62, 0.84, 0.62]
+      material: {
+        color: "#ffc36d"
+        metalness: 0.05
+        roughness: 0.22
+        emissive: "#ff7d2d"
+        emissiveIntensity: 1.8
+      }
+      properties: {
+        presentationRole: "receipt_driven_commons_hearth"
+        receiptBinding: {
+          source: "verified_public_state"
+          field: "acceptedActionCount"
+          visualChannel: "accepted_action_hearth"
+          minimumValue: 1
+        }
+        visualGlowColor: "#ff8c3f"
+        visualGlowIntensity: 2.2
+        visualGlowRange: 4.0
+        causalEffect: false
+        canonicalWriteAuthority: false
+      }
+    }
+
+    object "WestCottageBody" using "ObserverOnlyMesh" {
+      geometry: "box"
+      position: [-6.1, 1.05, -2.8]
+      scale: [2.35, 2.1, 2.1]
+      material: {
+        color: "#315861"
+        metalness: 0.08
+        roughness: 0.82
+      }
+      properties: { presentationRole: "living_commons_cottage", causalEffect: false }
+    }
+
+    object "WestCottageRoof" using "ObserverOnlyMesh" {
+      geometry: "sphere"
+      position: [-6.1, 2.22, -2.8]
+      scale: [1.62, 0.72, 1.62]
+      material: {
+        color: "#bd7540"
+        metalness: 0.16
+        roughness: 0.66
+      }
+      properties: { presentationRole: "living_commons_cottage_roof", causalEffect: false }
+    }
+
+    object "WestCottageWindow" using "ObserverOnlyMesh" {
+      geometry: "box"
+      position: [-6.1, 1.15, -1.72]
+      scale: [0.72, 0.68, 0.08]
+      material: {
+        color: "#ffd99b"
+        metalness: 0.02
+        roughness: 0.22
+        emissive: "#ff9c45"
+        emissiveIntensity: 1.35
+      }
+      properties: { presentationRole: "living_commons_warm_window", causalEffect: false }
+    }
+
+    object "EastCottageBody" using "ObserverOnlyMesh" {
+      geometry: "box"
+      position: [6.1, 1.05, -2.8]
+      scale: [2.35, 2.1, 2.1]
+      material: {
+        color: "#315861"
+        metalness: 0.08
+        roughness: 0.82
+      }
+      properties: { presentationRole: "living_commons_cottage", causalEffect: false }
+    }
+
+    object "EastCottageRoof" using "ObserverOnlyMesh" {
+      geometry: "sphere"
+      position: [6.1, 2.22, -2.8]
+      scale: [1.62, 0.72, 1.62]
+      material: {
+        color: "#bd7540"
+        metalness: 0.16
+        roughness: 0.66
+      }
+      properties: { presentationRole: "living_commons_cottage_roof", causalEffect: false }
+    }
+
+    object "EastCottageWindow" using "ObserverOnlyMesh" {
+      geometry: "box"
+      position: [6.1, 1.15, -1.72]
+      scale: [0.72, 0.68, 0.08]
+      material: {
+        color: "#ffd99b"
+        metalness: 0.02
+        roughness: 0.22
+        emissive: "#ff9c45"
+        emissiveIntensity: 1.35
+      }
+      properties: { presentationRole: "living_commons_warm_window", causalEffect: false }
+    }
+
+    object "BoundaryWard" using "ObserverOnlyMesh" {
+      geometry: "torus"
+      position: [0, 2.7, -7.0]
+      rotation: [0, 0, 0]
+      material: {
+        color: "#a9a3ff"
+        metalness: 0.5
+        roughness: 0.18
+        emissive: "#675cff"
+        emissiveIntensity: 1.25
+      }
+      properties: {
+        presentationRole: "verified_block_receipt_boundary_ward"
+        visualMajorRadius: 2.25
+        visualTubeRadius: 0.085
+        receiptBinding: {
+          source: "verified_action_receipt"
+          entrypoint: "deny_external_message"
+          expectedAllowed: false
+          semanticTarget: "outside_village"
+          visualChannel: "blocked_boundary_ward"
+        }
+        causalEffect: false
+        canonicalWriteAuthority: false
+      }
+    }
+  }
+
   spatial_group "ReceiptLoomArchitecture" {
     object "ReceiptLoomCore" using "ObserverOnlyMesh" {
       geometry: "cylinder"
-      position: [0, 3.1, 0]
-      scale: [1.25, 6.2, 1.25]
+      position: [0, 2.55, 0]
+      scale: [1.02, 4.9, 1.02]
       material: {
         color: "#a65d23"
         metalness: 0.78
@@ -246,7 +509,7 @@ composition "HoloLand Model Village Observer Projection" {
 
     object "ReceiptLoomHalo" using "ObserverOnlyMesh" {
       geometry: "torus"
-      position: [0, 5.55, 0]
+      position: [0, 4.65, 0]
       scale: [1, 1, 1]
       rotation: [1.57079632679, 0, 0]
       material: {
@@ -258,7 +521,7 @@ composition "HoloLand Model Village Observer Projection" {
       }
       properties: {
         presentationRole: "loom_halo"
-        visualMajorRadius: 1.4
+        visualMajorRadius: 1.2
         visualTubeRadius: 0.075
         castShadow: true
         receiveShadow: false

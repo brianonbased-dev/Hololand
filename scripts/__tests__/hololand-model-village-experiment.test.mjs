@@ -43,7 +43,7 @@ const { receipt } = await runModelVillageCheck({
   tickRate: 10,
 });
 
-assert.equal(receipt.schemaVersion, 'hololand.model-village-experiment.v0.3.0');
+assert.equal(receipt.schemaVersion, 'hololand.model-village-experiment.v0.4.0');
 assert.equal(receipt.studyPhase, 'phase0b_bounded_engineering_tracer');
 assert.equal(receipt.status, 'pass');
 assert.equal(receipt.sourceContract.threeFormat, true);
@@ -126,7 +126,15 @@ assert.equal(receipt.capabilityStatus.targetObserved.productionValidatorTrust, f
 assert.equal(receipt.engineeringTracer.status, 'pass');
 assert.equal(
   receipt.engineeringTracer.schema,
-  'hololand.model-village-phase0b-runtime-bridge.v1',
+  'hololand.model-village-phase0b-runtime-bridge.v2',
+);
+assert.equal(
+  receipt.sourceContract.boundedFourObjectObserverProjectionToggleExecuted,
+  true,
+);
+assert.equal(
+  receipt.sourceContract.canonicalTwelveObjectObserverProjectionToggleExecuted,
+  false,
 );
 assert.equal(
   Object.values(receipt.engineeringTracer.assertions).every((passed) => passed === true),

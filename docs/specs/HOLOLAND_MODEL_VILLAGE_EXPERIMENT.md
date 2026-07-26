@@ -2,7 +2,7 @@
 
 **Status:** Phase 0B bounded engineering tracer observed; Phase 1 blocked
 
-**Version:** 0.3.0
+**Version:** 0.4.0
 
 **Canonical product source:** HoloScript
 **Study class:** Mechanism pilot and rough variance signal, not confirmatory evidence
@@ -40,6 +40,8 @@ run. A source file or parser success is not a behavioral result.
 | Observed | The same bounded bridge hashes frozen Phase 1 challenge and metric inputs. Its host caller passes a frozen public trust-policy input (`trustedValidatorConfig`) separately from the manifest-signing capability (`signRunManifest`); the bridge verifies the resulting Ed25519 signature against the pinned public configuration. The included key-generation helper supplies both sides only as an ephemeral engineering fixture, not production key custody or a production trust root. |
 | Observed | Atomic persistence accepts only an action and post-action snapshot extracted from a reverified HoloScript V4 source run. Target mismatch and missing or malformed state-hash attempts each burn one authorization, deny, and leave the world unchanged. Persistent-state validation checks the authorization, outbox, ledger-chain, and terminal-world invariants. A fresh Node process rereads the same validated file state. Injected process-level faults immediately before and after rename expose the old or complete state; they are not process-crash tests. |
 | Observed | A fresh source replay matches ordered decisions, post-state hashes, action root, and terminal commitment. The visible `.holo` declares the bounded stop reason and target; the bridge hashes that dispatch request, matches it to the signed stop plan and `.hsplus` invocation, dispatches `ModelVillagePhase0BBehavior.freeze_run`, and seals a safety receipt. The full outer verifier requires the external trusted configuration and reverifies both main and stop V4 receipts. Its self-hash check alone proves only receipt self-integrity. |
+| Observed | The Phase 0B observer consumes one sealed four-object V4 execution after sealing, introduces zero experiment executions, and preserves the complete canonical payload plus the seven scene, pose, clock, public-state, schedule, resident-observation, and action-root fields. A separate HoloLand browser off/on sandwich withholds and then SHA-256-acknowledges one canonical payload before presentation; the browser renders only from that parsed acknowledged string while the complete host physics receipt and compiled source hashes remain unchanged. The observer `.holo` and `.hsplus` sources remain hash-bound and read-only. |
+| Observed | The read-only Living Commons presentation derives three public water units, one admitted `contribute_water` action, and one blocked `deny_external_message` action from the bounded receipt. The blocked receipt links to the admitted receipt and equals the terminal action root. A separate binding derived from the fully verified execution ledger anchors both receipt hashes, their link, the root, and the source-run/terminal commitments before the browser may render. Its cistern, hearth, receipt halo, and boundary ward reference those existing fields or action receipts. This is observer evidence only and does not enter resident observations. See the [2026-07-25 witness](../reports/HOLOLAND_MODEL_VILLAGE_PHASE0B_OBSERVER_LIVING_COMMONS_2026-07-25.md). |
 | Target | Locked model adapters drive six residents through identical, seeded village runs; every observation, model turn, action decision, mutation, rollback reference, and run summary is receipted. |
 | Gap | Phase 0B proves only the named bounded source subsets and a file-backed single-process bridge. Live models, provider routes, full or native `.hs`/`.hsplus` execution, native `.holo` lifecycle and cross-composition dispatch, physics execution by this tracer, production validator provisioning/custody, process-crash durability, and production multi-process/CAS/fleet durability remain unobserved. The frozen Phase 1 manifests are inputs, not proof that isolation, budgets, six-resident lifecycle, live routing, custody, or the overall Phase 1 go gate is ready. |
 | Forbidden claim | No emergence, model superiority, population effect, inference determinism, production trust or durability, process-crash durability, Phase 1 readiness, or completed scientific experiment may be claimed from this bounded tracer. |
@@ -457,7 +459,13 @@ The bounded Phase 0B tracer now passes:
   summaries. The outer receipt self-hash alone establishes self-integrity, not
   external trust.
 - Observer proof consumes one sealed execution, introduces zero experiment
-  executions, and preserves the seven canonical fields.
+  executions, and preserves the complete canonical payload plus the seven
+  canonical fields. The separately classified fresh source run remains replay
+  evidence, not the consumer toggle.
+- The HoloLand browser executes the observer consumer in off and on modes over
+  the same verified projection payload. Off withholds the payload; on computes
+  and acknowledges its exact SHA-256 digest. Host authoritative hashes remain
+  equal before and after both browser runs.
 
 The tracer makes zero provider calls and executes no live model. It does not
 exercise physics, native `.holo` lifecycle dispatch, full/native `.hs` or
@@ -482,6 +490,7 @@ Phase 0B profile:
 | Self-integrity | V4 seals source, ledgers, terminal commitment, and seven canonical fields; the outer self-hash detects artifact mutation. | External trust requires the full verifier and trusted configuration; self-hash alone is not authenticity. |
 | File-state fault boundary | A fresh Node process rereads the validated state. Process-level exceptions immediately before/after rename expose the old or complete file state. | Process-crash durability testing, multi-process recovery, and fleet durability. |
 | Emergency stop | `.holo` declares reason/target; the hashed request matches the signed stop plan and bounded `.hsplus` invocation before `freeze_run` seals a safety receipt. | Native `.holo` lifecycle/cross-composition dispatch and production resume policy. |
+| Observer consumer | One sealed four-object V4 receipt has equal pre/post canonical payload and seven-field hashes; the HoloLand browser withholds then digest-acknowledges the same source-bound read-only projection with zero host authoritative mutation. | Full twelve-object lifecycle execution, adapter-permutation/post-inference equivalence, and production observer deployment profiles. |
 | Challenge and metric inputs | Three challenge definitions and one metric specification are frozen and hashed. | Phase 1 operational admission, execution, custody, and overall go decision. |
 
 The bridge is evidence for HoloScript-authored behavior executed through named
@@ -503,8 +512,10 @@ Observed for the bounded bridge described above. The two-resident synthetic
 captured-response tracer, fresh replay, separated public trust-policy and
 fixture-signing inputs, reverified-V4 atomic admission, fresh-process reread,
 process-level rename-fault drills, and bounded emergency-stop dispatch pass with
-zero provider calls. This is not a live model run, native lifecycle proof,
-production trust or durability claim, process-crash test, or scientific result.
+zero provider calls. The single-receipt observer and browser consumer sandwich
+also pass for this bounded scope. This is not a live model run, full
+twelve-object or native lifecycle proof, production trust or durability claim,
+process-crash test, or scientific result.
 
 ### Phase 1 - small live pilot
 

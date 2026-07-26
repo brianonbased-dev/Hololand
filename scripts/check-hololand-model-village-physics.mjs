@@ -11,7 +11,7 @@ import {
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const REPO_ROOT = path.resolve(path.dirname(SCRIPT_PATH), '..');
-const SCHEMA = 'hololand.model-village.physics-witness.v0.2.0';
+const SCHEMA = 'hololand.model-village.physics-witness.v0.3.0';
 const DEFAULT_OUTPUT = path.join('.tmp', 'hololand', 'model-village', 'physics-witness.json');
 
 const SOURCES = {
@@ -628,6 +628,11 @@ function validateSourceBoundary(contracts) {
       projectionState.adapterIdentityPresentationAllowed === false
       && authority.adapterIdentityPresentationAllowed === false,
     sourceSemanticsNotRewritten: contracts.projectionAst.metadata.sourceSemanticsRewritten === false,
+    projectionMetadataSourcePathsAgree:
+      contracts.projectionAst.metadata.canonicalWorldSource === SOURCES.world
+      && contracts.projectionAst.metadata.policySource === SOURCES.policy
+      && contracts.projectionAst.metadata.physicsManifestSource
+        === SOURCES.physicsManifest,
     oneRegistrationApi:
       contracts.manifest.registrationMethod === 'PhysicsWorld.addBodyWithConfig'
       && contracts.bodyNodes.every(
@@ -656,7 +661,8 @@ function validateSourceBoundary(contracts) {
       && projectionState.dynamicColliderShape === contracts.manifest.dynamicColliderShape
       && projectionState.staticCatchColliderShape === contracts.manifest.staticColliderShape,
     bridgeContractDoesNotClaimNativeHsplusExecution:
-      contracts.policyConfig.runtimeBindingStatus === 'target_not_observed'
+      contracts.policyConfig.runtimeBindingStatus
+        === 'bounded_v4_projection_observed_browser_consumer_toggle_required'
       && contracts.policyConfig.nativeHsplusActionExecutionClaimed === false,
     unsupportedClaimsRemainFalse:
       projectionState.boxTokenColliderSupported === false
@@ -982,7 +988,57 @@ function runOnePhysicsReplay(
 function canonicalBoundaryProjection(result) {
   if (!result) return null;
   const receipt = result.receipt;
-  const boundaryFields = receipt.observerBoundaryFixture?.canonicalFields || {};
+  const capturedFixtureBoundaryFields =
+    receipt.observerBoundaryFixture?.canonicalFields || {};
+  const boundedRuntimeObserver =
+    receipt.engineeringTracer?.runtime?.observerProjection;
+  if (!boundedRuntimeObserver) {
+    throw new Error(
+      'Bounded Phase 0B observer projection witness is unavailable',
+    );
+  }
+  const execution = receipt.engineeringTracer?.runtime?.executionReceipt;
+  const [admittedEntry, blockedEntry] = execution?.actionLedger || [];
+  if (!admittedEntry || !blockedEntry || execution.actionLedger.length !== 2) {
+    throw new Error('Verified Phase 0B action ledger is unavailable');
+  }
+  const trustedActionBindingCore = {
+    schema: 'hololand.model-village.trusted-action-binding.v1',
+    phase0BReceiptHash: receipt.engineeringTracer.receipt.receiptHash,
+    sourceRunCommitment:
+      receipt.engineeringTracer.runtime.sourceRunCommitment,
+    terminalCommitment:
+      receipt.engineeringTracer.runtime.terminalCommitment,
+    actionReceiptRoot: execution.terminal.actionRoot,
+    admittedActionEntryHash: admittedEntry.entryHash,
+    admittedPreviousEntryHash: admittedEntry.previousHash,
+    blockedActionEntryHash: blockedEntry.entryHash,
+    blockedPreviousEntryHash: blockedEntry.previousHash,
+  };
+  const trustedActionBinding = {
+    ...trustedActionBindingCore,
+    bindingHash: digest(trustedActionBindingCore),
+  };
+  if (
+    boundedRuntimeObserver.livingCommons.actionReceiptRoot
+      !== trustedActionBinding.actionReceiptRoot
+    || boundedRuntimeObserver.livingCommons.admittedAction.entryHash
+      !== trustedActionBinding.admittedActionEntryHash
+    || boundedRuntimeObserver.livingCommons.admittedAction.previousEntryHash
+      !== trustedActionBinding.admittedPreviousEntryHash
+    || boundedRuntimeObserver.livingCommons.blockedAction.entryHash
+      !== trustedActionBinding.blockedActionEntryHash
+    || boundedRuntimeObserver.livingCommons.blockedAction.previousEntryHash
+      !== trustedActionBinding.blockedPreviousEntryHash
+    || boundedRuntimeObserver.on.sourceRunCommitment
+      !== trustedActionBinding.sourceRunCommitment
+    || boundedRuntimeObserver.on.terminalCommitment
+      !== trustedActionBinding.terminalCommitment
+  ) {
+    throw new Error(
+      'Observer Living Commons projection differs from the verified action ledger',
+    );
+  }
   return {
     sourceHashes: receipt.semanticIr ? {
       world: receipt.semanticIr.world.sourceHash,
@@ -990,12 +1046,23 @@ function canonicalBoundaryProjection(result) {
       kernel: receipt.semanticIr.kernel.sourceHash,
       spec: receipt.semanticIr.spec.sourceHash,
     } : null,
-    canonicalDigest: receipt.headlessReplay.canonicalDigests[0],
-    canonicalReplayMatch: receipt.headlessReplay.canonicalMatch,
-    objectCount: receipt.headlessReplay.objectCount,
-    objectIds: [...receipt.headlessReplay.objectIds].sort(),
+    canonicalVisibleWorld: {
+      canonicalDigest: receipt.headlessReplay.canonicalDigests[0],
+      canonicalReplayMatch: receipt.headlessReplay.canonicalMatch,
+      objectCount: receipt.headlessReplay.objectCount,
+      objectIds: [...receipt.headlessReplay.objectIds].sort(),
+    },
+    capturedFixtureBoundaryFields,
+    boundedRuntimeObserver: {
+      ...boundedRuntimeObserver,
+      verifiedPersistence: {
+        finalStateHash: receipt.engineeringTracer.persistence.finalStateHash,
+        receiptRoot: receipt.engineeringTracer.persistence.receiptRoot,
+      },
+      verifiedReceiptHash: receipt.engineeringTracer.receipt.receiptHash,
+      trustedActionBinding,
+    },
     experimentDesign: receipt.experimentDesign,
-    ...boundaryFields,
   };
 }
 
@@ -1085,12 +1152,40 @@ export async function runPhysicsCheck(options = {}) {
   const replayRunsMatch = new Set(replayRoots).size === 1;
   const beforeProjection = canonicalBoundaryProjection(canonicalBefore);
   const afterProjection = canonicalBoundaryProjection(canonicalAfter);
+  const capturedFixtureBoundaryComparison = canonicalBoundaryEnabled
+    ? compareObserverBoundaryFields(
+        beforeProjection.capturedFixtureBoundaryFields,
+        afterProjection.capturedFixtureBoundaryFields,
+      )
+    : null;
   const observerBoundaryComparison = canonicalBoundaryEnabled
-    ? compareObserverBoundaryFields(beforeProjection, afterProjection)
+    ? compareObserverBoundaryFields(
+        afterProjection.boundedRuntimeObserver.off.canonicalFields,
+        afterProjection.boundedRuntimeObserver.on.canonicalFields,
+      )
+    : null;
+  const boundedRuntimeAcrossPhysicsComparison = canonicalBoundaryEnabled
+    ? compareObserverBoundaryFields(
+        beforeProjection.boundedRuntimeObserver.on.canonicalFields,
+        afterProjection.boundedRuntimeObserver.on.canonicalFields,
+      )
     : null;
   const canonicalObservedBoundaryMatch = canonicalBoundaryEnabled
-    ? observerBoundaryComparison.passed
-      && canonicalJson(beforeProjection) === canonicalJson(afterProjection)
+    ? capturedFixtureBoundaryComparison.passed
+      && observerBoundaryComparison.passed
+      && boundedRuntimeAcrossPhysicsComparison.passed
+      && beforeProjection.canonicalVisibleWorld.objectCount === 12
+      && afterProjection.canonicalVisibleWorld.objectCount === 12
+      && canonicalJson(beforeProjection.canonicalVisibleWorld)
+        === canonicalJson(afterProjection.canonicalVisibleWorld)
+      && canonicalJson(beforeProjection.sourceHashes)
+        === canonicalJson(afterProjection.sourceHashes)
+      && canonicalJson(beforeProjection.experimentDesign)
+        === canonicalJson(afterProjection.experimentDesign)
+      && beforeProjection.boundedRuntimeObserver.projectionToggleExecuted
+        === true
+      && afterProjection.boundedRuntimeObserver.projectionToggleExecuted
+        === true
     : null;
   const expectedReleasedTokenCount = contracts.replayGate.expectedReleasedTokenCount;
   const expectedFailDarkReleaseCount = contracts.replayGate.missingAndTamperedReleaseCount;
@@ -1166,10 +1261,18 @@ export async function runPhysicsCheck(options = {}) {
       canonicalBoundaryEnabled ? canonicalObservedBoundaryMatch === true : true,
     canonicalObserverBoundaryFieldsAvailable:
       canonicalBoundaryEnabled
-        ? observerBoundaryComparison.missingBefore.length === 0
+        ? capturedFixtureBoundaryComparison.missingBefore.length === 0
+          && capturedFixtureBoundaryComparison.missingAfter.length === 0
+          && capturedFixtureBoundaryComparison.invalidBefore.length === 0
+          && capturedFixtureBoundaryComparison.invalidAfter.length === 0
+          && observerBoundaryComparison.missingBefore.length === 0
           && observerBoundaryComparison.missingAfter.length === 0
           && observerBoundaryComparison.invalidBefore.length === 0
           && observerBoundaryComparison.invalidAfter.length === 0
+          && boundedRuntimeAcrossPhysicsComparison.missingBefore.length === 0
+          && boundedRuntimeAcrossPhysicsComparison.missingAfter.length === 0
+          && boundedRuntimeAcrossPhysicsComparison.invalidBefore.length === 0
+          && boundedRuntimeAcrossPhysicsComparison.invalidAfter.length === 0
         : true,
   };
 
@@ -1227,22 +1330,29 @@ export async function runPhysicsCheck(options = {}) {
     canonicalBoundary: {
       enabled: canonicalBoundaryEnabled,
       observedBoundaryMatch: canonicalObservedBoundaryMatch,
-      comparisonContext: 'before_vs_after_physics_witness_execution',
-      projectionToggleExecuted: false,
+      comparisonContext:
+        'canonical_world_before_after_physics_plus_bounded_runtime_observer_off_on',
+      projectionToggleExecuted:
+        canonicalBoundaryEnabled
+          ? afterProjection.boundedRuntimeObserver.projectionToggleExecuted
+          : false,
       fullMvP0ProjectionToggleClaimed: false,
       observerBoundaryComparison,
+      capturedFixtureBoundaryComparison,
+      boundedRuntimeAcrossPhysicsComparison,
       before: beforeProjection,
       after: afterProjection,
       observedFields: [
         'canonical source hashes',
         '12-object scene IDs',
-        'canonical scene hash',
-        'canonical pose hash',
-        'source-declared fixture logical-clock hash',
-        'source-declared fixture public-state hash',
-        'source-declared fixture executed-schedule hash',
-        'source-declared fixture resident-observation hash',
-        'source-declared fixture action-receipt root',
+        'canonical 12-object fixture scene and pose hashes',
+        'bounded V4 observer-off/on canonical scene hash',
+        'bounded V4 observer-off/on canonical pose hash',
+        'bounded V4 observer-off/on logical-clock hash',
+        'bounded V4 observer-off/on public-state hash',
+        'bounded V4 observer-off/on executed-schedule hash',
+        'bounded V4 observer-off/on resident-observation hash',
+        'bounded V4 observer-off/on action-receipt root',
         'experiment-design projection',
       ],
       fixtureBridgeFieldsAvailable: [
@@ -1251,9 +1361,9 @@ export async function runPhysicsCheck(options = {}) {
         'action receipt root',
       ],
       nativeHeadlessFieldsStillUnavailable: [
-        'native executed schedule hash',
-        'native resident observation hash',
-        'native action receipt root',
+        'full 12-object native lifecycle executed-schedule hash',
+        'full 12-object native lifecycle resident-observation hash',
+        'full 12-object native lifecycle action-receipt root',
       ],
     },
     assertions,
@@ -1276,10 +1386,12 @@ export async function runPhysicsCheck(options = {}) {
         'two sphere-collider tokens fall under HoloScript CPU physics, contact axis-aligned box catch floors, and sleep',
         'ordered-contact, per-step sleeping, and final-transform digests match across three local 600-step fixed-timestep runs',
         'the physics-witness side-effect sandwich leaves the seven-field source-declared captured-fixture boundary unchanged',
+        'single-sealed-execution observer projection equivalence for the bounded four-object Phase 0B runtime before and after the physics witness',
         'the parsed observer projection has no executable logic, behavior attachment, import, provider, tool, scheduler, receipt-writer, or resident-observation output surface',
       ],
       notObserved: [
-        'isolated observer projection off/on consumer toggle',
+        'browser observer projection off/on consumer toggle',
+        'full canonical 12-object observer projection lifecycle',
         'box token colliders',
         'stacking',
         'collision friction response',

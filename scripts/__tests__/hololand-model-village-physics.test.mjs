@@ -37,7 +37,7 @@ const { receipt } = await runPhysicsCheck({
   canonicalBoundary: false,
 });
 
-assert.equal(receipt.schema, 'hololand.model-village.physics-witness.v0.2.0');
+assert.equal(receipt.schema, 'hololand.model-village.physics-witness.v0.3.0');
 assert.equal(receipt.status, 'pass');
 assert.ok(Object.values(receipt.assertions).every(Boolean));
 assert.ok(Object.values(receipt.sourceBoundary).every(Boolean));

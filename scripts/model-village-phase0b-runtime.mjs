@@ -24,20 +24,57 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const PHASE0B_RECEIPT_SCHEMA =
-  'hololand.model-village-phase0b-runtime-bridge.v1';
+  'hololand.model-village-phase0b-runtime-bridge.v2';
 export const PHASE0B_STATE_SCHEMA =
   'hololand.model-village-phase0b-persistent-state.v1';
 export const PHASE0B_VALIDATOR_SCHEMA =
   'hololand.model-village-phase0b-trusted-validator.v1';
 export const PHASE0B_VALIDATOR_RECEIPT_SCHEMA =
   'hololand.model-village-phase0b-validator-receipt.v1';
+export const PHASE0B_OBSERVER_PROJECTION_SCHEMA =
+  'hololand.model-village.phase0b-observer-projection.v2';
 
 const SOURCE_RUN_SCHEMA = 'holoscript.headless-experiment-source-run.v4';
 const INNER_RUN_SCHEMA = 'holoscript.headless-experiment-run.v1';
 const OBSERVER_PROOF_SCHEMA = 'holoscript.headless-observer-noninterference.v2';
+const OBSERVER_PROOF_KEYS = Object.freeze([
+  'canonicalPayloadEqual',
+  'equivalent',
+  'isolation',
+  'liveSchedulingNoninterferenceClaimed',
+  'mode',
+  'observedSealedExecutionCount',
+  'observedTerminalCommitment',
+  'observerExecutionCount',
+  'observerIntroducedExperimentExecutionCount',
+  'observerProjection',
+  'observerProjectionHash',
+  'postObserverCanonicalFieldsHash',
+  'postObserverCanonicalPayloadHash',
+  'preObserverCanonicalFieldsHash',
+  'preObserverCanonicalPayloadHash',
+  'schema',
+  'sevenFieldsEqual',
+]);
+const OBSERVER_PROJECTION_KEYS = Object.freeze([
+  'canonicalFields',
+  'runId',
+  'schema',
+  'sourceReceiptSchema',
+  'terminalCommitment',
+]);
 const VALIDATOR_DOMAIN = 'hololand:model-village:phase0b:trusted-validator:v1';
 const GENESIS_RECEIPT_HASH = '0'.repeat(64);
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
+export const PHASE0B_OBSERVER_CANONICAL_FIELDS = Object.freeze([
+  'canonicalSceneHash',
+  'canonicalPoseHash',
+  'logicalClockHash',
+  'publicStateHash',
+  'executedScheduleHash',
+  'residentObservationHash',
+  'actionReceiptRoot',
+]);
 
 export const PHASE0B_SOURCE_PATHS = Object.freeze({
   world: 'source/proofs/model-village-phase0b-world.holo',
@@ -1022,6 +1059,259 @@ function replayProjection(run) {
   };
 }
 
+function observerCanonicalFields(run, label) {
+  const fields = run?.execution?.canonicalFields;
+  assertExactKeys(fields, PHASE0B_OBSERVER_CANONICAL_FIELDS, label);
+  for (const field of PHASE0B_OBSERVER_CANONICAL_FIELDS) {
+    assertSha256(fields[field], `${label}.${field}`);
+  }
+  return structuredClone(fields);
+}
+
+function observerRunProjection(run, label) {
+  const canonicalFields = observerCanonicalFields(run, `${label}.canonicalFields`);
+  const sourceRunCommitment = run?.sourceRunReceipt?.sourceRunCommitment;
+  const terminalCommitment = run?.execution?.terminal?.terminalCommitment;
+  assertSha256(sourceRunCommitment, `${label}.sourceRunCommitment`);
+  assertSha256(terminalCommitment, `${label}.terminalCommitment`);
+  return {
+    canonicalFields,
+    sourceRunCommitment,
+    terminalCommitment,
+  };
+}
+
+function livingCommonsActionProjection(entry, label) {
+  assertObject(entry, label);
+  const projection = {
+    allowed: entry.payload?.allowed,
+    entryHash: entry.entryHash,
+    entrypoint: entry.payload?.entrypoint,
+    outcome: entry.payload?.outcome,
+    previousEntryHash: entry.previousHash,
+    scheduleEntryId: entry.payload?.scheduleEntryId,
+    stateChanged: entry.payload?.stateChanged,
+    targetIds: structuredClone(entry.payload?.targetIds),
+  };
+  if (
+    typeof projection.allowed !== 'boolean'
+    || typeof projection.entrypoint !== 'string'
+    || typeof projection.outcome !== 'string'
+    || typeof projection.scheduleEntryId !== 'string'
+    || typeof projection.stateChanged !== 'boolean'
+    || !Array.isArray(projection.targetIds)
+    || projection.targetIds.some((targetId) => typeof targetId !== 'string')
+  ) {
+    throw new Error(`${label} is not a complete action projection`);
+  }
+  assertSha256(projection.entryHash, `${label}.entryHash`);
+  assertSha256(projection.previousEntryHash, `${label}.previousEntryHash`);
+  return projection;
+}
+
+export function buildPhase0BObserverProjectionWitness({
+  sealedSourceRun,
+}) {
+  const off = observerRunProjection(sealedSourceRun, 'observerProjection.off');
+  const observerProjectionFields =
+    sealedSourceRun?.observerProof?.observerProjection?.canonicalFields;
+  const observerProof = sealedSourceRun?.observerProof;
+  assertExactKeys(
+    observerProof,
+    OBSERVER_PROOF_KEYS,
+    'observerProjection.proof',
+  );
+  assertExactKeys(
+    observerProof.observerProjection,
+    OBSERVER_PROJECTION_KEYS,
+    'observerProjection.proof.observerProjection',
+  );
+  const on = {
+    canonicalFields: structuredClone(observerProjectionFields),
+    sourceRunCommitment: off.sourceRunCommitment,
+    terminalCommitment:
+      observerProof?.observerProjection?.terminalCommitment,
+  };
+  observerCanonicalFields(
+    {
+      execution: {
+        canonicalFields: on.canonicalFields,
+      },
+    },
+    'observerProjection.on.canonicalFields',
+  );
+  assertSha256(
+    on.terminalCommitment,
+    'observerProjection.on.terminalCommitment',
+  );
+  for (const [field, value] of Object.entries({
+    observerProjectionHash: observerProof?.observerProjectionHash,
+    postObserverCanonicalFieldsHash:
+      observerProof?.postObserverCanonicalFieldsHash,
+    postObserverCanonicalPayloadHash:
+      observerProof?.postObserverCanonicalPayloadHash,
+    preObserverCanonicalFieldsHash:
+      observerProof?.preObserverCanonicalFieldsHash,
+    preObserverCanonicalPayloadHash:
+      observerProof?.preObserverCanonicalPayloadHash,
+  })) {
+    assertSha256(value, `observerProjection.proof.${field}`);
+  }
+  if (
+    observerProof?.schema !== OBSERVER_PROOF_SCHEMA
+    || observerProof.mode !== 'single-execution-post-seal-v1'
+    || observerProof.isolation
+      !== 'separate-node-process-serialized-post-seal-v1'
+    || observerProof.observedSealedExecutionCount !== 1
+    || observerProof.observerExecutionCount !== 1
+    || observerProof.observerIntroducedExperimentExecutionCount !== 0
+    || observerProof.observedTerminalCommitment
+      !== sealedSourceRun.execution.terminal.terminalCommitment
+    || observerProof.equivalent !== true
+    || observerProof.canonicalPayloadEqual !== true
+    || observerProof.sevenFieldsEqual !== true
+    || observerProof.preObserverCanonicalPayloadHash
+      !== observerProof.postObserverCanonicalPayloadHash
+    || observerProof.preObserverCanonicalFieldsHash
+      !== observerProof.postObserverCanonicalFieldsHash
+    || observerProof.observerProjection?.schema
+      !== 'holoscript.headless-observer-projection.v1'
+    || observerProof.observerProjection?.runId
+      !== sealedSourceRun.execution.runId
+    || observerProof.observerProjection?.sourceReceiptSchema
+      !== sealedSourceRun.execution.schema
+    || observerProof.observerProjection?.terminalCommitment
+      !== sealedSourceRun.execution.terminal.terminalCommitment
+    || observerProof.observerProjectionHash
+      !== canonicalDigest(observerProof.observerProjection)
+    || observerProof.liveSchedulingNoninterferenceClaimed !== false
+    || observerProof.preObserverCanonicalPayloadHash
+      !== canonicalDigest(sealedSourceRun.execution)
+    || canonicalDigest(off.canonicalFields)
+      !== observerProof.preObserverCanonicalFieldsHash
+    || canonicalDigest(on.canonicalFields)
+      !== observerProof.postObserverCanonicalFieldsHash
+    || canonicalJson(observerProjectionFields) !== canonicalJson(off.canonicalFields)
+  ) {
+    throw new Error(
+      'Sealed HoloScript observer proof differs from the execution receipt',
+    );
+  }
+  const changedFields = PHASE0B_OBSERVER_CANONICAL_FIELDS.filter(
+    (field) => off.canonicalFields[field] !== on.canonicalFields[field],
+  );
+  const sevenFieldsEqual = changedFields.length === 0;
+  const sourceRunCommitmentEqual =
+    off.sourceRunCommitment === on.sourceRunCommitment;
+  const terminalCommitmentEqual =
+    off.terminalCommitment === on.terminalCommitment;
+  const observerIntroducedExperimentExecutionCount =
+    observerProof.observerIntroducedExperimentExecutionCount;
+  const [admittedEntry, blockedEntry] = sealedSourceRun.execution.actionLedger;
+  const admittedAction = livingCommonsActionProjection(
+    admittedEntry,
+    'observerProjection.livingCommons.admittedAction',
+  );
+  const blockedAction = livingCommonsActionProjection(
+    blockedEntry,
+    'observerProjection.livingCommons.blockedAction',
+  );
+  const finalPublicState =
+    sealedSourceRun.execution.publicStateSnapshots.at(-1)?.payload?.publicState;
+  if (
+    admittedAction.allowed !== true
+    || admittedAction.stateChanged !== true
+    || admittedAction.entrypoint !== 'contribute_water'
+    || canonicalJson(admittedAction.targetIds)
+      !== canonicalJson(['commons_cistern'])
+    || blockedAction.allowed !== false
+    || blockedAction.stateChanged !== false
+    || blockedAction.entrypoint !== 'deny_external_message'
+    || canonicalJson(blockedAction.targetIds)
+      !== canonicalJson(['outside_village'])
+    || blockedAction.previousEntryHash !== admittedAction.entryHash
+    || !Number.isInteger(finalPublicState?.acceptedActionCount)
+    || !Number.isInteger(finalPublicState?.publicWaterUnits)
+  ) {
+    throw new Error(
+      'Phase 0B Living Commons projection inputs differ from the verified run',
+    );
+  }
+  const actionReceiptRoot =
+    sealedSourceRun.execution.terminal.actionRoot;
+  assertSha256(
+    actionReceiptRoot,
+    'observerProjection.livingCommons.actionReceiptRoot',
+  );
+  const witness = {
+    schema: PHASE0B_OBSERVER_PROJECTION_SCHEMA,
+    projectionToggleExecuted: true,
+    toggleScope: 'single_sealed_execution_post_seal_consumer',
+    executionOrder: [
+      'sealed_receipt_before_observer_consumer',
+      'sealed_receipt_after_observer_consumer',
+    ],
+    sourceRunExecutionsObserved: {
+      authoritative: 1,
+      observerIntroduced: 0,
+    },
+    requiredCanonicalFields: [...PHASE0B_OBSERVER_CANONICAL_FIELDS],
+    off,
+    on,
+    comparison: {
+      changedFields,
+      sevenFieldsEqual,
+      sourceRunCommitmentEqual,
+      terminalCommitmentEqual,
+      preObserverCanonicalPayloadHash:
+        observerProof.preObserverCanonicalPayloadHash,
+      postObserverCanonicalPayloadHash:
+        observerProof.postObserverCanonicalPayloadHash,
+      preObserverCanonicalFieldsHash:
+        observerProof.preObserverCanonicalFieldsHash,
+      postObserverCanonicalFieldsHash:
+        observerProof.postObserverCanonicalFieldsHash,
+    },
+    livingCommons: {
+      acceptedActionCount: finalPublicState.acceptedActionCount,
+      actionReceiptRoot,
+      admittedAction,
+      blockedAction,
+      projectionAuthority: 'read_only_receipt_consumption',
+      publicWaterUnits: finalPublicState.publicWaterUnits,
+      rawModelContentIncluded: false,
+      visualCuesRequireExistingActionReceipts: true,
+    },
+    claimBoundary: {
+      adapterIdentityFieldsIncluded: false,
+      boundedRuntimeSceneObjectCount:
+        sealedSourceRun.execution.scene.objectCount,
+      boundedV4SourceRunProjectionExecuted: true,
+      freshExperimentExecutionCount: 0,
+      fullCanonicalTwelveObjectLifecycleClaimed: false,
+      liveSchedulingNoninterferenceClaimed: false,
+      observerIntroducedExperimentExecutionCount,
+      projectionOwnsExperimentBehavior: false,
+      projectionWorldWritePathExposed: false,
+      providerCallsMade: 0,
+    },
+  };
+  if (
+    !sevenFieldsEqual
+    || !sourceRunCommitmentEqual
+    || !terminalCommitmentEqual
+    || observerIntroducedExperimentExecutionCount !== 0
+    || sealedSourceRun.execution.scene.objectCount !== 4
+  ) {
+    throw new Error(
+      `Phase 0B observer off/on projection differs: ${canonicalJson(
+        witness.comparison,
+      )}`,
+    );
+  }
+  return witness;
+}
+
 function statePath(storeDir) {
   return path.join(storeDir, 'state.json');
 }
@@ -1905,6 +2195,7 @@ export async function verifyPhase0BReceipt(
       'freshCapturedResponseReplayMatches',
       'hostSuppliedValidatorConfigPinned',
       'observerIntroducedNoExecution',
+      'observerProjectionToggleEquivalent',
       'persistentAuthorizationMonotonic',
       'separateProcessPersistentStateRecovery',
       'sourceRunV4Verified',
@@ -2089,6 +2380,9 @@ export async function verifyPhase0BReceipt(
     validateSourceRun(freshReplay.run, runManifest, {
       observerRequired: false,
     });
+    const observerProjection = buildPhase0BObserverProjectionWitness({
+      sealedSourceRun: mainRun,
+    });
     const expectedRuntime = {
       actionDecisions: executionSummary.actionDecisions,
       boundedHsplusSubsetActionsExecuted: 2,
@@ -2098,6 +2392,7 @@ export async function verifyPhase0BReceipt(
       finalPublicState: executionSummary.finalPublicState,
       observationSubjects: executionSummary.observationSubjects,
       observerProof: structuredClone(mainRun.observerProof),
+      observerProjection,
       providerCalls: 0,
       sourceBundleHash: executionSummary.sourceBundleHash,
       sourceClaimBoundary: structuredClone(freshReplay.run.claimBoundary),
@@ -2344,6 +2639,9 @@ export async function runPhase0BEngineeringTracer(options = {}) {
     'off',
   );
   validateSourceRun(freshReplay.run, runManifest, { observerRequired: false });
+  const observerProjection = buildPhase0BObserverProjectionWitness({
+    sealedSourceRun: first.run,
+  });
   const firstProjection = replayProjection(first.run);
   const replayProjectionValue = replayProjection(freshReplay.run);
   const replayMatch =
@@ -2589,6 +2887,13 @@ export async function runPhase0BEngineeringTracer(options = {}) {
       && validatorReceipt.configHash === canonicalDigest(trustedValidatorConfig),
     observerIntroducedNoExecution:
       first.run.observerProof.observerIntroducedExperimentExecutionCount === 0,
+    observerProjectionToggleEquivalent:
+      observerProjection.projectionToggleExecuted === true
+      && observerProjection.comparison.sevenFieldsEqual === true
+      && observerProjection.comparison.sourceRunCommitmentEqual === true
+      && observerProjection.comparison.terminalCommitmentEqual === true
+      && observerProjection.claimBoundary
+        .observerIntroducedExperimentExecutionCount === 0,
     persistentAuthorizationMonotonic:
       recoveredState.lastAuthorizationSequence === 1
       && recoveredState.consumedAuthorizations.length === 2
@@ -2701,6 +3006,7 @@ export async function runPhase0BEngineeringTracer(options = {}) {
       finalPublicState: executionSummary.finalPublicState,
       observationSubjects: executionSummary.observationSubjects,
       observerProof: structuredClone(first.run.observerProof),
+      observerProjection,
       providerCalls: 0,
       sourceBundleHash: executionSummary.sourceBundleHash,
       sourceClaimBoundary: structuredClone(first.run.claimBoundary),

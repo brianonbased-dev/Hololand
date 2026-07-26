@@ -7,10 +7,12 @@ import { fileURLToPath } from 'node:url';
 
 import {
   classifySoftwareRenderer,
+  createObserverBoundaryEnvelope,
   evaluateMaterialTruth,
   inferGraphicsBackend,
   pngDimensions,
   runRenderingGate,
+  verifyObserverBoundaryEnvelope,
 } from '../hololand-model-village-rendering-truth-gate.mjs';
 
 const testDir = path.dirname(fileURLToPath(import.meta.url));
@@ -269,29 +271,181 @@ try {
     timeoutMs: 60_000,
   });
 
-  assert.equal(receipt.schema, 'hololand.model-village.rendering-witness.v0.2.0');
+  assert.equal(receipt.schema, 'hololand.model-village.rendering-witness.v0.3.0');
   assert.equal(receipt.status, 'pass');
   assert.ok(Object.values(receipt.assertions).every(Boolean));
   assert.equal(receipt.source.parser, 'HoloCompositionParser');
   assert.equal(receipt.source.compiler, 'SceneIRCompiler');
-  assert.equal(receipt.source.projection.meshCount, 16);
+  assert.equal(receipt.source.projection.meshCount, 29);
   assert.equal(receipt.source.calibration.meshCount, 10);
   assert.equal(receipt.source.sourceSemanticsRewritten, false);
   assert.equal(receipt.physics.canonicalBoundary.enabled, true);
   assert.equal(receipt.physics.canonicalBoundary.observedBoundaryMatch, true);
-  assert.equal(receipt.physics.canonicalBoundary.projectionToggleExecuted, false);
+  assert.equal(receipt.physics.canonicalBoundary.projectionToggleExecuted, true);
   assert.equal(receipt.observerBoundary.consumerExecuted, true);
-  assert.equal(receipt.observerBoundary.isolatedProjectionToggleExecuted, false);
-  assert.equal(receipt.observerBoundary.payload.available, true);
+  assert.equal(receipt.observerBoundary.isolatedProjectionToggleExecuted, true);
+  assert.equal(receipt.observerBoundary.canonicalAuthoritativeMutationDelta, 0);
+  assert.equal(receipt.observerBoundary.off.payload.consumerEnabled, false);
+  assert.deepEqual(
+    Object.keys(receipt.observerBoundary.off.payload).sort(),
+    [
+      'canonicalPayload',
+      'consumerEnabled',
+      'payloadDigest',
+      'schema',
+      'source',
+      'trustedActionBinding',
+    ],
+  );
+  assert.equal(
+    receipt.observerBoundary.off.browserObserved.consumerAcknowledgement.status,
+    'withheld',
+  );
+  assert.equal(receipt.observerBoundary.on.payload.consumerEnabled, true);
+  const trustedActionBinding =
+    receipt.physics.canonicalBoundary.after.boundedRuntimeObserver
+      .trustedActionBinding;
+  const observerEnvelopeVerification = verifyObserverBoundaryEnvelope(
+    receipt.observerBoundary.on.payload,
+    { trustedActionBinding },
+  );
+  assert.equal(
+    observerEnvelopeVerification.valid,
+    true,
+    observerEnvelopeVerification.errors.join('\n'),
+  );
+  assert.equal(observerEnvelopeVerification.core.available, true);
+  assert.equal(
+    observerEnvelopeVerification.core.boundedRuntimeSceneObjectCount,
+    4,
+  );
+  assert.equal(
+    observerEnvelopeVerification.core.canonicalVisibleWorld.objectCount,
+    12,
+  );
+  assert.equal(
+    trustedActionBinding.blockedPreviousEntryHash,
+    trustedActionBinding.admittedActionEntryHash,
+  );
+  assert.equal(
+    trustedActionBinding.actionReceiptRoot,
+    trustedActionBinding.blockedActionEntryHash,
+  );
+  assert.equal(
+    receipt.observerBoundary.on.browserObserved.consumerAcknowledgement.status,
+    'pass',
+  );
+  assert.equal(
+    receipt.observerBoundary.on.browserObserved.consumerAcknowledgement
+      .computedPayloadDigest,
+    receipt.observerBoundary.on.payload.payloadDigest,
+  );
   assert.equal(
     Object.keys(
-      receipt.observerBoundary.browserObserved.canonicalFields,
+      receipt.observerBoundary.on.browserObserved.canonicalFields,
     ).length,
     7,
   );
+  assert.equal(receipt.observerBoundary.off.heroPresentation.verified, false);
+  assert.match(
+    receipt.observerBoundary.off.heroPresentation.subtitle,
+    /withheld/i,
+  );
+  assert.doesNotMatch(
+    JSON.stringify(receipt.observerBoundary.off.heroPresentation),
+    /one verified water contribution|verified v4 receipts/i,
+  );
+  assert.equal(receipt.observerBoundary.on.heroPresentation.verified, true);
+  assert.match(
+    receipt.observerBoundary.on.heroPresentation.truthChip,
+    /verified v4 receipts/i,
+  );
+  assert.ok(
+    receipt.claimBoundary.observed.some(
+      (claim) => /canonical payload withheld.*sha-256 acknowledged/i.test(claim),
+    ),
+  );
+  assert.ok(
+    receipt.claimBoundary.notObserved.every(
+      (claim) => claim !== 'isolated observer projection off/on consumer toggle',
+    ),
+  );
+  const detachedSiblingTamper = {
+    ...structuredClone(receipt.observerBoundary.on.payload),
+    livingCommons: { publicWaterUnits: 999 },
+  };
+  assert.equal(
+    verifyObserverBoundaryEnvelope(detachedSiblingTamper, {
+      trustedActionBinding,
+    }).valid,
+    false,
+  );
+  const digestMismatchTamper =
+    structuredClone(receipt.observerBoundary.on.payload);
+  digestMismatchTamper.canonicalPayload += ' ';
+  assert.equal(
+    verifyObserverBoundaryEnvelope(digestMismatchTamper, {
+      trustedActionBinding,
+    }).valid,
+    false,
+  );
+  const sourceLabelTamper =
+    structuredClone(receipt.observerBoundary.on.payload);
+  sourceLabelTamper.source = 'attacker_supplied_payload';
+  assert.equal(
+    verifyObserverBoundaryEnvelope(sourceLabelTamper, {
+      trustedActionBinding,
+    }).valid,
+    false,
+  );
+  const coordinatedChainTamper =
+    structuredClone(observerEnvelopeVerification.core);
+  coordinatedChainTamper.livingCommons.admittedAction.entryHash =
+    'a'.repeat(64);
+  coordinatedChainTamper.livingCommons.blockedAction.previousEntryHash =
+    'a'.repeat(64);
+  coordinatedChainTamper.livingCommons.blockedAction.entryHash =
+    'b'.repeat(64);
+  coordinatedChainTamper.livingCommons.actionReceiptRoot = 'b'.repeat(64);
+  coordinatedChainTamper.canonicalFields.actionReceiptRoot = 'b'.repeat(64);
+  assert.throws(
+    () => createObserverBoundaryEnvelope(coordinatedChainTamper, {
+      trustedActionBinding,
+    }),
+    /trusted execution binding/i,
+  );
+  for (const mutate of [
+    (core) => {
+      core.livingCommons.publicWaterUnits = 4;
+    },
+    (core) => {
+      core.livingCommons.actionReceiptRoot = '7'.repeat(64);
+    },
+    (core) => {
+      core.livingCommons.blockedAction.entryHash = '8'.repeat(64);
+    },
+    (core) => {
+      core.livingCommons.blockedAction.previousEntryHash = '9'.repeat(64);
+    },
+    (core) => {
+      core.verifiedReceiptHash = null;
+    },
+    (core) => {
+      core.boundedRuntimeSceneObjectCount = 12;
+    },
+  ]) {
+    const tamperedCore = structuredClone(observerEnvelopeVerification.core);
+    mutate(tamperedCore);
+    assert.throws(
+      () => createObserverBoundaryEnvelope(tamperedCore, {
+        trustedActionBinding,
+      }),
+      /observer boundary core is invalid/i,
+    );
+  }
   assert.match(
     receipt.source.observerPolicy.browserRenderEvidenceEnforcement,
-    /declarative_template_source_hash_bound/,
+    /browser_payload_sha256_acknowledged/,
   );
   assert.ok(receipt.physics.frameTraceSha256);
   assert.ok(receipt.physics.visualFrameSha256);
@@ -302,13 +456,21 @@ try {
   assert.equal(receipt.renderer.effective.outputColorSpace, 'srgb');
   assert.equal(receipt.renderer.effective.toneMapping, 'ACESFilmicToneMapping');
   assert.equal(receipt.renderer.effective.shadowMapType, 'PCFSoftShadowMap');
-  assert.equal(receipt.renderer.materials.length, 26);
+  assert.equal(receipt.renderer.materials.length, 39);
   assert.ok(receipt.renderer.materials.every((entry) => entry.effective.type === 'MeshPhysicalMaterial'));
   assert.equal(receipt.assertions.sourceMaterialsMatchEffective, true);
   assert.equal(receipt.renderer.materialTruth.status, 'pass');
-  assert.equal(receipt.renderer.materialTruth.expectedMeshCount, 26);
-  assert.equal(receipt.renderer.materialTruth.observedMaterialCount, 26);
+  assert.equal(receipt.renderer.materialTruth.expectedMeshCount, 39);
+  assert.equal(receipt.renderer.materialTruth.observedMaterialCount, 39);
   assert.ok(receipt.renderer.materialTruth.meshes.every((entry) => entry.status === 'pass'));
+  assert.equal(
+    receipt.renderer.livingCommonsPresentation.status,
+    'receipts_consumed',
+  );
+  assert.equal(
+    receipt.renderer.livingCommonsPresentation.referencedActionReceipts.length,
+    2,
+  );
   assert.equal(receipt.renderer.portraitUiChrome.status, 'pass');
   assert.ok(Object.values(receipt.renderer.portraitUiChrome.checks).every(Boolean));
   assert.ok(receipt.renderer.portraitUiChrome.cardFooterGap >= 8);
@@ -385,6 +547,32 @@ try {
     'ANGLE Direct3D 11',
   );
   assert.throws(() => pngDimensions(Buffer.alloc(24)), /valid PNG/);
+
+  const skippedBoundary = await runRenderingGate({
+    root: repoRoot,
+    holoScriptRoot,
+    outputDir: path.join(outputDir, 'skip-boundary'),
+    canonicalBoundary: false,
+    timeoutMs: 60_000,
+  });
+  assert.equal(skippedBoundary.receipt.status, 'pass');
+  assert.equal(
+    skippedBoundary.receipt.observerBoundary.consumerExecuted,
+    false,
+  );
+  assert.equal(
+    skippedBoundary.receipt.observerBoundary.isolatedProjectionToggleExecuted,
+    false,
+  );
+  assert.equal(
+    skippedBoundary.receipt.observerBoundary.on.payload.consumerEnabled,
+    false,
+  );
+  assert.ok(
+    skippedBoundary.receipt.claimBoundary.notObserved.includes(
+      'browser observer projection off/on consumer toggle',
+    ),
+  );
 } finally {
   rmSync(outputDir, { recursive: true, force: true });
 }

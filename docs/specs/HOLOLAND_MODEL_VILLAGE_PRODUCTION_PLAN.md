@@ -2,9 +2,9 @@
 
 **Status:** Experience vision and execution plan
 
-**Version:** 0.3.0
+**Version:** 0.4.0
 
-**Date:** 2026-07-24
+**Date:** 2026-07-25
 
 **Canonical experiment contract:** [HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md](./HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md)
 
@@ -72,7 +72,7 @@ receipts.
 
 ## Evidence register
 
-| Register | 2026-07-24 statement |
+| Register | 2026-07-25 statement |
 |---|---|
 | Observed | The canonical three-format pilot parses, materializes twelve objects, and reproduces its canonical scene and pose/physics projections in two native headless runs. |
 | Observed | A 1600 x 900 HoloScript screenshot was captured from the canonical `.holo` source. |
@@ -80,13 +80,16 @@ receipts.
 | Observed | Focused current HoloScript physics validation passed 199 tests across rigid-body, advanced-cloth, SPH-fluid, and soft-body trait suites, plus 57 engine tests across PBD, soft-body, thermal, TET10 structural, and DEM granular solvers. |
 | Observed | HoloLand's legacy Three.js adapter source contains WebGL, physical-material, HDRI/PMREM, quality-profile, shadow, SSAO, bloom, color-grading, and FXAA/SMAA paths. This is source evidence, not a production pixel receipt. |
 | Observed | The MV-P10 tracer now runs three fresh 600-step, fixed-1/60 HoloScript CPU-physics worlds through one `PhysicsWorld.addBodyWithConfig` path. Two source-bound fixtures release sphere-collider tokens; missing, tampered, and duplicate fixtures fail dark; exactly the admitted-token/admitted-floor and blocked-token/blocked-floor contact starts occur, and contact, sleep, final-transform, and frame-trace roots match locally. |
-| Observed | The MV-P9 witness parsed and compiled the two HoloScript compositions, mapped all 26 source meshes to `MeshPhysicalMaterial`, verified every authored-to-effective physical-material value with only two disclosed decorative-chute overrides, and observed hardware WebGL2 on ANGLE Direct3D 11 / NVIDIA RTX 3060 with no known software-renderer indicator. It applied sRGB output, ACES filmic tone mapping at exposure 1.05, PCF soft shadows, and a hashed local procedural `RoomEnvironment`/PMREM with `hdri: false`. |
+| Observed | The refreshed MV-P9 witness parsed and compiled the two HoloScript compositions, mapped all 39 source meshes (29 observer plus 10 calibration) to `MeshPhysicalMaterial`, verified every authored-to-effective physical-material value with only two disclosed decorative-chute overrides, and observed hardware WebGL2 on ANGLE Direct3D 11 / NVIDIA RTX 3060 with no known software-renderer indicator. It applied sRGB output, ACES filmic tone mapping at exposure 1.05, PCF soft shadows, and a hashed local procedural `RoomEnvironment`/PMREM with `hdri: false`. |
 | Observed | The final named-browser sample used 60 warm-up and 180 measured frames. It captured rAF cadence and CPU `renderer.render()` submission percentiles separately, exact 1600 x 900 and 390 x 844 hero images, a settled-contact frame, and a 1600 x 900 calibration image without external network assets. |
-| Observed | The MV-P0 captured-fixture bridge now parses its schedule, public snapshots, six resident observations, and two action-fixture receipt inputs from canonical `.hs`/`.hsplus` source and exposes one complete seven-field hash boundary. The physics-witness side-effect sandwich leaves that fixture boundary unchanged. Three source-authored assignment vectors are distinct, balanced, counterbalanced once per seat, and statically excluded from the exact pre-inference observation schema. The browser witness consumes all seven fields when this fixture gate is enabled. No observer off/on toggle, adapter-permutation execution, post-inference outcome equivalence, native pipeline execution, or typed safety/decision-receipt validation is claimed. |
+| Observed | The bounded Phase 0B V4 bridge executes four schedule rows, two subject-bound resident observations, two `.hsplus` subset actions, and five public-state snapshots from canonical `.holo`, `.hsplus`, and `.hs` sources. One `contribute_water` action mutates the public cistern to three units; one `deny_external_message` action is blocked without mutation. A fresh captured-response replay matches, the visible emergency-stop binding dispatches the bounded `freeze_run` path, and zero provider calls occur. |
+| Observed | One sealed four-object Phase 0B V4 execution now passes the post-seal observer consumer with identical canonical payload and seven canonical fields. The browser then executes an actual off/on consumer sandwich: off withholds the payload; on recomputes its exact SHA-256 digest before presentation and renders only from that parsed acknowledged string. The complete host physics receipt, compiled source hashes, twelve-object visible-world source/materialization, and read-only observer contract remain unchanged. This is a bounded consumer proof, not full twelve-object lifecycle execution. |
+| Observed | The Living Commons witness binds the admitted water receipt to the cistern level and receipt halo, the accepted-action count to the hearth, and the blocked external-message receipt to the boundary ward. The blocked receipt links to the admitted receipt and equals the action root. A separate binding derived from the fully verified execution ledger anchors both receipt hashes, their link, the root, and the run commitments before the browser may render. Every receipt-driven cue references an existing V4 action receipt; raw model content and adapter identity are absent. |
+| Observed | The original captured-fixture bridge still materializes six identity-neutral observation envelopes and two syntactically chained fixture receipts. Three source-authored assignment vectors remain distinct, balanced, counterbalanced once per seat, and statically excluded from the exact pre-inference observation schema. That fixture lane remains separate from the bounded two-resident V4 execution. |
 | Observed | The refreshed 390 x 844 witness shows both admitted and blocked route legends plus the complete WebGL2/ANGLE/NVIDIA/D3D11 provenance. Browser-measured overlay bounds are inside the viewport, the evidence-card/footer gap is at least eight pixels, and neither text nor the document overflows horizontally. |
-| Gap | The canonical experimental composition remains an intentionally sparse instrument. The new observer proof improves framing, grounding, light response, primary evidence presentation, and material calibration for one Receipt Loom vignette; the full living village, institutions, authored assets, animation, audio, and XR profiles remain targets. |
-| Gap | `.hsplus` actions, `.hs` pipeline actions, live model turns, state mutations, captured-response replay, and the emergency-stop binding are not yet executed by the current headless path. |
-| Gap | The isolated observer-projection off/on consumer test remains unimplemented. `BrowserRenderEvidence` is source-hash-bound through the physics receipt but remains a declarative template rather than a field-by-field rendering-gate contract. |
+| Gap | The observer is now an executing premium greybox with a receipt-driven cistern, hearth, two warm cottages, six stable silhouettes, Receipt Loom, and boundary ward. Authored production assets, character animation, ambient life, audio, fluid simulation, texture-rich materials, WebXR, and the complete living village remain targets. |
+| Gap | Phase 0B executes only the named four-object V4 scene, `.hs` plan entrypoint, deterministic engine-owned `.hsplus` action subset, and bounded stop bridge. Live model turns, provider routes, full/native `.hs` and `.hsplus` language execution, native `.holo` lifecycle, full twelve-object lifecycle, production trust custody, and fleet durability remain unobserved. |
+| Gap | The bounded observer consumer toggle now passes. Full MV-P0 remains open for the twelve-object lifecycle and executed adapter permutations/post-inference outcome equivalence. The browser proves exact digest consumption of the bounded projection; it does not run the full semantic verifier or claim scientific equivalence. |
 | Gap | The older CLI baseline still launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. MV-P9 uses a separate, focused browser witness; it does not silently promote that CLI route. |
 | Gap | The current React Three adapter cannot be cited as an executing Model Village route: its typecheck still imports the removed `R3FCompiler` surface. The dedicated MV-P9 adapter is a bounded proof bridge, not a claim that the general platform renderer is repaired. |
 | Unknown | WebGPU, headset performance, long-duration thermal behavior, browser families beyond the named Chrome run, and cross-hardware pixel or physics agreement remain unmeasured. |
@@ -125,6 +128,19 @@ These are after-state images for one read-only physics/rendering vignette, not
 evidence that the complete living village or live multi-model experiment is
 finished. The report records the exact source, physics-frame, screenshot,
 backend, material, environment, and timing hashes.
+
+### Durable Phase 0B observer and Living Commons slice
+
+The bounded V4 consumer sandwich and receipt-driven visual are recorded in
+[the Phase 0B observer and Living Commons witness](../reports/HOLOLAND_MODEL_VILLAGE_PHASE0B_OBSERVER_LIVING_COMMONS_2026-07-25.md).
+
+![Living Commons desktop witness](../assets/model-village/model-village-living-commons-hero-2026-07-25.png)
+
+![Living Commons portrait witness](../assets/model-village/model-village-living-commons-portrait-2026-07-25.png)
+
+These images are executing HoloScript-authored observer evidence. They remain a
+premium greybox, not a claim that the aspirational Bioluminescent Frontier
+Observatory below has shipped.
 
 ## Experience thesis: the Living Observatory
 
@@ -444,7 +460,7 @@ The honest wording for this bounded slice is:
 
 | Layer | Present source capability | Model Village use | Promotion evidence |
 |---|---|---|---|
-| Material response | The dedicated witness maps source values into 26 effective `MeshPhysicalMaterial` instances and records both source and runtime values | Basalt, timber, brushed metal, cloth, wet stone, water, glass, and receipt crystal | The first eight-sample neutral calibration and Receipt Loom hero captures passed visual inspection; texture-rich production assets remain later work. |
+| Material response | The dedicated witness maps source values into 39 effective `MeshPhysicalMaterial` instances (29 observer plus 10 calibration) and records both source and runtime values | Basalt, timber, brushed metal, cloth, wet stone, water, glass, and receipt crystal | The neutral calibration and refreshed Living Commons hero captures passed visual inspection; texture-rich production assets remain later work. |
 | Environment lighting | The dedicated witness now hashes a locally bundled Three `RoomEnvironment` module, generates PMREM, performs no network fetch, and explicitly records `hdri: false` | Dusk frontier sky, believable reflections, and readable shadow fill | The procedural local environment satisfies the first neutral calibration gate. A future production HDRI must still be locally custodied, licensed, hashed, loaded offline, and separately receipted. |
 | Direct lighting | The witness applies the compiled ambient, directional, and point lights and records PCF-soft shadow casters, receivers, and allocated shadow maps | Cool moon key, warm Receipt Loom fill, restrained windows | The first hero and calibration captures passed contact/shadow inspection; production tuning and additional hardware profiles remain open. |
 | Post-processing | No SSAO, bloom, depth of field, or motion blur is claimed in MV-P9; ACES output conversion is active and receipted | Contact depth, emissive focus, and final image cohesion | Add an effect only with an executing-chain receipt, on/off images, and frame-cost measurement. |
@@ -801,14 +817,14 @@ captured fixture receipts. MV-P9 and MV-P10 are the first physics/render proof
 pair. No live model calls wait on visual polish, and no spectacle bypasses the
 runtime gates.
 
-The bounded MV-P9/MV-P10 slice passed locally on 2026-07-24. The captured-fixture
-portion of MV-P0 now passes with complete schedule, resident-observation, and
-scoped action-fixture-root fields, physics-side-effect stability, parsed-AST
-projection capability exclusion, and pre-inference adapter-assignment
-exclusion. Full MV-P0 remains open until upstream HoloScript native headless
-execution emits recomputable runtime schedule, observation, logical-clock,
-public-state, and receipt-ledger evidence and the isolated observer consumer
-can be toggled around that native execution.
+The bounded MV-P9/MV-P10 slice passed locally on 2026-07-24. On 2026-07-25 the
+four-object Phase 0B V4 runtime also exposed recomputable schedule,
+resident-observation, logical-clock, public-state, and action-root fields and
+passed both its single-sealed-receipt observer proof and a browser payload
+withheld/consumed sandwich. The twelve-object visible-world source and exact ID
+set remained unchanged, but their full lifecycle did not execute. Full MV-P0
+therefore remains open for the twelve-object runtime and adapter-permutation
+execution; the bounded observer-consumer dependency is closed.
 
 ## Delivery waves
 
@@ -867,27 +883,31 @@ go/no-go list.
 | Legacy demo mistaken for production engine | Treat the old physics playground and compatibility PBD facade as references only; promote named HoloScript solvers and tested adapters. |
 | Premature scientific language | Maintain observed/target/gap registers and prohibit “emergence proven.” |
 
-## Immediate build slice
+## Immediate next build slice
 
-Run three tracks in parallel:
+The two-resident runtime, visual greybox, physics gate, rendering truth gate,
+and bounded observer consumer now execute. The next three tracks are:
 
-1. **Scientific closure:** implement the two-resident, one-tick
-   captured-response tracer across the canonical `.holo`, `.hsplus`, and `.hs`
-   sources.
-2. **Visual tracer:** add the separate observer projection with a locked hero
-   camera, terrain bowl, six stable silhouettes, Receipt Loom greybox, and
-   decluttered research/cinematic modes.
-3. **Physics and rendering truth tracer:** build the neutral material
-   calibration view and one receipt-bound rigid-body impact/load in the
-   observer projection. Capture the exact renderer backend, material settings,
-   fixed physics step, state digest, frame cost, and hero/closeup screenshots.
+1. **Six-resident zero-provider rehearsal:** expand the bounded runtime from two
+   subject-bound observations to all six seats, preserve the frozen assignment
+   matrix, run the deterministic schedule without provider calls, and retain
+   the same semantic verifier, stop, persistence, replay, and observer gates.
+2. **Living Commons production pass:** replace remaining primitive cottages and
+   residents with locally custodied authored assets, add ambient life and audio,
+   and keep every state-driven cue tied to an existing receipt. This remains
+   observer-only work.
+3. **Platform profile proof:** retain the measured desktop and portrait gates,
+   then add one real mobile/WebXR or headset profile without weakening material,
+   backend, accessibility, comfort, and no-network evidence.
 
-The visual tracer uses fixture receipts only. Its checker must prove:
+The current observer uses verified bounded V4 action receipts for the cistern,
+hearth, and boundary ward, while the gravity chutes remain separately labeled
+physics-fixture evidence. Its checker proves:
 
 - No canonical object-count change.
 - No observer write authority.
 - No adapter-identity presentation field.
-- No resident-observation change.
+- No bounded resident-observation or authoritative-host-state change.
 - No VFX without a referenced receipt.
 - A reproducible 1600 x 900 hero screenshot and 390 x 844 portrait screenshot.
 - A reproducible material calibration screenshot.
@@ -895,6 +915,5 @@ The visual tracer uses fixture receipts only. Its checker must prove:
 - No “GPU,” “WebGPU,” “real time,” or “physically accurate” label without its
   specific runtime or benchmark evidence.
 
-That is the shortest path from the current diagram to something recognizably
-special: a beautiful village, a visible physics engine, and an experiment whose
-meaning remains intact.
+That is the shortest path from the current premium greybox to a six-resident
+rehearsal and then a village that feels alive without weakening the experiment.

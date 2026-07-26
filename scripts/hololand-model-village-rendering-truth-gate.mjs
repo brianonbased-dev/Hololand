@@ -20,7 +20,7 @@ import {
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const REPO_ROOT = path.resolve(path.dirname(SCRIPT_PATH), '..');
-const SCHEMA = 'hololand.model-village.rendering-witness.v0.2.0';
+const SCHEMA = 'hololand.model-village.rendering-witness.v0.3.0';
 const DEFAULT_OUTPUT_DIR = path.join(
   REPO_ROOT,
   '.tmp',
@@ -43,6 +43,62 @@ const REQUIRED_OBSERVER_BOUNDARY_FIELDS = Object.freeze([
   'residentObservationHash',
   'actionReceiptRoot',
 ]);
+const CANONICAL_VISIBLE_WORLD_IDS = Object.freeze([
+  'EmergencyStop',
+  'IsolationBoundary',
+  'ObserverDeck',
+  'PublicStateBoard',
+  'ReceiptLedger',
+  'ResidentSeat01',
+  'ResidentSeat02',
+  'ResidentSeat03',
+  'ResidentSeat04',
+  'ResidentSeat05',
+  'ResidentSeat06',
+  'VillageCommons',
+]);
+const OBSERVER_BOUNDARY_CORE_KEYS = Object.freeze([
+  'available',
+  'boundedRuntimeReceiptValidated',
+  'boundedRuntimeSceneObjectCount',
+  'browserMayWriteCanonicalState',
+  'canonicalFields',
+  'canonicalVisibleWorld',
+  'comparison',
+  'livingCommons',
+  'projectionToggleExecuted',
+  'readOnlySourceContractHash',
+  'requiredFields',
+  'source',
+  'sourceHashes',
+  'sourceRunCommitment',
+  'terminalCommitment',
+  'verifiedPersistence',
+  'verifiedReceiptHash',
+]);
+const OBSERVER_BOUNDARY_ENVELOPE_KEYS = Object.freeze([
+  'canonicalPayload',
+  'consumerEnabled',
+  'payloadDigest',
+  'schema',
+  'source',
+  'trustedActionBinding',
+]);
+const OBSERVER_BOUNDARY_ENVELOPE_SCHEMA =
+  'hololand.model-village.observer-browser-envelope.v1';
+const TRUSTED_ACTION_BINDING_KEYS = Object.freeze([
+  'actionReceiptRoot',
+  'admittedActionEntryHash',
+  'admittedPreviousEntryHash',
+  'bindingHash',
+  'blockedActionEntryHash',
+  'blockedPreviousEntryHash',
+  'phase0BReceiptHash',
+  'schema',
+  'sourceRunCommitment',
+  'terminalCommitment',
+]);
+const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const REQUIRED_AUTHORED_MATERIAL_PROPERTIES = Object.freeze([
   'color',
   'metalness',
@@ -115,6 +171,348 @@ function sha256File(filePath) {
 
 function digest(value) {
   return sha256(Buffer.from(canonicalJson(value), 'utf8'));
+}
+
+function exactKeys(value, expected) {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    && canonicalJson(Object.keys(value).sort())
+      === canonicalJson([...expected].sort());
+}
+
+function pushSha256Error(errors, value, label) {
+  if (typeof value !== 'string' || !SHA256_PATTERN.test(value)) {
+    errors.push(`${label} must be lowercase sha256 hex`);
+  }
+}
+
+export function validateObserverBoundaryCore(core) {
+  const errors = [];
+  if (!exactKeys(core, OBSERVER_BOUNDARY_CORE_KEYS)) {
+    errors.push('observer boundary core keys differ');
+    return { errors, valid: false };
+  }
+  if (
+    core.available !== true
+    || core.source !== 'verified_bounded_phase0b_v4_observer_toggle'
+    || core.boundedRuntimeReceiptValidated !== true
+    || core.boundedRuntimeSceneObjectCount !== 4
+    || core.browserMayWriteCanonicalState !== false
+    || core.projectionToggleExecuted !== true
+  ) {
+    errors.push('observer boundary availability/scope differs');
+  }
+  if (
+    !exactKeys(core.canonicalFields, REQUIRED_OBSERVER_BOUNDARY_FIELDS)
+    || canonicalJson(core.requiredFields)
+      !== canonicalJson(REQUIRED_OBSERVER_BOUNDARY_FIELDS)
+  ) {
+    errors.push('observer boundary canonical field set differs');
+  } else {
+    for (const field of REQUIRED_OBSERVER_BOUNDARY_FIELDS) {
+      pushSha256Error(errors, core.canonicalFields[field], `canonicalFields.${field}`);
+    }
+  }
+  for (const [label, value] of Object.entries({
+    verifiedReceiptHash: core.verifiedReceiptHash,
+    'verifiedPersistence.finalStateHash': core.verifiedPersistence?.finalStateHash,
+    'verifiedPersistence.receiptRoot': core.verifiedPersistence?.receiptRoot,
+    sourceRunCommitment: core.sourceRunCommitment,
+    terminalCommitment: core.terminalCommitment,
+    readOnlySourceContractHash: core.readOnlySourceContractHash,
+    'sourceHashes.canonicalVisibleWorld':
+      core.sourceHashes?.canonicalVisibleWorld,
+    'sourceHashes.observerProjection': core.sourceHashes?.observerProjection,
+    'sourceHashes.observerPolicy': core.sourceHashes?.observerPolicy,
+  })) {
+    pushSha256Error(errors, value, label);
+  }
+  if (
+    !exactKeys(core.comparison, [
+      'changedFields',
+      'postObserverCanonicalFieldsHash',
+      'postObserverCanonicalPayloadHash',
+      'preObserverCanonicalFieldsHash',
+      'preObserverCanonicalPayloadHash',
+      'sevenFieldsEqual',
+      'sourceRunCommitmentEqual',
+      'terminalCommitmentEqual',
+    ])
+    || core.comparison?.sevenFieldsEqual !== true
+    || core.comparison?.sourceRunCommitmentEqual !== true
+    || core.comparison?.terminalCommitmentEqual !== true
+    || canonicalJson(core.comparison?.changedFields) !== '[]'
+    || core.comparison?.preObserverCanonicalPayloadHash
+      !== core.comparison?.postObserverCanonicalPayloadHash
+    || core.comparison?.preObserverCanonicalFieldsHash
+      !== core.comparison?.postObserverCanonicalFieldsHash
+  ) {
+    errors.push('observer boundary comparison differs');
+  }
+  for (const [label, value] of Object.entries({
+    preObserverCanonicalPayloadHash:
+      core.comparison?.preObserverCanonicalPayloadHash,
+    postObserverCanonicalPayloadHash:
+      core.comparison?.postObserverCanonicalPayloadHash,
+    preObserverCanonicalFieldsHash:
+      core.comparison?.preObserverCanonicalFieldsHash,
+    postObserverCanonicalFieldsHash:
+      core.comparison?.postObserverCanonicalFieldsHash,
+  })) {
+    pushSha256Error(errors, value, `comparison.${label}`);
+  }
+  const livingCommons = core.livingCommons;
+  const admittedAction = livingCommons?.admittedAction;
+  const blockedAction = livingCommons?.blockedAction;
+  const expectedAdmitted = {
+    allowed: true,
+    entrypoint: 'contribute_water',
+    outcome: 'public_water_units_increased_by_1',
+    previousEntryHash: admittedAction?.previousEntryHash,
+    scheduleEntryId: 'mv-phase0b-action-01',
+    stateChanged: true,
+    targetIds: ['commons_cistern'],
+  };
+  const expectedBlocked = {
+    allowed: false,
+    entrypoint: 'deny_external_message',
+    outcome: 'blocked_without_world_mutation',
+    previousEntryHash: admittedAction?.entryHash,
+    scheduleEntryId: 'mv-phase0b-action-02',
+    stateChanged: false,
+    targetIds: ['outside_village'],
+  };
+  for (const [label, action, expected] of [
+    ['admittedAction', admittedAction, expectedAdmitted],
+    ['blockedAction', blockedAction, expectedBlocked],
+  ]) {
+    if (
+      !exactKeys(action, [...Object.keys(expected), 'entryHash'])
+      || Object.entries(expected).some(
+        ([field, value]) => canonicalJson(action?.[field]) !== canonicalJson(value),
+      )
+    ) {
+      errors.push(`livingCommons.${label} differs`);
+    }
+    pushSha256Error(errors, action?.entryHash, `livingCommons.${label}.entryHash`);
+    pushSha256Error(
+      errors,
+      action?.previousEntryHash,
+      `livingCommons.${label}.previousEntryHash`,
+    );
+  }
+  if (
+    !exactKeys(livingCommons, [
+      'acceptedActionCount',
+      'actionReceiptRoot',
+      'admittedAction',
+      'blockedAction',
+      'projectionAuthority',
+      'publicWaterUnits',
+      'rawModelContentIncluded',
+      'visualCuesRequireExistingActionReceipts',
+    ])
+    || livingCommons?.acceptedActionCount !== 1
+    || livingCommons?.publicWaterUnits !== 3
+    || livingCommons?.projectionAuthority !== 'read_only_receipt_consumption'
+    || livingCommons?.rawModelContentIncluded !== false
+    || livingCommons?.visualCuesRequireExistingActionReceipts !== true
+    || livingCommons?.actionReceiptRoot !== core.canonicalFields?.actionReceiptRoot
+    || livingCommons?.actionReceiptRoot !== blockedAction?.entryHash
+  ) {
+    errors.push('Living Commons receipt/root binding differs');
+  }
+  if (
+    !exactKeys(core.verifiedPersistence, ['finalStateHash', 'receiptRoot'])
+    || !exactKeys(core.sourceHashes, [
+      'canonicalVisibleWorld',
+      'observerPolicy',
+      'observerProjection',
+    ])
+    || !exactKeys(core.canonicalVisibleWorld, [
+      'canonicalDigest',
+      'canonicalReplayMatch',
+      'objectCount',
+      'objectIds',
+    ])
+    || core.canonicalVisibleWorld?.canonicalReplayMatch !== true
+    || core.canonicalVisibleWorld?.objectCount !== 12
+    || canonicalJson(core.canonicalVisibleWorld?.objectIds)
+      !== canonicalJson(CANONICAL_VISIBLE_WORLD_IDS)
+  ) {
+    errors.push('canonical visible-world scope differs');
+  }
+  pushSha256Error(
+    errors,
+    core.canonicalVisibleWorld?.canonicalDigest,
+    'canonicalVisibleWorld.canonicalDigest',
+  );
+  return { errors, valid: errors.length === 0 };
+}
+
+export function validateTrustedActionBinding(binding) {
+  const errors = [];
+  if (!exactKeys(binding, TRUSTED_ACTION_BINDING_KEYS)) {
+    errors.push('trusted action binding keys differ');
+    return { errors, valid: false };
+  }
+  if (binding.schema !== 'hololand.model-village.trusted-action-binding.v1') {
+    errors.push('trusted action binding schema differs');
+  }
+  for (const [label, value] of Object.entries(binding)) {
+    if (label === 'schema') continue;
+    pushSha256Error(errors, value, `trustedActionBinding.${label}`);
+  }
+  const unsignedBinding = { ...binding };
+  delete unsignedBinding.bindingHash;
+  if (binding.bindingHash !== digest(unsignedBinding)) {
+    errors.push('trusted action binding digest differs');
+  }
+  if (binding.blockedPreviousEntryHash !== binding.admittedActionEntryHash) {
+    errors.push('trusted action binding ledger link differs');
+  }
+  if (binding.actionReceiptRoot !== binding.blockedActionEntryHash) {
+    errors.push('trusted action binding root differs');
+  }
+  return { errors, valid: errors.length === 0 };
+}
+
+function validateCoreAgainstTrustedActionBinding(core, binding) {
+  const errors = [];
+  if (
+    core.verifiedReceiptHash !== binding.phase0BReceiptHash
+    || core.sourceRunCommitment !== binding.sourceRunCommitment
+    || core.terminalCommitment !== binding.terminalCommitment
+    || core.canonicalFields.actionReceiptRoot !== binding.actionReceiptRoot
+    || core.livingCommons.actionReceiptRoot !== binding.actionReceiptRoot
+    || core.livingCommons.admittedAction.entryHash
+      !== binding.admittedActionEntryHash
+    || core.livingCommons.admittedAction.previousEntryHash
+      !== binding.admittedPreviousEntryHash
+    || core.livingCommons.blockedAction.entryHash
+      !== binding.blockedActionEntryHash
+    || core.livingCommons.blockedAction.previousEntryHash
+      !== binding.blockedPreviousEntryHash
+  ) {
+    errors.push(
+      'observer boundary action chain differs from the trusted execution binding',
+    );
+  }
+  return { errors, valid: errors.length === 0 };
+}
+
+export function createObserverBoundaryEnvelope(
+  core,
+  {
+    consumerEnabled = true,
+    trustedActionBinding = null,
+  } = {},
+) {
+  if (!consumerEnabled) {
+    return {
+      canonicalPayload: null,
+      consumerEnabled: false,
+      payloadDigest: null,
+      schema: OBSERVER_BOUNDARY_ENVELOPE_SCHEMA,
+      source: 'verified_payload_withheld_from_browser_consumer',
+      trustedActionBinding: null,
+    };
+  }
+  const validation = validateObserverBoundaryCore(core);
+  const trustedBindingValidation =
+    validateTrustedActionBinding(trustedActionBinding);
+  const coreBindingValidation =
+    trustedBindingValidation.valid
+      ? validateCoreAgainstTrustedActionBinding(core, trustedActionBinding)
+      : { errors: [], valid: false };
+  const errors = [
+    ...validation.errors,
+    ...trustedBindingValidation.errors,
+    ...coreBindingValidation.errors,
+  ];
+  if (errors.length > 0) {
+    throw new Error(
+      `Observer boundary core is invalid: ${errors.join('; ')}`,
+    );
+  }
+  const canonicalPayload = canonicalJson(core);
+  return {
+    canonicalPayload,
+    consumerEnabled: true,
+    payloadDigest: sha256(Buffer.from(canonicalPayload, 'utf8')),
+    schema: OBSERVER_BOUNDARY_ENVELOPE_SCHEMA,
+    source: 'verified_canonical_payload_for_browser_consumer',
+    trustedActionBinding: structuredClone(trustedActionBinding),
+  };
+}
+
+export function verifyObserverBoundaryEnvelope(
+  envelope,
+  { trustedActionBinding = null } = {},
+) {
+  const errors = [];
+  if (!exactKeys(envelope, OBSERVER_BOUNDARY_ENVELOPE_KEYS)) {
+    errors.push('observer boundary envelope keys differ');
+    return { core: null, errors, valid: false };
+  }
+  if (envelope.schema !== OBSERVER_BOUNDARY_ENVELOPE_SCHEMA) {
+    errors.push('observer boundary envelope schema differs');
+  }
+  if (envelope.consumerEnabled !== true) {
+    if (
+      envelope.consumerEnabled !== false
+      || envelope.canonicalPayload !== null
+      || envelope.payloadDigest !== null
+      || envelope.source
+        !== 'verified_payload_withheld_from_browser_consumer'
+      || envelope.trustedActionBinding !== null
+    ) {
+      errors.push('observer-off envelope is not fail-dark');
+    }
+    return { core: null, errors, valid: errors.length === 0 };
+  }
+  if (envelope.source !== 'verified_canonical_payload_for_browser_consumer') {
+    errors.push('observer-on envelope source differs');
+  }
+  const trustedBindingValidation =
+    validateTrustedActionBinding(trustedActionBinding);
+  errors.push(...trustedBindingValidation.errors);
+  if (
+    trustedBindingValidation.valid
+    && canonicalJson(envelope.trustedActionBinding)
+      !== canonicalJson(trustedActionBinding)
+  ) {
+    errors.push('observer envelope trusted action binding differs');
+  }
+  if (
+    typeof envelope.canonicalPayload !== 'string'
+    || !SHA256_PATTERN.test(envelope.payloadDigest || '')
+    || sha256(Buffer.from(envelope.canonicalPayload || '', 'utf8'))
+      !== envelope.payloadDigest
+  ) {
+    errors.push('observer boundary payload digest differs');
+    return { core: null, errors, valid: false };
+  }
+  let core;
+  try {
+    core = JSON.parse(envelope.canonicalPayload);
+  } catch {
+    errors.push('observer boundary canonical payload is not JSON');
+    return { core: null, errors, valid: false };
+  }
+  if (canonicalJson(core) !== envelope.canonicalPayload) {
+    errors.push('observer boundary payload is not canonically serialized');
+  }
+  const coreValidation = validateObserverBoundaryCore(core);
+  errors.push(...coreValidation.errors);
+  if (trustedBindingValidation.valid) {
+    errors.push(
+      ...validateCoreAgainstTrustedActionBinding(
+        core,
+        trustedActionBinding,
+      ).errors,
+    );
+  }
+  return { core, errors, valid: errors.length === 0 };
 }
 
 function normalizePath(value) {
@@ -505,7 +903,7 @@ export function evaluateMaterialTruth(contracts, materials) {
   };
 }
 
-function browserApplication(THREE, RoomEnvironment, payload) {
+async function browserApplication(THREE, RoomEnvironment, payload) {
   const witness = {
     schema: 'hololand.model-village.browser-render-state.v0.1.0',
     ready: false,
@@ -515,6 +913,325 @@ function browserApplication(THREE, RoomEnvironment, payload) {
   window.__MODEL_VILLAGE_WITNESS__ = witness;
 
   try {
+    const envelope = payload.observerBoundary;
+    const requiredObserverFields = [
+      'canonicalSceneHash',
+      'canonicalPoseHash',
+      'logicalClockHash',
+      'publicStateHash',
+      'executedScheduleHash',
+      'residentObservationHash',
+      'actionReceiptRoot',
+    ];
+    const visibleWorldIds = [
+      'EmergencyStop',
+      'IsolationBoundary',
+      'ObserverDeck',
+      'PublicStateBoard',
+      'ReceiptLedger',
+      'ResidentSeat01',
+      'ResidentSeat02',
+      'ResidentSeat03',
+      'ResidentSeat04',
+      'ResidentSeat05',
+      'ResidentSeat06',
+      'VillageCommons',
+    ];
+    const sameJson = (left, right) =>
+      JSON.stringify(left) === JSON.stringify(right);
+    const isSha256 = (value) =>
+      typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+    const exactKeys = (value, expected) =>
+      value && typeof value === 'object' && !Array.isArray(value)
+      && sameJson(Object.keys(value).sort(), [...expected].sort());
+    const canonicalStringify = (value) => {
+      if (Array.isArray(value)) {
+        return `[${value.map((entry) => canonicalStringify(entry)).join(',')}]`;
+      }
+      if (value && typeof value === 'object') {
+        return `{${Object.keys(value).sort().map(
+          (key) => `${JSON.stringify(key)}:${canonicalStringify(value[key])}`,
+        ).join(',')}}`;
+      }
+      return JSON.stringify(value);
+    };
+    const sha256Hex = async (value) => {
+      const buffer = await window.crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(value),
+      );
+      return [...new Uint8Array(buffer)]
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join('');
+    };
+    let observerPayloadAcknowledgement = {
+      computedPayloadDigest: null,
+      expectedPayloadDigest: null,
+      matches: false,
+      status: 'withheld',
+    };
+    let observerBoundary = {
+      available: false,
+      browserMayWriteCanonicalState: false,
+      canonicalFields: {},
+      canonicalPayload: null,
+      consumerEnabled: false,
+      payloadDigest: null,
+      projectionToggleExecuted: false,
+      requiredFields: requiredObserverFields,
+      source: 'verified_payload_withheld_from_browser_consumer',
+    };
+    if (envelope.consumerEnabled === true) {
+      if (
+        !exactKeys(envelope, [
+          'canonicalPayload',
+          'consumerEnabled',
+          'payloadDigest',
+          'schema',
+          'source',
+          'trustedActionBinding',
+        ])
+        || envelope.schema
+          !== 'hololand.model-village.observer-browser-envelope.v1'
+        || envelope.source
+          !== 'verified_canonical_payload_for_browser_consumer'
+        || typeof envelope.canonicalPayload !== 'string'
+        || !isSha256(envelope.payloadDigest)
+      ) {
+        throw new Error('Observer projection envelope is invalid');
+      }
+      const trustedActionBinding = envelope.trustedActionBinding;
+      const unsignedTrustedActionBinding = {
+        ...trustedActionBinding,
+      };
+      delete unsignedTrustedActionBinding.bindingHash;
+      const computedTrustedActionBindingHash = await sha256Hex(
+        canonicalStringify(unsignedTrustedActionBinding),
+      );
+      if (
+        !exactKeys(trustedActionBinding, [
+          'actionReceiptRoot',
+          'admittedActionEntryHash',
+          'admittedPreviousEntryHash',
+          'bindingHash',
+          'blockedActionEntryHash',
+          'blockedPreviousEntryHash',
+          'phase0BReceiptHash',
+          'schema',
+          'sourceRunCommitment',
+          'terminalCommitment',
+        ])
+        || trustedActionBinding?.schema
+          !== 'hololand.model-village.trusted-action-binding.v1'
+        || Object.entries(trustedActionBinding).some(
+          ([key, value]) => key !== 'schema' && !isSha256(value),
+        )
+        || trustedActionBinding.bindingHash
+          !== computedTrustedActionBindingHash
+        || trustedActionBinding.blockedPreviousEntryHash
+          !== trustedActionBinding.admittedActionEntryHash
+        || trustedActionBinding.actionReceiptRoot
+          !== trustedActionBinding.blockedActionEntryHash
+      ) {
+        throw new Error('Observer trusted action binding is invalid');
+      }
+      const computedPayloadDigest = await sha256Hex(envelope.canonicalPayload);
+      observerPayloadAcknowledgement = {
+        computedPayloadDigest,
+        expectedPayloadDigest: envelope.payloadDigest,
+        matches: computedPayloadDigest === envelope.payloadDigest,
+        status:
+          computedPayloadDigest === envelope.payloadDigest ? 'pass' : 'fail',
+      };
+      if (!observerPayloadAcknowledgement.matches) {
+        throw new Error('Observer projection payload digest mismatch');
+      }
+      const core = JSON.parse(envelope.canonicalPayload);
+      const livingCommons = core?.livingCommons;
+      const admittedAction = livingCommons?.admittedAction;
+      const blockedAction = livingCommons?.blockedAction;
+      if (
+        !exactKeys(core, [
+          'available',
+          'boundedRuntimeReceiptValidated',
+          'boundedRuntimeSceneObjectCount',
+          'browserMayWriteCanonicalState',
+          'canonicalFields',
+          'canonicalVisibleWorld',
+          'comparison',
+          'livingCommons',
+          'projectionToggleExecuted',
+          'readOnlySourceContractHash',
+          'requiredFields',
+          'source',
+          'sourceHashes',
+          'sourceRunCommitment',
+          'terminalCommitment',
+          'verifiedPersistence',
+          'verifiedReceiptHash',
+        ])
+        || !exactKeys(core?.comparison, [
+          'changedFields',
+          'postObserverCanonicalFieldsHash',
+          'postObserverCanonicalPayloadHash',
+          'preObserverCanonicalFieldsHash',
+          'preObserverCanonicalPayloadHash',
+          'sevenFieldsEqual',
+          'sourceRunCommitmentEqual',
+          'terminalCommitmentEqual',
+        ])
+        || !exactKeys(livingCommons, [
+          'acceptedActionCount',
+          'actionReceiptRoot',
+          'admittedAction',
+          'blockedAction',
+          'projectionAuthority',
+          'publicWaterUnits',
+          'rawModelContentIncluded',
+          'visualCuesRequireExistingActionReceipts',
+        ])
+        || !exactKeys(admittedAction, [
+          'allowed',
+          'entryHash',
+          'entrypoint',
+          'outcome',
+          'previousEntryHash',
+          'scheduleEntryId',
+          'stateChanged',
+          'targetIds',
+        ])
+        || !exactKeys(blockedAction, [
+          'allowed',
+          'entryHash',
+          'entrypoint',
+          'outcome',
+          'previousEntryHash',
+          'scheduleEntryId',
+          'stateChanged',
+          'targetIds',
+        ])
+        || !exactKeys(core?.verifiedPersistence, [
+          'finalStateHash',
+          'receiptRoot',
+        ])
+        || !exactKeys(core?.sourceHashes, [
+          'canonicalVisibleWorld',
+          'observerPolicy',
+          'observerProjection',
+        ])
+        || !exactKeys(core?.canonicalVisibleWorld, [
+          'canonicalDigest',
+          'canonicalReplayMatch',
+          'objectCount',
+          'objectIds',
+        ])
+        || core?.available !== true
+        || core?.source !== 'verified_bounded_phase0b_v4_observer_toggle'
+        || core?.boundedRuntimeReceiptValidated !== true
+        || core?.boundedRuntimeSceneObjectCount !== 4
+        || core?.browserMayWriteCanonicalState !== false
+        || core?.projectionToggleExecuted !== true
+        || !sameJson(core?.requiredFields, requiredObserverFields)
+        || !sameJson(
+          Object.keys(core?.canonicalFields || {}).sort(),
+          [...requiredObserverFields].sort(),
+        )
+        || requiredObserverFields.some(
+          (field) => !isSha256(core?.canonicalFields?.[field]),
+        )
+        || !isSha256(core?.verifiedReceiptHash)
+        || !isSha256(core?.verifiedPersistence?.finalStateHash)
+        || !isSha256(core?.verifiedPersistence?.receiptRoot)
+        || !isSha256(core?.sourceRunCommitment)
+        || !isSha256(core?.terminalCommitment)
+        || !isSha256(core?.readOnlySourceContractHash)
+        || !isSha256(core?.sourceHashes?.canonicalVisibleWorld)
+        || !isSha256(core?.sourceHashes?.observerProjection)
+        || !isSha256(core?.sourceHashes?.observerPolicy)
+        || core?.comparison?.sevenFieldsEqual !== true
+        || core?.comparison?.sourceRunCommitmentEqual !== true
+        || core?.comparison?.terminalCommitmentEqual !== true
+        || !sameJson(core?.comparison?.changedFields, [])
+        || core?.comparison?.preObserverCanonicalPayloadHash
+          !== core?.comparison?.postObserverCanonicalPayloadHash
+        || core?.comparison?.preObserverCanonicalFieldsHash
+          !== core?.comparison?.postObserverCanonicalFieldsHash
+        || admittedAction?.allowed !== true
+        || admittedAction?.entrypoint !== 'contribute_water'
+        || admittedAction?.outcome !== 'public_water_units_increased_by_1'
+        || !isSha256(admittedAction?.previousEntryHash)
+        || admittedAction?.scheduleEntryId !== 'mv-phase0b-action-01'
+        || admittedAction?.stateChanged !== true
+        || !sameJson(admittedAction?.targetIds, ['commons_cistern'])
+        || !isSha256(admittedAction?.entryHash)
+        || blockedAction?.allowed !== false
+        || blockedAction?.entrypoint !== 'deny_external_message'
+        || blockedAction?.outcome !== 'blocked_without_world_mutation'
+        || blockedAction?.previousEntryHash !== admittedAction?.entryHash
+        || blockedAction?.scheduleEntryId !== 'mv-phase0b-action-02'
+        || blockedAction?.stateChanged !== false
+        || !sameJson(blockedAction?.targetIds, ['outside_village'])
+        || !isSha256(blockedAction?.entryHash)
+        || livingCommons?.acceptedActionCount !== 1
+        || livingCommons?.publicWaterUnits !== 3
+        || livingCommons?.projectionAuthority
+          !== 'read_only_receipt_consumption'
+        || livingCommons?.rawModelContentIncluded !== false
+        || livingCommons?.visualCuesRequireExistingActionReceipts !== true
+        || livingCommons?.actionReceiptRoot
+          !== core?.canonicalFields?.actionReceiptRoot
+        || livingCommons?.actionReceiptRoot !== blockedAction?.entryHash
+        || core?.verifiedReceiptHash
+          !== trustedActionBinding.phase0BReceiptHash
+        || core?.sourceRunCommitment
+          !== trustedActionBinding.sourceRunCommitment
+        || core?.terminalCommitment
+          !== trustedActionBinding.terminalCommitment
+        || core?.canonicalFields?.actionReceiptRoot
+          !== trustedActionBinding.actionReceiptRoot
+        || admittedAction?.entryHash
+          !== trustedActionBinding.admittedActionEntryHash
+        || admittedAction?.previousEntryHash
+          !== trustedActionBinding.admittedPreviousEntryHash
+        || blockedAction?.entryHash
+          !== trustedActionBinding.blockedActionEntryHash
+        || blockedAction?.previousEntryHash
+          !== trustedActionBinding.blockedPreviousEntryHash
+        || core?.canonicalVisibleWorld?.canonicalReplayMatch !== true
+        || core?.canonicalVisibleWorld?.objectCount !== 12
+        || !sameJson(core?.canonicalVisibleWorld?.objectIds, visibleWorldIds)
+        || !isSha256(core?.canonicalVisibleWorld?.canonicalDigest)
+      ) {
+        throw new Error('Observer projection canonical payload is invalid');
+      }
+      observerBoundary = {
+        ...core,
+        canonicalPayload: envelope.canonicalPayload,
+        consumerEnabled: true,
+        payloadDigest: envelope.payloadDigest,
+      };
+    } else if (
+      envelope.schema
+        !== 'hololand.model-village.observer-browser-envelope.v1'
+      || envelope.consumerEnabled !== false
+      || envelope.canonicalPayload !== null
+      || envelope.payloadDigest !== null
+      || envelope.source !== 'verified_payload_withheld_from_browser_consumer'
+      || envelope.trustedActionBinding !== null
+      || !exactKeys(envelope, [
+        'canonicalPayload',
+        'consumerEnabled',
+        'payloadDigest',
+        'schema',
+        'source',
+        'trustedActionBinding',
+      ])
+    ) {
+      throw new Error('Observer-off envelope is not fail-dark');
+    }
+    const observerVerified =
+      observerBoundary.consumerEnabled === true
+      && observerPayloadAcknowledgement.status === 'pass';
     document.documentElement.style.background = '#060b13';
     document.body.innerHTML = `
       <main id="witness-root">
@@ -522,21 +1239,26 @@ function browserApplication(THREE, RoomEnvironment, payload) {
         <div class="grain"></div>
         <header class="masthead">
           <div class="eyebrow">HOLOLAND // MODEL VILLAGE</div>
-          <h1 id="view-title">The Receipt Loom</h1>
-          <p id="view-subtitle">A read-only observer projection driven by sealed HoloScript evidence.</p>
+          <h1 id="view-title">The Living Commons</h1>
+          <p id="view-subtitle">${observerVerified
+            ? 'One verified water contribution changed the commons. One external message stopped at the boundary.'
+            : 'Observer payload withheld. Receipt-driven commons cues remain dark.'}</p>
         </header>
         <aside class="evidence-card">
-          <div class="evidence-kicker">LIVE WITNESS</div>
+          <div class="evidence-kicker">${observerVerified ? 'LIVE WITNESS' : 'PAYLOAD WITHHELD'}</div>
           <div class="evidence-row"><span>Language</span><strong>.holo + .hsplus + .hs</strong></div>
           <div class="evidence-row"><span>Physics</span><strong>CPU sphere colliders</strong></div>
           <div class="evidence-row"><span>Replay</span><strong id="physics-step">step ${payload.heroFrameStep} / ${payload.physics.fixedSteps}</strong></div>
-          <div class="evidence-row"><span>Boundary</span><strong id="boundary-status">${payload.observerBoundary.available ? '7 / 7 fixture hashes' : 'not captured'}</strong></div>
+          <div class="evidence-row"><span>Observer A/B</span><strong id="boundary-status">${observerVerified ? '7 / 7 V4 hashes equal' : 'payload withheld'}</strong></div>
+          <div class="evidence-row"><span>Cistern</span><strong>${observerVerified ? `${observerBoundary.livingCommons.publicWaterUnits} public units` : 'unverified'}</strong></div>
           <div class="evidence-row"><span>Physics root</span><strong>${payload.physics.physicsStateHash.slice(0, 12)}</strong></div>
-          <div class="truth-chip">CAPTURED FIXTURE // BRIDGE // ZERO MODEL CALLS</div>
+          <div class="truth-chip">${observerVerified
+            ? 'VERIFIED V4 RECEIPTS // READ ONLY // ZERO MODEL CALLS'
+            : 'OBSERVER PAYLOAD WITHHELD // READ ONLY // ZERO MODEL CALLS'}</div>
         </aside>
         <footer class="footer">
-          <span data-witness-part="admitted-legend"><i class="dot admitted"></i> admitted route</span>
-          <span data-witness-part="blocked-legend"><i class="dot blocked"></i> blocked route</span>
+          <span data-witness-part="admitted-legend"><i class="dot admitted"></i> ${observerVerified ? 'admitted route' : 'cue dark'}</span>
+          <span data-witness-part="blocked-legend"><i class="dot blocked"></i> ${observerVerified ? 'blocked route' : 'cue dark'}</span>
           <span id="backend-label" data-witness-part="backend-provenance">probing browser backend…</span>
         </footer>
       </main>
@@ -924,8 +1646,110 @@ function browserApplication(THREE, RoomEnvironment, payload) {
       'calibration',
     );
     scene.add(roots.hero, roots.calibration);
-    addTrajectory(roots.hero, 'token-mv-p10-admitted-001', '#ffae57');
-    addTrajectory(roots.hero, 'token-mv-p10-blocked-001', '#877dff');
+
+    function applyLivingCommonsProjection() {
+      const consumerEnabled = observerVerified;
+      const livingCommons = observerBoundary.livingCommons || null;
+      const actionReceipts = livingCommons
+        ? [livingCommons.admittedAction, livingCommons.blockedAction]
+        : [];
+      const objects = [];
+      const referencedActionReceipts = new Set();
+      for (const mesh of meshById.values()) {
+        const binding =
+          mesh.userData.sourceNode?.props?.properties?.receiptBinding;
+        if (!binding) continue;
+        if (!consumerEnabled) {
+          mesh.visible = false;
+          objects.push({
+            objectId: mesh.name,
+            consumerEnabled: false,
+            visible: false,
+            visualChannel: binding.visualChannel,
+          });
+          continue;
+        }
+        if (binding.source === 'verified_public_state') {
+          const value = livingCommons?.[binding.field];
+          if (!Number.isInteger(value) || value < 0) {
+            throw new Error(
+              `Living Commons field ${binding.field} is unavailable`,
+            );
+          }
+          if (binding.visualChannel === 'water_level') {
+            mesh.scale.y =
+              binding.baseScaleY + binding.scalePerUnit * value;
+            mesh.position.y =
+              binding.basePositionY + binding.positionPerUnit * value;
+          } else if (binding.visualChannel === 'accepted_action_hearth') {
+            mesh.visible = value >= binding.minimumValue;
+          }
+          objects.push({
+            objectId: mesh.name,
+            consumerEnabled: true,
+            field: binding.field,
+            value,
+            visible: mesh.visible,
+            visualChannel: binding.visualChannel,
+          });
+          adapterMappings.push({
+            objectId: mesh.name,
+            sourceProperty: `receiptBinding:${binding.field}`,
+            effectivePresentation: binding.visualChannel,
+          });
+          continue;
+        }
+        if (binding.source === 'verified_action_receipt') {
+          const action = actionReceipts.find(
+            (candidate) => candidate?.entrypoint === binding.entrypoint,
+          );
+          const valid = Boolean(
+            action
+            && /^[a-f0-9]{64}$/.test(action.entryHash)
+            && action.allowed === binding.expectedAllowed
+            && action.targetIds.includes(binding.semanticTarget),
+          );
+          mesh.visible = valid;
+          if (!valid) {
+            throw new Error(
+              `Living Commons action receipt ${binding.entrypoint} is invalid`,
+            );
+          }
+          referencedActionReceipts.add(action.entryHash);
+          objects.push({
+            actionReceiptHash: action.entryHash,
+            objectId: mesh.name,
+            consumerEnabled: true,
+            entrypoint: action.entrypoint,
+            visible: true,
+            visualChannel: binding.visualChannel,
+          });
+          adapterMappings.push({
+            objectId: mesh.name,
+            sourceProperty: `receiptBinding:${binding.entrypoint}`,
+            effectivePresentation: binding.visualChannel,
+          });
+        }
+      }
+      if (objects.length !== 4) {
+        throw new Error(
+          `Living Commons expected 4 receipt-bound objects, observed ${objects.length}`,
+        );
+      }
+      return {
+        consumerEnabled,
+        objects,
+        referencedActionReceipts: [...referencedActionReceipts].sort(),
+        status: consumerEnabled ? 'receipts_consumed' : 'payload_withheld',
+        worldMutationAuthority: false,
+      };
+    }
+
+    const livingCommonsPresentation = applyLivingCommonsProjection();
+    if (observerVerified) {
+      addTrajectory(roots.hero, 'token-mv-p10-admitted-001', '#ffae57');
+      addTrajectory(roots.hero, 'token-mv-p10-blocked-001', '#877dff');
+    }
 
     let activePhysicsFrameStep = payload.heroFrameStep;
     function applyPhysicsFrame(step) {
@@ -1027,10 +1851,14 @@ function browserApplication(THREE, RoomEnvironment, payload) {
         ? new THREE.FogExp2(contract.backgroundColor, 0.018)
         : new THREE.FogExp2(contract.backgroundColor, 0.012);
       document.querySelector('#view-title').textContent =
-        view === 'hero' ? 'The Receipt Loom' : 'Material Truth Lab';
+        view === 'hero' ? 'The Living Commons' : 'Material Truth Lab';
       document.querySelector('#view-subtitle').textContent =
         view === 'hero'
-          ? 'A read-only observer projection driven by sealed HoloScript evidence.'
+          ? (
+              observerVerified
+                ? 'One verified water contribution changed the commons. One external message stopped at the boundary.'
+                : 'Observer payload withheld. Receipt-driven commons cues remain dark.'
+            )
           : 'Neutral WebGL material calibration under a locally bundled procedural environment.';
       document.querySelector('#physics-step').textContent =
         view === 'hero'
@@ -1163,7 +1991,18 @@ function browserApplication(THREE, RoomEnvironment, payload) {
             .sort(),
           framesAvailable: payload.physics.frames.length,
         },
-        observerBoundary: payload.observerBoundary,
+        observerBoundary: {
+          ...observerBoundary,
+          consumerAcknowledgement: observerPayloadAcknowledgement,
+        },
+        observerPresentation: {
+          verified: observerVerified,
+          subtitle: document.querySelector('#view-subtitle')?.textContent || '',
+          evidenceKicker:
+            document.querySelector('.evidence-kicker')?.textContent || '',
+          truthChip: document.querySelector('.truth-chip')?.textContent || '',
+        },
+        livingCommonsPresentation,
         adapterMappings,
         uiChrome: uiChromeState(),
       };
@@ -1192,7 +2031,14 @@ function browserApplication(THREE, RoomEnvironment, payload) {
         renderSubmitTimes.push(submitTime);
         measuredFrames += 1;
       }
-      if (measuredFrames >= requiredMeasuredFrames && !witness.ready) {
+      if (
+        measuredFrames >= requiredMeasuredFrames
+        && (
+          observerPayloadAcknowledgement.status === 'pass'
+          || observerPayloadAcknowledgement.status === 'withheld'
+        )
+        && !witness.ready
+      ) {
         witness.ready = true;
         witness.status = 'pass';
         witness.snapshot = snapshot();
@@ -1208,7 +2054,15 @@ function browserApplication(THREE, RoomEnvironment, payload) {
   }
 }
 
-function createBrowserPayload(contracts, physicsReceipt, environmentProvenance) {
+function createBrowserPayload(
+  contracts,
+  physicsReceipt,
+  environmentProvenance,
+  {
+    observerBoundaryRequired = true,
+    observerConsumerEnabled = true,
+  } = {},
+) {
   const project = (contract) => ({
     nodes: contract.nodes,
     backgroundColor: contract.environment.backgroundColor,
@@ -1225,12 +2079,72 @@ function createBrowserPayload(contracts, physicsReceipt, environmentProvenance) 
       )),
     ]),
   );
-  const boundarySource = physicsReceipt.canonicalBoundary.after || {};
+  const boundarySource =
+    physicsReceipt.canonicalBoundary.after?.boundedRuntimeObserver || {};
   const canonicalObserverBoundaryFields = Object.fromEntries(
-    REQUIRED_OBSERVER_BOUNDARY_FIELDS.map((field) => [field, boundarySource[field]]),
+    REQUIRED_OBSERVER_BOUNDARY_FIELDS.map((field) => [
+      field,
+      boundarySource.on?.canonicalFields?.[field],
+    ]),
+  );
+  const observerBoundaryCore = {
+    available: Boolean(
+      physicsReceipt.canonicalBoundary.enabled
+      && boundarySource.projectionToggleExecuted === true
+      && boundarySource.comparison?.sevenFieldsEqual === true
+      && REQUIRED_OBSERVER_BOUNDARY_FIELDS.every(
+        (field) => /^[a-f0-9]{64}$/.test(
+          canonicalObserverBoundaryFields[field] || '',
+        ),
+      )
+    ),
+    source: 'verified_bounded_phase0b_v4_observer_toggle',
+    verifiedReceiptHash: boundarySource.verifiedReceiptHash,
+    verifiedPersistence: boundarySource.verifiedPersistence,
+    canonicalFields: canonicalObserverBoundaryFields,
+    requiredFields: REQUIRED_OBSERVER_BOUNDARY_FIELDS,
+    projectionToggleExecuted:
+      boundarySource.projectionToggleExecuted === true,
+    comparison: boundarySource.comparison,
+    sourceRunCommitment: boundarySource.on?.sourceRunCommitment,
+    terminalCommitment: boundarySource.on?.terminalCommitment,
+    livingCommons: boundarySource.livingCommons,
+    boundedRuntimeReceiptValidated: true,
+    boundedRuntimeSceneObjectCount:
+      boundarySource.claimBoundary?.boundedRuntimeSceneObjectCount,
+    canonicalVisibleWorld:
+      physicsReceipt.canonicalBoundary.after?.canonicalVisibleWorld,
+    sourceHashes: {
+      canonicalVisibleWorld: physicsReceipt.sourceHashes.world,
+      observerProjection: physicsReceipt.sourceHashes.projection,
+      observerPolicy: physicsReceipt.sourceHashes.policy,
+    },
+    readOnlySourceContractHash: digest(physicsReceipt.sourceBoundary),
+    browserMayWriteCanonicalState: false,
+  };
+  if (observerBoundaryRequired) {
+    const observerBoundaryValidation =
+      validateObserverBoundaryCore(observerBoundaryCore);
+    if (!observerBoundaryValidation.valid) {
+      throw new Error(
+        'Bounded observer boundary is not browser-admissible: '
+        + observerBoundaryValidation.errors.join('; '),
+      );
+    }
+  }
+  const observerBoundary = createObserverBoundaryEnvelope(
+    observerBoundaryRequired ? observerBoundaryCore : null,
+    {
+      consumerEnabled:
+        observerBoundaryRequired && observerConsumerEnabled,
+      trustedActionBinding:
+        observerBoundaryRequired
+          ? boundarySource.trustedActionBinding
+          : null,
+    },
   );
   return {
-    schema: 'hololand.model-village.render-payload.v0.2.0',
+    schema: 'hololand.model-village.render-payload.v0.3.0',
     projection: project(contracts.projection),
     calibration: project(contracts.calibration),
     physics: {
@@ -1241,21 +2155,7 @@ function createBrowserPayload(contracts, physicsReceipt, environmentProvenance) 
       frameTraceHash: physicsReceipt.physics.firstRun.digests.frameTrace,
       visualFrameHashes,
     },
-    observerBoundary: {
-      available: Boolean(
-        physicsReceipt.canonicalBoundary.enabled
-        && REQUIRED_OBSERVER_BOUNDARY_FIELDS.every(
-          (field) => /^[a-f0-9]{64}$/.test(
-            canonicalObserverBoundaryFields[field] || '',
-          ),
-        )
-      ),
-      source: 'source_authored_captured_fixture_bridge',
-      canonicalFields: canonicalObserverBoundaryFields,
-      requiredFields: REQUIRED_OBSERVER_BOUNDARY_FIELDS,
-      projectionToggleExecuted:
-        physicsReceipt.canonicalBoundary.projectionToggleExecuted === true,
-    },
+    observerBoundary,
     heroFrameStep,
     settledFrameStep,
     rendererContract: {
@@ -1668,7 +2568,10 @@ function allTrue(value) {
   return Object.values(value).every(Boolean);
 }
 
-function evaluatePortraitUiChrome(capture) {
+function evaluatePortraitUiChrome(
+  capture,
+  { observerPayloadExpected = true } = {},
+) {
   const state = capture?.browserState;
   const ui = state?.uiChrome;
   const viewport = state?.viewport;
@@ -1697,9 +2600,18 @@ function evaluatePortraitUiChrome(capture) {
   ]));
   const labelsVisible = Boolean(
     ui.admittedLegend?.visible
-    && /admitted route/i.test(ui.admittedLegend.text)
     && ui.blockedLegend?.visible
-    && /blocked route/i.test(ui.blockedLegend.text),
+    && (
+      observerPayloadExpected
+        ? (
+            /admitted route/i.test(ui.admittedLegend.text)
+            && /blocked route/i.test(ui.blockedLegend.text)
+          )
+        : (
+            /cue dark/i.test(ui.admittedLegend.text)
+            && /cue dark/i.test(ui.blockedLegend.text)
+          )
+    ),
   );
   const backendFits = Boolean(
     ui.backendProvenance?.visible
@@ -1750,6 +2662,18 @@ export async function runRenderingGate(options = {}) {
     output: physicsOutput,
     canonicalBoundary,
   });
+  const {
+    generatedAt: _physicsGeneratedAt,
+    receipt: physicsSeal,
+    status: physicsStatus,
+    ...physicsReceiptCore
+  } = physicsReceipt;
+  const physicsReceiptSelfHashValid =
+    physicsStatus === 'pass'
+    && physicsSeal?.receiptHash === digest(physicsReceiptCore);
+  if (!physicsReceiptSelfHashValid) {
+    throw new Error('Physics receipt self-hash/status is invalid');
+  }
   const contracts = await compileSourceContract(root, holoScriptRoot);
   const threePath = path.join(holoScriptRoot, 'node_modules', 'three', 'build', 'three.module.js');
   const threePackagePath = path.join(holoScriptRoot, 'node_modules', 'three', 'package.json');
@@ -1772,7 +2696,74 @@ export async function runRenderingGate(options = {}) {
     threeVersion: threePackage.version,
     networkAssetFetches: 0,
   };
-  const payload = createBrowserPayload(contracts, physicsReceipt, environmentProvenance);
+  const authoritativeSnapshot = () => ({
+    physicsReceipt,
+    compiledSourceHashes: {
+      calibration: contracts.calibration.sourceHash,
+      projection: contracts.projection.sourceHash,
+    },
+  });
+  const authoritativeBeforeBrowserHash = digest(authoritativeSnapshot());
+  const observerOffOutputDir = path.join(outputDir, 'observer-off');
+  mkdirSync(observerOffOutputDir, { recursive: true });
+  const observerOffPayload = createBrowserPayload(
+    contracts,
+    physicsReceipt,
+    environmentProvenance,
+    {
+      observerBoundaryRequired: canonicalBoundary,
+      observerConsumerEnabled: false,
+    },
+  );
+  const observerOffEnvelopeVerification =
+    verifyObserverBoundaryEnvelope(observerOffPayload.observerBoundary);
+  if (!observerOffEnvelopeVerification.valid) {
+    throw new Error(
+      'Observer-off browser envelope is invalid: '
+      + observerOffEnvelopeVerification.errors.join('; '),
+    );
+  }
+  const observerOffBuild = await buildBrowserSurface(
+    observerOffOutputDir,
+    holoScriptRoot,
+    observerOffPayload,
+  );
+  const observerOffBrowser = await runBrowserWitness({
+    browserPath,
+    htmlPath: observerOffBuild.htmlPath,
+    outputDir: observerOffOutputDir,
+    timeoutMs,
+    heroFrameStep: observerOffPayload.heroFrameStep,
+    settledFrameStep: observerOffPayload.settledFrameStep,
+  });
+  const observerOffHeroState = observerOffBrowser.captures.find(
+    (capture) => capture.id === 'hero-desktop',
+  )?.browserState;
+  const authoritativeAfterOffBrowserHash = digest(authoritativeSnapshot());
+  const payload = createBrowserPayload(
+    contracts,
+    physicsReceipt,
+    environmentProvenance,
+    {
+      observerBoundaryRequired: canonicalBoundary,
+      observerConsumerEnabled: canonicalBoundary,
+    },
+  );
+  const observerOnEnvelopeVerification =
+    verifyObserverBoundaryEnvelope(payload.observerBoundary, {
+      trustedActionBinding:
+        canonicalBoundary
+          ? physicsReceipt.canonicalBoundary.after.boundedRuntimeObserver
+            .trustedActionBinding
+          : null,
+    });
+  if (!observerOnEnvelopeVerification.valid) {
+    throw new Error(
+      'Observer-on browser envelope is invalid: '
+      + observerOnEnvelopeVerification.errors.join('; '),
+    );
+  }
+  const observerBoundaryCore = observerOnEnvelopeVerification.core;
   const build = await buildBrowserSurface(outputDir, holoScriptRoot, payload);
   const browser = await runBrowserWitness({
     browserPath,
@@ -1782,8 +2773,18 @@ export async function runRenderingGate(options = {}) {
     heroFrameStep: payload.heroFrameStep,
     settledFrameStep: payload.settledFrameStep,
   });
+  const observerOnHeroState = browser.captures.find(
+    (capture) => capture.id === 'hero-desktop',
+  )?.browserState;
+  const authoritativeAfterOnBrowserHash = digest(authoritativeSnapshot());
+  const canonicalAuthoritativeMutationDelta = [
+    authoritativeAfterOffBrowserHash,
+    authoritativeAfterOnBrowserHash,
+  ].filter((value) => value !== authoritativeBeforeBrowserHash).length;
   const portraitCapture = browser.captures.find((capture) => capture.id === 'hero-portrait');
-  const portraitUiChrome = evaluatePortraitUiChrome(portraitCapture);
+  const portraitUiChrome = evaluatePortraitUiChrome(portraitCapture, {
+    observerPayloadExpected: canonicalBoundary,
+  });
   const softwareFallback = classifySoftwareRenderer(browser.state.gl);
   const backendObserved = inferGraphicsBackend(browser.state.gl);
   const materialTruth = evaluateMaterialTruth(contracts, browser.state.materials);
@@ -1809,7 +2810,7 @@ export async function runRenderingGate(options = {}) {
   const calibrationSamples = [...browser.state.calibrationSampleIds].sort();
   const assertions = {
     holoSourcesParsedAndCompiled:
-      contracts.projection.meshCount === 16
+      contracts.projection.meshCount === 29
       && contracts.calibration.meshCount === 10,
     sourceHashesMatchPhysicsReceipt:
       contracts.projection.sourceHash === physicsReceipt.sourceHashes.projection
@@ -1819,19 +2820,85 @@ export async function runRenderingGate(options = {}) {
       && Boolean(contracts.calibration.sceneIrHash)
       && Boolean(build.bundleHash),
     physicsReceiptPassed: physicsReceipt.status === 'pass',
+    physicsReceiptSelfHashValid,
     fixtureBoundaryStableAcrossPhysicsWitnessWhenEnabled:
       !canonicalBoundary
       || physicsReceipt.canonicalBoundary.observedBoundaryMatch === true,
-    browserConsumesCompleteCapturedFixtureBoundaryWhenEnabled:
+    observerPayloadEnvelopesVerified:
+      observerOffEnvelopeVerification.valid === true
+      && observerOnEnvelopeVerification.valid === true,
+    browserConsumesCompleteBoundedRuntimeBoundaryWhenEnabled:
       !canonicalBoundary
       || (
-        payload.observerBoundary.available
+        observerBoundaryCore.available
         && browser.state.observerBoundary.available
-        && browser.state.observerBoundary.projectionToggleExecuted === false
+        && browser.state.observerBoundary.consumerEnabled === true
+        && browser.state.observerBoundary.projectionToggleExecuted === true
         && canonicalJson(browser.state.observerBoundary.canonicalFields)
-          === canonicalJson(payload.observerBoundary.canonicalFields)
+          === canonicalJson(observerBoundaryCore.canonicalFields)
         && canonicalJson(browser.state.observerBoundary.requiredFields)
           === canonicalJson(REQUIRED_OBSERVER_BOUNDARY_FIELDS)
+        && browser.state.observerBoundary.consumerAcknowledgement.status
+          === 'pass'
+        && browser.state.observerBoundary.consumerAcknowledgement.matches
+          === true
+        && browser.state.observerBoundary.consumerAcknowledgement
+          .computedPayloadDigest === payload.observerBoundary.payloadDigest
+      ),
+    browserObserverConsumerToggleExecuted:
+      !canonicalBoundary
+      || (
+        observerOffBrowser.state.observerBoundary.consumerEnabled === false
+        && observerOffBrowser.state.observerBoundary.available === false
+        && observerOffBrowser.state.observerBoundary.consumerAcknowledgement
+          .status === 'withheld'
+        && observerOffBrowser.state.observerBoundary.consumerAcknowledgement
+          .computedPayloadDigest === null
+        && browser.state.observerBoundary.consumerEnabled === true
+        && browser.state.observerBoundary.consumerAcknowledgement.status
+          === 'pass'
+      ),
+    observerOffPresentationFailsDark:
+      observerOffHeroState?.observerPresentation?.verified === false
+      && /withheld/i.test(
+        observerOffHeroState?.observerPresentation?.subtitle || '',
+      )
+      && !/one verified water contribution|verified v4 receipts/i.test(
+        canonicalJson(observerOffHeroState?.observerPresentation || {}),
+      ),
+    observerOnPresentationRequiresAcknowledgement:
+      !canonicalBoundary
+      || (
+        observerOnHeroState?.observerPresentation?.verified === true
+        && /one verified water contribution/i.test(
+          observerOnHeroState?.observerPresentation?.subtitle || '',
+        )
+        && /verified v4 receipts/i.test(
+          observerOnHeroState?.observerPresentation?.truthChip || '',
+        )
+      ),
+    canonicalAuthoritativeMutationDeltaZero:
+      canonicalAuthoritativeMutationDelta === 0,
+    receiptDrivenLivingCommonsRendered:
+      !canonicalBoundary
+      || (
+        observerOffBrowser.state.livingCommonsPresentation.consumerEnabled
+          === false
+        && observerOffBrowser.state.livingCommonsPresentation.objects.length === 4
+        && observerOffBrowser.state.livingCommonsPresentation.objects.every(
+          (entry) => entry.visible === false,
+        )
+        && browser.state.livingCommonsPresentation.consumerEnabled === true
+        && browser.state.livingCommonsPresentation.objects.length === 4
+        && browser.state.livingCommonsPresentation.objects.every(
+          (entry) => entry.visible === true,
+        )
+        && canonicalJson(
+          browser.state.livingCommonsPresentation.referencedActionReceipts,
+        ) === canonicalJson([
+          observerBoundaryCore.livingCommons.admittedAction.entryHash,
+          observerBoundaryCore.livingCommons.blockedAction.entryHash,
+        ].sort())
       ),
     physicsFramesBoundToBothTokens:
       browser.state.physics.framesAvailable === physicsReceipt.physics.fixedSteps
@@ -1926,10 +2993,18 @@ export async function runRenderingGate(options = {}) {
       )),
     screenshotsContainPixels:
       screenshotEvidence.every((capture) => capture.bytes > 25_000),
-    noExternalNetworkAssetsFetched: externalNetworkRequests.length === 0,
+    noExternalNetworkAssetsFetched:
+      externalNetworkRequests.length === 0
+      && observerOffBrowser.networkRequests.every(
+        (request) => !/^https?:/i.test(request.url),
+      ),
     browserConsoleHasNoErrors:
       browser.exceptions.length === 0
-      && browser.consoleMessages.every((message) => message.level !== 'error'),
+      && browser.consoleMessages.every((message) => message.level !== 'error')
+      && observerOffBrowser.exceptions.length === 0
+      && observerOffBrowser.consoleMessages.every(
+        (message) => message.level !== 'error',
+      ),
   };
   const receiptCore = {
     schema: SCHEMA,
@@ -1955,7 +3030,7 @@ export async function runRenderingGate(options = {}) {
         sha256: physicsReceipt.sourceHashes.policy,
         parser: physicsReceipt.policy.parser,
         browserRenderEvidenceEnforcement:
-          'declarative_template_source_hash_bound_via_physics_receipt_not_field_validated_by_render_gate',
+          'source_hash_bound_via_physics_receipt_and_browser_payload_sha256_acknowledged_template_fields_not_exhaustively_validated',
       },
       sourceSemanticsRewritten: false,
       presentationAdapterOwns: [
@@ -1965,6 +3040,7 @@ export async function runRenderingGate(options = {}) {
         'source-declared faceted token geometry',
         'decorative chute transparency',
         'sealed-physics trajectory visualization',
+        'source-declared receipt binding to verified Living Commons presentation',
         'observer-only HTML evidence chrome',
       ],
     },
@@ -1981,12 +3057,34 @@ export async function runRenderingGate(options = {}) {
       canonicalBoundary: physicsReceipt.canonicalBoundary,
     },
     observerBoundary: {
-      payload: payload.observerBoundary,
-      browserObserved: browser.state.observerBoundary,
-      consumerExecuted: payload.observerBoundary.available,
-      isolatedProjectionToggleExecuted: false,
+      off: {
+        payload: observerOffPayload.observerBoundary,
+        browserObserved: observerOffBrowser.state.observerBoundary,
+        heroPresentation: observerOffHeroState.observerPresentation,
+        bundleSha256: observerOffBuild.bundleHash,
+      },
+      on: {
+        payload: payload.observerBoundary,
+        browserObserved: browser.state.observerBoundary,
+        heroPresentation: observerOnHeroState.observerPresentation,
+        bundleSha256: build.bundleHash,
+      },
+      consumerExecuted:
+        canonicalBoundary
+        && browser.state.observerBoundary.consumerAcknowledgement.matches === true,
+      isolatedProjectionToggleExecuted:
+        canonicalBoundary
+        && assertions.browserObserverConsumerToggleExecuted,
+      canonicalAuthoritativeMutationDelta,
+      authoritativeHashes: {
+        beforeBrowser: authoritativeBeforeBrowserHash,
+        afterOffBrowser: authoritativeAfterOffBrowserHash,
+        afterOnBrowser: authoritativeAfterOnBrowserHash,
+      },
       claim:
-        'read-only browser consumption of one source-authored captured-fixture boundary; no off/on equivalence claim',
+        canonicalBoundary
+          ? 'browser off/on consumption of one verified bounded four-object Phase 0B V4 canonical payload; the complete host physics receipt and compiled source hashes remained unchanged; no full 12-object lifecycle claim'
+          : 'observer browser consumer toggle not evaluated because the canonical boundary was explicitly skipped',
     },
     renderer: {
       route: 'HoloScript sources -> HoloCompositionParser -> SceneIRCompiler -> dedicated HoloLand Three/WebGL adapter',
@@ -2001,6 +3099,7 @@ export async function runRenderingGate(options = {}) {
       materials: browser.state.materials,
       materialTruth,
       scene: browser.state.scene,
+      livingCommonsPresentation: browser.state.livingCommonsPresentation,
       portraitUiChrome,
       adapterMappings: browser.state.adapterMappings,
       generatedSurface: {
@@ -2040,14 +3139,22 @@ export async function runRenderingGate(options = {}) {
       observed: [
         'local HoloScript .holo sources parsed and compiled to SceneIR',
         'sealed HoloScript CPU physics frames projected into faceted visual tokens',
-        'one complete source-authored captured-fixture boundary consumed by the read-only browser witness when the canonical fixture gate is enabled',
+        ...(canonicalBoundary
+          ? [
+              'one verified bounded four-object Phase 0B V4 canonical payload withheld from the observer-off browser and SHA-256 acknowledged before receipt-driven rendering by the observer-on browser',
+              'four source-declared Living Commons cues rendered only from the acknowledged canonical payload while the complete host physics receipt remained unchanged',
+            ]
+          : []),
         `WebGL2 context reporting ${backendObserved} with no recognized software-renderer indicator`,
         'source-to-effective Three MeshPhysicalMaterial values with explicitly disclosed presentation-only chute overrides, sRGB output, ACES filmic tone mapping, PCF soft shadows, and a local procedural RoomEnvironment/PMREM',
         'desktop, portrait, and calibration screenshots with frame-cadence and CPU render-submit percentiles',
       ],
       notObserved: [
-        'isolated observer projection off/on consumer toggle',
+        ...(canonicalBoundary
+          ? []
+          : ['browser observer projection off/on consumer toggle']),
         'field-by-field enforcement of the declarative BrowserRenderEvidence template',
+        'full canonical 12-object observer projection lifecycle',
         'HDRI asset use',
         'WebGPU rendering',
         'native HoloLand BrowserRuntime or React Three adapter execution',

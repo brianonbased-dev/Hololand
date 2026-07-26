@@ -18,7 +18,7 @@ import {
   runPhase0BEngineeringTracer,
 } from './model-village-phase0b-runtime.mjs';
 
-const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.3.0';
+const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.4.0';
 const WORLD_SOURCE = 'source/layers/vr/frontier/model-village/model-village.holo';
 const OBSERVER_PROJECTION_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-observer-projection.holo';
@@ -1508,7 +1508,7 @@ function buildAssertions({
       && observerBoundaryFixture.claimBoundary.liveModelTurnsClaimed === false,
     phase0BEngineeringTracerPasses:
       engineeringTracer.status === 'pass'
-      && engineeringTracer.schema === 'hololand.model-village-phase0b-runtime-bridge.v1'
+      && engineeringTracer.schema === 'hololand.model-village-phase0b-runtime-bridge.v2'
       && Object.values(engineeringTracer.assertions).every((passed) => passed === true),
     phase0BSourceRunV4CountsAreBounded:
       engineeringTracer.runtime.sourceRunSchema
@@ -2025,7 +2025,10 @@ export async function runModelVillageCheck(options = {}) {
     checkerOwnsExperimentBehavior: false,
     checkerOwnsDeterministicFixtureProjection: true,
     fixtureInputsOwnedByHoloScript: true,
-    isolatedObserverProjectionToggleExecuted: false,
+    boundedFourObjectObserverProjectionToggleExecuted:
+      engineeringTracer.runtime.observerProjection.projectionToggleExecuted
+        === true,
+    canonicalTwelveObjectObserverProjectionToggleExecuted: false,
   };
   const toolchain = {
     holoScriptVersion: holoScript.version,
@@ -2047,9 +2050,10 @@ export async function runModelVillageCheck(options = {}) {
       'bounded HoloScript V4 source-run engineering tracer with four schedule entries, two resident observations, two captured-response actions, and five public-state snapshots',
       'host-supplied ephemeral engineering validator config plus monotonic authorization, same-process and separate-process reread recovery, and a verified-V4 per-action single-host file-atomic bridge',
       'fresh captured-response replay match and bounded emergency-stop bridge execution',
+      'single-sealed-execution observer projection off/on equivalence for the bounded four-object Phase 0B runtime',
     ],
     targetNotObserved: [
-      'isolated observer projection off/on consumer toggle',
+      'full canonical 12-object observer projection lifecycle or browser consumer toggle',
       'adapter-permutation execution or post-inference outcome equivalence',
       'validation of the opaque referenced safety and action-decision receipt IDs',
       'live model turns',

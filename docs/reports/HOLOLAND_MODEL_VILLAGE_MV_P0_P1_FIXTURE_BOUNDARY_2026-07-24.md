@@ -5,6 +5,13 @@
 **Source commit used by the receipts:**
 `1df8eb3e42d6f633926cceca44d33016d4b68bab`
 
+> **Historical boundary:** This report remains the evidence record for the
+> 2026-07-24 fixture-only slice. The bounded four-object V4 observer consumer
+> and browser off/on dependency described as missing below passed on 2026-07-25.
+> See the [Phase 0B observer and Living Commons witness](./HOLOLAND_MODEL_VILLAGE_PHASE0B_OBSERVER_LIVING_COMMONS_2026-07-25.md).
+> Full twelve-object lifecycle execution and adapter-permutation equivalence
+> remain open.
+
 ## Verdict
 
 - **MV-P1 passes** for the bounded Receipt Loom hero and portrait witness.

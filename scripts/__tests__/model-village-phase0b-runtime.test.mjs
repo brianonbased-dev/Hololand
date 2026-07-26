@@ -140,6 +140,81 @@ try {
   assert.equal(baseline.replay.freshExecutionCount, 1);
   assert.equal(baseline.replay.providerCalls, 0);
   assert.equal(
+    baseline.runtime.observerProjection.schema,
+    'hololand.model-village.phase0b-observer-projection.v2',
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.projectionToggleExecuted,
+    true,
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.toggleScope,
+    'single_sealed_execution_post_seal_consumer',
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.comparison.sevenFieldsEqual,
+    true,
+  );
+  assert.deepEqual(
+    baseline.runtime.observerProjection.comparison.changedFields,
+    [],
+  );
+  assert.deepEqual(
+    baseline.runtime.observerProjection.off.canonicalFields,
+    baseline.runtime.observerProjection.on.canonicalFields,
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.off.sourceRunCommitment,
+    baseline.runtime.observerProjection.on.sourceRunCommitment,
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.off.terminalCommitment,
+    baseline.runtime.observerProjection.on.terminalCommitment,
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.claimBoundary
+      .observerIntroducedExperimentExecutionCount,
+    0,
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.claimBoundary
+      .freshExperimentExecutionCount,
+    0,
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.claimBoundary
+      .boundedRuntimeSceneObjectCount,
+    4,
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.claimBoundary
+      .fullCanonicalTwelveObjectLifecycleClaimed,
+    false,
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.livingCommons.publicWaterUnits,
+    3,
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.livingCommons.admittedAction
+      .entrypoint,
+    'contribute_water',
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.livingCommons.blockedAction
+      .entrypoint,
+    'deny_external_message',
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.livingCommons.actionReceiptRoot,
+    baseline.runtime.executionReceipt.terminal.actionRoot,
+  );
+  assert.equal(
+    baseline.runtime.observerProjection.livingCommons.blockedAction
+      .previousEntryHash,
+    baseline.runtime.observerProjection.livingCommons.admittedAction.entryHash,
+  );
+  assert.equal(
     baseline.claimBoundary.boundedHoloToHsplusStopDispatchExecuted,
     true,
   );
@@ -331,6 +406,72 @@ try {
     runtimeSummaryVerification.errors.join('\n'),
     /runtime summary differs from verified V4 run/,
   );
+
+  const observerProjectionTamper = structuredClone(baseline);
+  observerProjectionTamper.runtime.observerProjection.on.canonicalFields
+    .residentObservationHash = flipHexDigest(
+      observerProjectionTamper.runtime.observerProjection.on.canonicalFields
+        .residentObservationHash,
+    );
+  resealOuterReceipt(observerProjectionTamper);
+  assert.equal(verifyPhase0BReceiptHash(observerProjectionTamper), true);
+  const observerProjectionVerification = await verifyPhase0BReceipt(
+    observerProjectionTamper,
+    {
+      root: repoRoot,
+      trustedValidatorConfig: trustedValidator.config,
+    },
+  );
+  assert.equal(observerProjectionVerification.valid, false);
+  assert.match(
+    observerProjectionVerification.errors.join('\n'),
+    /runtime summary differs from verified V4 run/,
+  );
+
+  const observerPayloadHashTamper = structuredClone(baseline);
+  observerPayloadHashTamper.runtime.observerProof
+    .preObserverCanonicalPayloadHash = '7'.repeat(64);
+  observerPayloadHashTamper.runtime.observerProof
+    .postObserverCanonicalPayloadHash = '7'.repeat(64);
+  resealOuterReceipt(observerPayloadHashTamper);
+  assert.equal(verifyPhase0BReceiptHash(observerPayloadHashTamper), true);
+  const observerPayloadHashVerification = await verifyPhase0BReceipt(
+    observerPayloadHashTamper,
+    {
+      root: repoRoot,
+      trustedValidatorConfig: trustedValidator.config,
+    },
+  );
+  assert.equal(observerPayloadHashVerification.valid, false);
+  assert.match(
+    observerPayloadHashVerification.errors.join('\n'),
+    /sealed HoloScript observer proof differs/i,
+  );
+
+  for (const target of ['proof', 'projection']) {
+    const observerShadowFieldTamper = structuredClone(baseline);
+    if (target === 'proof') {
+      observerShadowFieldTamper.runtime.observerProof
+        .publisherAuthenticated = true;
+    } else {
+      observerShadowFieldTamper.runtime.observerProof.observerProjection
+        .publisherAuthenticated = true;
+    }
+    resealOuterReceipt(observerShadowFieldTamper);
+    assert.equal(verifyPhase0BReceiptHash(observerShadowFieldTamper), true);
+    const observerShadowFieldVerification = await verifyPhase0BReceipt(
+      observerShadowFieldTamper,
+      {
+        root: repoRoot,
+        trustedValidatorConfig: trustedValidator.config,
+      },
+    );
+    assert.equal(observerShadowFieldVerification.valid, false);
+    assert.match(
+      observerShadowFieldVerification.errors.join('\n'),
+      /keys differ/i,
+    );
+  }
 
   const unknownAssertionTamper = structuredClone(baseline);
   unknownAssertionTamper.assertions.productionPhaseComplete = true;

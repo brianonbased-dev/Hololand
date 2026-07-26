@@ -7,7 +7,7 @@
 composition "HoloLand Model Village Observer Witness Contract" {
   config {
     domain: "agents"
-    version: "0.1.0"
+    version: "0.2.0"
     source: "source/domains/agents/model-village-observer-witness.hsplus"
     sourceLayer: "HoloScript"
     canonicalWorldSource: "source/layers/vr/frontier/model-village/model-village.holo"
@@ -15,8 +15,9 @@ composition "HoloLand Model Village Observer Witness Contract" {
     calibrationSource: "source/layers/vr/frontier/model-village/model-village-render-calibration.holo"
     physicsManifestSource: "source/proofs/model-village-receipt-loom-physics.hs"
     executionStatus: "structured_contract_evaluated_by_receipted_hololand_bridge"
-    runtimeBindingStatus: "target_not_observed"
+    runtimeBindingStatus: "bounded_v4_projection_observed_browser_consumer_toggle_required"
     nativeHsplusActionExecutionClaimed: false
+    fullCanonicalTwelveObjectLifecycleClaimed: false
   }
 
   state ModelVillageObserverWitness {
@@ -91,14 +92,37 @@ composition "HoloLand Model Village Observer Witness Contract" {
     requiredSceneFields: ["environment_provenance", "material_values", "shadow_mode", "shadow_caster_count", "shadow_receiver_count"]
     requiredTimingFields: ["frame_cadence_p50_ms", "frame_cadence_p95_ms", "frame_cadence_p99_ms", "cpu_render_submit_p50_ms", "cpu_render_submit_p95_ms"]
     requiredObserverBoundaryFields: ["canonical_scene_hash", "canonical_pose_hash", "logical_clock_hash", "public_state_hash", "executed_schedule_hash", "resident_observation_hash", "action_receipt_root"]
-    observerBoundaryConsumptionClaim: "single_captured_fixture_boundary_only"
-    isolatedProjectionToggleExecuted: false
+    observerBoundaryConsumptionClaim: "verified_bounded_phase0b_v4_projection_browser_off_on"
+    isolatedProjectionToggleRequired: true
+    isolatedProjectionToggleExecutionOwner: "rendering_truth_gate"
+    observerOffBehavior: "verified_payload_withheld"
+    observerOnBehavior: "browser_sha256_acknowledged_verified_payload"
+    requiredMutationDelta: 0
+    boundedRuntimeSceneObjectCount: 4
+    canonicalVisibleWorldObjectCount: 12
+    fullCanonicalTwelveObjectLifecycleClaimed: false
     requiredCaptures: ["1600x900", "390x844"]
     hdriRequired: false
     proceduralEnvironmentAllowedWhenReceipted: true
     nativeBrowserRuntimeClaimed: false
     webgpuClaimed: false
     photorealisticClaimed: false
+  }
+
+  template "LivingCommonsReceiptPresentation" {
+    type: "read_only_receipt_driven_living_commons"
+    requiredPublicStateFields: ["publicWaterUnits", "acceptedActionCount"]
+    requiredActionEntrypoints: ["contribute_water", "deny_external_message"]
+    admittedSemanticTarget: "commons_cistern"
+    blockedSemanticTarget: "outside_village"
+    admittedVisualChannel: "cistern_water_and_receipt_halo"
+    blockedVisualChannel: "boundary_ward"
+    visualCueRequiresExistingActionReceipt: true
+    actionReceiptChainRequired: true
+    rawModelContentAllowed: false
+    adapterIdentityAllowed: false
+    canonicalWriteAuthority: false
+    projectionOwnsExperimentBehavior: false
   }
 
   action decide_projection_release(receipt, expectedHashes, receiptIdAlreadyConsumed) {
