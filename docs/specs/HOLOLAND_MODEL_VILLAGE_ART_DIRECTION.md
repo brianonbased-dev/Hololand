@@ -3,7 +3,7 @@
 **Status:** Locked production direction with model-family embodiment amendment;
 implementation remains staged
 
-**Version:** 1.3.0
+**Version:** 1.4.0
 
 **Date:** 2026-07-26
 
@@ -22,6 +22,8 @@ implementation remains staged
 - [Resident kit](../../source/layers/vr/frontier/model-village/model-village-resident-kit.holo)
 - [Resident asset manifest](../../source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo)
 - [Public family embodiment overlay](../../source/layers/vr/frontier/model-village/model-village-public-embodiments.holo)
+- [Admitted browser and Studio lineup](../../source/layers/vr/frontier/model-village/model-village-browser-studio-lineup.holo)
+- [MV-V6 browser witness](../reports/HOLOLAND_MODEL_VILLAGE_MV_V6_BROWSER_STUDIO_LINEUP_2026-07-26.md)
 - [Art-direction policy](../../source/domains/agents/model-village-art-direction.hsplus)
 - [Appearance-invariance proof](../../source/proofs/model-village-appearance-invariance.hs)
 
@@ -48,9 +50,13 @@ adds the first operative detachable family mantle: a story-only OpenAI
 recursive-cell interpretation with local UV material tiles, deterministic
 cloth, and verified-receipt observer attachment. MV-V5 generalizes the
 construction into a typed six-family catalog and native GPU lineup while
-preserving one byte-identical neutral body/garment. Browser attachment remains
-open. A separate neutral civic-role kit communicates what a research
-persona tends in the village and grants no different logical capability.
+preserving one byte-identical neutral body/garment. MV-V6 now admits those six
+mantles into one self-contained browser/Studio story gallery, acquires a real
+browser WebGPU adapter and device, replays three sealed XPBD cloth phases, and
+keeps the disclosure and accessibility controls visible at desktop and
+portrait sizes. Placement inside the complete observer projection remains
+open. A separate neutral civic-role kit communicates what a research persona
+tends in the village and grants no different logical capability.
 
 This public cast is not the adapter-assignment matrix. The planned study still
 contains three sealed adapters rotated across six personas in twelve
@@ -172,17 +178,40 @@ custodied UV response, detachment, and native pixels. Production tailoring,
 high-resolution textiles, collision, facial performance, and environment
 integration remain targets.
 
+### Admitted browser and Studio lineup
+
+![MV-V6 admitted browser-native WebGPU lineup](../assets/model-village/model-village-six-family-browser-studio-hero-2026-07-26.png)
+
+MV-V6 promotes the six mantle constructions into a real browser presentation
+without promoting them into live research. The executing 1600 x 900 and
+390 x 844 views apply the Stormglass Commons blue-hour palette, warm Receipt
+Loom focal light, basalt instrument framing, serif and monospace evidence
+hierarchy, and a stationary observer composition.
+
+The browser accepts only an exact source-bound
+`village_story_unblinded` admission. Missing admission and
+`research_live_blinded` both fail neutral. The page acquires `navigator.gpu`,
+a GPU adapter, and a device, then renders HoloScript character draw specs
+through `CharacterRender.renderCharacter`. Color, grayscale,
+simulated-deuteranopia, three sealed cloth phases, and all-mantles detachment
+execute with zero external visual assets.
+
+This is the accepted technical look-development floor for the story gallery,
+not the final cinematic cast. It remains procedural, faceless character art
+without production tailoring, collision, facial performance, ambient life,
+world placement, WebXR proof, or a photoreal claim.
+
 ### Executing Q0 proxy witness
 
 ![Stormglass resident proxy hero](../assets/model-village/model-village-stormglass-proxy-hero-2026-07-25.png)
 
 ![Stormglass resident proxy portrait](../assets/model-village/model-village-stormglass-proxy-portrait-2026-07-25.png)
 
-These inspected browser captures are the current runtime truth. The six seats
-have distinct seat-stable proxy scales and complete neutral appearance
-manifests, but they remain capsule geometry. They do not show the family names
-or detachable family mantles and do not prove that the concept characters have
-shipped.
+These inspected browser captures remain the current **integrated observer**
+runtime truth. The six seats have distinct seat-stable proxy scales and
+complete neutral appearance manifests, but they remain capsule geometry.
+MV-V6 separately proves the admitted named browser gallery; it has not yet
+replaced these proxies inside the complete observer composition.
 
 ## Visual pillars
 
@@ -592,8 +621,9 @@ renaming the stable `MV-P0` through `MV-P14` backlog.
 
 1. Preserve the receipted neutral Seat 01 loader/custody slice as the runtime
    regression floor; the art gate alone cannot promote it.
-2. Expand the locally custodied resident kit to all six seats, LOD0-2, the four
-   neutral clips, one neutral research mantle, and detachable family mantles.
+2. Integrate the admitted MV-V6 character consumer into the read-only observer
+   projection for public/post-lock presentation while proving that
+   `research_live_blinded` remains byte-neutral.
 3. Replace the two primitive cottages with one authored modular building kit.
 4. Promote the water court, bridge, harvest lattice, and forge one receipted
    physics adapter at a time.

@@ -1,0 +1,190 @@
+// Stormglass Commons — admitted browser and Studio lineup.
+//
+// This HoloScript source owns the public/story presentation contract. It does not
+// assign a family to a research resident, seat, persona, role, adapter, or exact
+// model. The executable witness must fail neutral unless the presentation profile
+// and exact source-bound admission hash both verify.
+
+composition "Stormglass Browser Studio Lineup" {
+  metadata {
+    schema: "hololand.model-village.browser-studio-lineup.v1"
+    assetId: "mv-stormglass-browser-studio-lineup-v1"
+    title: "Stormglass Commons: Six Family Mantles"
+    version: "1.0.0"
+    milestone: "MV-V6"
+    source: "source/layers/vr/frontier/model-village/model-village-browser-studio-lineup.holo"
+    familyMantleCatalogSource: "source/layers/vr/frontier/model-village/model-village-family-mantle-catalog.holo"
+    observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    productionPlanSource: "docs/specs/HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md"
+    presentationProfile: "village_story_unblinded"
+    deniedPresentationProfile: "research_live_blinded"
+    renderTarget: "browser-native-webgpu"
+    renderBridge: "HoloScript CharacterRender.renderCharacter"
+    physicsPresentation: "sealed_deterministic_xpbd_phase_replay"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    providerEndorsementClaimed: false
+    exactModelRevisions: "absent"
+    sourceSovereign: true
+    researchLiveBlindedAllowed: false
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    causalEffect: false
+    status: "admitted_browser_studio_lineup_contract"
+  }
+
+  environment {
+    mode: "story_gallery"
+    theme: "stormglass_commons"
+    artDirection: "hearthlight_biorealism"
+    timeOfDay: "blue_hour"
+    horizonColor: "#07111F"
+    basaltColor: "#111C29"
+    stormglassColor: "#557F91"
+    receiptLoomColor: "#E4A95F"
+    ambientIntensity: 0.32
+    moonKeyDirection: [0.4, 0.86, 0.36]
+    moonKeyColor: "#A8C7D4"
+    receiptLoomFillColor: "#E4A95F"
+    distanceFog: true
+    externalVisualAssets: false
+  }
+
+  state {
+    publicDisplayNames: ["Claude", "OpenAI", "Gemini", "Grok", "GLM", "Brittney"]
+    familyIds: ["anthropic", "openai", "google", "xai", "ollama", "sovereign"]
+    storyGallerySlots: ["west_01", "west_02", "center_01", "center_02", "east_01", "east_02"]
+    storyGalleryOrderDefinesResearchSeat: false
+    catalogObjectIdDefinesResearchSeat: false
+    catalogHasStaticResearchJoin: false
+    researchResidentBinding: "none"
+    researchSeatBinding: "none"
+    researchPersonaBinding: "none"
+    researchRoleBinding: "none"
+    adapterAssignmentBinding: "none"
+    exactModelRevisionBinding: "none"
+    presentationProfile: "village_story_unblinded"
+    prohibitedPresentationProfiles: ["research_live_blinded"]
+    admissionMode: "exact_source_bound_hash"
+    missingAdmissionBehavior: "fail_neutral"
+    invalidAdmissionBehavior: "fail_neutral"
+    researchProfileBehavior: "fail_neutral"
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    causalEffect: false
+    readOnlyObserver: true
+    browserConsumerBuilt: true
+    namedFamilyMantlesBuilt: 6
+    namedFamilyMantlesPresented: 6
+    completeMvP2Claimed: false
+    exactModelRevisions: "absent"
+    providerEndorsementClaimed: false
+    externalVisualAssets: false
+    supportedAccessibilityModes: ["color", "grayscale", "deuteranopia"]
+    identityRedundantChannels: ["silhouette", "pattern", "glyph", "caption"]
+    reducedMotionDefault: true
+    captionsDefault: true
+    audioDescriptionAvailable: true
+    clothSolver: "xpbd"
+    clothFixedStepHz: 120
+    clothIterations: 5
+    sealedPhysicsPhaseSeconds: [0, 0.6, 1.2]
+    continuousBrowserClothSolverClaimed: false
+    nativeBrowserWebgpuRequired: true
+    secureLoopbackWitnessRequired: true
+    productionTailoringClaimed: false
+    photorealismClaimed: false
+    realTimeClaimed: false
+  }
+
+  object "BrowserStudioAdmissionGate" {
+    profileSource: "url.profile"
+    admissionSource: "url.admission"
+    expectedProfile: "village_story_unblinded"
+    expectedAdmission: "sha256(canonical_presentation_admission)"
+    admissionBinds: [
+      "browser_studio_lineup_source_sha256",
+      "family_mantle_catalog_source_sha256",
+      "family_bundle_sha256",
+      "presentation_profile",
+      "independent_project_disclosure"
+    ]
+    deniedProfile: "research_live_blinded"
+    failNeutral: true
+    mayWriteCanonicalWorld: false
+    mayWriteResidentObservation: false
+  }
+
+  object "HearthlightStage" {
+    layout: "six_family_story_arc"
+    cameraMode: "stationary_observer"
+    desktopViewport: [1600, 900]
+    portraitViewport: [390, 844]
+    persistentResearchLabels: false
+    disclosureAlwaysVisible: true
+    receiptRailAlwaysVisible: true
+    flashingEffects: false
+    denseParticleEffects: false
+    externalVisualAssets: false
+  }
+
+  object "AccessibilityControlDeck" {
+    modes: ["color", "grayscale", "deuteranopia"]
+    mantleDetachmentControl: true
+    sealedPhysicsPhaseControl: true
+    reducedMotionControl: true
+    captionsControl: true
+    audioDescriptionText: "Six faceless stormglass residents stand beneath cool moonlight around a warm receipt loom. Each wears a distinct detachable mantle identified by silhouette, woven pattern, glyph, and caption."
+    minimumBodyTextCssPx: 16
+    normalTextContrastTarget: 4.5
+    meaningUsesColorAlone: false
+  }
+
+  object "BrowserWebGPUWitness" {
+    navigatorGpuRequired: true
+    adapterAcquisitionRequired: true
+    deviceCreationRequired: true
+    characterRenderer: "HoloScript CharacterRender.renderCharacter"
+    threeJsUsed: false
+    r3fUsed: false
+    externalNetworkAllowed: false
+    frameTimingColumns: ["initial_six_render_ms", "phase_update_ms", "raf_p50_ms", "raf_p95_ms"]
+    performanceSampleScope: "bounded_development_sample_not_published_real_time_claim"
+  }
+
+  object "SealedClothReplayWitness" {
+    solver: "xpbd"
+    fixedStepHz: 120
+    iterations: 5
+    phaseSeconds: [0, 0.6, 1.2]
+    phaseSource: "HoloScript CharacterHost.sampleClothSimulation"
+    renderDestination: "browser_native_webgpu"
+    exactReplayRequired: true
+    detachmentComparisonRequired: true
+    writesBackToExperiment: false
+    continuousBrowserSolverClaimed: false
+  }
+
+  object "ClaimBoundary" {
+    provedWhenReceipted: [
+      "admitted_story_profile_browser_consumer",
+      "real_browser_webgpu_adapter_and_device",
+      "six_holoscript_character_drawspecs",
+      "sealed_xpbd_phase_replay",
+      "mantle_detachment",
+      "color_grayscale_deuteranopia_modes",
+      "zero_external_visual_assets"
+    ]
+    notProved: [
+      "live_research_unblinding",
+      "provider_affiliation_or_endorsement",
+      "exact_provider_model_revision",
+      "static_provider_to_research_seat_assignment",
+      "continuous_browser_cloth_solver",
+      "production_tailoring_or_collision",
+      "photorealism",
+      "real_time_performance",
+      "headset_or_webxr_performance",
+      "complete_mv_p2"
+    ]
+  }
+}

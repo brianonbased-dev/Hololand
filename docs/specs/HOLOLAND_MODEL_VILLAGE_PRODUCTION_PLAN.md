@@ -2,7 +2,7 @@
 
 **Status:** Execution plan with locked art direction
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 
 **Date:** 2026-07-26
 
@@ -21,6 +21,8 @@
 **MV-V4 first family mantle witness:** [2026-07-26 bounded cloth/UV/attachment receipt](../reports/HOLOLAND_MODEL_VILLAGE_MV_V4_CLOTH_MANTLE_2026-07-26.md)
 
 **MV-V5 six-family mantle witness:** [2026-07-26 typed catalog/native lineup receipt](../reports/HOLOLAND_MODEL_VILLAGE_MV_V5_SIX_FAMILY_MANTLES_2026-07-26.md)
+
+**MV-V6 browser and Studio lineup:** [2026-07-26 admitted browser-native WebGPU receipt](../reports/HOLOLAND_MODEL_VILLAGE_MV_V6_BROWSER_STUDIO_LINEUP_2026-07-26.md)
 
 **Product source:** HoloScript
 
@@ -84,7 +86,18 @@ MV-V5 generalizes that bounded witness into the complete named mantle catalog:
 
 The source uses one shared body template and six detachable family mantle
 entries. The compiler selects a resident by keyed `objectId`; catalog order and
-object name do not assign a research seat. The browser consumer remains open.
+object name do not assign a research seat.
+
+MV-V6 adds the standalone admitted browser and Studio consumer:
+
+`source/layers/vr/frontier/model-village/model-village-browser-studio-lineup.holo`
+
+It accepts only an exact source-bound `village_story_unblinded` presentation,
+fails neutral for missing admission and `research_live_blinded`, recompiles all
+six MV-V5 bundles byte-identically, and renders sealed HoloScript XPBD phase
+draw specs through a real browser WebGPU adapter and device. It has no canonical
+or resident-observation write path. Placement inside the complete observer
+projection remains open.
 
 The source policy requires typed verification and a fail-neutral result for
 missing, malformed, mismatched, or unverified post-lock evidence. Actual
@@ -129,6 +142,7 @@ receipts.
 | Observed | MV-V3 now locally custodies an identity-neutral `.holo` production-shaped body with an operative faceless Stormglass hood/tunic, native woven-cloth shading, three source-authored LOD topologies, and four continuously interpolated receipt-gated semantic clips. LOD0/1/2 contain 1,524 / 1,214 / 1,028 triangles; every adjacent motion sample changes native-WebGPU pixels and every replay is pixel-identical. This remains procedural character art without cloth simulation, UV material maps, observer attachment, or a named family mantle. |
 | Observed | MV-V4 now locally custodies the first named story mantle: OpenAI. One `.holo` source compiles byte-identically without fallback to a 247,746-byte bundle with 55 joints, 2,180 vertices, 1,668 triangles, 2,180 UV pairs, operative XPBD cloth, and a detachable fourth woven-cloth group. Three compact local material tiles change 14,928 rendered pixels; detachment reduces the body to 2,089 vertices and changes 14,930 pixels. Five absolute-time cloth samples advance 0 / 24 / 48 / 72 / 96 fixed steps, remain under the 0.18 m bound, and replay with zero pixel delta on the RTX 3060/Dawn path. The observer attachment target comes from a verified receipt; the Seat 01 proof target is a noncanonical in-memory fixture, not a family-seat assignment. |
 | Observed | MV-V5 now locally custodies one typed six-family `.holo` catalog for Claude, OpenAI, Gemini, Grok, GLM, and Brittney. `character-webgpu` selects each named object directly and emits six byte-identical-replay, no-fallback bundles with 55 joints, 2,180 vertices, 1,668 triangles, and 2,180 UV pairs. Detachment returns all six to one byte-identical 2,089-vertex neutral body/garment; same-topology mantle position hashes are six-of-six distinct. Eighteen compact local maps drive native RTX 3060/Dawn pixels, all six 0.6 s samples advance 72 XPBD steps under 0.033 m displacement, and every replay has zero pixel delta. Colour, grayscale, and simulated-deuteranopia witnesses remain six-of-six distinct. |
+| Observed | MV-V6 now locally custodies an admitted browser/Studio `.holo` presentation contract and self-contained browser witness. Missing admission and `research_live_blinded` fail neutral. Chrome 150 acquires `navigator.gpu`, an NVIDIA Ampere adapter, and a `GPUDevice`, then renders all six typed HoloScript characters without Three.js or R3F. Three sealed XPBD phases, exact hero replay, mantle detachment, color/grayscale/deuteranopia views, 1600 x 900 and 390 x 844 captures, zero external fetches, and zero external visual assets pass. The short cached rAF sample was p50 16.6 ms and p95 18.0 ms, but the production 600 + 1,800-frame gate was not run, so no real-time claim is made. |
 | Observed | The canonical three-format pilot parses, materializes twelve objects, and reproduces its canonical scene and pose/physics projections in two native headless runs. |
 | Observed | A 1600 x 900 HoloScript screenshot was captured from the canonical `.holo` source. |
 | Observed | The local hardware baseline reports an RTX 3060 Laptop GPU with 6 GB VRAM, 32 GB system memory, Node 24, and installed Chrome/Edge browsers. |
@@ -147,8 +161,8 @@ receipts.
 | Gap | The bounded observer consumer toggle, canonical lifecycle, and frozen adapter-matrix execution now pass. Browser deployment of the twelve-object lifecycle consumer and post-inference outcome equivalence remain open; the browser does not claim scientific equivalence. |
 | Gap | The older CLI baseline still launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. MV-P9 uses a separate, focused browser witness; it does not silently promote that CLI route. |
 | Gap | The current React Three adapter cannot be cited as an executing Model Village route: its typecheck still imports the removed `R3FCompiler` surface. The dedicated MV-P9 adapter is a bounded proof bridge, not a claim that the general platform renderer is repaired. |
-| Gap | The typed six-family mantle catalog and native lineup now exist. Production-resolution assets, browser profile-admission receipts, material-budget consolidation, observer placement/runtime integration, and the complete production family cast remain targets. |
-| Unknown | Browser WebGPU production integration, headset performance, long-duration thermal behavior, browser families beyond the named Chrome run, and cross-hardware pixel or physics agreement remain unmeasured. |
+| Gap | The typed six-family mantle catalog, native lineup, and standalone admitted browser profile now exist. Production-resolution assets, material-budget consolidation, complete observer placement/runtime integration, continuous browser cloth, collision upgrades, and the finished production family cast remain targets. |
+| Unknown | Complete observer integration of the browser WebGPU resident consumer, headset performance, long-duration thermal behavior, browser families beyond the named Chrome run, and cross-hardware pixel or physics agreement remain unmeasured. |
 | Target | A premium browser, desktop, and XR living-observatory experience whose spectacle is HoloScript-authored, receipt-backed, and unable to contaminate the study. |
 
 ### Durable visual before-state
@@ -1021,15 +1035,18 @@ The twelve-object, six-resident zero-provider rehearsal, visual greybox, physics
 gate, rendering truth gate, and bounded observer consumer now execute.
 Stormglass Commons and Hearthlight
 Biorealism are locked. The public roster is Claude, OpenAI, Gemini, Grok, GLM,
-and Brittney, while the current executing observer remains a neutral capsule
-witness. The rehearsal track is complete; the next two production tracks are:
+and Brittney. The six-family story gallery now executes through an admitted
+browser-native WebGPU consumer, while the complete observer composition remains
+a neutral capsule witness. The rehearsal track is complete; the next two
+production tracks are:
 
-1. **Living Commons production pass:** promote the current distinct resident
-   proxies to one locally custodied shared humanoid kit with a neutral research
-   mantle and detachable family mantles, replace the remaining primitive
-   cottages with one modular authored building kit, add ambient life and audio
-   only after source/asset receipts, and keep every state-driven cue tied to an
-   existing receipt. This remains observer-only work.
+1. **Living Commons production pass:** integrate the admitted MV-V6 resident
+   consumer into the read-only observer projection for public/post-lock
+   presentation while proving the live-blinded observer and experiment hashes
+   remain unchanged. Then replace the remaining primitive cottages with one
+   modular authored building kit, add ambient life and audio only after
+   source/asset receipts, and keep every state-driven cue tied to an existing
+   receipt. This remains observer-only work.
 2. **Platform profile proof:** retain the measured desktop and portrait gates,
    then add one real mobile/WebXR or headset profile without weakening material,
    backend, accessibility, comfort, and no-network evidence.
@@ -1143,9 +1160,25 @@ byte-identical 2,089-vertex neutral body/garment, share one 55-joint palette and
 same 91-vertex mantle topology, and produce six distinct silhouettes. Eighteen
 local maps, deterministic 120 Hz XPBD cloth, exact native-GPU replay, visible
 detachment, and colour/grayscale/deuteranopia lineup witnesses pass. The source
-contains no static family-seat join. MV-P2 remains open for the admitted browser
-consumer, production tailoring/textures, collision upgrades, material-budget
-consolidation, complete observer integration, and the finished resident kit.
+contains no static family-seat join. At MV-V5, MV-P2 remained open for the
+admitted browser consumer, production tailoring/textures, collision upgrades,
+material-budget consolidation, complete observer integration, and the finished
+resident kit.
+
+**MV-V6 bounded closure (2026-07-26):** one presentation-only `.holo` source
+now owns exact browser-profile admission, Hearthlight art tokens, a six-card
+story layout, accessibility modes, detachment, sealed XPBD phases, and the
+claim boundary. The focused checker rebuilds every MV-V5 character bundle
+byte-identically without fallback, materializes three deterministic cloth
+phases, and embeds them in one self-contained browser document. Chrome 150
+acquires a real NVIDIA Ampere WebGPU adapter and device and renders the six
+HoloScript character draw specs with exact hero replay, desktop and portrait
+captures, three color modes, visible detachment, zero external network fetches,
+and zero external visual assets. Missing admission and
+`research_live_blinded` fail neutral. MV-P2 remains open because the complete
+observer still uses its capsule lane and production tailoring, textures,
+collision, ambient life, material-budget consolidation, continuous browser
+cloth, WebXR, and headset performance remain unproved.
 
 ### MV-S1: Proof in the Light
 

@@ -1,0 +1,64 @@
+// Immutable MV-V6 browser/Studio lineup witness anchors.
+//
+// These hashes bind the HoloScript presentation source, the pre-existing MV-V5
+// family catalog and character bundles, the self-contained browser document, the
+// exact admission, and the visually inspected browser captures.
+
+composition "Stormglass Browser Studio Lineup Manifest" {
+  metadata {
+    schema: "hololand.model-village.browser-studio-lineup-manifest.v1"
+    version: "1.0.0"
+    milestone: "MV-V6"
+    source: "source/layers/vr/frontier/model-village/model-village-browser-studio-lineup.holo"
+    sourceSha256: "21a79886721ba47a623ed2618220904db446310c34f3ce660bbec44dcc151444"
+    catalog: "source/layers/vr/frontier/model-village/model-village-family-mantle-catalog.holo"
+    catalogSha256: "e366ee5cc51d4b0c3d9ba38643b683e688b7f902d315745acc76c00d6c06cfd2"
+    bundleSha256: [
+      "d3703bd507910709f779d7c028850c96bf4eb64587e17782cbc04479258c0ebf",
+      "a53aa7fed83ac05c79257484bda444af85b704fbbfca0cc8f4a9498e0c68bfc0",
+      "8f8d06aa2327fbe1677811620df0bf4493a3d07480dffc6e9a16076df58aa1d6",
+      "a626b29738f59c767544e99719b6470270a78ac1718a5bca6643d43e61a0685d",
+      "9aebb2d4990565994caf1e2ddb32b8aa14c051554d9b2200ab3d6d1ed5c05ed2",
+      "c016d91c9a172c3a375d43e27538529b5df0cd47d9644fbc7f390040bbd94ae1"
+    ]
+    browserHtmlSha256: "d10b14e5a892f0853a87d78badf47b9333509e322dff2ba6e41cd3a0c80b7926"
+    admissionSha256: "c4ccf05a3d730d9cfe26f2a7b35ecb588074816f2e3e437ff270003b34fb9e6e"
+    heroSha256: "c6ad1fe2aed7aec131e2bdd03361cf5323415b9092048246758c43cacb52da16"
+    portraitSha256: "531766a77952143df683cf827f1336184e3775e77a4f9600cfcd9777c53b98eb"
+    deuteranopiaSha256: "15e9e93a2234390ad5e34326b7f472e45d44e3bf2a58ef56a1ec001db9c7824b"
+    detachedSha256: "7740157928e9a62282ac4bdcedbc625d7966d914588bf1977886cb2330b780b6"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    providerEndorsementClaimed: false
+    exactModelRevisions: "absent"
+  }
+
+  state {
+    browserConsumerBuilt: true
+    browserNativeWebgpuObserved: true
+    navigatorGpuObserved: true
+    gpuAdapterAcquired: true
+    gpuDeviceCreated: true
+    gpuVendorObserved: "nvidia"
+    gpuArchitectureObserved: "ampere"
+    sourceToBundleIntegrityObserved: true
+    repeatedCompileByteIdentical: true
+    compilerFallbackUsed: false
+    failNeutralAdmissionObserved: true
+    researchLiveBlindedFailsNeutral: true
+    exactHeroReplayObserved: true
+    accessibilityModesObserved: 3
+    mantleDetachmentObserved: true
+    sealedXpbdPhaseCountObserved: 3
+    continuousBrowserClothSolverClaimed: false
+    externalNetworkFetchesObserved: 0
+    externalVisualAssetsObserved: 0
+    researchLiveBlindedAllowed: false
+    staticResearchJoin: false
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    causalEffect: false
+    photorealismClaimed: false
+    realTimeClaimed: false
+    completeMvP2Claimed: false
+  }
+}
