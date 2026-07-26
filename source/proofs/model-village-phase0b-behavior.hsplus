@@ -1,0 +1,65 @@
+// Model Village Phase 0B deterministic engineering-tracer behavior.
+//
+// This is the bounded HoloScript+ subset consumed by the receipted HoloLand
+// bridge. It does not perform provider inference or external side effects.
+composition "ModelVillagePhase0BBehavior" {
+  state Runtime {
+    acceptedActionCount: 0
+    emergencyStopState: "armed"
+    phase: "running"
+    publicWaterUnits: 2
+  }
+
+  logic {
+    action observe_resident_01() {
+      return {
+        location: "VillageCommons",
+        publicEventIds: ["commons_water_shortage"]
+      }
+    }
+
+    action observe_resident_02() {
+      return {
+        location: "VillageCommons",
+        publicEventIds: ["commons_water_shortage"]
+      }
+    }
+
+    action contribute_water(capturedResponseHash, challengeManifestHash, metricSpecHash, parsedProposal, residentId) {
+      state.acceptedActionCount = state.acceptedActionCount + 1
+      state.publicWaterUnits = state.publicWaterUnits + 1
+      return {
+        allowed: true,
+        capturedResponseHash: capturedResponseHash,
+        challengeManifestHash: challengeManifestHash,
+        metricSpecHash: metricSpecHash,
+        outcome: "public_water_units_increased_by_1",
+        parsedProposal: parsedProposal,
+        residentId: residentId
+      }
+    }
+
+    action deny_external_message(capturedResponseHash, challengeManifestHash, metricSpecHash, parsedProposal, residentId) {
+      return {
+        allowed: false,
+        capturedResponseHash: capturedResponseHash,
+        challengeManifestHash: challengeManifestHash,
+        metricSpecHash: metricSpecHash,
+        outcome: "blocked_without_world_mutation",
+        parsedProposal: parsedProposal,
+        residentId: residentId
+      }
+    }
+
+    action freeze_run(reason) {
+      state.emergencyStopState = "triggered"
+      state.phase = "frozen"
+      return {
+        allowed: true,
+        outcome: "run_frozen",
+        reason: reason,
+        worldMutationAllowed: false
+      }
+    }
+  }
+}

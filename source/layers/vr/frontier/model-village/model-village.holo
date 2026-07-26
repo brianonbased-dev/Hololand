@@ -252,6 +252,14 @@ composition "HoloLand Model Village Pilot" {
         authority: "experiment_operator"
         rollbackSnapshotRequired: true
         targetPolicyEntrypoint: "ModelVillageExperimentRuntime.freeze_run"
+        boundedBridgeBehaviorSource: "source/proofs/model-village-phase0b-behavior.hsplus"
+        boundedBridgeComposition: "ModelVillagePhase0BBehavior"
+        boundedBridgeEntrypoint: "freeze_run"
+        boundedBridgeFullyQualifiedEntrypoint: "ModelVillagePhase0BBehavior.freeze_run"
+        boundedBridgeDispatchReason: "operator_emergency_stop"
+        boundedBridgeTargetId: "EmergencyStop"
+        boundedBridgeBindingStatus: "declared_for_receipted_phase0b_hololand_bridge"
+        nativeLifecycleBindingClaimed: false
         bindingStatus: "blocked_until_cross_composition_action_binding"
       }
     }
@@ -276,6 +284,14 @@ composition "HoloLand Model Village Pilot" {
         reason: reason,
         world_mutation_allowed: false,
         target_policy_entrypoint: "freeze_run",
+        bounded_bridge_behavior_source: "source/proofs/model-village-phase0b-behavior.hsplus",
+        bounded_bridge_composition: "ModelVillagePhase0BBehavior",
+        bounded_bridge_entrypoint: "freeze_run",
+        bounded_bridge_fully_qualified_entrypoint: "ModelVillagePhase0BBehavior.freeze_run",
+        bounded_bridge_dispatch_reason: "operator_emergency_stop",
+        bounded_bridge_target_id: "EmergencyStop",
+        bounded_bridge_binding_status: "declared_for_receipted_phase0b_hololand_bridge",
+        native_lifecycle_binding_claimed: false,
         cross_composition_binding_status: "not_observed",
         safety_receipt_status: "target_not_observed"
       })

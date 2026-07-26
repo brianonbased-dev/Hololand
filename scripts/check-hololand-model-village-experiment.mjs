@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* global console, process */
+
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
@@ -10,7 +12,13 @@ import {
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.2.0';
+import {
+  PHASE0B_SOURCE_PATHS,
+  createRuntimeInjectedValidatorFixture,
+  runPhase0BEngineeringTracer,
+} from './model-village-phase0b-runtime.mjs';
+
+const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.3.0';
 const WORLD_SOURCE = 'source/layers/vr/frontier/model-village/model-village.holo';
 const OBSERVER_PROJECTION_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-observer-projection.holo';
@@ -227,7 +235,8 @@ export function compareObserverBoundaryFields(before, after) {
 }
 
 function unsignedReceipt(value) {
-  const { receipt: _receipt, ...unsigned } = value || {};
+  const unsigned = { ...(value || {}) };
+  delete unsigned.receipt;
   return unsigned;
 }
 
@@ -1187,7 +1196,11 @@ function executeObserverBoundaryFixtureCore({
   const adapterAssignmentExclusion = {
     status: 'pass',
     method: 'static_pre_inference_schema_and_dependency_exclusion',
-    assignmentHashes: adapterAssignments.map(({ assignment: _assignment, ...entry }) => entry),
+    assignmentHashes: adapterAssignments.map((assignmentEntry) => {
+      const entry = { ...assignmentEntry };
+      delete entry.assignment;
+      return entry;
+    }),
     forbiddenResidentObservationFields: boundaryContract.residentObservationForbiddenFields,
     residentObservationExactSchemaEnforced: true,
     assignmentEntersCanonicalProjection: false,
@@ -1392,6 +1405,7 @@ function buildAssertions({
   headlessReplay,
   experimentDesign,
   observerBoundaryFixture,
+  engineeringTracer,
 }) {
   const residentSeats = Array.from(
     { length: 6 },
@@ -1492,6 +1506,60 @@ function buildAssertions({
       observerBoundaryFixture.claimBoundary.nativeHsPipelineExecutionClaimed === false
       && observerBoundaryFixture.claimBoundary.nativeHsplusActionExecutionClaimed === false
       && observerBoundaryFixture.claimBoundary.liveModelTurnsClaimed === false,
+    phase0BEngineeringTracerPasses:
+      engineeringTracer.status === 'pass'
+      && engineeringTracer.schema === 'hololand.model-village-phase0b-runtime-bridge.v1'
+      && Object.values(engineeringTracer.assertions).every((passed) => passed === true),
+    phase0BSourceRunV4CountsAreBounded:
+      engineeringTracer.runtime.sourceRunSchema
+        === 'holoscript.headless-experiment-source-run.v4'
+      && engineeringTracer.runtime.counts.schedule === 4
+      && engineeringTracer.runtime.counts.observations === 2
+      && engineeringTracer.runtime.counts.actions === 2
+      && engineeringTracer.runtime.counts.publicStateSnapshots === 5
+      && engineeringTracer.runtime.capturedResponsesConsumed === 2
+      && engineeringTracer.runtime.providerCalls === 0,
+    phase0BTrustPersistenceAtomicityReplayAndStopPass:
+      engineeringTracer.assertions.trustedValidatorCryptographicallyVerified === true
+      && engineeringTracer.assertions.hostSuppliedValidatorConfigPinned === true
+      && engineeringTracer.assertions.persistentAuthorizationMonotonic === true
+      && engineeringTracer.assertions.atomicActionAdmissionAndWorldMutation === true
+      && engineeringTracer.assertions.atomicCommitBoundToVerifiedV4SourceRun === true
+      && engineeringTracer.assertions.separateProcessPersistentStateRecovery === true
+      && engineeringTracer.assertions.freshCapturedResponseReplayMatches === true
+      && engineeringTracer.assertions.emergencyStopBridgeExecuted === true
+      && engineeringTracer.persistence.authorizationAttemptsConsumed === 2
+      && engineeringTracer.persistence.deniedAttemptsConsumed === 1
+      && engineeringTracer.persistence.atomicActionReceiptsCommitted === 2
+      && engineeringTracer.persistence.restartRecovered === true
+      && engineeringTracer.persistence.sameProcessRereadRecovered === true
+      && engineeringTracer.persistence.separateProcessRereadRecovered === true
+      && engineeringTracer.persistence.mismatchedTargetAttemptBurnedAndDenied === true
+      && engineeringTracer.persistence.malformedHashAttemptBurnedAndDenied === true
+      && engineeringTracer.persistence.replayAfterRestartRejected === true,
+    phase0BClaimBoundaryRemainsBounded:
+      engineeringTracer.claimBoundary.boundedHsplusEntrypointExecuted === true
+      && engineeringTracer.claimBoundary.capturedResponseFixturesReplayed === 2
+      && engineeringTracer.claimBoundary.hololandCrossCompositionBridgeExecuted === true
+      && engineeringTracer.claimBoundary.boundedHoloToHsplusStopDispatchExecuted === true
+      && engineeringTracer.claimBoundary.liveModelProviderCallsClaimed === false
+      && engineeringTracer.claimBoundary.fullHoloWorldExecutionClaimed === false
+      && engineeringTracer.claimBoundary.fullHsLanguageExecutionClaimed === false
+      && engineeringTracer.claimBoundary.fullHsplusLanguageExecutionClaimed === false
+      && engineeringTracer.claimBoundary.nativeHoloLifecycleExecutionClaimed === false
+      && engineeringTracer.claimBoundary.nativeHsplusEngineExecutionClaimed === false
+      && engineeringTracer.claimBoundary.physicsEngineExecutionClaimed === false
+      && engineeringTracer.claimBoundary.processCrashDurabilityClaimed === false
+      && engineeringTracer.claimBoundary.productionDistributedTransactionClaimed === false
+      && engineeringTracer.claimBoundary.productionValidatorTrustClaimed === false
+      && engineeringTracer.claimBoundary.scientificOutcomeClaimed === false
+      && engineeringTracer.claimBoundary.transactionScope
+        === 'verified_v4_per_action_single_host_file_atomic_bridge'
+      && engineeringTracer.claimBoundary.trustedValidatorInjection
+        === 'caller_supplied_frozen_host_config'
+      && engineeringTracer.claimBoundary.trustedValidatorKeyCustody
+        === 'ephemeral_engineering_fixture'
+      && engineeringTracer.claimBoundary.worldRuntimeLifecycleExecuted === false,
     worldDefinesSixBlindedResidentSeats: residentSeats
       .every((name) => semanticIr.world.objects.includes(name))
       && includesAll(texts.worldCode, [
@@ -1663,7 +1731,7 @@ function buildAssertions({
       '| Target |',
       '| Gap |',
       '| Forbidden claim |',
-      'No model-turn or agent-action execution count is available',
+      'The tracer makes zero provider calls and executes no live model',
     ]),
     packageExposesChecker: texts.packageJson.includes(
       '"check:hololand-model-village": "node scripts/check-hololand-model-village-experiment.mjs"',
@@ -1713,6 +1781,8 @@ function gitProvenance(root) {
       POLICY_SOURCE,
       KERNEL_SOURCE,
       SPEC_SOURCE,
+      ...Object.values(PHASE0B_SOURCE_PATHS),
+      'scripts/model-village-phase0b-runtime.mjs',
       'scripts/check-hololand-model-village-experiment.mjs',
       'scripts/__tests__/hololand-model-village-experiment.test.mjs',
       PACKAGE_JSON,
@@ -1808,6 +1878,12 @@ export async function runModelVillageCheck(options = {}) {
   } catch (error) {
     observerBoundaryFixture = failedObserverBoundaryFixture(error);
   }
+  const trustedValidator = createRuntimeInjectedValidatorFixture();
+  const engineeringTracer = await runPhase0BEngineeringTracer({
+    root,
+    signRunManifest: trustedValidator.issue,
+    trustedValidatorConfig: trustedValidator.config,
+  });
   const semanticIr = buildSemanticIr(texts);
   const experimentDesign = buildExperimentDesign(texts.kernelCode);
   const assertions = buildAssertions({
@@ -1819,6 +1895,7 @@ export async function runModelVillageCheck(options = {}) {
     headlessReplay,
     experimentDesign,
     observerBoundaryFixture,
+    engineeringTracer,
   });
   const failures = assertionFailures(assertions);
   const capabilityStatus = {
@@ -1829,13 +1906,46 @@ export async function runModelVillageCheck(options = {}) {
       worldMaterialization: headlessRuns.every((run) => run.passed),
       canonicalSceneReplay: headlessReplay.canonicalMatch,
       capturedObserverBoundaryFixtureReplay: observerBoundaryFixture.status === 'pass',
+      boundedPhase0BEngineeringTracer: engineeringTracer.status === 'pass',
     },
+    boundedBridgeObserved: {
+      sourceRunV4Verified: engineeringTracer.assertions.sourceRunV4Verified,
+      boundedHsplusEntrypointExecution:
+        engineeringTracer.claimBoundary.boundedHsplusEntrypointExecuted,
+      capturedResponseActionReplay:
+        engineeringTracer.assertions.freshCapturedResponseReplayMatches,
+      perStepPublicStateSnapshots:
+        engineeringTracer.runtime.counts.publicStateSnapshots === 5,
+      challengeAndMetricManifestsHashed:
+        engineeringTracer.assertions.challengeAndMetricManifestsFrozenAndHashed,
+      cryptographicTrustedValidator:
+        engineeringTracer.assertions.trustedValidatorCryptographicallyVerified,
+      hostSuppliedValidatorConfigPinned:
+        engineeringTracer.assertions.hostSuppliedValidatorConfigPinned,
+      persistentAuthorizationConsumption:
+        engineeringTracer.assertions.persistentAuthorizationMonotonic,
+      verifiedV4PerActionSingleHostFileAtomicCommit:
+        engineeringTracer.assertions.atomicActionAdmissionAndWorldMutation
+        && engineeringTracer.assertions.atomicCommitBoundToVerifiedV4SourceRun,
+      separateProcessPersistentStateRecovery:
+        engineeringTracer.assertions.separateProcessPersistentStateRecovery,
+      invalidAuthorizationAttemptsBurnedAndDenied:
+        engineeringTracer.persistence.mismatchedTargetAttemptBurnedAndDenied
+        && engineeringTracer.persistence.malformedHashAttemptBurnedAndDenied,
+      emergencyStopBridge: engineeringTracer.assertions.emergencyStopBridgeExecuted,
+      boundedHoloToHsplusStopDispatch:
+        engineeringTracer.claimBoundary.boundedHoloToHsplusStopDispatchExecuted,
+    },
+    targetObservedScope: 'live_full_native_and_scientific_experiment',
     targetObserved: {
       liveModelAdapterInvocation: false,
       receiptedActionExecution: false,
       perStepStateSnapshots: false,
       capturedResponseActionReplay: false,
       deterministicModelSampling: false,
+      processCrashDurability: false,
+      productionDistributedTransactions: false,
+      productionValidatorTrust: false,
       scientificOutcomeEvidence: false,
     },
   };
@@ -1856,6 +1966,53 @@ export async function runModelVillageCheck(options = {}) {
     capturedFixtureExecutionCountsAvailable: observerBoundaryFixture.status === 'pass',
     nativeHsPipelineExecutionClaimed: false,
     nativeHsplusActionExecutionClaimed: false,
+    boundedPhase0B: {
+      sourceRunSchema: engineeringTracer.runtime.sourceRunSchema,
+      scheduleEntriesExecuted: engineeringTracer.runtime.counts.schedule,
+      residentObservationsMaterialized:
+        engineeringTracer.runtime.counts.observations,
+      boundedHsplusSubsetActionsExecuted:
+        engineeringTracer.runtime.boundedHsplusSubsetActionsExecuted,
+      publicStateSnapshotsMaterialized:
+        engineeringTracer.runtime.counts.publicStateSnapshots,
+      capturedResponsesConsumed:
+        engineeringTracer.runtime.capturedResponsesConsumed,
+      allowedWorldMutationsCommitted:
+        engineeringTracer.runtime.actionDecisions
+          .filter((decision) => decision.allowed && decision.stateChanged).length,
+      deniedAuthorizationAttemptsConsumed:
+        engineeringTracer.persistence.deniedAttemptsConsumed,
+      authorizationAttemptsConsumed:
+        engineeringTracer.persistence.authorizationAttemptsConsumed,
+      cryptographicValidatorVerified:
+        engineeringTracer.validator.signatureVerified,
+      hostSuppliedValidatorConfigPinned:
+        engineeringTracer.assertions.hostSuppliedValidatorConfigPinned,
+      validatorKeyCustody:
+        engineeringTracer.claimBoundary.trustedValidatorKeyCustody,
+      atomicCommitBoundToVerifiedV4SourceRun:
+        engineeringTracer.assertions.atomicCommitBoundToVerifiedV4SourceRun,
+      sameProcessPersistentStateRereadRecovered:
+        engineeringTracer.persistence.sameProcessRereadRecovered,
+      separateProcessPersistentStateRereadRecovered:
+        engineeringTracer.persistence.separateProcessRereadRecovered,
+      mismatchedTargetAttemptBurnedAndDenied:
+        engineeringTracer.persistence.mismatchedTargetAttemptBurnedAndDenied,
+      malformedHashAttemptBurnedAndDenied:
+        engineeringTracer.persistence.malformedHashAttemptBurnedAndDenied,
+      faultBeforeRename: engineeringTracer.persistence.faultBeforeRename,
+      faultAfterRename: engineeringTracer.persistence.faultAfterRename,
+      replayAfterRestartRejected:
+        engineeringTracer.persistence.replayAfterRestartRejected,
+      freshCapturedResponseReplayMatches:
+        engineeringTracer.replay.match,
+      emergencyStopBridgeExecuted:
+        engineeringTracer.assertions.emergencyStopBridgeExecuted,
+      boundedHoloToHsplusStopDispatchExecuted:
+        engineeringTracer.claimBoundary.boundedHoloToHsplusStopDispatchExecuted,
+      providerCallsMade: engineeringTracer.runtime.providerCalls,
+      transactionScope: engineeringTracer.claimBoundary.transactionScope,
+    },
   };
   const sourceContract = {
     threeFormat: parsers.map((parser) => parser.format).join(',') === '.holo,.hsplus,.hs',
@@ -1887,16 +2044,22 @@ export async function runModelVillageCheck(options = {}) {
       'canonical scene and pose replay',
       'source-declared captured fixture schedule, six resident observations, and action-receipt chain replay through the bounded HoloLand bridge',
       'static adapter-assignment exclusion from the pre-inference fixture projection',
+      'bounded HoloScript V4 source-run engineering tracer with four schedule entries, two resident observations, two captured-response actions, and five public-state snapshots',
+      'host-supplied ephemeral engineering validator config plus monotonic authorization, same-process and separate-process reread recovery, and a verified-V4 per-action single-host file-atomic bridge',
+      'fresh captured-response replay match and bounded emergency-stop bridge execution',
     ],
     targetNotObserved: [
       'isolated observer projection off/on consumer toggle',
       'adapter-permutation execution or post-inference outcome equivalence',
       'validation of the opaque referenced safety and action-decision receipt IDs',
       'live model turns',
-      'native .hs pipeline execution',
-      'native .hsplus action execution',
-      'receipted action entrypoint execution',
-      'per-step native state replay',
+      'full/native .hs pipeline execution beyond the bounded V4 plan subset',
+      'full/native .hsplus engine execution beyond the bounded deterministic action subset',
+      'general receipted action entrypoint execution beyond the Phase 0B bridge',
+      'full world-runtime per-step state replay beyond the bounded Phase 0B snapshots',
+      'process-crash durability',
+      'production distributed transactions',
+      'production validator provisioning, custody, and trust publication',
       'scientific outcomes',
     ],
     pilotIsConfirmatory: false,
@@ -1905,13 +2068,14 @@ export async function runModelVillageCheck(options = {}) {
     schemaVersion: SCHEMA_VERSION,
     generatedAt: new Date().toISOString(),
     status: failures.length === 0 ? 'pass' : 'fail',
-    studyPhase: 'source_contract_pilot',
+    studyPhase: 'phase0b_bounded_engineering_tracer',
     sources: {
       world: WORLD_SOURCE,
       observerProjection: OBSERVER_PROJECTION_SOURCE,
       policy: POLICY_SOURCE,
       kernel: KERNEL_SOURCE,
       spec: SPEC_SOURCE,
+      phase0B: engineeringTracer.sources,
     },
     sourceContract,
     parsers,
@@ -1920,6 +2084,7 @@ export async function runModelVillageCheck(options = {}) {
     assertions,
     headlessReplay,
     observerBoundaryFixture,
+    engineeringTracer,
     runtimeEvidence,
     capabilityStatus,
     experimentDesign,
@@ -1963,8 +2128,15 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       console.log(`receipt: ${output}`);
       console.log(`world objects: ${receipt.headlessReplay.objectCount}`);
       console.log(`canonical replay: ${receipt.headlessReplay.canonicalMatch}`);
-      console.log('model-turn execution trace: unavailable');
-      console.log('agent-action execution trace: unavailable');
+      console.log(
+        `bounded Phase 0B source-run: `
+        + `${receipt.runtimeEvidence.boundedPhase0B.scheduleEntriesExecuted} schedule / `
+        + `${receipt.runtimeEvidence.boundedPhase0B.residentObservationsMaterialized} observations / `
+        + `${receipt.runtimeEvidence.boundedPhase0B.boundedHsplusSubsetActionsExecuted} actions / `
+        + `${receipt.runtimeEvidence.boundedPhase0B.publicStateSnapshotsMaterialized} snapshots`,
+      );
+      console.log('live model-turn execution trace: unavailable');
+      console.log('full/native agent-action execution trace: unavailable');
     }
   } catch (error) {
     console.error('[hololand-model-village] failed');

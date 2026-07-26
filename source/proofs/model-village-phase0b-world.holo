@@ -1,0 +1,21 @@
+// Model Village Phase 0B deterministic engineering-tracer world.
+//
+// This composition is intentionally static. The bounded HoloLand bridge may
+// materialize these declarations, but no lifecycle or behavior is owned here.
+composition "Model Village Phase 0B World" {
+  object "Resident01" {
+    position: [-1.25, 0.9, 0.4]
+  }
+
+  object "Resident02" {
+    position: [1.25, 0.9, 0.4]
+  }
+
+  object "VillageCommons" {
+    position: [0, 0.1, 0]
+  }
+
+  object "EmergencyStop" {
+    position: [3.4, 1.0, -1.8]
+  }
+}

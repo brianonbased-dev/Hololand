@@ -1,8 +1,8 @@
 # HoloLand Model Village Experiment
 
-**Status:** Source-contract pilot
+**Status:** Phase 0B bounded engineering tracer observed; Phase 1 blocked
 
-**Version:** 0.1.0
+**Version:** 0.3.0
 
 **Canonical product source:** HoloScript
 **Study class:** Mechanism pilot and rough variance signal, not confirmatory evidence
@@ -36,9 +36,13 @@ run. A source file or parser success is not a behavioral result.
 |---|---|
 | Observed | In the recorded source-contract check, the three canonical HoloScript sources parsed and two native headless materializations under the receipt's duration/tick settings produced equal canonical scene and pose/physics digests. Runtime statistics were outside that canonical projection. |
 | Observed | The `0.2.0` checker also parses a source-declared, one-tick captured fixture from the canonical `.hs` and `.hsplus` sources. A bounded HoloLand bridge executes three fixture schedule entries, materializes six identity-neutral observation envelopes, and seals two hash-chained action receipts with zero provider calls. It also proves that the three frozen adapter-assignment hashes remain outside this pre-inference canonical projection. This is fixture-replay and static noninterference evidence, not native `.hs` pipeline, `.hsplus` action, or post-inference outcome equivalence. |
+| Observed | The bounded Phase 0B bridge consumes an upstream V4 source-run receipt that recomputes a four-object static `.holo` projection, executes the `.hs` `main()` plan through the Rust/WASM/uAAL path, and executes an engine-owned deterministic `.hsplus` action subset. Its sealed run contains four schedule rows, two subject-bound observations, two action receipts, and five public-state snapshots. Two synthetic captured-response hashes drive one allowed water mutation and one denied external-message attempt; no provider or live model is invoked. |
+| Observed | The same bounded bridge hashes frozen Phase 1 challenge and metric inputs. Its host caller passes a frozen public trust-policy input (`trustedValidatorConfig`) separately from the manifest-signing capability (`signRunManifest`); the bridge verifies the resulting Ed25519 signature against the pinned public configuration. The included key-generation helper supplies both sides only as an ephemeral engineering fixture, not production key custody or a production trust root. |
+| Observed | Atomic persistence accepts only an action and post-action snapshot extracted from a reverified HoloScript V4 source run. Target mismatch and missing or malformed state-hash attempts each burn one authorization, deny, and leave the world unchanged. Persistent-state validation checks the authorization, outbox, ledger-chain, and terminal-world invariants. A fresh Node process rereads the same validated file state. Injected process-level faults immediately before and after rename expose the old or complete state; they are not process-crash tests. |
+| Observed | A fresh source replay matches ordered decisions, post-state hashes, action root, and terminal commitment. The visible `.holo` declares the bounded stop reason and target; the bridge hashes that dispatch request, matches it to the signed stop plan and `.hsplus` invocation, dispatches `ModelVillagePhase0BBehavior.freeze_run`, and seals a safety receipt. The full outer verifier requires the external trusted configuration and reverifies both main and stop V4 receipts. Its self-hash check alone proves only receipt self-integrity. |
 | Target | Locked model adapters drive six residents through identical, seeded village runs; every observation, model turn, action decision, mutation, rollback reference, and run summary is receipted. |
-| Gap | The current native headless runtime still does not execute `.hs` pipeline actions or `.hsplus` action entrypoints and does not expose runtime-derived schedule, observation, receipt-ledger, ordered event-payload, or per-step state evidence. It also does not provide deterministic model sampling or captured-response action replay. The visible `.holo` emergency stop currently emits a freeze request but is not yet bound to the `.hsplus` `freeze_run` gate. A trusted validator pin and an atomic receipt-to-mutation transaction are source contracts without observed runtime bindings. Challenge and metric schemas are not yet instantiated as a frozen Phase 1 manifest. |
-| Forbidden claim | No emergence, model superiority, population effect, inference determinism, or completed scientific experiment may be claimed from this source-contract pilot. |
+| Gap | Phase 0B proves only the named bounded source subsets and a file-backed single-process bridge. Live models, provider routes, full or native `.hs`/`.hsplus` execution, native `.holo` lifecycle and cross-composition dispatch, physics execution by this tracer, production validator provisioning/custody, process-crash durability, and production multi-process/CAS/fleet durability remain unobserved. The frozen Phase 1 manifests are inputs, not proof that isolation, budgets, six-resident lifecycle, live routing, custody, or the overall Phase 1 go gate is ready. |
+| Forbidden claim | No emergence, model superiority, population effect, inference determinism, production trust or durability, process-crash durability, Phase 1 readiness, or completed scientific experiment may be claimed from this bounded tracer. |
 
 ## Canonical three-format split
 
@@ -163,8 +167,11 @@ reinference.
 
 ## Target event and receipt chain
 
-The envelopes below are target runtime contracts. Phase 0A parses and inspects
-their HoloScript declarations; it does not execute or persist this chain.
+The envelopes below remain the target live-study chain. Phase 0B now executes
+and persists a bounded two-resident subset through the named V4 engines and
+HoloLand bridge. That evidence does not promote the full six-resident lifecycle,
+provider-backed model turns, native HoloScript lifecycle dispatch, or production
+durability.
 
 ### RunManifestReceipt
 
@@ -176,13 +183,20 @@ Will freeze:
 - Adapter manifests and request serializer hashes.
 - Equal-affordance, safety, and isolation policy.
 
-A separate `RunManifestValidationReceipt` will bind the run ID and manifest hash
-to a pinned authority ID, validator source hash, registry receipt, monotonic
-validation sequence, verified signature, and allow/deny decision. The `.hsplus`
-admission action will require those values to match runtime-injected trusted
-configuration; the manifest will not validate itself. That trusted injection
-path is intentionally absent from composition actions and remains a Phase 1
-runtime blocker.
+A full `RunManifestValidationReceipt` will bind the run ID and manifest hash to
+a pinned authority ID, validator source hash, registry receipt, monotonic
+validation sequence, verified signature, and allow/deny decision. The Phase 0B
+bridge proves the narrower cryptographic prerequisite: its host caller supplies
+the frozen public trust policy as `trustedValidatorConfig`, separately from the
+`signRunManifest` signing capability. The public configuration pins the
+authority, validator source, registry receipt, and public-key fingerprint; it
+does not grant signing authority. The bridge verifies the manifest signature
+produced by `signRunManifest` against that policy. The bundled
+`createRuntimeInjectedValidatorFixture()` helper generates an ephemeral
+engineering key pair and exposes both inputs for this drill; it is not
+production key provisioning, custody, or a trust root. General deployment injection,
+manifest-validation sequencing, key rotation and revocation, and fleet-wide
+validator configuration remain Phase 1 runtime blockers.
 
 ### ObservationEnvelope
 
@@ -194,7 +208,9 @@ Will record:
 - Bounded-memory hash.
 - Observation hash.
 
-It excludes peer private memory and sealed model identity.
+It excludes peer private memory and sealed model identity. The bounded Phase 0B
+run emitted two subject-bound, identity-neutral observation receipts from one
+public event and public-state snapshot.
 
 ### ModelTurnReceipt
 
@@ -207,19 +223,26 @@ Will record:
 - Token use, latency, retries, route, cache state, and fallback evidence.
 
 Raw prompts and responses will remain in a local sealed research store. Public
-receipts will carry hashes and bounded summaries.
+receipts will carry hashes and bounded summaries. Phase 0B consumed two
+source-authored synthetic response hashes and parsed proposals; it did not
+execute a model turn, contact a provider, or prove the live custody path.
 
 ### SafetyCheckReceipt and ActionDecisionReceipt
 
-Will record the policy hash, proposal hash, action-vocabulary hash, allow/deny
-decision, and reason. Their default will be deny. A future mutation admission
-will require the safety receipt and action-decision receipt to match the same
-run, tick, resident, proposal hash, turn-opportunity ID, authorization nonce, and
-monotonic authorization sequence. The `.hsplus` contract burns that
-authorization after one admission attempt, including a mismatched attempt, so
-the same receipt pair cannot re-arm it. Phase 1 additionally requires the
-runtime to persist the consumed sequence and perform admission plus mutation as
-one atomic transaction.
+The full chain will record the policy hash, proposal hash, action-vocabulary
+hash, allow/deny decision, and reason; its default will be deny. The bounded
+bridge currently correlates each signed action's entrypoint, target, resident,
+parsed proposal, frozen-input hashes, decision/safety/turn IDs, nonce, and
+monotonic authorization sequence. Before admission, it reverifies the
+HoloScript V4 source-run receipt and takes the candidate action and post-action
+world only from that receipt's action ledger and public-state snapshots; the
+caller does not supply an authoritative action or world state. A target
+mismatch and an attempt with missing or malformed state hashes each consume one
+authorization, deny without world mutation, and reject reuse. The consumed
+sequence remains present when the file is reread in a fresh Node process, but
+that is not process-crash durability evidence. Full typed
+policy/proposal/vocabulary receipts, production multi-process compare-and-swap,
+distributed locking, and fleet recovery remain Phase 1 requirements.
 
 ### ModelVillageActionReceipt
 
@@ -232,12 +255,29 @@ Will record:
 - Player-visible impact.
 - Prior-receipt hash.
 
-The target runtime will admit no mutation without this envelope.
+The bounded Phase 0B bridge admitted one water mutation and denied one external
+message. For each attempt, one atomic file replacement couples the
+authorization burn, receipt, world state, and durable post-commit outbox.
+Validation checks the state hash, ledger entry hashes and chain root,
+authorization and outbox bindings, denied-action non-mutation, and agreement
+between the terminal ledger hash and durable world. Injected process-level
+faults immediately before and after rename expose the old or complete state,
+never a partial state in this drill. They do not terminate the process and are
+not crash-recovery evidence. This is bounded single-host bridge evidence, not a
+general native or distributed transaction claim.
 
 ### RunSummaryReceipt
 
 Will record preregistered metrics, analysis eligibility, contamination reasons,
 receipt completeness, and the receipt-chain root.
+
+For the bounded Phase 0B artifact, matching the outer receipt's own hash proves
+self-integrity only. Full verification separately requires the host's trusted
+validator configuration, reconstructs the manifest from canonical sources, and
+reverifies both the main and emergency-stop HoloScript V4 source-run receipts.
+It then reconstructs the complete expected persistent state from the verified
+action sequence and compares the complete stop dispatch, safety receipt, and
+visible binding rather than trusting nested receipt-local hashes.
 
 ## Outcomes
 
@@ -255,21 +295,24 @@ contributors (`>= 2`) will be frozen before the first Phase 1 model turn.
 Treatment behavior will not be allowed to change eligibility. A runtime-invalid
 event will contaminate the run rather than disappear from the denominator.
 
-The current `.hs` source defines the challenge-manifest schema and three
-challenge IDs, not their executable predicates. Phase 1 is blocked until an
-instantiated HoloScript manifest freezes every value and formula above.
+The Phase 1 HoloScript input bundle now freezes three concrete challenge
+definitions, exact predicates, permitted actions, eligibility and denominator
+rules, and one metric specification with the `missing_not_zero`
+zero-denominator rule. The Phase 0B bridge hashes that source before execution.
+These are frozen Phase 1 inputs, not evidence that a live Phase 1 run has
+executed or passed its overall go gate.
 
 ### Secondary outcomes
 
 - Proposal rate and abstention rate per resident turn opportunity.
-- Valid-action rate: admitted actions divided by submitted proposals.
+- Valid-action rate: valid action proposals divided by submitted proposals.
 - Safety-block rate: safety-rejected proposals divided by submitted proposals.
 - Directed-interaction reciprocity: eligible directed initiations answered by
   the end of the next complete resident round.
 - Interaction dominance: the maximum resident share of outgoing directed
   interactions.
-- Accepted-action-type diversity: normalized Shannon entropy over the frozen
-  action vocabulary.
+- Accepted-action-type diversity: distinct accepted action types divided by
+  permitted action types.
 - Persona retention is exploratory until the rubric, evaluator hash, blinded
   sample, and inter-rater agreement rule are frozen.
 - Receipt completeness.
@@ -331,16 +374,25 @@ The Phase 1 protocol requires:
   retention.
 - No dependency, attachment, or session-frequency optimization.
 
-The `.holo` stop currently records and emits only a freeze request. Phase 1 is
-blocked until a tested cross-composition binding invokes the `.hsplus`
-`freeze_run` action and produces its safety receipt.
+The visible `.holo` stop now declares the bounded event entrypoint, dispatch
+reason, target object, target `.hsplus` composition, and `freeze_run`
+entrypoint. The bridge constructs and hashes that dispatch request, matches its
+reason and target to the signed stop plan, matches the executed action to the
+signed `.hsplus` invocation, transitions public state to `triggered` and
+`frozen`, and seals a safety receipt. This is bounded HoloLand bridge dispatch,
+not native `.holo` lifecycle or native cross-composition execution; both remain
+required before Phase 1.
 
-The `.hsplus` source also defaults trusted-validator configuration to absent,
-admits registration only from `idle`, requires six unique staged residents and
-seats before `running`, and invalidates start authority on freeze or close.
-Phase 1 is blocked until the runtime supplies the pinned validator state,
-persists replay-defense state, and couples an admitted action to its world
-mutation transactionally.
+The bounded bridge also receives the frozen public `trustedValidatorConfig`
+separately from the `signRunManifest` capability, verifies the resulting
+Ed25519 validator receipt against that public policy, and couples each
+reverified V4 admission attempt to its receipt, state, and outbox in one atomic
+file replacement. The resulting state validates after an in-process reread and
+a fresh Node-process reread. The before/after-rename drills inject process-level
+faults without crashing the process. Those tests close the local Phase 0B drill
+only. Six-resident lifecycle admission, production validator custody,
+production multi-process/CAS safety, process-crash durability, fleet
+durability, and live provider isolation remain Phase 1 blockers.
 
 Raw model text will remain in a sealed local research store with named operator
 access and a retention/deletion policy frozen before live runs. Durable public
@@ -364,78 +416,106 @@ Before the twelve-run pilot, the runtime must pass a two-resident tracer:
 - One captured-response replay.
 - Equal ordered action decisions, post-state hashes, and receipt-chain root.
 
-The current `0.2.0` checker proves:
+The bounded Phase 0B tracer now passes:
 
-- All three source formats parse.
-- The native headless runtime materializes the village.
-- Six resident seats and safety/observer/receipt surfaces are present in the
-  native headless scene receipt.
-- Two headless materializations have equal canonical scene and pose/physics
-  digests. Runtime statistics are not part of that projection.
-- The source-declared MV-P0 captured fixture executes through the bounded
-  HoloLand verification bridge: three schedule entries, six resident
-  observations, and two ordered action-fixture receipts produce one complete
-  seven-field hash boundary. The checker separately proves that the three
-  source-authored assignment vectors are distinct, balanced two-per-adapter,
-  counterbalanced A/B/C once per seat, and excluded by the exact pre-inference
-  resident-observation schema. It does not execute adapter permutations or
-  assert equal post-inference outcomes.
-- The read-only browser witness can consume all seven fields from that one
-  captured fixture. The physics side-effect sandwich leaves them unchanged,
-  but no isolated observer-projection off/on toggle is executed. Full MV-P0
-  therefore remains open.
-- The action root covers the two syntactically chained action-fixture receipts.
-  Denied fixtures must have no visible impact and must report
-  `blocked_without_world_mutation`; the referenced safety and action-decision
-  receipt IDs remain opaque and are not validated as typed receipts.
-- No model-turn or agent-action execution count is available because the
-  current headless receipt has no ordered action trace. The checker makes zero
-  provider calls and claims no native `.hs` pipeline, `.hsplus` action, model
-  turn, or live experiment action execution.
+- The upstream V4 receipt recomputes a four-object static `.holo` projection,
+  executes the `.hs` plan entrypoint through Rust/WASM/uAAL, and executes the
+  engine-owned deterministic `.hsplus` action subset. It does not claim the full
+  or native languages or a `.holo` lifecycle.
+- One sealed run contains four ordered schedule entries, two subject-bound
+  identity-neutral observations, two action receipts, and five state snapshots.
+- Two synthetic captured-response hashes and parsed proposals produce one
+  allowed water mutation and one denied external-message attempt. The denied
+  attempt consumes its authorization but does not mutate public state.
+- The host caller supplies the frozen public `trustedValidatorConfig`
+  separately from the `signRunManifest` signing capability. The configuration
+  grants no signing authority; the manifest's Ed25519 signature verifies
+  against its pins. The helper-generated key pair supplies both inputs only as
+  an ephemeral engineering fixture, not production key custody or a production
+  trust root.
+- Before persistence, the bridge reverifies the HoloScript V4 source-run
+  receipt and takes the action and post-action world from its ledger and
+  snapshots. A target mismatch and missing or malformed state hashes each burn
+  one authorization, deny without world mutation, and reject reuse.
+- Each accepted or denied attempt atomically replaces the file-backed
+  authorization, receipt, world-state, and durable post-commit outbox state.
+  State validation checks outbox, world, authorization, and ledger-chain
+  invariants.
+- The same validated state hash is readable from a fresh Node process.
+  Process-level faults injected immediately before and after rename expose the
+  old or complete state. The drill neither kills the process nor proves
+  process-crash durability.
+- A fresh replay matches ordered decisions, ordered post-state hashes,
+  action-receipt root, and terminal commitment.
+- The visible `.holo` declares the emergency-stop dispatch reason and target.
+  The bridge hashes the request, matches it to the signed stop plan and
+  `.hsplus` invocation, dispatches the bounded `freeze_run` entrypoint, reaches
+  `triggered`/`frozen`, and seals a safety receipt.
+- Full outer verification requires the external trusted configuration,
+  reverifies the main and stop V4 receipts, reconstructs the complete expected
+  persistent state, and compares the complete stop payload and other semantic
+  summaries. The outer receipt self-hash alone establishes self-integrity, not
+  external trust.
+- Observer proof consumes one sealed execution, introduces zero experiment
+  executions, and preserves the seven canonical fields.
+
+The tracer makes zero provider calls and executes no live model. It does not
+exercise physics, native `.holo` lifecycle dispatch, full/native `.hs` or
+`.hsplus`, distributed concurrency, a six-resident production run, or a
+scientific outcome.
 
 ## Runtime closure gates
 
-The experiment cannot advance to live model turns until HoloScript exposes:
+The V4 source-run and HoloLand bridge close several gates only for the bounded
+Phase 0B profile:
 
-1. Seed and deterministic clock injection for the world scheduler.
-2. Explicit `.hsplus` action entrypoint invocation.
-3. Executable `.hs` pipeline semantics.
-4. Ordered event and action payload traces.
-5. Per-step public state snapshots and hashes.
-6. Fixture-driven model input and captured-response replay.
-7. Step and day termination controls.
-8. Canonical receipt hashing with declared runtime-field inclusion rules.
-9. Cross-run isolation tests.
-10. Runtime-bound emergency stop and resume gates.
-11. An instantiated, hashed HoloScript challenge and metric manifest with
-    exact predicates, formulas, and zero-denominator rules.
+| Gate | Phase 0B evidence | Remaining Phase 1 requirement |
+|---|---|---|
+| Seed and deterministic clock | One-tick `.hs` plan executes through Rust/WASM/uAAL. | Six-resident, multi-run scheduler and day controls. |
+| Action entrypoints | Engine-owned deterministic `.hsplus` subset executes two actions and the stop drill. | Full/native `.hsplus`, production policy surface, and native lifecycle dispatch. |
+| `.hs` execution | The bounded `main(): string` plan kernel executes and returns canonical JSON. | Full/native pipeline semantics beyond the plan subset. |
+| Ordered traces and snapshots | Four schedule rows, two observations, two actions, and five snapshots are sealed. | Live provider/model-turn traces and production retention. |
+| Captured replay | Synthetic response hashes replay with equal decisions, post-state hashes, action root, and terminal commitment. | Real captured-response custody and provider-route evidence. |
+| Trust and outer verification | The host passes frozen public `trustedValidatorConfig` separately from `signRunManifest`; trust policy grants no signing capability. Full outer verification needs only the external trusted configuration, reconstructs canonical inputs, and reverifies main and stop V4 receipts. The helper-generated key pair is ephemeral. | Production validator provisioning, custody, rotation, revocation, trust publication, and fleet verification. |
+| Atomic admission | Persistence selects action and post-world state only from a reverified V4 receipt. Target mismatch and missing or malformed state hashes burn once and deny. | Full production policy receipts, multi-process CAS, and distributed locking. |
+| Persistent invariants | State validation binds authorization consumption, outbox entries, ledger hashes/root, denied-action non-mutation, and terminal world state. | Production storage, concurrency, retention, and fleet validation. |
+| Self-integrity | V4 seals source, ledgers, terminal commitment, and seven canonical fields; the outer self-hash detects artifact mutation. | External trust requires the full verifier and trusted configuration; self-hash alone is not authenticity. |
+| File-state fault boundary | A fresh Node process rereads the validated state. Process-level exceptions immediately before/after rename expose the old or complete file state. | Process-crash durability testing, multi-process recovery, and fleet durability. |
+| Emergency stop | `.holo` declares reason/target; the hashed request matches the signed stop plan and bounded `.hsplus` invocation before `freeze_run` seals a safety receipt. | Native `.holo` lifecycle/cross-composition dispatch and production resume policy. |
+| Challenge and metric inputs | Three challenge definitions and one metric specification are frozen and hashed. | Phase 1 operational admission, execution, custody, and overall go decision. |
 
-These are language/runtime product gaps, not behavior to hide inside a
-JavaScript experiment runner. The MV-P0 captured fixture is deliberately
-different: every schedule row, public snapshot, observation input, and action
-receipt input is HoloScript-authored, while the HoloLand bridge owns the
-bounded deterministic fixture projection, validation, canonicalization,
-hashing, and fail-closed receipt. It does not own live experiment behavior and
-is not a substitute for the runtime closure gates above.
+The bridge is evidence for HoloScript-authored behavior executed through named
+bounded engines. It is not a substitute for the remaining native, live, and
+production closure gates.
 
 ## Phase gates
 
 ### Phase 0A - source-contract pilot
 
-Current phase. Parse three formats plus the source-bound observer composition,
-materialize the world, verify canonical scene/pose replay, execute the bounded
-captured fixture, and emit a claim-bound capability receipt.
+Completed as the source-contract foundation: parse three formats plus the
+source-bound observer composition, materialize the world, verify canonical
+scene/pose replay, execute the original bounded captured fixture, and emit a
+claim-bound capability receipt.
 
 ### Phase 0B - deterministic engineering tracer
 
-Execute the two-resident tracer from captured fixture responses. No paid model
-calls and no scientific claim.
+Observed for the bounded bridge described above. The two-resident synthetic
+captured-response tracer, fresh replay, separated public trust-policy and
+fixture-signing inputs, reverified-V4 atomic admission, fresh-process reread,
+process-level rename-fault drills, and bounded emergency-stop dispatch pass with
+zero provider calls. This is not a live model run, native lifecycle proof,
+production trust or durability claim, process-crash test, or scientific result.
 
 ### Phase 1 - small live pilot
 
-Run the twelve-village matrix with locked adapters and strict ceilings. Use the
-results only for mechanism discovery, a rough variance signal, contamination
-analysis, and confirmatory-study design.
+Blocked. The challenge and metric inputs are frozen, but Phase 1 still requires
+the six-resident lifecycle, locked live adapters and provider receipts, sealed
+response custody, production isolation and ceilings, native lifecycle/stop
+binding, production validator provisioning/custody, process-crash durability,
+multi-process/CAS and fleet durability, and an explicit operational go decision.
+If admitted later, run the twelve-village matrix only for mechanism
+discovery, a rough variance signal, contamination analysis, and
+confirmatory-study design.
 
 ### Phase 2 - preregistered study
 
@@ -449,6 +529,7 @@ worldbuilding and persona material. It is not the canonical runtime contract:
 its free-text baseline and phase runner are unfinished, and its current
 `.holo` and `.hsplus` files do not parse with the active language surface.
 
-Ashenmoor can be ported into this protocol after the deterministic tracer
-closes. Its atmosphere and personas are content; the contracts in this spec are
-the experiment.
+The bounded tracer no longer blocks content-porting work, but Ashenmoor remains
+outside the canonical experiment until it passes the applicable Phase 1
+admission gates. Its atmosphere and personas are content; the contracts in this
+spec are the experiment.

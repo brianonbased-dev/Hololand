@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* global console, process, structuredClone */
+
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import {
@@ -41,7 +43,8 @@ const { receipt } = await runModelVillageCheck({
   tickRate: 10,
 });
 
-assert.equal(receipt.schemaVersion, 'hololand.model-village-experiment.v0.2.0');
+assert.equal(receipt.schemaVersion, 'hololand.model-village-experiment.v0.3.0');
+assert.equal(receipt.studyPhase, 'phase0b_bounded_engineering_tracer');
 assert.equal(receipt.status, 'pass');
 assert.equal(receipt.sourceContract.threeFormat, true);
 assert.deepEqual(
@@ -65,11 +68,152 @@ assert.equal(receipt.runtimeEvidence.capturedFixtureResidentObservationsMaterial
 assert.equal(receipt.runtimeEvidence.capturedFixtureActionReceiptsSealed, 2);
 assert.equal(receipt.runtimeEvidence.nativeHsPipelineExecutionClaimed, false);
 assert.equal(receipt.runtimeEvidence.nativeHsplusActionExecutionClaimed, false);
+assert.deepEqual(receipt.runtimeEvidence.boundedPhase0B, {
+  sourceRunSchema: 'holoscript.headless-experiment-source-run.v4',
+  scheduleEntriesExecuted: 4,
+  residentObservationsMaterialized: 2,
+  boundedHsplusSubsetActionsExecuted: 2,
+  publicStateSnapshotsMaterialized: 5,
+  capturedResponsesConsumed: 2,
+  allowedWorldMutationsCommitted: 1,
+  deniedAuthorizationAttemptsConsumed: 1,
+  authorizationAttemptsConsumed: 2,
+  cryptographicValidatorVerified: true,
+  hostSuppliedValidatorConfigPinned: true,
+  validatorKeyCustody: 'ephemeral_engineering_fixture',
+  atomicCommitBoundToVerifiedV4SourceRun: true,
+  sameProcessPersistentStateRereadRecovered: true,
+  separateProcessPersistentStateRereadRecovered: true,
+  mismatchedTargetAttemptBurnedAndDenied: true,
+  malformedHashAttemptBurnedAndDenied: true,
+  faultBeforeRename: 'injected_process_level_old_state_recovered',
+  faultAfterRename: 'injected_process_level_complete_new_state_recovered',
+  replayAfterRestartRejected: true,
+  freshCapturedResponseReplayMatches: true,
+  emergencyStopBridgeExecuted: true,
+  boundedHoloToHsplusStopDispatchExecuted: true,
+  providerCallsMade: 0,
+  transactionScope: 'verified_v4_per_action_single_host_file_atomic_bridge',
+});
 assert.equal(receipt.capabilityStatus.observed.worldMaterialization, true);
 assert.equal(receipt.capabilityStatus.observed.canonicalSceneReplay, true);
 assert.equal(receipt.capabilityStatus.observed.capturedObserverBoundaryFixtureReplay, true);
+assert.equal(receipt.capabilityStatus.observed.boundedPhase0BEngineeringTracer, true);
+assert.equal(
+  receipt.capabilityStatus.targetObservedScope,
+  'live_full_native_and_scientific_experiment',
+);
+assert.deepEqual(receipt.capabilityStatus.boundedBridgeObserved, {
+  sourceRunV4Verified: true,
+  boundedHsplusEntrypointExecution: true,
+  capturedResponseActionReplay: true,
+  perStepPublicStateSnapshots: true,
+  challengeAndMetricManifestsHashed: true,
+  cryptographicTrustedValidator: true,
+  hostSuppliedValidatorConfigPinned: true,
+  persistentAuthorizationConsumption: true,
+  verifiedV4PerActionSingleHostFileAtomicCommit: true,
+  separateProcessPersistentStateRecovery: true,
+  invalidAuthorizationAttemptsBurnedAndDenied: true,
+  emergencyStopBridge: true,
+  boundedHoloToHsplusStopDispatch: true,
+});
 assert.equal(receipt.capabilityStatus.targetObserved.liveModelAdapterInvocation, false);
 assert.equal(receipt.capabilityStatus.targetObserved.receiptedActionExecution, false);
+assert.equal(receipt.capabilityStatus.targetObserved.processCrashDurability, false);
+assert.equal(receipt.capabilityStatus.targetObserved.productionDistributedTransactions, false);
+assert.equal(receipt.capabilityStatus.targetObserved.productionValidatorTrust, false);
+assert.equal(receipt.engineeringTracer.status, 'pass');
+assert.equal(
+  receipt.engineeringTracer.schema,
+  'hololand.model-village-phase0b-runtime-bridge.v1',
+);
+assert.equal(
+  Object.values(receipt.engineeringTracer.assertions).every((passed) => passed === true),
+  true,
+);
+assert.deepEqual(receipt.engineeringTracer.runtime.counts, {
+  schedule: 4,
+  observations: 2,
+  actions: 2,
+  publicStateSnapshots: 5,
+});
+assert.deepEqual(
+  receipt.engineeringTracer.runtime.actionDecisions.map(
+    ({ allowed, stateChanged }) => ({ allowed, stateChanged }),
+  ),
+  [
+    { allowed: true, stateChanged: true },
+    { allowed: false, stateChanged: false },
+  ],
+);
+assert.equal(receipt.engineeringTracer.runtime.capturedResponsesConsumed, 2);
+assert.equal(receipt.engineeringTracer.validator.signatureVerified, true);
+assert.equal(receipt.engineeringTracer.persistence.authorizationAttemptsConsumed, 2);
+assert.equal(receipt.engineeringTracer.persistence.deniedAttemptsConsumed, 1);
+assert.equal(receipt.engineeringTracer.persistence.atomicActionReceiptsCommitted, 2);
+assert.equal(receipt.engineeringTracer.persistence.restartRecovered, true);
+assert.equal(receipt.engineeringTracer.persistence.sameProcessRereadRecovered, true);
+assert.equal(receipt.engineeringTracer.persistence.separateProcessRereadRecovered, true);
+assert.equal(receipt.engineeringTracer.persistence.mismatchedTargetAttemptBurnedAndDenied, true);
+assert.equal(receipt.engineeringTracer.persistence.malformedHashAttemptBurnedAndDenied, true);
+assert.equal(
+  receipt.engineeringTracer.persistence.faultBeforeRename,
+  'injected_process_level_old_state_recovered',
+);
+assert.equal(
+  receipt.engineeringTracer.persistence.faultAfterRename,
+  'injected_process_level_complete_new_state_recovered',
+);
+assert.equal(receipt.engineeringTracer.persistence.replayAfterRestartRejected, true);
+assert.equal(receipt.engineeringTracer.replay.match, true);
+assert.equal(
+  receipt.engineeringTracer.assertions.atomicCommitBoundToVerifiedV4SourceRun,
+  true,
+);
+assert.equal(
+  receipt.engineeringTracer.assertions.separateProcessPersistentStateRecovery,
+  true,
+);
+assert.equal(
+  receipt.engineeringTracer.emergencyStop.finalPublicState.emergencyStopState,
+  'triggered',
+);
+assert.equal(receipt.engineeringTracer.emergencyStop.finalPublicState.phase, 'frozen');
+assert.equal(receipt.engineeringTracer.claimBoundary.liveModelProviderCallsClaimed, false);
+assert.equal(receipt.engineeringTracer.claimBoundary.fullHoloWorldExecutionClaimed, false);
+assert.equal(receipt.engineeringTracer.claimBoundary.fullHsLanguageExecutionClaimed, false);
+assert.equal(receipt.engineeringTracer.claimBoundary.fullHsplusLanguageExecutionClaimed, false);
+assert.equal(receipt.engineeringTracer.claimBoundary.nativeHoloLifecycleExecutionClaimed, false);
+assert.equal(receipt.engineeringTracer.claimBoundary.nativeHsplusEngineExecutionClaimed, false);
+assert.equal(receipt.engineeringTracer.claimBoundary.physicsEngineExecutionClaimed, false);
+assert.equal(receipt.engineeringTracer.claimBoundary.processCrashDurabilityClaimed, false);
+assert.equal(
+  receipt.engineeringTracer.claimBoundary.productionDistributedTransactionClaimed,
+  false,
+);
+assert.equal(
+  receipt.engineeringTracer.claimBoundary.productionValidatorTrustClaimed,
+  false,
+);
+assert.equal(
+  receipt.engineeringTracer.claimBoundary.trustedValidatorInjection,
+  'caller_supplied_frozen_host_config',
+);
+assert.equal(
+  receipt.engineeringTracer.claimBoundary.trustedValidatorKeyCustody,
+  'ephemeral_engineering_fixture',
+);
+assert.equal(receipt.engineeringTracer.claimBoundary.scientificOutcomeClaimed, false);
+assert.equal(
+  receipt.engineeringTracer.claimBoundary.boundedHoloToHsplusStopDispatchExecuted,
+  true,
+);
+assert.equal(
+  receipt.engineeringTracer.claimBoundary.transactionScope,
+  'verified_v4_per_action_single_host_file_atomic_bridge',
+);
+assert.equal(receipt.engineeringTracer.claimBoundary.worldRuntimeLifecycleExecuted, false);
 assert.equal(receipt.experimentDesign.models, 3);
 assert.equal(receipt.experimentDesign.residents, 6);
 assert.equal(receipt.experimentDesign.conditions.length, 4);
@@ -299,6 +443,11 @@ const negativeFiles = [
   'source/layers/vr/frontier/model-village/model-village-observer-projection.holo',
   'source/domains/agents/model-village-experiment.hsplus',
   'source/proofs/model-village-trial-kernel.hs',
+  'source/proofs/model-village-phase0b-behavior.hsplus',
+  'source/proofs/model-village-phase0b-plan.hs',
+  'source/proofs/model-village-phase0b-stop-plan.hs',
+  'source/proofs/model-village-phase0b-world.holo',
+  'source/proofs/model-village-phase1-manifests.hs',
   'docs/specs/HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md',
   'package.json',
 ];
