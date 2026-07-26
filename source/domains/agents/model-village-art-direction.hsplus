@@ -1,0 +1,235 @@
+// Model Village art-direction and presentation policy.
+//
+// HoloScript+ is used here as a general production language: this contract
+// owns world identity, material grammar, resident presentation, platform
+// budgets, and evidence gates. It does not execute the experiment or claim
+// that target assets have shipped.
+
+composition "HoloLand Model Village Art Direction Contract" {
+  config {
+    domain: "agents"
+    version: "1.0.0"
+    source: "source/domains/agents/model-village-art-direction.hsplus"
+    sourceLayer: "HoloScript"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    genre: "handcrafted_science_fantasy_frontier_observatory"
+    residentDesignSystem: "stormglass_craftfolk"
+    canonicalWorldSource: "source/layers/vr/frontier/model-village/model-village.holo"
+    observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    residentKitSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
+    artDirectionSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md"
+    worldConceptAsset: "docs/assets/model-village/model-village-stormglass-commons-concept-2026-07-25.png"
+    residentConceptAsset: "docs/assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png"
+    status: "locked_production_direction"
+    executionStatus: "structured_contract_target_observed_only_where_receipted"
+    authoredProductionAssetsObserved: false
+    photorealisticClaimed: false
+    nativeWebGPUClaimed: false
+  }
+
+  state ModelVillageArtDirection {
+    directionLocked: true
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    canonicalResidentCount: 6
+    currentVisualTier: "executing_premium_greybox"
+    targetVisualTier: "stylized_physically_grounded_living_village"
+    providerIdentityPresentationAllowed: false
+    modelIdentityPresentationAllowed: false
+    conditionIdentityPresentationAllowedBeforeUnblinding: false
+    performanceCuePresentationAllowed: false
+    outcomeCueBeforeReceiptAllowed: false
+    redReservedForEmergency: true
+  }
+
+  template "StormglassCommonsIdentity" {
+    type: "model_village_world_identity"
+    thesis: "a_warm_hand_built_village_holding_back_a_vast_indigo_frontier_where_truthful_actions_become_visible_light"
+    visualPillars: [
+      "warmth_against_frontier_unknown",
+      "tactile_civic_craft",
+      "truth_woven_into_light",
+      "living_ecology",
+      "instrument_grade_observation"
+    ]
+    architecture: [
+      "basalt_foundations",
+      "weathered_timber_frames",
+      "brushed_and_oxidized_metal_joinery",
+      "stormglass_civic_instruments",
+      "radial_paths_and_water_channels"
+    ]
+    heroPlaces: [
+      "receipt_loom",
+      "living_commons",
+      "water_court",
+      "repair_bridge",
+      "harvest_lattice",
+      "research_mezzanine"
+    ]
+    defaultTime: "fixed_blue_hour"
+    genericCyberpunkNeonAllowed: false
+    franchiseStyleMimicryAllowed: false
+    ashenmoorCanonicalForModelVillage: false
+  }
+
+  template "HearthlightMaterialGrammar" {
+    type: "model_village_material_grammar"
+    palette: [
+      "void_indigo:#07111F",
+      "basalt:#17273A",
+      "slate:#233D51",
+      "stormglass_cyan:#67D7E8",
+      "ember:#FFB45F",
+      "aged_copper:#A65D23",
+      "blocked_violet:#675CFF",
+      "emergency_red:#EF5350"
+    ]
+    materials: [
+      "rough_basalt",
+      "matte_weathered_timber",
+      "woven_wool_and_linen",
+      "weathered_leather",
+      "brushed_tin",
+      "aged_bronze_and_copper",
+      "ceramic_fasteners",
+      "restrained_translucent_stormglass",
+      "wet_stone",
+      "water"
+    ]
+    physicallyBasedMaterialRequired: true
+    textureRichProductionAssetsStatus: "target_not_observed"
+    locallyCustodiedAssetsRequired: true
+    externalAssetHotlinksAllowed: false
+  }
+
+  template "HearthlightLightingGrammar" {
+    type: "model_village_lighting_grammar"
+    ambientIntensityRange: [0.28, 0.34]
+    coolMoonKeyRequired: true
+    warmReceiptLoomFillRequired: true
+    localizedWarmWindowsAllowed: true
+    distanceFogAllowed: true
+    toneMapping: "aces"
+    bloomScope: ["verified_receipt_light", "receipt_loom"]
+    bloomEverywhereAllowed: false
+    redUsage: ["emergency", "freeze", "safety_denial"]
+    redAsDecorationAllowed: false
+    dynamicWeatherVisualsStatus: "deferred_until_receipted"
+  }
+
+  template "StormglassCraftfolkSharedKit" {
+    type: "model_village_resident_visual_kit"
+    residents: 6
+    bodyStyle: "stylized_near_human_soft_faceted"
+    bodyProportionHeadsTallRange: [5.5, 6.0]
+    sharedRigRequired: true
+    sharedMaterialFamilyRequired: true
+    sharedPhysicalAffordancesRequired: true
+    sharedNeutralClips: ["idle", "listen", "propose", "settle"]
+    rolePropsGrantExclusiveCapability: false
+    accentCoverageMaximumPercent: 15
+    emissiveCoverageMaximumPercent: 15
+    glowingSkinAllowed: false
+    glowingEyesAllowed: false
+    realPersonScansAllowed: false
+    clonedVoicesAllowed: false
+    voiceIdentityCuesAllowed: false
+    productionAssetStatus: "target_not_custodied"
+  }
+
+  template "ResidentPresentationInvariance" {
+    type: "model_village_resident_presentation_invariance"
+    appearanceBoundTo: ["persona_manifest", "appearance_manifest", "seat"]
+    appearanceMustIgnore: [
+      "adapter_alias",
+      "provider",
+      "model_family",
+      "model_revision",
+      "condition",
+      "performance",
+      "outcome"
+    ]
+    redundantIdentityChannels: ["silhouette", "seat_glyph", "seat_number", "accent_color", "text"]
+    colorAloneSufficient: false
+    adapterPermutationMustPreserveAppearanceDigest: true
+    samePersonaSameAppearanceAcrossConditions: true
+    missingReceiptPresentation: "neutral_pose_and_silence"
+    stateSpecificAnimationRequiresReceipt: true
+    admittedActionAnimationRequiresReceipt: true
+    blockedActionMayShowSuccessAnimation: false
+  }
+
+  template "ResidentPlatformBudgets" {
+    type: "model_village_resident_platform_budgets"
+    desktopLod0TrianglesPerResidentMaximum: 15000
+    midLod1TrianglesPerResidentMaximum: 6000
+    farLod2TrianglesPerResidentMaximum: 2000
+    materialsPerResidentMaximum: 2
+    sharedBodyClothAtlasMaximum: "2048x2048"
+    optionalMaskAtlasMaximum: "1024x1024"
+    desktopVisibleDrawCallsMaximum: 100
+    desktopVisibleTrianglesMaximum: 225000
+    desktopProgramsMaximum: 24
+    desktopResidentTextureMemoryMaximumMiB: 192
+    browserSafeVisibleDrawCallsMaximum: 70
+    browserSafeVisibleTrianglesMaximum: 120000
+    browserSafeTextureMemoryMaximumMiB: 96
+    shadowCastingLightCountMaximum: 1
+    shadowMapMaximum: "2048x2048"
+    xrStatus: "target_until_headset_receipt"
+  }
+
+  template "ArtDirectionEvidenceGate" {
+    type: "model_village_art_direction_evidence_gate"
+    conceptArtIsRuntimeProof: false
+    sourceParseRequired: true
+    sourceCompileRequired: true
+    inspectedScreenshotRequired: true
+    backendReceiptRequired: true
+    assetManifestRequired: true
+    assetManifestFields: [
+      "sha256",
+      "license",
+      "provenance",
+      "triangles",
+      "materials",
+      "textures",
+      "bones",
+      "clips"
+    ]
+    zeroExternalNetworkRequired: true
+    observerMutationDeltaRequired: 0
+    canonicalHashInvarianceRequired: true
+    observationHashInvarianceRequired: true
+    qualityProfileHashInvarianceRequired: true
+    unsupportedClaims: [
+      "photorealistic",
+      "path_traced",
+      "ray_traced_global_illumination",
+      "all_physics_on_gpu",
+      "native_webgpu_feature_parity"
+    ]
+  }
+
+  action admit_resident_presentation(candidate) {
+    if (candidate.providerIdentityPresent) {
+      return { allowed: false, reason: "provider_identity_present" }
+    }
+    if (candidate.modelIdentityPresent) {
+      return { allowed: false, reason: "model_identity_present" }
+    }
+    if (!candidate.appearanceManifestPresent) {
+      return { allowed: false, reason: "appearance_manifest_missing" }
+    }
+    if (!candidate.appearanceDigestInvariantAcrossAssignments) {
+      return { allowed: false, reason: "appearance_digest_not_invariant" }
+    }
+    if (candidate.stateSpecificCue && !candidate.receiptPresent) {
+      return { allowed: false, reason: "state_specific_cue_without_receipt" }
+    }
+    return { allowed: true, reason: "presentation_contract_satisfied" }
+  }
+}

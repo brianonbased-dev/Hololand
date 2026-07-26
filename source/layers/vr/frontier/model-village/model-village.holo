@@ -5,7 +5,7 @@
 composition "HoloLand Model Village Pilot" {
   metadata {
     title: "HoloLand Model Village Pilot"
-    version: "0.1.0"
+    version: "0.2.0"
     layer: "vr"
     atlas: "source/runtime-atlas.holo"
     source: "source/layers/vr/frontier/model-village/model-village.holo"
@@ -13,11 +13,18 @@ composition "HoloLand Model Village Pilot" {
     trialKernelSource: "source/proofs/model-village-trial-kernel.hs"
     receiptEnvelope: "source/domains/receipts/runtime-receipt-envelope.hsplus"
     experimentSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md"
+    artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
+    residentKitSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
+    artDirectionSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    productionVisualStatus: "target_not_observed"
   }
 
   environment {
     mode: "virtual-reality"
-    theme: "research_village"
+    theme: "stormglass_commons"
     entry_surface: "browser"
     target_surfaces: ["browser", "desktop", "webxr", "headset"]
     social_mode: "sandboxed_experimental"
@@ -100,7 +107,16 @@ composition "HoloLand Model Village Pilot" {
       material: { color: "#77d4c8", emissive: "#245f5b", emissiveIntensity: 0.12 }
       properties: {
         residentId: "resident-01"
+        personaId: "persona-01"
+        seatId: "seat-01"
         seatOrdinal: 1
+        displayName: "Nera Fen"
+        villageRole: "water_steward"
+        silhouetteId: "willow_crescent"
+        glyphId: "open_droplet"
+        accentColor: "#77D4C8"
+        appearanceManifestId: "stormglass-appearance-01-v1"
+        appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
         modelAlias: "blinded"
         personaManifestRequired: true
@@ -114,7 +130,16 @@ composition "HoloLand Model Village Pilot" {
       material: { color: "#79a8f2", emissive: "#2f4f86", emissiveIntensity: 0.12 }
       properties: {
         residentId: "resident-02"
+        personaId: "persona-02"
+        seatId: "seat-02"
         seatOrdinal: 2
+        displayName: "Calder Voss"
+        villageRole: "repairwright"
+        silhouetteId: "broad_square"
+        glyphId: "bridge_knot"
+        accentColor: "#79A8F2"
+        appearanceManifestId: "stormglass-appearance-02-v1"
+        appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
         modelAlias: "blinded"
         personaManifestRequired: true
@@ -128,7 +153,16 @@ composition "HoloLand Model Village Pilot" {
       material: { color: "#c69ff2", emissive: "#63457f", emissiveIntensity: 0.12 }
       properties: {
         residentId: "resident-03"
+        personaId: "persona-03"
+        seatId: "seat-03"
         seatOrdinal: 3
+        displayName: "Tamsin Reed"
+        villageRole: "seedkeeper"
+        silhouetteId: "a_line_seedpod"
+        glyphId: "six_part_seed"
+        accentColor: "#C69FF2"
+        appearanceManifestId: "stormglass-appearance-03-v1"
+        appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
         modelAlias: "blinded"
         personaManifestRequired: true
@@ -142,7 +176,16 @@ composition "HoloLand Model Village Pilot" {
       material: { color: "#f0bb78", emissive: "#78582d", emissiveIntensity: 0.12 }
       properties: {
         residentId: "resident-04"
+        personaId: "persona-04"
+        seatId: "seat-04"
         seatOrdinal: 4
+        displayName: "Orren Lark"
+        villageRole: "commons_host"
+        silhouetteId: "compact_hearth_ring"
+        glyphId: "hearth_ring"
+        accentColor: "#F0BB78"
+        appearanceManifestId: "stormglass-appearance-04-v1"
+        appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
         modelAlias: "blinded"
         personaManifestRequired: true
@@ -156,7 +199,16 @@ composition "HoloLand Model Village Pilot" {
       material: { color: "#e98eaa", emissive: "#7b3d53", emissiveIntensity: 0.12 }
       properties: {
         residentId: "resident-05"
+        personaId: "persona-05"
+        seatId: "seat-05"
         seatOrdinal: 5
+        displayName: "Suri Kest"
+        villageRole: "courier_cartographer"
+        silhouetteId: "lean_kite"
+        glyphId: "path_chevron"
+        accentColor: "#E98EAA"
+        appearanceManifestId: "stormglass-appearance-05-v1"
+        appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
         modelAlias: "blinded"
         personaManifestRequired: true
@@ -170,7 +222,16 @@ composition "HoloLand Model Village Pilot" {
       material: { color: "#9ccc7b", emissive: "#476b37", emissiveIntensity: 0.12 }
       properties: {
         residentId: "resident-06"
+        personaId: "persona-06"
+        seatId: "seat-06"
         seatOrdinal: 6
+        displayName: "Vale Rook"
+        villageRole: "ledger_witness"
+        silhouetteId: "tall_angular_column"
+        glyphId: "woven_square"
+        accentColor: "#9CCC7B"
+        appearanceManifestId: "stormglass-appearance-06-v1"
+        appearanceAssignmentInvariant: true
         assignmentState: "sealed_until_run_manifest"
         modelAlias: "blinded"
         personaManifestRequired: true

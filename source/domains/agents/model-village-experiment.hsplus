@@ -5,7 +5,7 @@
 composition "HoloLand Model Village Experiment Contract" {
   config {
     domain: "agents"
-    version: "0.1.0"
+    version: "0.2.0"
     atlas: "source/runtime-atlas.holo"
     sourceLayer: "HoloScript"
     worldSource: "source/layers/vr/frontier/model-village/model-village.holo"
@@ -15,6 +15,9 @@ composition "HoloLand Model Village Experiment Contract" {
     receiptEnvelope: "source/domains/receipts/runtime-receipt-envelope.hsplus"
     safetyAuthority: "source/domains/safety/safety-authority.hsplus"
     experimentSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md"
+    artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
+    residentKitSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
     phase: "source_contract_pilot"
     trustedValidatorRuntimeBindingStatus: "target_not_observed_phase_1_blocker"
     mutationTransactionBindingStatus: "target_not_observed_phase_1_blocker"
@@ -100,6 +103,7 @@ composition "HoloLand Model Village Experiment Contract" {
       "run_id",
       "assignment_manifest_hash",
       "persona_manifest_hash",
+      "appearance_manifest_hash",
       "brain_source_hash",
       "model_instance_id",
       "adapter_alias",
@@ -114,6 +118,10 @@ composition "HoloLand Model Village Experiment Contract" {
     actionProposalLimitPerTick: 1
     actionReceiptRequired: true
     abstentionAllowed: true
+    appearanceInvariantAcrossConditions: true
+    appearanceMayEncodeAdapterIdentity: false
+    appearanceMayEncodeProviderIdentity: false
+    appearanceMayEncodePerformanceOrOutcome: false
   }
 
   template "LockedModelAdapterManifest" {

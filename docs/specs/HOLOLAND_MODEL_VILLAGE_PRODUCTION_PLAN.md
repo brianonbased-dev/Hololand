@@ -1,12 +1,14 @@
 # HoloLand Model Village Production Plan
 
-**Status:** Experience vision and execution plan
+**Status:** Execution plan with locked art direction
 
-**Version:** 0.4.0
+**Version:** 0.5.0
 
 **Date:** 2026-07-25
 
 **Canonical experiment contract:** [HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md](./HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md)
+
+**Canonical art direction:** [Stormglass Commons / Hearthlight Biorealism](./HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md)
 
 **Product source:** HoloScript
 
@@ -74,6 +76,9 @@ receipts.
 
 | Register | 2026-07-25 statement |
 |---|---|
+| Observed | Stormglass Commons, Hearthlight Biorealism, and the six Stormglass Craftfolk are locked in a HoloScript `.holo` / `.hsplus` / `.hs` source triad. A dedicated checker parses all three formats, matches the six identities across world, observer, kit, and proof, recomputes appearance digests, and verifies adapter/condition invariance. |
+| Observed | Two locally custodied concept targets define the production world and resident lineup. They are art targets, not runtime screenshots or proof that authored assets have shipped. |
+| Observed | The refreshed browser witness renders six seat-stable, differently scaled resident proxies while retaining zero observer mutation, the bounded seven-field V4 comparison, WebGL2 hardware evidence, and the existing performance gate. |
 | Observed | The canonical three-format pilot parses, materializes twelve objects, and reproduces its canonical scene and pose/physics projections in two native headless runs. |
 | Observed | A 1600 x 900 HoloScript screenshot was captured from the canonical `.holo` source. |
 | Observed | The local hardware baseline reports an RTX 3060 Laptop GPU with 6 GB VRAM, 32 GB system memory, Node 24, and installed Chrome/Edge browsers. |
@@ -139,12 +144,13 @@ The bounded V4 consumer sandwich and receipt-driven visual are recorded in
 ![Living Commons portrait witness](../assets/model-village/model-village-living-commons-portrait-2026-07-25.png)
 
 These images are executing HoloScript-authored observer evidence. They remain a
-premium greybox, not a claim that the aspirational Bioluminescent Frontier
-Observatory below has shipped.
+premium greybox, not a claim that the locked Stormglass Commons production
+target below has shipped.
 
-## Experience thesis: the Living Observatory
+## Locked experience thesis: Stormglass Commons
 
-The art direction target is a **Bioluminescent Frontier Observatory**:
+The production world is **Stormglass Commons**, rendered in **Hearthlight
+Biorealism**:
 
 - A compact settlement grown from dark basalt, weathered timber, brushed metal,
   and translucent stormglass.
@@ -158,9 +164,23 @@ The art direction target is a **Bioluminescent Frontier Observatory**:
   experiment boundary. Research UI belongs there, not behind resident heads.
 - Red is reserved for actual emergency, denial, and freeze states.
 
-This is a visual target. Materials, light values, effects, and geometry budgets
-remain provisional until a closed screenshot and frame-profile loop proves
-them.
+The one-line visual thesis is: **a warm, hand-built village holding back a vast
+indigo frontier, where truthful actions become visible light.** The
+[art-direction specification](./HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md) owns
+the world grammar, six-person roster, material tokens, budgets, invariants, and
+promotion gates.
+
+The direction is locked; its production assets remain targets. The executing
+observer is still a premium greybox until each asset, material, light, effect,
+and platform profile passes a closed screenshot and receipt loop.
+
+### Production concept targets
+
+![Stormglass Commons concept](../assets/model-village/model-village-stormglass-commons-concept-2026-07-25.png)
+
+![Stormglass Craftfolk lineup](../assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png)
+
+These images are locally custodied art targets, not runtime evidence.
 
 ### Composition
 
@@ -180,10 +200,11 @@ provisional 40-50 degree field of view.
 
 ### Residents
 
-The six residents need to read as inhabitants, not colored data points.
+The six Stormglass Craftfolk need to read as inhabitants, not colored data
+points.
 
-- Use a shared procedural kit with head, torso, shoulders, hands, and one fixed
-  seat glyph.
+- Use one shared near-human kit with readable face, head, torso, shoulders,
+  hands, practical workwear, and one fixed seat glyph.
 - Distinguish persona/seat through silhouette, number or icon, and restrained
   accent color together.
 - Keep each persona's appearance identical in every condition.
@@ -191,15 +212,20 @@ The six residents need to read as inhabitants, not colored data points.
   outcome in color, silhouette, label, animation, or sound.
 - Provide neutral idle, listening, and proposal gestures.
 - A gesture may imply an admitted action only after its receipt exists.
-- Use shared materials, atlases, instancing, and three levels of detail.
+- Use shared rig, materials, atlases, instancing, and three levels of detail.
 
-Provisional resident budgets:
+The fixed roster is Nera Fen (water steward), Calder Voss (repairwright),
+Tamsin Reed (seedkeeper), Orren Lark (Commons host), Suri Kest
+(courier-cartographer), and Vale Rook (ledger witness). These roles are
+presentation and persona identity, not capability classes.
+
+Locked first-pass resident budgets:
 
 | Level | Target |
 |---|---:|
-| Desktop LOD0 | At most 30,000 triangles per resident |
-| Mid LOD1 | At most 12,000 triangles per resident |
-| XR/far LOD2 | At most 4,000 triangles per resident |
+| Desktop LOD0 | At most 15,000 triangles per resident |
+| Mid LOD1 | At most 6,000 triangles per resident |
+| XR/far LOD2 | At most 2,000 triangles per resident |
 
 ### Lighting and materials
 
@@ -886,16 +912,19 @@ go/no-go list.
 ## Immediate next build slice
 
 The two-resident runtime, visual greybox, physics gate, rendering truth gate,
-and bounded observer consumer now execute. The next three tracks are:
+and bounded observer consumer now execute. Stormglass Commons, Hearthlight
+Biorealism, and the six Stormglass Craftfolk are now locked in HoloScript
+source. The next three tracks are:
 
 1. **Six-resident zero-provider rehearsal:** expand the bounded runtime from two
    subject-bound observations to all six seats, preserve the frozen assignment
    matrix, run the deterministic schedule without provider calls, and retain
    the same semantic verifier, stop, persistence, replay, and observer gates.
-2. **Living Commons production pass:** replace remaining primitive cottages and
-   residents with locally custodied authored assets, add ambient life and audio,
-   and keep every state-driven cue tied to an existing receipt. This remains
-   observer-only work.
+2. **Living Commons production pass:** promote the current distinct resident
+   proxies to one locally custodied shared humanoid kit, replace the remaining
+   primitive cottages with one modular authored building kit, add ambient life
+   and audio only after source/asset receipts, and keep every state-driven cue
+   tied to an existing receipt. This remains observer-only work.
 3. **Platform profile proof:** retain the measured desktop and portrait gates,
    then add one real mobile/WebXR or headset profile without weakening material,
    backend, accessibility, comfort, and no-network evidence.
@@ -917,3 +946,60 @@ physics-fixture evidence. Its checker proves:
 
 That is the shortest path from the current premium greybox to a six-resident
 rehearsal and then a village that feels alive without weakening the experiment.
+
+## Lane commencement packets
+
+The production lock starts all four cross-cutting lanes with bounded first
+cuts. These packets are implementation contracts, not completion claims.
+
+### MV-R1 and MV-L12: twelve-object, six-resident preflight
+
+Expand the bounded V4 proof projection to the exact twelve canonical object IDs,
+then execute six ordered resident observations and the existing two captured
+actions. The expected run shape is eight schedule entries, six observations,
+two actions, and nine public-state snapshots. The frozen assignment matrix,
+provider-zero gate, semantic verifier, persistence, replay, stop, and observer
+equivalence gates remain mandatory.
+
+This slice may claim a source-bound twelve-object static projection and a
+six-resident zero-provider rehearsal. It must keep
+`worldRuntimeLifecycleExecuted`, native `.holo` lifecycle execution, and full
+twelve-object lifecycle closure false until `register_run -> stage residents ->
+start_run -> stop/end` executes through the canonical lifecycle.
+
+### MV-V1: one resident asset in shadow mode
+
+Author and locally custody one uncompressed standard GLB for Nera Fen before
+replacing any other capsule. Its HoloScript manifest owns the exact path,
+SHA-256, byte size, triangle/material/texture/bone/clip counts, license,
+provenance, anchors, LOD, and zero-external-URI assertion. The host and browser
+must recompute the same hash; the observer hides Nera's capsule only after the
+verified asset attaches successfully.
+
+The first acceptance proves the loader, custody, scale, grounding, shadows,
+profile budget, zero network requests, and zero authoritative mutation. The
+other five capsules remain visible. A procedural technical GLB may exercise the
+loader but is not Stormglass production art. MV-P2 remains open until all three
+LODs and the `idle`, `listen`, `propose`, and `settle` clips exist.
+
+### MV-S1: Proof in the Light
+
+The first executable show is a 52-second desktop exhibit replay titled
+**Stormglass Commons: Proof in the Light**:
+
+| Time | Beat | Evidence lane |
+|---|---|---|
+| 0-6 s | Sealed arrival | Verified V4 terminal commitment and acknowledged observer payload |
+| 6-15 s | Cistern admitted | V4 `contribute_water` receipt and three public water units |
+| 15-24 s | Boundary blocked | V4 `deny_external_message` receipt and unchanged world state |
+| 24-39 s | Gravity-token replay | Separately sealed MV-P10 physics fixture, frames 0-92 |
+| 39-47 s | Physics reveal | MV-P10 adapter, timestep, bodies, contacts, state and replay hashes |
+| 47-52 s | Integrity close | Read-only observer comparison with all canonical fields unchanged |
+
+The interface changes its badge from **V4 RUN** to **SEPARATE MV-P10 PHYSICS
+FIXTURE** before token motion begins. Cross-lane causality is forbidden: the
+water action did not cause the token drops. Playback is manual by default,
+includes pause/replay and authored reduced-motion cuts, and drives only camera,
+captions, layer visibility, and transforms from sealed data. Audio, weather,
+fluid simulation, authored character motion, post-processing, Genesis, and the
+Four-Village Fold stay outside this first cut.

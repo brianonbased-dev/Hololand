@@ -2,11 +2,12 @@
 
 **Status:** Phase 0B bounded engineering tracer observed; Phase 1 blocked
 
-**Version:** 0.4.0
+**Version:** 0.4.1
 
 **Canonical product source:** HoloScript
 **Study class:** Mechanism pilot and rough variance signal, not confirmatory evidence
 **Production plan:** [Logistics, visual quality, and observer experience](./HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md)
+**Art direction:** [Stormglass Commons and the six fixed residents](./HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md)
 
 ## Purpose
 
