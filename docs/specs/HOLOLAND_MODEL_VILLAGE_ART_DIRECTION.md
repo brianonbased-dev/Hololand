@@ -3,9 +3,9 @@
 **Status:** Locked production direction with model-family embodiment amendment;
 implementation remains staged
 
-**Version:** 1.2.0
+**Version:** 1.3.0
 
-**Date:** 2026-07-25
+**Date:** 2026-07-26
 
 **World:** Stormglass Commons
 
@@ -46,8 +46,10 @@ loader slice, while a separate sovereign MV-V3 source now proves the shared
 faceless garment, three authored LODs, and continuous semantic motion. MV-V4
 adds the first operative detachable family mantle: a story-only OpenAI
 recursive-cell interpretation with local UV material tiles, deterministic
-cloth, and verified-receipt observer attachment. Its browser attachment
-remains open. A separate neutral civic-role kit communicates what a research
+cloth, and verified-receipt observer attachment. MV-V5 generalizes the
+construction into a typed six-family catalog and native GPU lineup while
+preserving one byte-identical neutral body/garment. Browser attachment remains
+open. A separate neutral civic-role kit communicates what a research
 persona tends in the village and grants no different logical capability.
 
 This public cast is not the adapter-assignment matrix. The planned study still
@@ -151,8 +153,24 @@ OpenAI logo geometry or claim endorsement.
 This is a `village_story_unblinded` witness only. The source contains no static
 research seat, resident, persona, role, adapter, or transform join. A verified
 binding-receipt fixture exercised observer-pose attachment with
-`canonicalAssignment: false`. The remaining five mantles and browser consumer
-are still targets.
+`canonicalAssignment: false`.
+
+### Operative six-family lineup
+
+![Six-family native Stormglass mantle lineup](../assets/model-village/model-village-six-family-mantle-lineup-2026-07-26.png)
+
+MV-V5 promotes the full named mantle vocabulary onto one shared procedural
+body: Claude uses nested open arcs; OpenAI uses recursive interlock; Gemini
+uses paired prismatic panels; Grok uses off-axis signal bands; GLM uses a
+modular phase lattice; and Brittney uses a sovereign locality mesh. The
+patterns, glyphs, colours, and silhouettes are original HoloLand
+interpretations rather than copied provider logos or trade dress.
+
+The native witness deliberately reads as a shaped technical Craftfolk lineup,
+not a final cinematic cast. It proves the grammar, cloth motion, locally
+custodied UV response, detachment, and native pixels. Production tailoring,
+high-resolution textiles, collision, facial performance, and environment
+integration remain targets.
 
 ### Executing Q0 proxy witness
 

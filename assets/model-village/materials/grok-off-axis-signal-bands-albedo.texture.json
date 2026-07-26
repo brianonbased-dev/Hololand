@@ -1,0 +1,13 @@
+{
+  "schema": "hololand.local-material-tile.v1",
+  "tileId": "grok-off-axis-signal-bands-v1",
+  "kind": "albedo-luminance",
+  "size": 4,
+  "repeat": 5,
+  "values": [
+    0.88, 0.92, 1.40, 0.94,
+    0.96, 1.36, 0.90, 0.98,
+    1.32, 0.92, 1.00, 1.38,
+    0.90, 1.02, 1.34, 0.92
+  ]
+}

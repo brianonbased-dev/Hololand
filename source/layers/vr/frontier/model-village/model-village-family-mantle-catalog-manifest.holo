@@ -1,0 +1,62 @@
+// Immutable MV-V5 source/compiler/material/native-GPU witness manifest.
+
+composition "Stormglass Six-Family Mantle Catalog Manifest" {
+  metadata {
+    schema: "hololand.model-village.family-mantles.v1"
+    generatedAt: "2026-07-26"
+    source: "source/layers/vr/frontier/model-village/model-village-family-mantle-catalog.holo"
+    sourceSha256: "e366ee5cc51d4b0c3d9ba38643b683e688b7f902d315745acc76c00d6c06cfd2"
+    bundleSha256: [
+      "d3703bd507910709f779d7c028850c96bf4eb64587e17782cbc04479258c0ebf",
+      "a53aa7fed83ac05c79257484bda444af85b704fbbfca0cc8f4a9498e0c68bfc0",
+      "8f8d06aa2327fbe1677811620df0bf4493a3d07480dffc6e9a16076df58aa1d6",
+      "a626b29738f59c767544e99719b6470270a78ac1718a5bca6643d43e61a0685d",
+      "9aebb2d4990565994caf1e2ddb32b8aa14c051554d9b2200ab3d6d1ed5c05ed2",
+      "c016d91c9a172c3a375d43e27538529b5df0cd47d9644fbc7f390040bbd94ae1"
+    ]
+    materialMapSha256: [
+      "3b077605df9958b4bbe0a085d2a5edd6d8b829e854c42195aa6b9d75009f0304",
+      "a9ce76ddd228292eab3910ba0652ca1bd48e47d9af1356162f9951a66ade564a",
+      "ea0193a0e00862d0f1249f3e266f60be4f8b9126fbf6d406a2012f4c52926a87",
+      "6de8ffa331be8964b0fefae46037777a5bfad3f3b47c4fcb083c117e45f185fe",
+      "01a40edd50cbae0d7d73c59d464cebca1256862795cdd8edb8463c61df3557b5",
+      "5e045e55e95479b9b74157e89cf7f46d1daf5fa521a418740d3862082df5cc34",
+      "0df10e75388236c3cc4adf48efc687358e4ac9f961a8884cad5951095339a565",
+      "132123523ccd02fad9b60c61453b903c9244bcca6ffefb046cc65a87a58a8368",
+      "f0c339b73452ea744d20b54ac7d08dec90b3ede2f1d15809322346e28e52a907",
+      "502450987f27bb7cc6824f53357fad6ff88150ec1f0376c36511331e2ee25607",
+      "8ad45f9f966ed558cfa2b5a8232e43f0b5d3de6daae58f02f3f0ed16449a550c",
+      "8f96803fd1465bdbdc1ad63d241f44348b5b82af9a38a02ba00a90ce87337b7f",
+      "5b3791fa207be75df34630f93489b6003a88842241d9d9457999690e07c920d9",
+      "ca9804229be5032d11ac4758dab59632a4f81441951df678e96426bc56ef70a5",
+      "46935955ea8a0ba9ccbb36dd74eb5efeeea6f5d0b8c9e7f63b928e9a9e6ff089",
+      "79a8a9c5b1bbcef92cb6598d6a6bb9d2f045e8de80b5a39cbff72c7c8742014a",
+      "ba02dd4927bf5f4cb1bc90887dd0471bfa81300a30e61b0e3f6237a25d0dd0b5",
+      "198190309804b3de80d80e36191db5c98251502973ebb97363530693204c5764"
+    ]
+    lineupSha256: "ce85c09bf6fe43935168532207a2fcab61bede35c6834336d2f9d2c0d64a3be9"
+    grayscaleSha256: "00814a1a66668deccfa1d6475c5a109b857e3d88d5dedfba36d5d01d9fc7f909"
+    deuteranopiaSha256: "20dd2af4b3822da0a9579fb30077a79dca495ac156937177b0ad7ad51b61fcb3"
+  }
+
+  state {
+    milestone: "MV-V5"
+    publicDisplayNames: ["Claude", "OpenAI", "Gemini", "Grok", "GLM", "Brittney"]
+    namedFamilyMantlesObserved: 6
+    sharedBodyInvarianceObserved: true
+    sameTopologyDistinctSilhouettesObserved: true
+    localUvMaterialMapsObserved: true
+    deterministicXpbdClothObserved: true
+    nativeGpuLineupObserved: true
+    grayscaleDistinctnessObserved: true
+    deuteranopiaDistinctnessObserved: true
+    externalNetworkFetchCount: 0
+    externalDccRequired: false
+    providerAssetRequired: false
+    researchLiveBlindedAllowed: false
+    staticResearchJoinObserved: false
+    providerEndorsementClaimed: false
+    browserConsumerBuilt: false
+    completeMvP2Claimed: false
+  }
+}

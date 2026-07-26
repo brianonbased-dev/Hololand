@@ -1,0 +1,288 @@
+// Stormglass Commons — six named family mantles on one shared resident body.
+//
+// This source is presentation-only. Family identity remains a detachable observer mantle
+// and is never loaded by the live blinded research profile. Catalog order, object id, and
+// rest position do not bind a family to a research resident, seat, persona, role, or adapter.
+
+composition "Stormglass Six-Family Mantle Catalog" {
+  metadata {
+    assetId: "mv-stormglass-six-family-mantle-catalog-v1"
+    title: "Stormglass Family Craftfolk"
+    version: "1.0.0"
+    source: "source/layers/vr/frontier/model-village/model-village-family-mantle-catalog.holo"
+    publicEmbodimentCatalogSource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
+    neutralResidentBodySource: "source/layers/vr/frontier/model-village/model-village-resident-production-body.holo"
+    observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    productionPlanSource: "docs/specs/HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md"
+    artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
+    presentationProfile: "village_story_unblinded"
+    compileTarget: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    units: "meters"
+    upAxis: "Y"
+    forwardAxis: "+Z"
+    artStyle: "stormglass_craftfolk_faceless_hooded"
+    identityChannel: "detachable_family_mantle_only"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    providerEndorsementClaimed: false
+    exactModelRevisions: "absent"
+    sourceSovereign: true
+    researchLiveBlindedAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+    status: "six_family_native_lineup_witness_not_browser_consumer_not_complete_mv_p2"
+  }
+
+  environment {
+    mode: "character_authoring"
+    theme: "stormglass_commons"
+    backgroundColor: "#07111F"
+    ambient_light: 0.32
+    shadows: true
+  }
+
+  state {
+    publicDisplayNames: ["Claude", "OpenAI", "Gemini", "Grok", "GLM", "Brittney"]
+    familyIds: ["anthropic", "openai", "google", "xai", "ollama", "sovereign"]
+    presentationProfile: "village_story_unblinded"
+    prohibitedPresentationProfiles: ["research_live_blinded"]
+    requiresReceipts: [
+      "terminal_commitment",
+      "verified_family_binding_receipt",
+      "verified_unblinding_receipt",
+      "verified_family_embodiment_manifest"
+    ]
+    sharedRigId: "humanoid_65"
+    sharedBodyHeight: 2.05
+    sharedBuildScale: 1.15
+    sharedGarmentStyle: "stormglass_hooded_tunic"
+    sharedGarmentColor: "#557F91"
+    sharedClothSolver: "xpbd"
+    sharedFixedStepHz: 120
+    familyIdentityChannel: "detachable_mantle"
+    catalogRestPosition: [0, 0, 0]
+    catalogOrderDefinesResearchSeat: false
+    catalogObjectIdDefinesResearchSeat: false
+    catalogHasStaticResearchJoin: false
+    staticTransformsMayTargetResearchSeats: false
+    exactModelRevisions: "absent"
+    researchLiveBlindedAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+    namedFamilyMantlesBuilt: 6
+    targetNamedFamilyMantles: 6
+    nativeGpuLineupWitnessed: true
+    browserConsumerBuilt: false
+    completeMvP2Claimed: false
+  }
+
+  template "StormglassSharedResidentBody" {
+    @skeleton(rig: "humanoid_65", ik_enabled: true)
+    @body(
+      height: 2.05,
+      build_scale: 1.15,
+      skin_tone: "#9AB3BE"
+    )
+    @subsurface_scattering(
+      color: "#9AB3BE",
+      scatter_color: "#6F9FB3"
+    )
+    @cloth_simulation(
+      solver: "xpbd",
+      fixed_step_hz: 120,
+      iterations: 5,
+      damping: 0.985,
+      gravity: [0, -0.42, 0],
+      wind: [0.34, 0.02, 0.20],
+      wind_frequency: 1.35,
+      tether_stiffness: 8.5,
+      constraint_stiffness: 0.72,
+      max_displacement: 0.18
+    )
+    @lod(
+      levels: [
+        { level: 0, distance: 0, garment_segments: 24 },
+        { level: 1, distance: 12, garment_segments: 14 },
+        { level: 2, distance: 28, garment_segments: 8 }
+      ]
+    )
+    @locomotion(mode: "idle", speed: 1.0)
+
+    geometry: "avatar"
+    position: [0, 0, 0]
+    scale: [1, 1, 1]
+    neutralBodySource: "source/layers/vr/frontier/model-village/model-village-resident-production-body.holo"
+    detachablePresentationOverlay: true
+    exactModelRevision: "absent"
+    researchResidentBinding: "none"
+    researchSeatBinding: "none"
+    researchPersonaBinding: "none"
+    researchRoleBinding: "none"
+    adapterAssignmentBinding: "none"
+    researchLiveBlindedAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+
+  object "Claude" using "StormglassSharedResidentBody" {
+    @clothing(
+      style: "stormglass_hooded_tunic",
+      color: "#557F91",
+      material: "woven_cloth",
+      faceless: true,
+      mantle_style: "anthropic_quiet_nested_arcs",
+      mantle_color: "#C16F45",
+      mantle_detachable: true,
+      mantle_albedo_map: "assets/model-village/materials/claude-quiet-nested-open-arcs-albedo.texture.json",
+      mantle_normal_map: "assets/model-village/materials/claude-quiet-nested-open-arcs-normal.texture.json",
+      mantle_roughness_map: "assets/model-village/materials/claude-quiet-nested-open-arcs-roughness.texture.json"
+    )
+    publicDisplayName: "Claude"
+    familyId: "anthropic"
+    agentSurfaceId: "claude-desktop"
+    modelFamily: "claude"
+    familyMantleId: "stormglass-mantle-anthropic-v1"
+    familyMantlePatternId: "quiet_nested_open_arcs"
+    familyMantleGlyphId: "open_arc_weave"
+    familyMantleAccentColor: "#C16F45"
+  }
+
+  object "OpenAI" using "StormglassSharedResidentBody" {
+    @clothing(
+      style: "stormglass_hooded_tunic",
+      color: "#557F91",
+      material: "woven_cloth",
+      faceless: true,
+      mantle_style: "openai_recursive_interlock",
+      mantle_color: "#D6D1C7",
+      mantle_detachable: true,
+      mantle_albedo_map: "assets/model-village/materials/openai-recursive-interlock-albedo.texture.json",
+      mantle_normal_map: "assets/model-village/materials/openai-recursive-interlock-normal.texture.json",
+      mantle_roughness_map: "assets/model-village/materials/openai-recursive-interlock-roughness.texture.json"
+    )
+    publicDisplayName: "OpenAI"
+    embodimentTitle: "Codex"
+    familyId: "openai"
+    agentSurfaceId: "codex-hardware"
+    modelFamily: "gpt"
+    familyMantleId: "stormglass-mantle-openai-v1"
+    familyMantlePatternId: "recursive_cell_interlock"
+    familyMantleGlyphId: "recursive_interlock_glyph"
+    familyMantleAccentColor: "#D6D1C7"
+  }
+
+  object "Gemini" using "StormglassSharedResidentBody" {
+    @clothing(
+      style: "stormglass_hooded_tunic",
+      color: "#557F91",
+      material: "woven_cloth",
+      faceless: true,
+      mantle_style: "google_paired_prism_panels",
+      mantle_color: "#3F6D7A",
+      mantle_detachable: true,
+      mantle_albedo_map: "assets/model-village/materials/gemini-paired-prism-panels-albedo.texture.json",
+      mantle_normal_map: "assets/model-village/materials/gemini-paired-prism-panels-normal.texture.json",
+      mantle_roughness_map: "assets/model-village/materials/gemini-paired-prism-panels-roughness.texture.json"
+    )
+    publicDisplayName: "Gemini"
+    familyId: "google"
+    agentSurfaceId: "gemini-antigravity"
+    modelFamily: "gemini"
+    familyMantleId: "stormglass-mantle-google-v1"
+    familyMantlePatternId: "paired_offset_prismatic_panels"
+    familyMantleGlyphId: "paired_prism_weave"
+    familyMantleAccentColor: "#3F6D7A"
+  }
+
+  object "Grok" using "StormglassSharedResidentBody" {
+    @clothing(
+      style: "stormglass_hooded_tunic",
+      color: "#557F91",
+      material: "woven_cloth",
+      faceless: true,
+      mantle_style: "xai_off_axis_signal_bands",
+      mantle_color: "#A64B3C",
+      mantle_detachable: true,
+      mantle_albedo_map: "assets/model-village/materials/grok-off-axis-signal-bands-albedo.texture.json",
+      mantle_normal_map: "assets/model-village/materials/grok-off-axis-signal-bands-normal.texture.json",
+      mantle_roughness_map: "assets/model-village/materials/grok-off-axis-signal-bands-roughness.texture.json"
+    )
+    publicDisplayName: "Grok"
+    familyId: "xai"
+    agentSurfaceId: "grok-hardware"
+    modelFamily: "grok"
+    familyMantleId: "stormglass-mantle-xai-v1"
+    familyMantlePatternId: "off_axis_signal_bands"
+    familyMantleGlyphId: "diagonal_signal_weave"
+    familyMantleAccentColor: "#A64B3C"
+  }
+
+  object "GLM" using "StormglassSharedResidentBody" {
+    @clothing(
+      style: "stormglass_hooded_tunic",
+      color: "#557F91",
+      material: "woven_cloth",
+      faceless: true,
+      mantle_style: "glm_modular_phase_lattice",
+      mantle_color: "#C8A84E",
+      mantle_detachable: true,
+      mantle_albedo_map: "assets/model-village/materials/glm-modular-phase-lattice-albedo.texture.json",
+      mantle_normal_map: "assets/model-village/materials/glm-modular-phase-lattice-normal.texture.json",
+      mantle_roughness_map: "assets/model-village/materials/glm-modular-phase-lattice-roughness.texture.json"
+    )
+    publicDisplayName: "GLM"
+    familyId: "ollama"
+    agentSurfaceId: "ollama-cloud"
+    modelFamily: "glm"
+    familyMantleId: "stormglass-mantle-ollama-v1"
+    familyMantlePatternId: "modular_phase_lattice"
+    familyMantleGlyphId: "phase_lattice_glyph"
+    familyMantleAccentColor: "#C8A84E"
+  }
+
+  object "Brittney" using "StormglassSharedResidentBody" {
+    @clothing(
+      style: "stormglass_hooded_tunic",
+      color: "#557F91",
+      material: "woven_cloth",
+      faceless: true,
+      mantle_style: "sovereign_locality_mesh",
+      mantle_color: "#6D5A8C",
+      mantle_detachable: true,
+      mantle_albedo_map: "assets/model-village/materials/brittney-sovereign-locality-mesh-albedo.texture.json",
+      mantle_normal_map: "assets/model-village/materials/brittney-sovereign-locality-mesh-normal.texture.json",
+      mantle_roughness_map: "assets/model-village/materials/brittney-sovereign-locality-mesh-roughness.texture.json"
+    )
+    publicDisplayName: "Brittney"
+    familyId: "sovereign"
+    agentSurfaceId: "brittney-holoshell"
+    modelFamily: "brittney"
+    familyMantleId: "stormglass-mantle-sovereign-v1"
+    familyMantlePatternId: "sovereign_locality_mesh"
+    familyMantleGlyphId: "owned_mesh_glyph"
+    familyMantleAccentColor: "#6D5A8C"
+  }
+
+  object "FamilyMantleObserverStoryAttachment" {
+    type: "model_village_story_observer_attachment"
+    attachmentId: "six-family-story-verified-target-v1"
+    targetSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    targetObjectSource: "verified_family_binding_receipt.residentTargetObject"
+    targetSeatIdSource: "verified_family_binding_receipt.seatId"
+    publicEmbodimentSource: "verified_family_binding_receipt.familyId"
+    publicGalleryPlacementSource: "public_gallery_layout_manifest"
+    postlockPlacementSource: "verified_family_binding_receipt"
+    presentationProfile: "village_story_unblinded"
+    attachmentMode: "verified_receipt_read_only_projection_pose"
+    deniedPresentationProfiles: ["research_live_blinded"]
+    researchResidentBinding: "none"
+    researchSeatBinding: "none"
+    researchPersonaBinding: "none"
+    researchRoleBinding: "none"
+    adapterAssignmentBinding: "none"
+    researchLiveBlindedAllowed: false
+    mayWriteCanonicalWorld: false
+    mayWriteResidentObservation: false
+    causalEffect: false
+  }
+}

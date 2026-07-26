@@ -1,0 +1,12 @@
+{
+  "schema": "hololand.local-material-tile.v1",
+  "tileId": "claude-quiet-nested-open-arcs-v1",
+  "kind": "roughness",
+  "size": 4,
+  "values": [
+    0.86, 0.71, 0.71, 0.86,
+    0.74, 0.90, 0.90, 0.74,
+    0.82, 0.68, 0.68, 0.82,
+    0.76, 0.88, 0.88, 0.76
+  ]
+}

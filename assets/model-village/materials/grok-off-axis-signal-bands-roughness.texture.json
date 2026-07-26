@@ -1,0 +1,12 @@
+{
+  "schema": "hololand.local-material-tile.v1",
+  "tileId": "grok-off-axis-signal-bands-v1",
+  "kind": "roughness",
+  "size": 4,
+  "values": [
+    0.88, 0.82, 0.58, 0.80,
+    0.78, 0.60, 0.86, 0.76,
+    0.62, 0.84, 0.74, 0.56,
+    0.86, 0.72, 0.64, 0.82
+  ]
+}

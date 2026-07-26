@@ -1,0 +1,12 @@
+{
+  "schema": "hololand.local-material-tile.v1",
+  "tileId": "brittney-sovereign-locality-mesh-v1",
+  "kind": "roughness",
+  "size": 4,
+  "values": [
+    0.68, 0.86, 0.78, 0.64,
+    0.88, 0.70, 0.62, 0.82,
+    0.76, 0.60, 0.72, 0.90,
+    0.66, 0.80, 0.84, 0.58
+  ]
+}
