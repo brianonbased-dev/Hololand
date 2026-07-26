@@ -3,22 +3,25 @@
 // This is the Q0 spatial and research-appearance manifest for the six fixed
 // Model Village personas. Family identity belongs to the separately gated
 // public embodiment overlay and cannot enter a live research projection.
-// Capsule geometry is an honest proxy. The authored humanoid GLB/VRM kit,
-// facial rig, textures, and animation remain targets.
+// Capsule geometry remains the live-research fallback. One neutral Seat 01
+// LOD0 asset manifest is admitted as a bounded source slice; renderer-observed
+// attachment, the complete kit, rig, textures, and animation remain targets.
 
 composition "HoloLand Model Village Neutral Stormglass Craftfolk Kit" {
   metadata {
     title: "Neutral Stormglass Craftfolk"
-    version: "1.1.0"
+    version: "1.2.0"
     source: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
     artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
     appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
     canonicalWorldSource: "source/layers/vr/frontier/model-village/model-village.holo"
     observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
     publicEmbodimentOverlaySource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
+    residentAssetManifestSource: "source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo"
     neutralResearchConceptAsset: "docs/assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png"
     artStyle: "hearthlight_biorealism"
-    assetTier: "q0_proxy"
+    assetTier: "q0_proxy_plus_one_neutral_lod0_manifest"
+    neutralSeat01Lod0ManifestObserved: true
     authoredProductionAssetsObserved: false
   }
 
@@ -52,8 +55,24 @@ composition "HoloLand Model Village Neutral Stormglass Craftfolk Kit" {
     residentCount: 6
     sharedRig: "stormglass_craftfolk_humanoid_shared"
     sharedNeutralClips: ["idle", "listen", "propose", "settle"]
-    currentGeometry: "capsule_proxy"
+    currentGeometry: "capsule_proxy_until_renderer_receipt"
     productionGeometry: "authored_humanoid_glb_or_vrm_target"
+    partialRuntimeAssetManifestSource: "source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo"
+    partialRuntimeAssetManifestStatus: "observed_source_manifest"
+    partialRuntimeAssetManifestSchema: "hololand.model-village.neutral-resident-asset-candidate.v1"
+    partialRuntimeAssetScope: "neutral_research_seat_01_lod0"
+    partialRuntimeAssetPurpose: "technical_loader_fixture_not_complete_stormglass_production_art"
+    partialRuntimeAssetResidentId: "resident-01"
+    partialRuntimeAssetSeatId: "seat-01"
+    partialRuntimeAssetLod: "lod0"
+    partialRuntimeAssetRuntimeAttachmentStatus: "target_until_rendering_truth_receipt"
+    completeResidentKitObserved: false
+    completeLodSetObserved: false
+    authoredHumanoidRigObserved: false
+    neutralClipSetObserved: false
+    productionTextureSetObserved: false
+    photorealismObserved: false
+    familyMantleAssetCoupling: "none"
     presentationProfile: "research_live_blinded"
     supportedPresentationProfiles: [
       "village_story_unblinded",
@@ -105,6 +124,13 @@ composition "HoloLand Model Village Neutral Stormglass Craftfolk Kit" {
         roleProp: "ceramic_water_measure"
         neutralSeatMantleId: "neutral-seat-mantle-01"
         appearanceManifestId: "stormglass-appearance-01-v1"
+        residentAssetManifestSource: "source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo"
+        residentAssetManifestAdmission: "source_manifest_observed"
+        residentAssetCandidateKind: "neutral_research_lod0"
+        residentAssetPurpose: "technical_loader_fixture_not_complete_stormglass_production_art"
+        residentAssetLod: "lod0"
+        residentAssetRuntimeAttachmentStatus: "target_until_rendering_truth_receipt"
+        productionResidentClaimed: false
         assignmentInvariant: true
         adapterIdentity: "absent"
       }

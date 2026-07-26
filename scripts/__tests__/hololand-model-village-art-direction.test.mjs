@@ -172,6 +172,62 @@ try {
     'research_live_blinded',
   );
   assert.deepEqual(
+    receipt.residentAssetTruth,
+    {
+      manifestSource:
+        'source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo',
+      manifestSourceObserved: true,
+      manifestSchema:
+        'hololand.model-village.neutral-resident-asset-candidate.v1',
+      manifestSourceSha256:
+        receipt.sourceEvidence[
+          'source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo'
+        ].sha256,
+      manifestScope: 'neutral_research_seat_01_lod0',
+      assetPurpose:
+        'technical_loader_fixture_not_complete_stormglass_production_art',
+      residentId: 'resident-01',
+      seatId: 'seat-01',
+      lod: 'lod0',
+      presentationProfile: 'research_live_blinded',
+      sourceAdmissionStatus: 'manifest_source_observed',
+      runtimeAttachmentStatus: 'target_until_rendering_truth_receipt',
+      runtimeAttachmentObservedByArtDirectionGate: false,
+      productionArtObserved: false,
+      completeStormglassKitObserved: false,
+      completeLodSetObserved: false,
+      authoredHumanoidRigObserved: false,
+      neutralClipSetObserved: false,
+      productionTextureSetObserved: false,
+      publicFamilyMantleBinding: 'none',
+      photorealismObserved: false,
+    },
+  );
+  assert.equal(
+    /^[a-f0-9]{64}$/.test(receipt.residentAssetTruth.manifestSourceSha256),
+    true,
+  );
+  assert.equal(
+    receipt.claimBoundary.observed.includes(
+      'neutral_seat_01_lod0_asset_source_manifest',
+    ),
+    true,
+  );
+  assert.equal(
+    [
+      'renderer_observed_neutral_seat_01_lod0_attachment',
+      'complete_six_resident_stormglass_asset_kit',
+      'complete_resident_lod0_lod1_lod2_set',
+      'authored_humanoid_rig',
+      'neutral_resident_clip_set',
+      'production_resident_texture_set',
+      'photorealism',
+    ].every(
+      (claim) => receipt.claimBoundary.targetNotObserved.includes(claim),
+    ),
+    true,
+  );
+  assert.deepEqual(
     new Set(Object.values(receipt.identityContract.publicFamilyCatalog)),
     new Set(['Claude', 'OpenAI', 'Gemini', 'Grok', 'GLM', 'Brittney']),
   );

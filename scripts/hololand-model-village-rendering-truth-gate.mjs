@@ -6,7 +6,9 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -20,7 +22,7 @@ import {
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const REPO_ROOT = path.resolve(path.dirname(SCRIPT_PATH), '..');
-const SCHEMA = 'hololand.model-village.rendering-witness.v0.3.0';
+const SCHEMA = 'hololand.model-village.rendering-witness.v0.4.0';
 const DEFAULT_OUTPUT_DIR = path.join(
   REPO_ROOT,
   '.tmp',
@@ -32,8 +34,25 @@ const PROJECTION_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-observer-projection.holo';
 const CALIBRATION_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-render-calibration.holo';
+const RESIDENT_ASSET_MANIFEST_SOURCE =
+  'source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo';
+const RESIDENT_ASSET_PATH =
+  'assets/model-village/residents/stormglass-neutral-seat-01-lod0.glb';
+const RESIDENT_ASSET_SOURCE =
+  'source/layers/vr/frontier/model-village/model-village-resident-base-lod0.holo';
 const OBSERVER_POLICY_SOURCE =
   'source/domains/agents/model-village-observer-witness.hsplus';
+const RESIDENT_ASSET_SCHEMA =
+  'hololand.model-village.neutral-resident-asset-candidate.v1';
+const RESIDENT_ASSET_BROWSER_SCHEMA =
+  'hololand.model-village.neutral-resident-asset-browser-witness.v1';
+const RESIDENT_ASSET_ATTACH_ROOT = 'StormglassNeutralSeat01LOD0';
+const GLB_MAGIC = 0x46546c67;
+const GLB_JSON_CHUNK_TYPE = 0x4e4f534a;
+const GLB_BIN_CHUNK_TYPE = 0x004e4942;
+const LOD0_TRIANGLE_BUDGET = 15_000;
+const COMPRESSION_EXTENSION_PATTERN =
+  /(?:KHR_draco_mesh_compression|EXT_meshopt_compression|KHR_texture_basisu)/i;
 const REQUIRED_OBSERVER_BOUNDARY_FIELDS = Object.freeze([
   'canonicalSceneHash',
   'canonicalPoseHash',
@@ -169,6 +188,1116 @@ function sha256File(filePath) {
   return sha256(readFileSync(filePath));
 }
 
+function asUint8Array(value) {
+  if (value instanceof Uint8Array) {
+    return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+  }
+  if (value instanceof ArrayBuffer) return new Uint8Array(value);
+  throw new TypeError('GLB input must be an ArrayBuffer or Uint8Array');
+}
+
+export function parseGlbContainer(value) {
+  const bytes = asUint8Array(value);
+  if (bytes.byteLength < 20) {
+    throw new Error('GLB is shorter than its header and JSON chunk header');
+  }
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const magic = view.getUint32(0, true);
+  const version = view.getUint32(4, true);
+  const declaredLength = view.getUint32(8, true);
+  if (magic !== GLB_MAGIC) throw new Error('GLB magic must be glTF');
+  if (version !== 2) throw new Error(`GLB version must be 2, observed ${version}`);
+  if (declaredLength !== bytes.byteLength) {
+    throw new Error(
+      `GLB declared length ${declaredLength} differs from ${bytes.byteLength} bytes`,
+    );
+  }
+
+  const chunks = [];
+  let offset = 12;
+  while (offset < declaredLength) {
+    if (offset + 8 > declaredLength) {
+      throw new Error('GLB chunk header extends beyond declared length');
+    }
+    const byteLength = view.getUint32(offset, true);
+    const type = view.getUint32(offset + 4, true);
+    const dataOffset = offset + 8;
+    const end = dataOffset + byteLength;
+    if (byteLength % 4 !== 0) {
+      throw new Error(`GLB chunk ${chunks.length} length is not 4-byte aligned`);
+    }
+    if (end > declaredLength) {
+      throw new Error(`GLB chunk ${chunks.length} extends beyond declared length`);
+    }
+    chunks.push({
+      index: chunks.length,
+      type,
+      byteLength,
+      dataOffset,
+      end,
+    });
+    offset = end;
+  }
+  if (offset !== declaredLength) {
+    throw new Error('GLB chunks do not end at the declared length');
+  }
+  if (chunks.length === 0 || chunks[0].type !== GLB_JSON_CHUNK_TYPE) {
+    throw new Error('GLB first chunk must be JSON');
+  }
+  if (chunks.filter((chunk) => chunk.type === GLB_JSON_CHUNK_TYPE).length !== 1) {
+    throw new Error('GLB must contain exactly one JSON chunk');
+  }
+  if (chunks.filter((chunk) => chunk.type === GLB_BIN_CHUNK_TYPE).length > 1) {
+    throw new Error('GLB must contain at most one BIN chunk');
+  }
+  const unknownChunks = chunks.filter(
+    (chunk) => (
+      chunk.type !== GLB_JSON_CHUNK_TYPE
+      && chunk.type !== GLB_BIN_CHUNK_TYPE
+    ),
+  );
+  if (unknownChunks.length > 0) {
+    throw new Error('GLB contains unsupported non-JSON/BIN chunks');
+  }
+
+  const jsonChunk = chunks[0];
+  const jsonText = new TextDecoder()
+    .decode(bytes.subarray(jsonChunk.dataOffset, jsonChunk.end))
+    .replace(/[\u0000 ]+$/u, '');
+  let json;
+  try {
+    json = JSON.parse(jsonText);
+  } catch (error) {
+    throw new Error(`GLB JSON chunk is invalid: ${error.message}`);
+  }
+  if (json?.asset?.version !== '2.0') {
+    throw new Error('GLB JSON asset.version must equal 2.0');
+  }
+  return {
+    bytes,
+    declaredLength,
+    json,
+    chunks: chunks.map((chunk) => ({
+      index: chunk.index,
+      type:
+        chunk.type === GLB_JSON_CHUNK_TYPE ? 'JSON' : 'BIN',
+      byteLength: chunk.byteLength,
+    })),
+  };
+}
+
+function collectJsonKeys(value, keyPattern, currentPath = '$', results = []) {
+  if (Array.isArray(value)) {
+    value.forEach((entry, index) => {
+      collectJsonKeys(entry, keyPattern, `${currentPath}[${index}]`, results);
+    });
+    return results;
+  }
+  if (!value || typeof value !== 'object') return results;
+  for (const [key, entry] of Object.entries(value)) {
+    const entryPath = `${currentPath}.${key}`;
+    if (keyPattern.test(key)) results.push({ path: entryPath, value: entry });
+    collectJsonKeys(entry, keyPattern, entryPath, results);
+  }
+  return results;
+}
+
+function primitiveElementCount(json, primitive) {
+  const accessorIndex =
+    Number.isInteger(primitive.indices)
+      ? primitive.indices
+      : primitive.attributes?.POSITION;
+  const count = json.accessors?.[accessorIndex]?.count;
+  if (!Number.isInteger(count) || count < 0) {
+    throw new Error('GLB mesh primitive has no countable index/POSITION accessor');
+  }
+  return count;
+}
+
+function meshTriangleCount(json, mesh) {
+  let triangles = 0;
+  for (const primitive of mesh?.primitives || []) {
+    const count = primitiveElementCount(json, primitive);
+    const mode = primitive.mode ?? 4;
+    if (mode === 4) triangles += Math.floor(count / 3);
+    else if (mode === 5 || mode === 6) triangles += Math.max(0, count - 2);
+    else {
+      throw new Error(`GLB primitive mode ${mode} is not a triangle mode`);
+    }
+  }
+  return triangles;
+}
+
+function triangleCount(json, meshIndices = null) {
+  const meshes = meshIndices
+    ? meshIndices.map((index) => json.meshes?.[index])
+    : (json.meshes || []);
+  return meshes.reduce(
+    (sum, mesh) => sum + meshTriangleCount(json, mesh),
+    0,
+  );
+}
+
+function normalizedAnchorNames(value) {
+  if (Array.isArray(value)) {
+    return value.map((entry) => (
+      typeof entry === 'string'
+        ? entry
+        : entry?.nodeName ?? entry?.node ?? entry?.name
+    )).filter(Boolean);
+  }
+  if (value && typeof value === 'object') {
+    return Object.entries(value).map(([key, entry]) => (
+      typeof entry === 'string'
+        ? entry
+        : entry?.nodeName ?? entry?.node ?? entry?.name ?? key
+    )).filter(Boolean);
+  }
+  return [];
+}
+
+function firstPresent(value, keys) {
+  for (const key of keys) {
+    if (value?.[key] !== undefined) return value[key];
+  }
+  return undefined;
+}
+
+function countValue(source, names) {
+  const counts = source.counts || source.assetCounts || source.profileCounts || {};
+  const value =
+    firstPresent(source, names)
+    ?? firstPresent(counts, names);
+  return Number(value);
+}
+
+function vector3(value, fallback) {
+  const observed =
+    typeof value === 'number' ? [value, value, value] : value;
+  if (
+    !Array.isArray(observed)
+    || observed.length !== 3
+    || observed.some((entry) => !Number.isFinite(Number(entry)))
+  ) {
+    return [...fallback];
+  }
+  return observed.map(Number);
+}
+
+export function normalizeResidentAssetManifest(source) {
+  const attachment =
+    source.attachment
+    || source.runtimeAttachment
+    || source.shadowAttachment
+    || {};
+  const grounding = source.grounding || attachment.grounding || {};
+  const lodSource =
+    source.lod
+    ?? source.lodLevel
+    ?? source.declaredLod
+    ?? source.level
+    ?? 'lod0';
+  const lodLevel =
+    typeof lodSource === 'object'
+      ? Number(lodSource.level ?? lodSource.index ?? 0)
+      : Number(String(lodSource).replace(/^lod/i, ''));
+  const inspection =
+    source.inspectionCapture
+    || source.closeupCapture
+    || source.captureView
+    || null;
+  return {
+    schema:
+      source.schema
+      || source.schemaVersion
+      || RESIDENT_ASSET_SCHEMA,
+    assetId:
+      source.assetId
+      || source.id
+      || 'stormglass-neutral-seat-01-lod0',
+    assetPath:
+      source.assetPath
+      || source.glbPath
+      || source.path,
+    sourcePath:
+      source.sourcePath
+      || source.assetSourcePath
+      || source.sovereignSourcePath,
+    sourceSha256:
+      source.sourceSha256
+      || source.assetSourceSha256
+      || source.sovereignSourceSha256,
+    sha256: source.sha256 || source.assetSha256,
+    byteSize: Number(
+      source.byteSize
+      ?? source.bytes
+      ?? source.assetBytes,
+    ),
+    counts: {
+      triangles: countValue(
+        source,
+        ['triangles', 'triangleCount', 'lod0TriangleCount'],
+      ),
+      materials: countValue(source, ['materials', 'materialCount']),
+      textures: countValue(source, ['textures', 'textureCount']),
+      bones: countValue(source, ['bones', 'boneCount']),
+      clips: countValue(source, ['clips', 'clipCount']),
+    },
+    structure: {
+      totalNodes: countValue(source, ['nodes', 'gltfNodeCount']),
+      meshBearingNodes: countValue(
+        source,
+        ['meshBearingNodes', 'meshBearingNodeCount'],
+      ),
+      meshDefinitions: countValue(
+        source,
+        ['meshDefinitions', 'gltfMeshDefinitionCount'],
+      ),
+      attachedLod0Meshes: countValue(
+        source,
+        ['attachedLod0Meshes', 'nodeAttachedLod0MeshCount'],
+      ),
+      nodeLodPlacements: countValue(
+        source,
+        ['nodeLodPlacements', 'nodeLodPlacementCount'],
+      ),
+      lowerLodNodes: countValue(
+        source,
+        ['lowerLodNodes', 'lowerLodNodeCount'],
+      ),
+      sceneReachableLowerLodNodes: countValue(
+        source,
+        [
+          'sceneReachableLowerLodNodes',
+          'sceneReachableLowerLodNodeCount',
+        ],
+      ),
+    },
+    license: source.license ?? source.licenseSpdx,
+    provenance: source.provenance,
+    anchors: normalizedAnchorNames(source.anchors ?? source.anchorNames),
+    lodLevel,
+    zeroExternalUris:
+      source.zeroExternalUris
+      ?? source.zeroExternalURIs
+      ?? (source.externalUriCount === 0),
+    uncompressed:
+      source.uncompressed
+      ?? source.compressionDisabled
+      ?? (
+        source.compression === undefined
+          ? undefined
+          : source.compression === 'none'
+      )
+      ?? (
+        source.dracoCompression === false
+        && source.meshoptCompression === false
+        && source.meshQuantization === false
+      ),
+    observerProxyId:
+      source.observerProxyId
+      || source.observerProxyTarget
+      || source.shadowTargetObjectId
+      || source.targetObjectId
+      || 'ObserverResident01',
+    canonicalSeatId:
+      source.canonicalSeatId
+      || source.targetSeatId
+      || source.seatId
+      || 'ResidentSeat01',
+    presentationProfile:
+      source.presentationProfile
+      || 'research_live_blinded',
+    productionRigClaimed:
+      source.productionRigClaimed
+      ?? source.rigProductionReady
+      ?? false,
+    attachRootName:
+      source.attachRootName
+      || source.attachRoot
+      || source.rootNodeName
+      || source.attachRootNode
+      || attachment.rootNodeName
+      || attachment.root
+      || RESIDENT_ASSET_ATTACH_ROOT,
+    attachment: {
+      position: vector3(
+        attachment.position ?? source.attachPosition,
+        [-6, 0, 3.7],
+      ),
+      rotation: vector3(
+        attachment.rotation
+        ?? source.attachRotation
+        ?? source.attachRotationDegrees,
+        [0, 0, 0],
+      ),
+      scale: vector3(
+        attachment.scale ?? source.attachScale ?? source.uniformScale,
+        [1, 1, 1],
+      ),
+      groundY: Number(
+        grounding.targetY
+        ?? grounding.groundY
+        ?? attachment.groundY
+        ?? source.groundY
+        ?? source.groundTargetY
+        ?? 0,
+      ),
+      groundingTolerance: Number(
+        grounding.tolerance
+        ?? attachment.groundingTolerance
+        ?? source.groundingTolerance
+        ?? source.groundingToleranceMeters
+        ?? 0.025,
+      ),
+      expectedHeightMinimum: Number(
+        grounding.expectedHeightMinimum
+        ?? attachment.expectedHeightMinimum
+        ?? source.expectedHeightMinimum
+        ?? source.expectedRuntimeHeightMetersMin
+        ?? 1.4,
+      ),
+      expectedHeightMaximum: Number(
+        grounding.expectedHeightMaximum
+        ?? attachment.expectedHeightMaximum
+        ?? source.expectedHeightMaximum
+        ?? source.expectedRuntimeHeightMetersMax
+        ?? 2.6,
+      ),
+    },
+    inspectionCapture: inspection
+      ? {
+          width: Number(inspection.width ?? 1200),
+          height: Number(inspection.height ?? 900),
+          cameraPosition: vector3(
+            inspection.cameraPosition ?? source.inspectionCameraPosition,
+            [-10, 3.2, 8],
+          ),
+          cameraTarget: vector3(
+            inspection.cameraTarget ?? source.inspectionCameraTarget,
+            [-6, 1, 3.7],
+          ),
+          fov: Number(
+            inspection.fov
+            ?? source.inspectionCameraFovDegrees
+            ?? 35,
+          ),
+        }
+      : {
+          width: 1200,
+          height: 900,
+          cameraPosition: vector3(
+            source.inspectionCameraPosition,
+            [-10, 3.2, 8],
+          ),
+          cameraTarget: vector3(
+            source.inspectionCameraTarget,
+            [-6, 1, 3.7],
+          ),
+          fov: Number(source.inspectionCameraFovDegrees ?? 35),
+        },
+  };
+}
+
+function meaningfulProvenance(value) {
+  if (typeof value === 'string') return value.trim().length > 0;
+  return Boolean(
+    value
+    && typeof value === 'object'
+    && Object.keys(value).length > 0,
+  );
+}
+
+function pathIsWithin(root, candidate) {
+  const relative = path.relative(root, candidate);
+  return (
+    relative !== '..'
+    && !relative.startsWith(`..${path.sep}`)
+    && !path.isAbsolute(relative)
+  );
+}
+
+export function validateResidentAssetSovereignSource(
+  root,
+  manifestSource,
+  { expectedSourcePath = RESIDENT_ASSET_SOURCE } = {},
+) {
+  const manifest = normalizeResidentAssetManifest(manifestSource);
+  const errors = [];
+  if (manifest.sourcePath !== expectedSourcePath) {
+    errors.push(`source path must equal ${expectedSourcePath}`);
+  }
+  if (
+    typeof manifest.sourcePath !== 'string'
+    || manifest.sourcePath.length === 0
+    || path.isAbsolute(manifest.sourcePath)
+    || manifest.sourcePath.includes('\\')
+  ) {
+    errors.push('source path must be a relative POSIX path');
+  }
+  if (!SHA256_PATTERN.test(manifest.sourceSha256 || '')) {
+    errors.push('source sha256 must be lowercase sha256 hex');
+  }
+
+  const resolvedRoot = path.resolve(root);
+  const resolvedSource =
+    typeof manifest.sourcePath === 'string'
+      ? path.resolve(resolvedRoot, manifest.sourcePath)
+      : null;
+  let physicalRoot = null;
+  let physicalSource = null;
+  let sourceBytes = null;
+  let actualSha256 = null;
+  if (!resolvedSource || !pathIsWithin(resolvedRoot, resolvedSource)) {
+    errors.push('source path escapes the HoloLand repository');
+  } else if (!existsSync(resolvedSource)) {
+    errors.push('sovereign source file does not exist');
+  } else {
+    try {
+      physicalRoot = realpathSync(resolvedRoot);
+      physicalSource = realpathSync(resolvedSource);
+      if (!pathIsWithin(physicalRoot, physicalSource)) {
+        errors.push('source symlink escapes the HoloLand repository');
+      } else if (!statSync(physicalSource).isFile()) {
+        errors.push('sovereign source path is not a file');
+      } else {
+        sourceBytes = readFileSync(physicalSource);
+        actualSha256 = sha256(sourceBytes);
+        if (manifest.sourceSha256 !== actualSha256) {
+          errors.push('manifest source sha256 differs from sovereign source sha256');
+        }
+      }
+    } catch (error) {
+      errors.push(`sovereign source inspection failed: ${error.message}`);
+    }
+  }
+  if (errors.length > 0) {
+    throw new Error(
+      `Resident sovereign source validation failed: ${errors.join('; ')}`,
+    );
+  }
+  return {
+    status: 'host_validated_sovereign_holoscript_source',
+    path: manifest.sourcePath,
+    sha256: actualSha256,
+    byteSize: sourceBytes.byteLength,
+    repositoryContained: true,
+    symlinkContained: true,
+  };
+}
+
+function normalizedRootExtensionList(value, label, errors) {
+  if (value === undefined) return [];
+  if (
+    !Array.isArray(value)
+    || value.some(
+      (entry) => typeof entry !== 'string' || entry.length === 0,
+    )
+  ) {
+    errors.push(`${label} must be an array of non-empty extension names`);
+    return [];
+  }
+  if (new Set(value).size !== value.length) {
+    errors.push(`${label} must not contain duplicate extension names`);
+  }
+  return [...value];
+}
+
+function inspectMsftLodPlacements(
+  json,
+  observedExtensionObjects,
+  extensionsUsed,
+  errors,
+) {
+  const placements = [];
+  const allowedPlacementPaths = new Set();
+  const collectPlacements = (kind, entries) => {
+    entries.forEach((entry, index) => {
+      if (!Object.hasOwn(entry?.extensions || {}, 'MSFT_lod')) return;
+      const pathPrefix = kind === 'node' ? 'nodes' : 'materials';
+      const placementPath = `$.${pathPrefix}[${index}].extensions`;
+      allowedPlacementPaths.add(placementPath);
+      placements.push({
+        kind,
+        index,
+        path: placementPath,
+        extension: entry.extensions.MSFT_lod,
+      });
+    });
+  };
+  collectPlacements('node', json.nodes || []);
+  collectPlacements('material', json.materials || []);
+
+  const observedPaths = observedExtensionObjects
+    .filter((entry) => Object.hasOwn(entry.value || {}, 'MSFT_lod'))
+    .map((entry) => entry.path);
+  const invalidPlacementPaths = observedPaths.filter(
+    (entry) => !allowedPlacementPaths.has(entry),
+  );
+  if (invalidPlacementPaths.length > 0) {
+    errors.push(
+      'MSFT_lod may appear only on nodes or materials; invalid placements: '
+      + invalidPlacementPaths.join(', '),
+    );
+  }
+  const rootDeclaresMsftLod = extensionsUsed.includes('MSFT_lod');
+  if (observedPaths.length > 0 && !rootDeclaresMsftLod) {
+    errors.push('MSFT_lod placement is missing from root extensionsUsed');
+  }
+  if (rootDeclaresMsftLod && observedPaths.length === 0) {
+    errors.push('root extensionsUsed declares MSFT_lod without a placement');
+  }
+
+  const placementReceipts = [];
+  for (const placement of placements) {
+    const { extension, index, kind } = placement;
+    const ids = extension?.ids;
+    const targetCount =
+      kind === 'node'
+        ? (json.nodes || []).length
+        : (json.materials || []).length;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      errors.push(
+        `MSFT_lod ${kind}[${index}] ids must be a non-empty array`,
+      );
+      placementReceipts.push({
+        kind,
+        index,
+        ids: [],
+        triangleCounts: null,
+        lowerQualityOrderInferred: false,
+      });
+      continue;
+    }
+    const validIds = [];
+    const seenIds = new Set();
+    for (const id of ids) {
+      if (!Number.isInteger(id) || id < 0 || id >= targetCount) {
+        errors.push(
+          `MSFT_lod ${kind}[${index}] id ${String(id)} is not an in-range ${kind} index`,
+        );
+        continue;
+      }
+      if (id === index) {
+        errors.push(`MSFT_lod ${kind}[${index}] cannot reference itself`);
+        continue;
+      }
+      if (seenIds.has(id)) {
+        errors.push(`MSFT_lod ${kind}[${index}] contains duplicate id ${id}`);
+        continue;
+      }
+      seenIds.add(id);
+      validIds.push(id);
+    }
+
+    let triangleCounts = null;
+    let lowerQualityOrderInferred = false;
+    if (kind === 'node' && validIds.length === ids.length) {
+      const sequence = [index, ...validIds];
+      const observedTriangleCounts = [];
+      let directlyCountable = true;
+      for (const nodeIndex of sequence) {
+        const meshIndex = json.nodes?.[nodeIndex]?.mesh;
+        if (
+          !Number.isInteger(meshIndex)
+          || meshIndex < 0
+          || meshIndex >= (json.meshes || []).length
+        ) {
+          errors.push(
+            `MSFT_lod node[${nodeIndex}] must reference an in-range mesh for triangle-order validation`,
+          );
+          directlyCountable = false;
+          break;
+        }
+        try {
+          observedTriangleCounts.push(
+            meshTriangleCount(json, json.meshes[meshIndex]),
+          );
+        } catch (error) {
+          errors.push(
+            `MSFT_lod node[${nodeIndex}] is not countable: ${error.message}`,
+          );
+          directlyCountable = false;
+          break;
+        }
+      }
+      if (directlyCountable) {
+        triangleCounts = observedTriangleCounts;
+        lowerQualityOrderInferred = true;
+        for (let lodIndex = 1; lodIndex < triangleCounts.length; lodIndex += 1) {
+          if (triangleCounts[lodIndex] >= triangleCounts[lodIndex - 1]) {
+            errors.push(
+              `MSFT_lod node[${index}] triangle order is not strictly lower quality: `
+              + triangleCounts.join(' -> '),
+            );
+            break;
+          }
+        }
+      }
+    }
+    placementReceipts.push({
+      kind,
+      index,
+      ids: [...validIds],
+      triangleCounts,
+      lowerQualityOrderInferred,
+    });
+  }
+  return {
+    placements: placementReceipts,
+    invalidPlacementPaths,
+    rootDeclared: rootDeclaresMsftLod,
+  };
+}
+
+function normalizedNodeTransform(node) {
+  if (Array.isArray(node?.matrix)) {
+    return { matrix: [...node.matrix] };
+  }
+  return {
+    translation: Array.isArray(node?.translation)
+      ? [...node.translation]
+      : [0, 0, 0],
+    rotation: Array.isArray(node?.rotation)
+      ? [...node.rotation]
+      : [0, 0, 0, 1],
+    scale: Array.isArray(node?.scale)
+      ? [...node.scale]
+      : [1, 1, 1],
+  };
+}
+
+function inspectMsftLodRuntimeIsolation(
+  json,
+  msftLod,
+  reachableNodeIndices,
+  sceneRoots,
+  errors,
+) {
+  const nodePlacements = msftLod.placements.filter(
+    (entry) => entry.kind === 'node',
+  );
+  const highNodeIndices = new Set(
+    nodePlacements.map((entry) => entry.index),
+  );
+  const lowerNodeIds = nodePlacements.flatMap((entry) => entry.ids);
+  const uniqueLowerNodeIds = new Set(lowerNodeIds);
+  if (uniqueLowerNodeIds.size !== lowerNodeIds.length) {
+    errors.push('MSFT_lod lower node targets must be unique across placements');
+  }
+  const sceneRootIndices = new Set(sceneRoots);
+  const childNodeIndices = new Set(
+    (json.nodes || []).flatMap((node) => node.children || []),
+  );
+  const reachableLowerNodeIds = [...uniqueLowerNodeIds].filter(
+    (nodeIndex) => reachableNodeIndices.has(nodeIndex),
+  );
+  const sceneGraphReferencedLowerNodeIds = [...uniqueLowerNodeIds].filter(
+    (nodeIndex) =>
+      sceneRootIndices.has(nodeIndex)
+      || childNodeIndices.has(nodeIndex),
+  );
+  if (reachableLowerNodeIds.length > 0) {
+    errors.push(
+      'MSFT_lod lower nodes must be outside the default scene reachability set: '
+      + reachableLowerNodeIds.join(', '),
+    );
+  }
+  if (sceneGraphReferencedLowerNodeIds.length > 0) {
+    errors.push(
+      'MSFT_lod lower nodes must not appear in scene roots or node children: '
+      + sceneGraphReferencedLowerNodeIds.join(', '),
+    );
+  }
+
+  let copiedTransformCount = 0;
+  let unskinnedLowerNodeCount = 0;
+  let validLowerMeshCount = 0;
+  for (const placement of nodePlacements) {
+    if (!reachableNodeIndices.has(placement.index)) {
+      errors.push(
+        `MSFT_lod high node[${placement.index}] is not scene reachable`,
+      );
+    }
+    const highNode = json.nodes?.[placement.index];
+    const highTransform = normalizedNodeTransform(highNode);
+    for (const lowerNodeId of placement.ids) {
+      const lowerNode = json.nodes?.[lowerNodeId];
+      if (!lowerNode) continue;
+      if (highNodeIndices.has(lowerNodeId)) {
+        errors.push(
+          `MSFT_lod lower node[${lowerNodeId}] is also a high LOD node`,
+        );
+      }
+      if (
+        !Number.isInteger(lowerNode.mesh)
+        || lowerNode.mesh < 0
+        || lowerNode.mesh >= (json.meshes || []).length
+      ) {
+        errors.push(
+          `MSFT_lod lower node[${lowerNodeId}] must reference an in-range mesh`,
+        );
+      } else {
+        validLowerMeshCount += 1;
+      }
+      if (Number.isInteger(lowerNode.skin)) {
+        errors.push(`MSFT_lod lower node[${lowerNodeId}] must not bind a skin`);
+      } else {
+        unskinnedLowerNodeCount += 1;
+      }
+      if (
+        canonicalJson(normalizedNodeTransform(lowerNode))
+        !== canonicalJson(highTransform)
+      ) {
+        errors.push(
+          `MSFT_lod lower node[${lowerNodeId}] transform differs from high node[${placement.index}]`,
+        );
+      } else {
+        copiedTransformCount += 1;
+      }
+    }
+  }
+  const idCounts = nodePlacements.map((entry) => entry.ids.length);
+  return {
+    totalNodes: (json.nodes || []).length,
+    meshBearingNodes: (json.nodes || []).filter(
+      (node) => Number.isInteger(node.mesh),
+    ).length,
+    nodeLodPlacementCount: nodePlacements.length,
+    lowerLodNodeCount: uniqueLowerNodeIds.size,
+    nodeLodIdCounts: idCounts,
+    minimumNodeLodIdsPerPlacement:
+      idCounts.length > 0 ? Math.min(...idCounts) : 0,
+    maximumNodeLodIdsPerPlacement:
+      idCounts.length > 0 ? Math.max(...idCounts) : 0,
+    sceneReachableLowerLodNodeCount: reachableLowerNodeIds.length,
+    sceneGraphReferencedLowerLodNodeCount:
+      sceneGraphReferencedLowerNodeIds.length,
+    validLowerMeshCount,
+    copiedTransformCount,
+    unskinnedLowerNodeCount,
+    lowerNodeTargetsUnique:
+      uniqueLowerNodeIds.size === lowerNodeIds.length,
+  };
+}
+
+export function validateResidentAssetGlb(
+  value,
+  manifestSource,
+  { expectedAssetPath = RESIDENT_ASSET_PATH } = {},
+) {
+  const manifest = normalizeResidentAssetManifest(manifestSource);
+  const parsed = parseGlbContainer(value);
+  const bytes = parsed.bytes;
+  const errors = [];
+  if (manifest.schema !== RESIDENT_ASSET_SCHEMA) {
+    errors.push(`manifest schema must equal ${RESIDENT_ASSET_SCHEMA}`);
+  }
+  if (manifest.assetPath !== expectedAssetPath) {
+    errors.push(`asset path must equal ${expectedAssetPath}`);
+  }
+  if (!SHA256_PATTERN.test(manifest.sha256 || '')) {
+    errors.push('manifest sha256 must be lowercase sha256 hex');
+  }
+  const hostSha256 = sha256(bytes);
+  if (manifest.sha256 !== hostSha256) {
+    errors.push('manifest sha256 differs from host GLB sha256');
+  }
+  if (manifest.byteSize !== bytes.byteLength) {
+    errors.push('manifest byte size differs from GLB byte size');
+  }
+  if (!meaningfulProvenance(manifest.license)) {
+    errors.push('manifest license is missing');
+  }
+  if (!meaningfulProvenance(manifest.provenance)) {
+    errors.push('manifest provenance is missing');
+  }
+  if (manifest.lodLevel !== 0) errors.push('first resident asset must be LOD0');
+  if (manifest.zeroExternalUris !== true) {
+    errors.push('manifest must assert zero external URIs');
+  }
+  if (manifest.uncompressed !== true) {
+    errors.push('manifest must assert an uncompressed GLB');
+  }
+  if (manifest.presentationProfile !== 'research_live_blinded') {
+    errors.push('resident asset must target research_live_blinded');
+  }
+  if (manifest.observerProxyId !== 'ObserverResident01') {
+    errors.push('resident asset must target ObserverResident01 only');
+  }
+  if (manifest.attachRootName !== RESIDENT_ASSET_ATTACH_ROOT) {
+    errors.push(
+      `resident asset attach root must equal ${RESIDENT_ASSET_ATTACH_ROOT}`,
+    );
+  }
+  if (!['ResidentSeat01', 'seat-01'].includes(manifest.canonicalSeatId)) {
+    errors.push('resident asset must identify Seat 01 only');
+  }
+  if (
+    !Number.isFinite(manifest.attachment.groundY)
+    || !Number.isFinite(manifest.attachment.groundingTolerance)
+    || manifest.attachment.groundingTolerance < 0
+  ) {
+    errors.push('manifest grounding contract is invalid');
+  }
+
+  const uriReferences = collectJsonKeys(parsed.json, /^uri$/i);
+  if (uriReferences.length > 0) {
+    errors.push('GLB JSON contains URI fields');
+  }
+  const extensionsUsed = normalizedRootExtensionList(
+    parsed.json.extensionsUsed,
+    'root extensionsUsed',
+    errors,
+  );
+  const extensionsRequired = normalizedRootExtensionList(
+    parsed.json.extensionsRequired,
+    'root extensionsRequired',
+    errors,
+  );
+  const requiredButUnusedExtensions = extensionsRequired.filter(
+    (extension) => !extensionsUsed.includes(extension),
+  );
+  if (requiredButUnusedExtensions.length > 0) {
+    errors.push(
+      'root extensionsRequired entries are missing from extensionsUsed: '
+      + requiredButUnusedExtensions.join(', '),
+    );
+  }
+  const observedExtensionObjects = collectJsonKeys(
+    parsed.json,
+    /^extensions$/i,
+  );
+  const observedExtensions = [...new Set(
+    observedExtensionObjects.flatMap(
+      (entry) => Object.keys(entry.value || {}),
+    ),
+  )];
+  const undeclaredExtensions = observedExtensions.filter(
+    (extension) => !extensionsUsed.includes(extension),
+  );
+  if (undeclaredExtensions.length > 0) {
+    errors.push(
+      `GLB uses undeclared extensions: ${undeclaredExtensions.join(', ')}`,
+    );
+  }
+  const msftLod = inspectMsftLodPlacements(
+    parsed.json,
+    observedExtensionObjects,
+    extensionsUsed,
+    errors,
+  );
+  const compressionExtensions = [...new Set([
+    ...extensionsUsed,
+    ...extensionsRequired,
+    ...observedExtensions,
+  ])].filter(
+    (extension) => COMPRESSION_EXTENSION_PATTERN.test(extension),
+  );
+  if (compressionExtensions.length > 0) {
+    errors.push(
+      `GLB uses forbidden compression extensions: ${compressionExtensions.join(', ')}`,
+    );
+  }
+
+  const sceneIndex = Number.isInteger(parsed.json.scene)
+    ? parsed.json.scene
+    : 0;
+  const sceneRoots = parsed.json.scenes?.[sceneIndex]?.nodes || [];
+  const reachableNodeIndices = new Set();
+  const pendingNodeIndices = [...sceneRoots];
+  while (pendingNodeIndices.length > 0) {
+    const nodeIndex = pendingNodeIndices.pop();
+    if (
+      !Number.isInteger(nodeIndex)
+      || reachableNodeIndices.has(nodeIndex)
+      || !parsed.json.nodes?.[nodeIndex]
+    ) {
+      continue;
+    }
+    reachableNodeIndices.add(nodeIndex);
+    pendingNodeIndices.push(...(parsed.json.nodes[nodeIndex].children || []));
+  }
+  msftLod.runtimeIsolation = inspectMsftLodRuntimeIsolation(
+    parsed.json,
+    msftLod,
+    reachableNodeIndices,
+    sceneRoots,
+    errors,
+  );
+  const attachedMeshIndices = [...reachableNodeIndices]
+    .map((nodeIndex) => parsed.json.nodes[nodeIndex].mesh)
+    .filter((index) => Number.isInteger(index));
+  const attachedMaterialIndices = new Set(
+    attachedMeshIndices.flatMap(
+      (meshIndex) =>
+        (parsed.json.meshes?.[meshIndex]?.primitives || [])
+          .map((primitive) => primitive.material)
+          .filter((index) => Number.isInteger(index)),
+    ),
+  );
+  const boundSkinIndices = (parsed.json.nodes || [])
+    .filter((_node, nodeIndex) => reachableNodeIndices.has(nodeIndex))
+    .map((node) => node.skin)
+    .filter((index) => Number.isInteger(index));
+  const boundJointIndices = new Set(
+    boundSkinIndices.flatMap(
+      (skinIndex) => parsed.json.skins?.[skinIndex]?.joints || [],
+    ),
+  );
+  let observedTriangles = null;
+  let allDefinitionTriangles = null;
+  try {
+    observedTriangles = triangleCount(parsed.json, attachedMeshIndices);
+    allDefinitionTriangles = triangleCount(parsed.json);
+  } catch (error) {
+    errors.push(error.message);
+  }
+  const observedCounts = {
+    triangles: observedTriangles,
+    materials: (parsed.json.materials || []).length,
+    textures: (parsed.json.textures || []).length,
+    bones: new Set(
+      (parsed.json.skins || []).flatMap((skin) => skin.joints || []),
+    ).size,
+    clips: (parsed.json.animations || []).length,
+  };
+  const runtimeExpectedCounts = {
+    triangles: observedTriangles,
+    materials: attachedMaterialIndices.size,
+    textures: observedCounts.textures,
+    bones: boundJointIndices.size,
+    clips: observedCounts.clips,
+  };
+  const definitionCounts = {
+    meshDefinitions: (parsed.json.meshes || []).length,
+    sceneIndex,
+    reachableNodes: reachableNodeIndices.size,
+    attachedMeshNodes: attachedMeshIndices.length,
+    uniqueAttachedMeshDefinitions: new Set(attachedMeshIndices).size,
+    allDefinitionTriangles,
+    attachedTriangles: observedTriangles,
+    materialDefinitions: observedCounts.materials,
+    attachedMaterialDefinitions: attachedMaterialIndices.size,
+    textureDefinitions: observedCounts.textures,
+    skinDefinitions: (parsed.json.skins || []).length,
+    jointDefinitions: observedCounts.bones,
+    skinBoundNodes: boundSkinIndices.length,
+    boundJoints: boundJointIndices.size,
+    animationDefinitions: observedCounts.clips,
+  };
+  const observedStructure = {
+    totalNodes: msftLod.runtimeIsolation.totalNodes,
+    meshBearingNodes: msftLod.runtimeIsolation.meshBearingNodes,
+    meshDefinitions: definitionCounts.meshDefinitions,
+    attachedLod0Meshes: definitionCounts.attachedMeshNodes,
+    nodeLodPlacements:
+      msftLod.runtimeIsolation.nodeLodPlacementCount,
+    lowerLodNodes: msftLod.runtimeIsolation.lowerLodNodeCount,
+    sceneReachableLowerLodNodes:
+      msftLod.runtimeIsolation.sceneReachableLowerLodNodeCount,
+  };
+  for (const [name, observed] of Object.entries(observedStructure)) {
+    if (
+      !Number.isInteger(manifest.structure[name])
+      || manifest.structure[name] < 0
+    ) {
+      errors.push(
+        `manifest structure ${name} must be a non-negative integer`,
+      );
+    } else if (manifest.structure[name] !== observed) {
+      errors.push(
+        `manifest structure ${name} ${manifest.structure[name]} differs from ${observed}`,
+      );
+    }
+  }
+  if (
+    manifest.productionRigClaimed === true
+    && (
+      definitionCounts.skinDefinitions === 0
+      || definitionCounts.skinBoundNodes === 0
+    )
+  ) {
+    errors.push('manifest claims a production rig without a bound skin');
+  }
+  for (const [name, observed] of Object.entries(observedCounts)) {
+    if (!Number.isInteger(manifest.counts[name]) || manifest.counts[name] < 0) {
+      errors.push(`manifest ${name} count must be a non-negative integer`);
+    } else if (manifest.counts[name] !== observed) {
+      errors.push(
+        `manifest ${name} count ${manifest.counts[name]} differs from ${observed}`,
+      );
+    }
+  }
+  if (
+    Number.isInteger(observedCounts.triangles)
+    && observedCounts.triangles > LOD0_TRIANGLE_BUDGET
+  ) {
+    errors.push(
+      `GLB triangle count ${observedCounts.triangles} exceeds ${LOD0_TRIANGLE_BUDGET}`,
+    );
+  }
+  if (manifest.anchors.length === 0) {
+    errors.push('manifest anchors are missing');
+  }
+  const nodeNames = new Set(
+    [...reachableNodeIndices]
+      .map((nodeIndex) => parsed.json.nodes[nodeIndex]?.name)
+      .filter((name) => typeof name === 'string' && name.length > 0),
+  );
+  const missingAnchors = manifest.anchors.filter((anchor) => !nodeNames.has(anchor));
+  if (missingAnchors.length > 0) {
+    errors.push(`GLB is missing anchors: ${missingAnchors.join(', ')}`);
+  }
+  if (!nodeNames.has(manifest.attachRootName)) {
+    errors.push(`GLB is missing attach root: ${manifest.attachRootName}`);
+  }
+  if (errors.length > 0) {
+    throw new Error(`Resident GLB validation failed: ${errors.join('; ')}`);
+  }
+
+  return {
+    schema: RESIDENT_ASSET_SCHEMA,
+    status: 'host_validated_neutral_shadow_candidate',
+    claimBoundary:
+      'one neutral Seat 01 LOD0 GLB loader candidate; not a complete resident kit or family mantle',
+    manifest,
+    host: {
+      sha256: hostSha256,
+      byteSize: bytes.byteLength,
+      gltfVersion: parsed.json.asset.version,
+      generator: parsed.json.asset.generator || null,
+      chunks: parsed.chunks,
+      counts: observedCounts,
+      anchors: [...manifest.anchors],
+      attachRootName: manifest.attachRootName,
+      uriReferences,
+      declaredExtensions: extensionsUsed,
+      requiredExtensions: extensionsRequired,
+      requiredButUnusedExtensions,
+      observedExtensions,
+      undeclaredExtensions,
+      compressionExtensions,
+      msftLod,
+      definitionCounts,
+      structure: observedStructure,
+      runtimeExpectedCounts,
+      rig: {
+        skinDefinitions: definitionCounts.skinDefinitions,
+        jointDefinitions: definitionCounts.jointDefinitions,
+        skinBoundNodes: definitionCounts.skinBoundNodes,
+        boundJoints: definitionCounts.boundJoints,
+        productionRigClaimed: manifest.productionRigClaimed,
+        productionRigObserved:
+          definitionCounts.skinDefinitions > 0
+          && definitionCounts.skinBoundNodes > 0,
+      },
+      triangleBudget: LOD0_TRIANGLE_BUDGET,
+      triangleBudgetPassed: observedCounts.triangles <= LOD0_TRIANGLE_BUDGET,
+    },
+  };
+}
+
 function digest(value) {
   return sha256(Buffer.from(canonicalJson(value), 'utf8'));
 }
@@ -195,7 +1324,7 @@ export function validateObserverBoundaryCore(core) {
     core.available !== true
     || core.source !== 'verified_bounded_phase0b_v4_observer_toggle'
     || core.boundedRuntimeReceiptValidated !== true
-    || core.boundedRuntimeSceneObjectCount !== 4
+    || core.boundedRuntimeSceneObjectCount !== 12
     || core.browserMayWriteCanonicalState !== false
     || core.projectionToggleExecuted !== true
   ) {
@@ -270,7 +1399,7 @@ export function validateObserverBoundaryCore(core) {
     previousEntryHash: admittedAction?.previousEntryHash,
     scheduleEntryId: 'mv-phase0b-action-01',
     stateChanged: true,
-    targetIds: ['commons_cistern'],
+    targetIds: ['VillageCommons'],
   };
   const expectedBlocked = {
     allowed: false,
@@ -279,7 +1408,7 @@ export function validateObserverBoundaryCore(core) {
     previousEntryHash: admittedAction?.entryHash,
     scheduleEntryId: 'mv-phase0b-action-02',
     stateChanged: false,
-    targetIds: ['outside_village'],
+    targetIds: ['IsolationBoundary'],
   };
   for (const [label, action, expected] of [
     ['admittedAction', admittedAction, expectedAdmitted],
@@ -636,6 +1765,151 @@ function flattenScene(node) {
   return [node, ...(node.children || []).flatMap(flattenScene)];
 }
 
+function manifestRecordScore(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return 0;
+  const keys = Object.keys(value);
+  return [
+    ['assetPath', 'glbPath', 'path'],
+    ['sha256', 'assetSha256'],
+    ['triangles', 'triangleCount', 'lod0TriangleCount', 'counts'],
+    ['anchors', 'anchorNames'],
+  ].reduce(
+    (score, alternatives) =>
+      score + (alternatives.some((key) => keys.includes(key)) ? 1 : 0),
+    0,
+  );
+}
+
+function collectManifestRecords(value, records = [], seen = new Set()) {
+  if (!value || typeof value !== 'object' || seen.has(value)) return records;
+  seen.add(value);
+  if (Array.isArray(value)) {
+    const propertyEntries = value.every(
+      (entry) =>
+        entry
+        && typeof entry === 'object'
+        && typeof entry.key === 'string'
+        && Object.hasOwn(entry, 'value'),
+    );
+    if (propertyEntries) {
+      const record = Object.fromEntries(
+        value.map((entry) => [entry.key, entry.value]),
+      );
+      if (manifestRecordScore(record) > 0) records.push(record);
+    }
+    value.forEach((entry) => collectManifestRecords(entry, records, seen));
+    return records;
+  }
+  if (manifestRecordScore(value) > 0) records.push(value);
+  if (Array.isArray(value.properties)) {
+    const record = properties(value);
+    if (manifestRecordScore(record) > 0) records.push(record);
+  } else if (value.properties && typeof value.properties === 'object') {
+    if (manifestRecordScore(value.properties) > 0) {
+      records.push(value.properties);
+    }
+  }
+  Object.values(value).forEach((entry) => {
+    collectManifestRecords(entry, records, seen);
+  });
+  return records;
+}
+
+async function compileResidentAssetContract(root, holoScriptRoot) {
+  const corePath = path.join(holoScriptRoot, 'packages', 'core', 'dist', 'index.js');
+  const core = await import(pathToFileURL(corePath).href);
+  const manifestPath = path.resolve(root, RESIDENT_ASSET_MANIFEST_SOURCE);
+  const sourceText = readFileSync(manifestPath, 'utf8');
+  const parsed = new core.HoloCompositionParser().parse(sourceText);
+  if (!parsed.success) {
+    throw new Error(
+      `${RESIDENT_ASSET_MANIFEST_SOURCE} failed HoloCompositionParser: `
+      + canonicalJson(parsed.errors),
+    );
+  }
+  const rootRecord = {
+    ...(parsed.ast.metadata || {}),
+    ...properties(parsed.ast.state),
+  };
+  const records = [
+    rootRecord,
+    ...collectManifestRecords(parsed.ast),
+  ].filter((record) => manifestRecordScore(record) > 0);
+  records.sort(
+    (left, right) => manifestRecordScore(right) - manifestRecordScore(left),
+  );
+  if (records.length === 0) {
+    throw new Error(
+      `${RESIDENT_ASSET_MANIFEST_SOURCE} has no asset manifest record`,
+    );
+  }
+  const manifestSource = {
+    ...rootRecord,
+    ...records[0],
+  };
+  const normalized = normalizeResidentAssetManifest(manifestSource);
+  const sovereignSource = validateResidentAssetSovereignSource(
+    root,
+    manifestSource,
+  );
+  if (
+    !normalized.assetPath
+    || path.isAbsolute(normalized.assetPath)
+    || normalized.assetPath.includes('\\')
+  ) {
+    throw new Error('Resident asset manifest path must be a relative POSIX path');
+  }
+  const assetPath = path.resolve(root, normalized.assetPath);
+  const relativeAssetPath = path.relative(root, assetPath);
+  if (
+    relativeAssetPath.startsWith(`..${path.sep}`)
+    || relativeAssetPath === '..'
+    || path.isAbsolute(relativeAssetPath)
+  ) {
+    throw new Error('Resident asset path escapes the HoloLand repository');
+  }
+  const bytes = readFileSync(assetPath);
+  const validation = validateResidentAssetGlb(bytes, manifestSource);
+  const manifestSourceHash = sha256(Buffer.from(sourceText, 'utf8'));
+  const hostReceipt = {
+    ...validation,
+    sovereignSource,
+    manifest: {
+      ...validation.manifest,
+      manifestSource: RESIDENT_ASSET_MANIFEST_SOURCE,
+      manifestSourceSha256: manifestSourceHash,
+    },
+    assetPath: normalizePath(relativeAssetPath),
+  };
+  return {
+    hostReceipt,
+    browserPayload: {
+      schema: RESIDENT_ASSET_BROWSER_SCHEMA,
+      assetId: validation.manifest.assetId,
+      assetPath: validation.manifest.assetPath,
+      expectedSha256: validation.host.sha256,
+      expectedByteSize: validation.host.byteSize,
+      expectedCounts: validation.host.counts,
+      expectedRuntimeCounts: validation.host.runtimeExpectedCounts,
+      expectedRuntimeMeshCount:
+        validation.host.definitionCounts.attachedMeshNodes,
+      expectedAnchors: validation.host.anchors,
+      expectedAttachRootName: validation.host.attachRootName,
+      rig: validation.host.rig,
+      observerProxyId: validation.manifest.observerProxyId,
+      canonicalSeatId: validation.manifest.canonicalSeatId,
+      presentationProfile: validation.manifest.presentationProfile,
+      attachment: validation.manifest.attachment,
+      inspectionCapture: validation.manifest.inspectionCapture,
+      transport: 'host_validated_embedded_base64_to_arraybuffer',
+      bytesBase64: bytes.toString('base64'),
+      manifestSource: RESIDENT_ASSET_MANIFEST_SOURCE,
+      manifestSourceSha256: manifestSourceHash,
+      claimBoundary: validation.claimBoundary,
+    },
+  };
+}
+
 async function compileSourceContract(root, holoScriptRoot) {
   const corePath = path.join(holoScriptRoot, 'packages', 'core', 'dist', 'index.js');
   const core = await import(pathToFileURL(corePath).href);
@@ -903,9 +2177,9 @@ export function evaluateMaterialTruth(contracts, materials) {
   };
 }
 
-async function browserApplication(THREE, RoomEnvironment, payload) {
+async function browserApplication(THREE, RoomEnvironment, GLTFLoader, payload) {
   const witness = {
-    schema: 'hololand.model-village.browser-render-state.v0.1.0',
+    schema: 'hololand.model-village.browser-render-state.v0.2.0',
     ready: false,
     status: 'booting',
     error: null,
@@ -955,15 +2229,17 @@ async function browserApplication(THREE, RoomEnvironment, payload) {
       }
       return JSON.stringify(value);
     };
-    const sha256Hex = async (value) => {
+    const sha256BytesHex = async (value) => {
       const buffer = await window.crypto.subtle.digest(
         'SHA-256',
-        new TextEncoder().encode(value),
+        value,
       );
       return [...new Uint8Array(buffer)]
         .map((byte) => byte.toString(16).padStart(2, '0'))
         .join('');
     };
+    const sha256Hex = async (value) =>
+      sha256BytesHex(new TextEncoder().encode(value));
     let observerPayloadAcknowledgement = {
       computedPayloadDigest: null,
       expectedPayloadDigest: null,
@@ -1128,7 +2404,7 @@ async function browserApplication(THREE, RoomEnvironment, payload) {
         || core?.available !== true
         || core?.source !== 'verified_bounded_phase0b_v4_observer_toggle'
         || core?.boundedRuntimeReceiptValidated !== true
-        || core?.boundedRuntimeSceneObjectCount !== 4
+        || core?.boundedRuntimeSceneObjectCount !== 12
         || core?.browserMayWriteCanonicalState !== false
         || core?.projectionToggleExecuted !== true
         || !sameJson(core?.requiredFields, requiredObserverFields)
@@ -1162,7 +2438,7 @@ async function browserApplication(THREE, RoomEnvironment, payload) {
         || !isSha256(admittedAction?.previousEntryHash)
         || admittedAction?.scheduleEntryId !== 'mv-phase0b-action-01'
         || admittedAction?.stateChanged !== true
-        || !sameJson(admittedAction?.targetIds, ['commons_cistern'])
+        || !sameJson(admittedAction?.targetIds, ['VillageCommons'])
         || !isSha256(admittedAction?.entryHash)
         || blockedAction?.allowed !== false
         || blockedAction?.entrypoint !== 'deny_external_message'
@@ -1170,7 +2446,7 @@ async function browserApplication(THREE, RoomEnvironment, payload) {
         || blockedAction?.previousEntryHash !== admittedAction?.entryHash
         || blockedAction?.scheduleEntryId !== 'mv-phase0b-action-02'
         || blockedAction?.stateChanged !== false
-        || !sameJson(blockedAction?.targetIds, ['outside_village'])
+        || !sameJson(blockedAction?.targetIds, ['IsolationBoundary'])
         || !isSha256(blockedAction?.entryHash)
         || livingCommons?.acceptedActionCount !== 1
         || livingCommons?.publicWaterUnits !== 3
@@ -1647,12 +2923,284 @@ async function browserApplication(THREE, RoomEnvironment, payload) {
     );
     scene.add(roots.hero, roots.calibration);
 
+    async function attachNeutralResidentAsset() {
+      const contract = payload.residentAsset;
+      if (
+        !contract
+        || contract.schema
+          !== 'hololand.model-village.neutral-resident-asset-browser-witness.v1'
+        || contract.presentationProfile !== 'research_live_blinded'
+        || contract.observerProxyId !== 'ObserverResident01'
+        || !['ResidentSeat01', 'seat-01'].includes(contract.canonicalSeatId)
+      ) {
+        throw new Error('Neutral resident asset browser contract is invalid');
+      }
+      const proxy = meshById.get(contract.observerProxyId);
+      if (
+        !proxy
+        || proxy.userData.sourceNode?.props?.properties?.presentationRole
+          !== 'blinded_resident_proxy'
+      ) {
+        throw new Error('Neutral resident asset proxy target is unavailable');
+      }
+      const proxyVisibleBefore = proxy.visible;
+      const binary = window.atob(contract.bytesBase64);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) {
+        bytes[index] = binary.charCodeAt(index);
+      }
+      const browserSha256 = await sha256BytesHex(bytes);
+      if (
+        bytes.byteLength !== contract.expectedByteSize
+        || browserSha256 !== contract.expectedSha256
+      ) {
+        throw new Error('Neutral resident asset browser byte/hash mismatch');
+      }
+
+      const dependentResourceUris = [];
+      const manager = new THREE.LoadingManager();
+      manager.setURLModifier((url) => {
+        dependentResourceUris.push(url);
+        return url;
+      });
+      const loader = new GLTFLoader(manager);
+      let candidate = null;
+      try {
+        const gltf = await new Promise((resolve, reject) => {
+          loader.parse(
+            bytes.buffer,
+            '',
+            resolve,
+            (error) => reject(
+              error instanceof Error
+                ? error
+                : new Error(String(error?.message || error)),
+            ),
+          );
+        });
+        if (!gltf?.scene) {
+          throw new Error('GLTFLoader.parse returned no scene');
+        }
+        if (dependentResourceUris.length !== 0) {
+          throw new Error('Neutral resident asset requested dependent resources');
+        }
+
+        candidate = gltf.scene;
+        candidate.name = `${contract.assetId}-shadow-attached`;
+        candidate.position.fromArray(contract.attachment.position);
+        candidate.rotation.fromArray(contract.attachment.rotation);
+        candidate.scale.fromArray(contract.attachment.scale);
+
+        let runtimeTriangles = 0;
+        let runtimeMeshCount = 0;
+        const runtimeMaterials = new Set();
+        const runtimeTextures = new Set();
+        const runtimeBones = new Set();
+        const runtimeNodeNames = new Set();
+        let shadowCasters = 0;
+        let shadowReceivers = 0;
+        candidate.traverse((object) => {
+          if (object.name) runtimeNodeNames.add(object.name);
+          if (!object.isMesh) return;
+          runtimeMeshCount += 1;
+          const count =
+            object.geometry?.index?.count
+            ?? object.geometry?.getAttribute?.('position')?.count
+            ?? 0;
+          runtimeTriangles += Math.floor(count / 3);
+          const materials = Array.isArray(object.material)
+            ? object.material
+            : [object.material];
+          for (const material of materials.filter(Boolean)) {
+            runtimeMaterials.add(material.uuid);
+            for (const value of Object.values(material)) {
+              if (value?.isTexture) runtimeTextures.add(value.uuid);
+            }
+          }
+          if (object.isSkinnedMesh) {
+            for (const bone of object.skeleton?.bones || []) {
+              runtimeBones.add(bone.uuid);
+            }
+          }
+          object.castShadow = true;
+          object.receiveShadow = true;
+          if (object.castShadow) shadowCasters += 1;
+          if (object.receiveShadow) shadowReceivers += 1;
+        });
+        const runtimeCounts = {
+          triangles: runtimeTriangles,
+          materials: runtimeMaterials.size,
+          textures: runtimeTextures.size,
+          bones: runtimeBones.size,
+          clips: (gltf.animations || []).length,
+        };
+        for (
+          const [name, expected]
+          of Object.entries(contract.expectedRuntimeCounts)
+        ) {
+          if (runtimeCounts[name] !== expected) {
+            throw new Error(
+              `Neutral resident runtime ${name} ${runtimeCounts[name]} differs from ${expected}`,
+            );
+          }
+        }
+        const missingAnchors = contract.expectedAnchors.filter(
+          (anchor) => !runtimeNodeNames.has(anchor),
+        );
+        if (missingAnchors.length > 0) {
+          throw new Error(
+            `Neutral resident runtime anchors missing: ${missingAnchors.join(', ')}`,
+          );
+        }
+        if (!runtimeNodeNames.has(contract.expectedAttachRootName)) {
+          throw new Error(
+            `Neutral resident runtime attach root missing: ${contract.expectedAttachRootName}`,
+          );
+        }
+
+        roots.hero.add(candidate);
+        scene.updateMatrixWorld(true);
+        const bounds = new THREE.Box3().setFromObject(candidate);
+        const size = bounds.getSize(new THREE.Vector3());
+        const center = bounds.getCenter(new THREE.Vector3());
+        const groundingError = Math.abs(
+          bounds.min.y - contract.attachment.groundY,
+        );
+        const horizontalTargetError = Math.hypot(
+          candidate.position.x - proxy.position.x,
+          candidate.position.z - proxy.position.z,
+        );
+        if (
+          !Number.isFinite(groundingError)
+          || groundingError > contract.attachment.groundingTolerance
+        ) {
+          throw new Error(
+            `Neutral resident grounding error ${groundingError} exceeds tolerance`,
+          );
+        }
+        if (
+          size.y < contract.attachment.expectedHeightMinimum
+          || size.y > contract.attachment.expectedHeightMaximum
+        ) {
+          throw new Error(
+            `Neutral resident height ${size.y} is outside the admitted range`,
+          );
+        }
+        if (horizontalTargetError > 0.001) {
+          throw new Error(
+            `Neutral resident horizontal target error ${horizontalTargetError}`,
+          );
+        }
+        if (
+          runtimeMeshCount !== contract.expectedRuntimeMeshCount
+          || shadowCasters !== runtimeMeshCount
+          || shadowReceivers !== runtimeMeshCount
+        ) {
+          throw new Error('Neutral resident shadow admission is incomplete');
+        }
+
+        proxy.visible = false;
+        const residentProxies = [...meshById.values()].filter(
+          (mesh) =>
+            mesh.userData.sourceNode?.props?.properties?.presentationRole
+              === 'blinded_resident_proxy',
+        );
+        const visibleCapsuleIds = residentProxies
+          .filter((mesh) => mesh.visible)
+          .map((mesh) => mesh.name)
+          .sort();
+        if (
+          residentProxies.length !== 6
+          || visibleCapsuleIds.length !== 5
+          || visibleCapsuleIds.includes(contract.observerProxyId)
+        ) {
+          throw new Error('Neutral resident proxy replacement count is invalid');
+        }
+        return {
+          schema:
+            'hololand.model-village.neutral-resident-asset-browser-witness.v1',
+          status: 'attached_after_host_and_browser_validation',
+          assetId: contract.assetId,
+          assetPath: contract.assetPath,
+          manifestSource: contract.manifestSource,
+          manifestSourceSha256: contract.manifestSourceSha256,
+          transport: contract.transport,
+          expectedSha256: contract.expectedSha256,
+          browserSha256,
+          expectedByteSize: contract.expectedByteSize,
+          browserByteSize: bytes.byteLength,
+          expectedCounts: contract.expectedCounts,
+          expectedRuntimeCounts: contract.expectedRuntimeCounts,
+          runtimeCounts,
+          expectedRuntimeMeshCount: contract.expectedRuntimeMeshCount,
+          runtimeMeshCount,
+          expectedAnchors: contract.expectedAnchors,
+          expectedAttachRootName: contract.expectedAttachRootName,
+          missingAnchors,
+          bounds: {
+            min: bounds.min.toArray(),
+            max: bounds.max.toArray(),
+            size: size.toArray(),
+            center: center.toArray(),
+          },
+          grounding: {
+            targetY: contract.attachment.groundY,
+            tolerance: contract.attachment.groundingTolerance,
+            error: groundingError,
+            passed: true,
+          },
+          placement: {
+            position: candidate.position.toArray(),
+            rotation: candidate.rotation.toArray().slice(0, 3),
+            scale: candidate.scale.toArray(),
+            horizontalTargetError,
+          },
+          shadows: {
+            meshCount: runtimeMeshCount,
+            casters: shadowCasters,
+            receivers: shadowReceivers,
+            passed: true,
+          },
+          dependentResourceUris,
+          assetNetworkRequests: dependentResourceUris.length,
+          proxy: {
+            target: contract.observerProxyId,
+            visibleBefore: proxyVisibleBefore,
+            visibleAfter: proxy.visible,
+            totalCapsules: residentProxies.length,
+            visibleCapsules: visibleCapsuleIds,
+          },
+          presentationProfile: contract.presentationProfile,
+          familyIdentityPresent: false,
+          providerIdentityPresent: false,
+          publicEmbodimentOverlayLoaded: false,
+          rig: {
+            ...contract.rig,
+            runtimeBoundBones: runtimeBones.size,
+            productionRigClaimed: false,
+          },
+          worldMutationAuthority: false,
+          claimBoundary: contract.claimBoundary,
+        };
+      } catch (error) {
+        proxy.visible = true;
+        if (candidate?.parent === roots.hero) roots.hero.remove(candidate);
+        throw error;
+      }
+    }
+
+    const residentAssetPresentation = await attachNeutralResidentAsset();
+
     function applyLivingCommonsProjection() {
       const consumerEnabled = observerVerified;
       const livingCommons = observerBoundary.livingCommons || null;
       const actionReceipts = livingCommons
         ? [livingCommons.admittedAction, livingCommons.blockedAction]
         : [];
+      const canonicalTargetByProjectionSemantic = {
+        commons_cistern: 'VillageCommons',
+        outside_village: 'IsolationBoundary',
+      };
       const objects = [];
       const referencedActionReceipts = new Set();
       for (const mesh of meshById.values()) {
@@ -1703,11 +3251,14 @@ async function browserApplication(THREE, RoomEnvironment, payload) {
           const action = actionReceipts.find(
             (candidate) => candidate?.entrypoint === binding.entrypoint,
           );
+          const canonicalTarget =
+            canonicalTargetByProjectionSemantic[binding.semanticTarget];
           const valid = Boolean(
             action
             && /^[a-f0-9]{64}$/.test(action.entryHash)
             && action.allowed === binding.expectedAllowed
-            && action.targetIds.includes(binding.semanticTarget),
+            && typeof canonicalTarget === 'string'
+            && action.targetIds.includes(canonicalTarget),
           );
           mesh.visible = valid;
           if (!valid) {
@@ -1721,6 +3272,8 @@ async function browserApplication(THREE, RoomEnvironment, payload) {
             objectId: mesh.name,
             consumerEnabled: true,
             entrypoint: action.entrypoint,
+            canonicalTarget,
+            projectionSemanticTarget: binding.semanticTarget,
             visible: true,
             visualChannel: binding.visualChannel,
           });
@@ -1835,25 +3388,38 @@ async function browserApplication(THREE, RoomEnvironment, payload) {
 
     let activeView = 'hero';
     let activeProfile = 'desktop';
+    let activeCameraTarget =
+      payload.projection.captureViews.desktop.cameraTarget;
     function applyView(view, profile, physicsFrameStep = payload.heroFrameStep) {
       activeView = view;
       activeProfile = profile;
       roots.hero.visible = view === 'hero';
       roots.calibration.visible = view === 'calibration';
       const contract = view === 'hero' ? payload.projection : payload.calibration;
-      const capture = contract.captureViews[profile];
+      const assetInspection = view === 'hero' && profile === 'resident-asset';
+      const capture = assetInspection
+        ? payload.residentAsset.inspectionCapture
+        : contract.captureViews[profile];
+      if (!capture) {
+        throw new Error(`Capture profile ${view}/${profile} is unavailable`);
+      }
       camera.fov = capture.fov;
       camera.position.fromArray(capture.cameraPosition);
-      camera.lookAt(new THREE.Vector3(...capture.cameraTarget));
+      activeCameraTarget = capture.cameraTarget;
+      camera.lookAt(new THREE.Vector3(...activeCameraTarget));
       camera.updateProjectionMatrix();
       scene.background = new THREE.Color(contract.backgroundColor);
       scene.fog = view === 'hero'
         ? new THREE.FogExp2(contract.backgroundColor, 0.018)
         : new THREE.FogExp2(contract.backgroundColor, 0.012);
       document.querySelector('#view-title').textContent =
-        view === 'hero' ? 'The Living Commons' : 'Material Truth Lab';
+        assetInspection
+          ? 'Neutral Resident Asset'
+          : view === 'hero' ? 'The Living Commons' : 'Material Truth Lab';
       document.querySelector('#view-subtitle').textContent =
-        view === 'hero'
+        assetInspection
+          ? 'Seat 01 loader candidate. Embedded GLB verified before the neutral capsule was hidden; five capsules remain.'
+          : view === 'hero'
           ? (
               observerVerified
                 ? 'One verified water contribution changed the commons. One external message stopped at the boundary.'
@@ -1952,8 +3518,7 @@ async function browserApplication(THREE, RoomEnvironment, payload) {
         viewport: { width: window.innerWidth, height: window.innerHeight, devicePixelRatio: window.devicePixelRatio },
         camera: {
           position: camera.position.toArray(),
-          target: (activeView === 'hero' ? payload.projection : payload.calibration)
-            .captureViews[activeProfile].cameraTarget,
+          target: activeCameraTarget,
           fov: camera.fov,
           aspect: camera.aspect,
         },
@@ -2002,6 +3567,7 @@ async function browserApplication(THREE, RoomEnvironment, payload) {
             document.querySelector('.evidence-kicker')?.textContent || '',
           truthChip: document.querySelector('.truth-chip')?.textContent || '',
         },
+        residentAssetPresentation,
         livingCommonsPresentation,
         adapterMappings,
         uiChrome: uiChromeState(),
@@ -2058,6 +3624,7 @@ function createBrowserPayload(
   contracts,
   physicsReceipt,
   environmentProvenance,
+  residentAsset,
   {
     observerBoundaryRequired = true,
     observerConsumerEnabled = true,
@@ -2144,9 +3711,10 @@ function createBrowserPayload(
     },
   );
   return {
-    schema: 'hololand.model-village.render-payload.v0.3.0',
+    schema: 'hololand.model-village.render-payload.v0.4.0',
     projection: project(contracts.projection),
     calibration: project(contracts.calibration),
+    residentAsset,
     physics: {
       fixedSteps: physicsReceipt.physics.fixedSteps,
       physicsStateHash: physicsReceipt.physics.firstRun.physicsStateHash,
@@ -2180,8 +3748,9 @@ async function buildBrowserSurface(outputDir, holoScriptRoot, payload) {
   const appSource = [
     "import * as THREE from 'three';",
     "import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';",
+    "import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';",
     `const PAYLOAD = ${JSON.stringify(payload)};`,
-    `(${browserApplication.toString()})(THREE, RoomEnvironment, PAYLOAD);`,
+    `(${browserApplication.toString()})(THREE, RoomEnvironment, GLTFLoader, PAYLOAD);`,
   ].join('\n');
   await esbuild.build({
     stdin: {
@@ -2435,6 +4004,7 @@ async function runBrowserWitness({
   timeoutMs,
   heroFrameStep,
   settledFrameStep,
+  assetInspectionCapture = null,
 }) {
   const profileDir = mkdtempSync(path.join(tmpdir(), 'hololand-model-village-render-'));
   const port = 21_000 + Math.floor(Math.random() * 20_000);
@@ -2503,7 +4073,7 @@ async function runBrowserWitness({
       throw new Error(`Browser render witness failed during boot: ${boot.error || boot.status}`);
     }
     const captures = [];
-    for (const capture of [
+    const capturePlan = [
       {
         id: 'hero-desktop',
         view: 'hero',
@@ -2543,7 +4113,20 @@ async function runBrowserWitness({
         mobile: false,
         fileName: 'model-village-calibration-1600x900.png',
       },
-    ]) {
+    ];
+    if (assetInspectionCapture) {
+      capturePlan.push({
+        id: 'resident-asset-closeup',
+        view: 'hero',
+        profile: 'resident-asset',
+        width: assetInspectionCapture.width,
+        height: assetInspectionCapture.height,
+        mobile: false,
+        frameStep: heroFrameStep,
+        fileName: 'model-village-resident-asset-closeup.png',
+      });
+    }
+    for (const capture of capturePlan) {
       captures.push(await captureView(client, outputDir, capture));
     }
     const state = await evaluate(client, 'window.__MODEL_VILLAGE_SNAPSHOT__()');
@@ -2675,6 +4258,10 @@ export async function runRenderingGate(options = {}) {
     throw new Error('Physics receipt self-hash/status is invalid');
   }
   const contracts = await compileSourceContract(root, holoScriptRoot);
+  const residentAssetContract = await compileResidentAssetContract(
+    root,
+    holoScriptRoot,
+  );
   const threePath = path.join(holoScriptRoot, 'node_modules', 'three', 'build', 'three.module.js');
   const threePackagePath = path.join(holoScriptRoot, 'node_modules', 'three', 'package.json');
   const roomEnvironmentPath = path.join(
@@ -2685,6 +4272,15 @@ export async function runRenderingGate(options = {}) {
     'jsm',
     'environments',
     'RoomEnvironment.js',
+  );
+  const gltfLoaderPath = path.join(
+    holoScriptRoot,
+    'node_modules',
+    'three',
+    'examples',
+    'jsm',
+    'loaders',
+    'GLTFLoader.js',
   );
   const threePackage = JSON.parse(readFileSync(threePackagePath, 'utf8'));
   const environmentProvenance = {
@@ -2702,6 +4298,7 @@ export async function runRenderingGate(options = {}) {
       calibration: contracts.calibration.sourceHash,
       projection: contracts.projection.sourceHash,
     },
+    residentAssetHostReceipt: residentAssetContract.hostReceipt,
   });
   const authoritativeBeforeBrowserHash = digest(authoritativeSnapshot());
   const observerOffOutputDir = path.join(outputDir, 'observer-off');
@@ -2710,6 +4307,7 @@ export async function runRenderingGate(options = {}) {
     contracts,
     physicsReceipt,
     environmentProvenance,
+    residentAssetContract.browserPayload,
     {
       observerBoundaryRequired: canonicalBoundary,
       observerConsumerEnabled: false,
@@ -2744,6 +4342,7 @@ export async function runRenderingGate(options = {}) {
     contracts,
     physicsReceipt,
     environmentProvenance,
+    residentAssetContract.browserPayload,
     {
       observerBoundaryRequired: canonicalBoundary,
       observerConsumerEnabled: canonicalBoundary,
@@ -2772,6 +4371,7 @@ export async function runRenderingGate(options = {}) {
     timeoutMs,
     heroFrameStep: payload.heroFrameStep,
     settledFrameStep: payload.settledFrameStep,
+    assetInspectionCapture: payload.residentAsset.inspectionCapture,
   });
   const observerOnHeroState = browser.captures.find(
     (capture) => capture.id === 'hero-desktop',
@@ -2879,6 +4479,80 @@ export async function runRenderingGate(options = {}) {
       ),
     canonicalAuthoritativeMutationDeltaZero:
       canonicalAuthoritativeMutationDelta === 0,
+    residentAssetHostValidationPassed:
+      residentAssetContract.hostReceipt.status
+        === 'host_validated_neutral_shadow_candidate'
+      && residentAssetContract.hostReceipt.host.sha256
+        === residentAssetContract.browserPayload.expectedSha256
+      && residentAssetContract.hostReceipt.host.byteSize
+        === residentAssetContract.browserPayload.expectedByteSize,
+    residentAssetSovereignSourceValidationPassed:
+      residentAssetContract.hostReceipt.sovereignSource.status
+        === 'host_validated_sovereign_holoscript_source'
+      && residentAssetContract.hostReceipt.sovereignSource.path
+        === RESIDENT_ASSET_SOURCE
+      && residentAssetContract.hostReceipt.sovereignSource.sha256
+        === residentAssetContract.hostReceipt.manifest.sourceSha256
+      && residentAssetContract.hostReceipt.sovereignSource.repositoryContained
+        === true
+      && residentAssetContract.hostReceipt.sovereignSource.symlinkContained
+        === true,
+    residentAssetBrowserHashesMatchHost:
+      browser.state.residentAssetPresentation.browserSha256
+        === residentAssetContract.hostReceipt.host.sha256
+      && observerOffBrowser.state.residentAssetPresentation.browserSha256
+        === residentAssetContract.hostReceipt.host.sha256
+      && browser.state.residentAssetPresentation.browserByteSize
+        === residentAssetContract.hostReceipt.host.byteSize
+      && observerOffBrowser.state.residentAssetPresentation.browserByteSize
+        === residentAssetContract.hostReceipt.host.byteSize,
+    residentAssetRuntimeCountsMatchManifest:
+      canonicalJson(browser.state.residentAssetPresentation.runtimeCounts)
+        === canonicalJson(
+          residentAssetContract.hostReceipt.host.runtimeExpectedCounts,
+        )
+      && canonicalJson(
+        observerOffBrowser.state.residentAssetPresentation.runtimeCounts,
+      ) === canonicalJson(
+        residentAssetContract.hostReceipt.host.runtimeExpectedCounts,
+      )
+      && browser.state.residentAssetPresentation.runtimeMeshCount
+        === residentAssetContract.hostReceipt.host.definitionCounts
+          .attachedMeshNodes,
+    residentAssetGroundingAndShadowsPassed:
+      browser.state.residentAssetPresentation.grounding.passed === true
+      && browser.state.residentAssetPresentation.shadows.passed === true
+      && observerOffBrowser.state.residentAssetPresentation.grounding.passed
+        === true
+      && observerOffBrowser.state.residentAssetPresentation.shadows.passed
+        === true,
+    residentAssetReplacesOnlySeat01ProxyAfterValidation:
+      browser.state.residentAssetPresentation.proxy.target
+        === 'ObserverResident01'
+      && browser.state.residentAssetPresentation.proxy.visibleBefore === true
+      && browser.state.residentAssetPresentation.proxy.visibleAfter === false
+      && browser.state.residentAssetPresentation.proxy.totalCapsules === 6
+      && browser.state.residentAssetPresentation.proxy.visibleCapsules.length === 5
+      && observerOffBrowser.state.residentAssetPresentation.proxy.visibleAfter
+        === false
+      && observerOffBrowser.state.residentAssetPresentation.proxy.visibleCapsules
+        .length === 5,
+    residentAssetHasNoDependentNetworkRequests:
+      browser.state.residentAssetPresentation.assetNetworkRequests === 0
+      && observerOffBrowser.state.residentAssetPresentation.assetNetworkRequests
+        === 0
+      && browser.state.residentAssetPresentation.dependentResourceUris.length
+        === 0
+      && observerOffBrowser.state.residentAssetPresentation
+        .dependentResourceUris.length === 0,
+    residentAssetRemainsNeutralAndObserverOnly:
+      browser.state.residentAssetPresentation.presentationProfile
+        === 'research_live_blinded'
+      && browser.state.residentAssetPresentation.familyIdentityPresent === false
+      && browser.state.residentAssetPresentation.providerIdentityPresent === false
+      && browser.state.residentAssetPresentation.publicEmbodimentOverlayLoaded
+        === false
+      && browser.state.residentAssetPresentation.worldMutationAuthority === false,
     receiptDrivenLivingCommonsRendered:
       !canonicalBoundary
       || (
@@ -2991,6 +4665,14 @@ export async function runRenderingGate(options = {}) {
         && capture.visualFrameSha256
           === payload.physics.visualFrameHashes[payload.settledFrameStep]
       )),
+    residentAssetCloseupCapturePresent:
+      screenshotEvidence.some((capture) => (
+        capture.id === 'resident-asset-closeup'
+        && capture.dimensions.width
+          === residentAssetContract.browserPayload.inspectionCapture.width
+        && capture.dimensions.height
+          === residentAssetContract.browserPayload.inspectionCapture.height
+      )),
     screenshotsContainPixels:
       screenshotEvidence.every((capture) => capture.bytes > 25_000),
     noExternalNetworkAssetsFetched:
@@ -3025,6 +4707,18 @@ export async function runRenderingGate(options = {}) {
         meshCount: contracts.calibration.meshCount,
         lightCount: contracts.calibration.lightCount,
       },
+      residentAssetManifest: {
+        path: RESIDENT_ASSET_MANIFEST_SOURCE,
+        sha256:
+          residentAssetContract.hostReceipt.manifest.manifestSourceSha256,
+        parser: 'HoloCompositionParser',
+      },
+      residentAssetSovereignSource: {
+        path: residentAssetContract.hostReceipt.sovereignSource.path,
+        sha256: residentAssetContract.hostReceipt.sovereignSource.sha256,
+        byteSize: residentAssetContract.hostReceipt.sovereignSource.byteSize,
+        custody: 'repository_contained_hash_verified_holoscript_source',
+      },
       observerPolicy: {
         path: OBSERVER_POLICY_SOURCE,
         sha256: physicsReceipt.sourceHashes.policy,
@@ -3056,6 +4750,22 @@ export async function runRenderingGate(options = {}) {
       colliderDisclosure: 'faceted visual meshes bound to sphere colliders',
       canonicalBoundary: physicsReceipt.canonicalBoundary,
     },
+    residentAsset: {
+      schema: RESIDENT_ASSET_SCHEMA,
+      host: residentAssetContract.hostReceipt,
+      observerOffBrowser:
+        observerOffBrowser.state.residentAssetPresentation,
+      observerOnBrowser: browser.state.residentAssetPresentation,
+      authoritativeMutationDelta: canonicalAuthoritativeMutationDelta,
+      materialCatalogIsolation: {
+        sourceMaterialCount: browser.state.materials.length,
+        residentRuntimeMaterialCount:
+          browser.state.residentAssetPresentation.runtimeCounts.materials,
+        residentMaterialsIncludedInSourceMaterialTruth: false,
+      },
+      claim:
+        'one neutral Seat 01 LOD0 embedded GLB loader candidate attached in observer shadow mode after host/browser verification; not a complete Stormglass resident kit or a family mantle',
+    },
     observerBoundary: {
       off: {
         payload: observerOffPayload.observerBoundary,
@@ -3083,7 +4793,7 @@ export async function runRenderingGate(options = {}) {
       },
       claim:
         canonicalBoundary
-          ? 'browser off/on consumption of one verified bounded four-object Phase 0B V4 canonical payload; the complete host physics receipt and compiled source hashes remained unchanged; no full 12-object lifecycle claim'
+          ? 'browser off/on consumption of one verified bounded 12-object Phase 0B V4 canonical scene payload; the complete host physics receipt and compiled source hashes remained unchanged; no full 12-object lifecycle claim'
           : 'observer browser consumer toggle not evaluated because the canonical boundary was explicitly skipped',
     },
     renderer: {
@@ -3099,6 +4809,7 @@ export async function runRenderingGate(options = {}) {
       materials: browser.state.materials,
       materialTruth,
       scene: browser.state.scene,
+      residentAssetPresentation: browser.state.residentAssetPresentation,
       livingCommonsPresentation: browser.state.livingCommonsPresentation,
       portraitUiChrome,
       adapterMappings: browser.state.adapterMappings,
@@ -3133,6 +4844,7 @@ export async function runRenderingGate(options = {}) {
       holoScriptRoot: relativeTo(root, holoScriptRoot),
       holoScriptCoreSha256: contracts.coreHash,
       esbuildSha256: build.esbuildHash,
+      gltfLoaderSha256: sha256File(gltfLoaderPath),
       checkerSha256: sha256File(SCRIPT_PATH),
     },
     claimBoundary: {
@@ -3141,10 +4853,11 @@ export async function runRenderingGate(options = {}) {
         'sealed HoloScript CPU physics frames projected into faceted visual tokens',
         ...(canonicalBoundary
           ? [
-              'one verified bounded four-object Phase 0B V4 canonical payload withheld from the observer-off browser and SHA-256 acknowledged before receipt-driven rendering by the observer-on browser',
+              'one verified bounded 12-object Phase 0B V4 canonical scene payload withheld from the observer-off browser and SHA-256 acknowledged before receipt-driven rendering by the observer-on browser',
               'four source-declared Living Commons cues rendered only from the acknowledged canonical payload while the complete host physics receipt remained unchanged',
             ]
           : []),
+        'one locally custodied neutral Seat 01 LOD0 GLB with SHA-256 recomputed on the host and in the browser, parsed from an embedded ArrayBuffer with no dependent asset request, shadow-attached, grounded, and admitted before its capsule proxy was hidden',
         `WebGL2 context reporting ${backendObserved} with no recognized software-renderer indicator`,
         'source-to-effective Three MeshPhysicalMaterial values with explicitly disclosed presentation-only chute overrides, sRGB output, ACES filmic tone mapping, PCF soft shadows, and a local procedural RoomEnvironment/PMREM',
         'desktop, portrait, and calibration screenshots with frame-cadence and CPU render-submit percentiles',
@@ -3158,13 +4871,14 @@ export async function runRenderingGate(options = {}) {
         'HDRI asset use',
         'WebGPU rendering',
         'native HoloLand BrowserRuntime or React Three adapter execution',
+        'a complete three-LOD resident kit, authored animation set, detachable family mantle, or public model-family binding',
         'ray tracing, path tracing, global illumination, or photorealism',
         'physically accurate materials, fluids, friction, stacking, or continuous collision detection',
         'cross-hardware deterministic pixels or physics',
         'headset performance',
       ],
       allowedPhrase:
-        'HoloScript-authored Model Village rendered through a receipted HoloLand Three/WebGL2 witness with deterministic local CPU sphere-collider replay.',
+        'HoloScript-authored Model Village rendered through a receipted HoloLand Three/WebGL2 witness with deterministic local CPU sphere-collider replay and one verified neutral Seat 01 LOD0 GLB shadow candidate.',
     },
   };
   const status = allTrue(assertions) ? 'pass' : 'fail';

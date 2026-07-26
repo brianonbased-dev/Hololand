@@ -1,0 +1,220 @@
+// Model Village MV-V1 neutral-resident asset custody manifest.
+//
+// HoloScript source remains sovereign. The GLB is a locally generated bridge
+// projection for loader, custody, grounding, shadow, and zero-network proof.
+// Counts distinguish attached LOD0 runtime geometry from bridge-generated mesh
+// definitions so the synthetic LOD/skin metadata cannot be mistaken for a
+// completed production resident kit.
+
+composition "HoloLand Model Village Resident Asset Manifest" {
+  metadata {
+    title: "Model Village Resident Asset Manifest"
+    version: "1.0.0"
+    schema: "hololand.model-village.neutral-resident-asset-candidate.v1"
+    source: "source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo"
+    productionPlanSource: "docs/specs/HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md"
+    artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
+    residentKitSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    assetSource: "source/layers/vr/frontier/model-village/model-village-resident-base-lod0.holo"
+    presentationProfile: "research_live_blinded"
+    sourceSovereign: true
+    bridgeProjectionOnly: true
+  }
+
+  state {
+    manifestSchema: "hololand.model-village.neutral-resident-asset-candidate.v1"
+    activeAssetId: "mv-neutral-seat-01-lod0-v1"
+    seat01Lod0Custodied: true
+    seat01Lod0RuntimeObserved: false
+    completeResidentKitCustodied: false
+    authoredProductionAssetsObserved: false
+    completeStormglassProductionArtObserved: false
+    photorealisticClaimed: false
+    productionHumanoidRigAuthored: false
+    completeAuthoredLodSetObserved: false
+    requiredSemanticClipsObserved: false
+    publicFamilyMantleIncluded: false
+    providerIdentityIncluded: false
+    modelIdentityIncluded: false
+    familyIdentityIncluded: false
+  }
+
+  template "ModelVillageResidentAssetCustodyRecord" {
+    type: "model_village_resident_asset_custody_record"
+    local_custody_required: true
+    source_sovereign: true
+    bridge_projection_only: true
+    zero_external_uri_required: true
+    host_browser_hash_match_required: true
+    hide_proxy_after_verified_attach_only: true
+    authoritative_mutation_allowed: false
+  }
+
+  object "StormglassNeutralSeat01LOD0Asset" using "ModelVillageResidentAssetCustodyRecord" {
+    type: "model_village_resident_asset_custody_record"
+
+    // Identity and admission boundary.
+    assetId: "mv-neutral-seat-01-lod0-v1"
+    status: "technical_loader_fixture_not_complete_stormglass_production_art"
+    seatId: "seat-01"
+    residentId: "resident-01"
+    presentationProfile: "research_live_blinded"
+    neutralResearchMantleId: "neutral-seat-mantle-01"
+    publicFamilyMantleId: "absent"
+    providerIdentity: "absent"
+    modelIdentity: "absent"
+    familyIdentity: "absent"
+    staticAdapterAssociation: "absent"
+    identityDisclosureAllowed: false
+
+    // Sovereign source and locally custodied bridge projection.
+    sourcePath: "source/layers/vr/frontier/model-village/model-village-resident-base-lod0.holo"
+    sourceSha256: "3fe573839f26edca8c9b17387b6f0583b6f6cd9c8c3a9ea5bb21fc5d99f5af8e"
+    glbPath: "assets/model-village/residents/stormglass-neutral-seat-01-lod0.glb"
+    hashAlgorithm: "sha256"
+    sha256: "93c8191c704758ace02505873c07c09534959a0a7e5e64d21b64d76144dee802"
+    byteSize: 335140
+    format: "glb"
+    gltfVersion: "2.0"
+    glbHeaderMagic: "glTF"
+    generator: "HoloScript GLTFPipeline MV-V1 custody projection"
+    generatorSurface: "holoscript_core_dist_HoloCompositionParser_and_GLTFPipeline"
+    generatorRole: "consumable_bridge_projection_not_source_of_truth"
+    generatorOptions: "format=glb;dedupe=true;prune=true;quantize=false;dracoCompression=false;embedTextures=true"
+    exporterDeclarationCollectorCommit: "e8ddf99a1581"
+    exporterNodeLodConformanceCommit: "eff0e283efd40a8a2d6a845e14981b4b882ae426"
+    generatedOn: "2026-07-26"
+    reproducibilityRuns: 2
+    generationOneSha256: "93c8191c704758ace02505873c07c09534959a0a7e5e64d21b64d76144dee802"
+    generationTwoSha256: "93c8191c704758ace02505873c07c09534959a0a7e5e64d21b64d76144dee802"
+    reproducibleByteForByte: true
+
+    // License and provenance. No third-party model, texture, rig, or clip is
+    // embedded in this fixture.
+    licenseSpdx: "Elastic-2.0"
+    licenseFile: "LICENSE"
+    copyrightNotice: "Copyright 2025-2026 Brian Joseph"
+    provenance: "Authored in-repository from HoloScript cube, sphere, cylinder, and cone primitives; generated locally through the HoloScript GLTFPipeline bridge."
+    externalSourceAssetCount: 0
+    externalTextureCount: 0
+    thirdPartyRigCount: 0
+    thirdPartyAnimationClipCount: 0
+
+    // Exact measured source/runtime counts.
+    sourceObjectCount: 37
+    sourceNodeCount: 38
+    gltfNodeCount: 87
+    sceneReachableNodeCount: 38
+    meshBearingNodeCount: 59
+    nodeAttachedLod0MeshCount: 30
+    gltfMeshDefinitionCount: 59
+    lod0TriangleCount: 5380
+    storedTriangleCountAllBridgeLods: 6128
+    materialCount: 2
+    textureCount: 0
+    imageCount: 0
+    skinCount: 1
+    boneCount: 20
+    clipCount: 0
+    skinnedNodeCount: 0
+
+    // The bridge compiler retains up to two strictly reducing synthetic
+    // lower-detail definitions and omits empty or non-reducing candidates. It
+    // also emits one unbound 20-joint skin. None of these are authored resident
+    // LODs, a production humanoid rig, or animation evidence.
+    declaredLod: 0
+    authoredLodCount: 1
+    completeAuthoredLodSet: false
+    bridgeGeneratedLodCandidateRatios: [0.5, 0.25]
+    bridgeGeneratedLodDefinitionCount: 29
+    bridgeGeneratedLodMaxDefinitionCountPerMesh: 2
+    bridgeGeneratedLodNonReducingOrEmptyTiersOmitted: true
+    bridgeGeneratedLodDefinitionsAreProductionAssets: false
+    authoredHumanoidRig: false
+    bridgeSyntheticSkinMetadata: true
+    bridgeSyntheticSkinBoundToNodes: false
+    bridgeSyntheticSkinIsProductionRig: false
+    requiredIdleClipPresent: false
+    requiredListenClipPresent: false
+    requiredProposeClipPresent: false
+    requiredSettleClipPresent: false
+
+    // Format and network admission.
+    nestedExtensionKeys: ["MSFT_lod"]
+    rootExtensionsUsed: ["MSFT_lod"]
+    rootExtensionsRequired: []
+    msftLodDeclaredAtRoot: true
+    msftLodPlacement: "node"
+    nodeLodPlacementCount: 23
+    nodeLodSingleTargetPlacementCount: 17
+    nodeLodDoubleTargetPlacementCount: 6
+    lowerLodNodeCount: 29
+    uniqueLowerLodTargetCount: 29
+    sceneReachableLowerLodNodeCount: 0
+    childReferencedLowerLodNodeCount: 0
+    skinnedLowerLodNodeCount: 0
+    lowerLodTransformMismatchCount: 0
+    meshLevelLodPlacementCount: 0
+    strictlyReducingNodeLodChains: true
+    extensionDeclarationConformant: true
+    extensionDeclarationStatus: "standard_gltf_2_with_node_level_msft_lod"
+    dracoCompression: false
+    meshoptCompression: false
+    meshQuantization: false
+    externalUriCount: 0
+    zeroExternalUris: true
+    embeddedBufferCount: 1
+    embeddedImageCount: 0
+    networkRequestsAllowed: 0
+
+    // Authoring-space dimensions and named anchors.
+    units: "meters"
+    upAxis: "Y"
+    forwardAxis: "+Z"
+    authoredBoundsMin: [-0.67, 0.0, -0.50]
+    authoredBoundsMax: [0.67, 2.47, 0.50]
+    authoredBoundsSize: [1.34, 2.47, 1.00]
+    authoredHeightMeters: 2.47
+    expectedRuntimeHeightMetersMin: 2.45
+    expectedRuntimeHeightMetersMax: 2.49
+    anchorCount: 7
+    anchorNames: [
+      "AnchorAssetOrigin",
+      "AnchorGround",
+      "AnchorHead",
+      "AnchorLeftHand",
+      "AnchorRightHand",
+      "AnchorMantleSocket",
+      "AnchorSeatGlyph"
+    ]
+    anchorAssetOrigin: [0, 0, 0]
+    anchorGround: [0, 0, 0]
+    anchorHead: [0, 2.18, 0]
+    anchorLeftHand: [-0.58, 0.82, 0]
+    anchorRightHand: [0.58, 0.82, 0]
+    anchorMantleSocket: [0, 1.72, 0]
+    anchorSeatGlyph: [0, 1.39, 0.37]
+
+    // First shadow-mode placement and inspection framing.
+    attachRootNode: "StormglassNeutralSeat01LOD0"
+    observerProxyTarget: "ObserverResident01"
+    attachPosition: [-6.0, 0.0, 3.7]
+    attachRotationDegrees: [0, 0, 0]
+    attachScale: [1, 1, 1]
+    groundTargetY: 0.0
+    groundingToleranceMeters: 0.001
+    inspectionCameraPosition: [-6.0, 1.40, 7.8]
+    inspectionCameraTarget: [-6.0, 1.24, 3.7]
+    inspectionCameraFovDegrees: 42
+
+    // Runtime truth remains false until the rendering witness verifies the
+    // attachment, shadows, browser hash, zero network, and unchanged authority.
+    browserHashVerified: false
+    runtimeAttachVerified: false
+    groundingVerified: false
+    shadowsVerified: false
+    seat01ProxyHiddenAfterVerifiedAttach: false
+    otherFiveCapsulesRemainVisible: false
+    zeroAuthoritativeMutationVerified: false
+  }
+}

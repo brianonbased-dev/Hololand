@@ -3,7 +3,7 @@
 **Status:** Locked production direction with model-family embodiment amendment;
 implementation remains staged
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 
 **Date:** 2026-07-25
 
@@ -20,6 +20,7 @@ implementation remains staged
 
 - [World composition](../../source/layers/vr/frontier/model-village/model-village.holo)
 - [Resident kit](../../source/layers/vr/frontier/model-village/model-village-resident-kit.holo)
+- [Resident asset manifest](../../source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo)
 - [Public family embodiment overlay](../../source/layers/vr/frontier/model-village/model-village-public-embodiments.holo)
 - [Art-direction policy](../../source/domains/agents/model-village-art-direction.hsplus)
 - [Appearance-invariance proof](../../source/proofs/model-village-appearance-invariance.hs)
@@ -39,11 +40,13 @@ neither photorealism nor a cartoon look.
 The inhabitants are the **Stormglass Family Craftfolk**: six public
 model-family embodiments named **Claude**, **OpenAI**, **Gemini**, **Grok**,
 **GLM**, and **Brittney**. The production design specifies one shared body/rig
-and material language, but no authored resident rig or detachable mantle is yet
-a runtime asset. A detachable family mantle is specified to communicate the
-public family identity. A separate neutral civic-role kit communicates what a
-research persona tends in the village and grants no different logical
-capability.
+and material language. No complete authored rig or detachable-mantle runtime
+kit exists. One neutral Seat 01 LOD0 source manifest is now admitted as a
+bounded technical loader slice. Its browser attachment remains owned by the
+separate rendering truth receipt. A detachable family mantle is specified to
+communicate the public family identity. A separate neutral civic-role kit
+communicates what a research persona tends in the village and grants no
+different logical capability.
 
 This public cast is not the adapter-assignment matrix. The planned study still
 contains three sealed adapters rotated across six personas in twelve
@@ -79,8 +82,8 @@ This decision resolves two earlier, incomplete directions:
 ## Concept targets
 
 These images establish shape, mood, material, and composition targets. They are
-not evidence that authored assets, animation, weather, audio, or production
-lighting have shipped.
+not evidence that the complete authored asset kit, animation, weather, audio,
+or production lighting has shipped.
 
 ### Stormglass Commons
 
@@ -430,6 +433,22 @@ Each resident uses at most two materials, one shared 2K body/cloth atlas, and
 an optional shared 1K mask atlas. XR remains a target until a real headset
 receipt exists.
 
+### Bounded partial-production asset truth
+
+The art-direction source now references
+`source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo`.
+The focused art gate observes that source manifest and admits only its neutral
+`Resident 01` LOD0 scope as a technical loader fixture, not completed
+Stormglass production art. It does not embed the asset hash in the art policy.
+The manifest and asset-validation receipts own asset bytes and hashes.
+
+This bounded admission does not claim that the art-direction checker observed a
+browser attachment. That belongs to the rendering truth gate. It also does not
+promote the complete six-seat kit, LOD1/LOD2, an authored humanoid rig, the four
+neutral clips, production textures, facial animation, detachable family
+mantles, or photorealism. The live-research identity remains neutral and has no
+public-family mantle binding.
+
 ## HoloScript format ownership
 
 This package intentionally demonstrates that HoloScript formats are not
@@ -437,7 +456,7 @@ interchangeable file extensions:
 
 | Format | Owns |
 |---|---|
-| `.holo` | Spatial resident kit, neutral research aliases, public family manifests, detachable mantle references, environment, lights, and material references |
+| `.holo` | Spatial resident kit, bounded resident asset manifest, neutral research aliases, public family manifests, detachable mantle references, environment, lights, and material references |
 | `.hsplus` | World identity, presentation profiles, art policy, budgets, privacy, disclosure, presentation admission, and claim boundary |
 | `.hs` | Portable research-appearance invariance and separate public-embodiment proof inputs |
 
@@ -450,10 +469,12 @@ It may not become a second canonical art or resident policy.
 |---|---|
 | Observed | The existing observer is a real HoloScript-authored, Three/WebGL2 premium greybox with ACES, sRGB, PCF-soft shadows, a local procedural environment, deterministic CPU sphere-collider replay, and inspected screenshots on the named RTX 3060 path. |
 | Observed | The world concept, earlier neutral Craftfolk reference, and model-family embodiment lineup exist as locally custodied visual targets with repository hashes. |
-| Observed | The focused v2 checker parses the world, neutral resident kit, public family overlay, observer, art policy, and invariance proof with the built HoloScript core. It validates the six-entry neutral research catalog and the separate six-entry public family catalog without treating catalog order as a cross-catalog join, recomputes distinct research-appearance and public-embodiment digests, preserves every neutral appearance across adapter/condition permutations, excludes public family fields from live research, and checks the source-declared typed, fail-neutral presentation policy. |
-| Target | Detachable runtime family mantles, authored basalt/timber/stormglass buildings, a shared six-resident humanoid asset kit, facial rig, textures, animation, ambient audio, water, cloth, vegetation, and additional physics exhibits. |
-| Gap | No tracked production Model Village GLB/glTF/VRM, texture set, HDRI, or audio asset is yet integrated and receipted. |
-| Gap | Current observer residents remain distinct neutral capsule proxies; no public family mantle is a runtime character claim. |
+| Observed | The focused v2 checker parses the world, neutral resident kit, neutral Seat 01 LOD0 asset manifest, public family overlay, observer, art policy, and invariance proof with the built HoloScript core. It validates the bounded asset source admission, the six-entry neutral research catalog, and the separate six-entry public family catalog without treating catalog order as a cross-catalog join, recomputes distinct research-appearance and public-embodiment digests, preserves every neutral appearance across adapter/condition permutations, excludes public family fields from live research, and checks the source-declared typed, fail-neutral presentation policy. |
+| Observed | One neutral Seat 01 LOD0 asset source manifest is admitted without embedding its asset hash in the art policy. This is source truth, not a browser-render receipt or a complete-kit claim. |
+| Observed | The separate v0.4 rendering witness validates the neutral GLB on host and browser, attaches 30 runtime meshes at Seat 01, verifies grounding and shadows, hides only that proxy, preserves five capsules and all authoritative hashes, makes zero asset requests, and emits inspected wide and close-up frames. |
+| Target | Detachable runtime family mantles, authored basalt/timber/stormglass buildings, a complete six-resident humanoid asset kit, facial rig, textures, animation, ambient audio, water, cloth, vegetation, and additional physics exhibits. |
+| Gap | The full LOD0-2 six-seat kit, authored humanoid rig, four neutral clips, production texture set, HDRI, and audio remain unverified. |
+| Gap | The art-direction gate still does not own browser attachment truth; that evidence belongs to the separate rendering receipt. Only Seat 01 has a verified technical loader candidate, the other five residents remain capsule fallbacks, and no public family mantle is a runtime character claim. |
 | Gap | WebGPU feature parity, photorealism, path tracing, ray-traced GI, dynamic weather, advanced physics presentation, and headset support remain unobserved. |
 
 ## Promotion gates
@@ -461,6 +482,8 @@ It may not become a second canonical art or resident policy.
 ### MV-P2 - six-seat resident kit
 
 - Six authored or explicitly proxy residents parse from HoloScript.
+- The bounded neutral Seat 01 LOD0 manifest may pass its source admission
+  without closing the complete-kit gate or claiming renderer attachment.
 - Public names, family IDs, surfaces, and family-mantle manifest IDs form a
   complete public catalog without a static research-seat join.
 - Research aliases, roles, silhouette IDs, seat glyphs, accents, and neutral
@@ -525,15 +548,14 @@ renaming the stable `MV-P0` through `MV-P14` backlog.
 
 ## Immediate production order
 
-1. Validate and receipt this three-format canon and six proxy residents.
-2. Render the updated proxy silhouettes through the existing WebGL2 witness.
-3. Build one locally custodied shared resident GLB/VRM kit with LOD0-2, the
-   four neutral clips, one neutral research mantle, and detachable family
-   mantles.
-4. Replace the two primitive cottages with one authored modular building kit.
-5. Promote the water court, bridge, harvest lattice, and forge one receipted
+1. Preserve the receipted neutral Seat 01 loader/custody slice as the runtime
+   regression floor; the art gate alone cannot promote it.
+2. Expand the locally custodied resident kit to all six seats, LOD0-2, the four
+   neutral clips, one neutral research mantle, and detachable family mantles.
+3. Replace the two primitive cottages with one authored modular building kit.
+4. Promote the water court, bridge, harvest lattice, and forge one receipted
    physics adapter at a time.
-6. Build the mezzanine and cinematic replay only from sealed observer data.
+5. Build the mezzanine and cinematic replay only from sealed observer data.
 
 The concept target is ambitious. The implementation claims remain narrow,
 measured, and receipt-backed.

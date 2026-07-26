@@ -16,6 +16,8 @@ const ART_POLICY_SOURCE =
   'source/domains/agents/model-village-art-direction.hsplus';
 const RESIDENT_KIT_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-resident-kit.holo';
+const RESIDENT_ASSET_MANIFEST_SOURCE =
+  'source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo';
 const PUBLIC_EMBODIMENT_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-public-embodiments.holo';
 const APPEARANCE_PROOF_SOURCE =
@@ -718,6 +720,7 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
   const sourcePaths = [
     ART_POLICY_SOURCE,
     RESIDENT_KIT_SOURCE,
+    RESIDENT_ASSET_MANIFEST_SOURCE,
     PUBLIC_EMBODIMENT_SOURCE,
     APPEARANCE_PROOF_SOURCE,
     WORLD_SOURCE,
@@ -737,6 +740,7 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
   const texts = {
     policy: read(root, ART_POLICY_SOURCE),
     kit: read(root, RESIDENT_KIT_SOURCE),
+    residentAssetManifest: read(root, RESIDENT_ASSET_MANIFEST_SOURCE),
     publicEmbodiments: read(root, PUBLIC_EMBODIMENT_SOURCE),
     proof: read(root, APPEARANCE_PROOF_SOURCE),
     world: read(root, WORLD_SOURCE),
@@ -748,6 +752,9 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
   const parsed = {
     policy: new core.HoloScriptPlusParser().parse(texts.policy),
     kit: new core.HoloCompositionParser().parse(texts.kit),
+    residentAssetManifest: new core.HoloCompositionParser().parse(
+      texts.residentAssetManifest,
+    ),
     publicEmbodiments: new core.HoloCompositionParser().parse(
       texts.publicEmbodiments,
     ),
@@ -839,6 +846,22 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
     ),
     'StormglassFamilyMantleKit is missing',
   ).properties;
+  const sharedResidentKitPolicy = requireNode(
+    policyTemplates,
+    (node) => (
+      node.type === 'template'
+      && node.name === 'StormglassCraftfolkSharedKit'
+    ),
+    'StormglassCraftfolkSharedKit is missing',
+  ).properties;
+  const partialResidentAssetPolicy = requireNode(
+    policyTemplates,
+    (node) => (
+      node.type === 'template'
+      && node.name === 'NeutralSeat01Lod0AssetSlice'
+    ),
+    'NeutralSeat01Lod0AssetSlice is missing',
+  ).properties;
 
   const worldObjects = holoObjects(parsed.world.ast).map(holoObjectRecord);
   const observerObjects = holoObjects(parsed.observer.ast).map(holoObjectRecord);
@@ -851,6 +874,7 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
   );
   const publicEmbodimentMetadata =
     parsed.publicEmbodiments.ast.metadata || {};
+  const kitMetadata = parsed.kit.ast.metadata || {};
   const worldState = propertyMap(parsed.world.ast.state);
   const observerState = propertyMap(parsed.observer.ast.state);
   const kitState = propertyMap(parsed.kit.ast.state);
@@ -896,6 +920,66 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
       && policyConfig.photorealisticClaimed === false
       && policyConfig.nativeWebGPUClaimed === false,
     policyConfig,
+  );
+  assert(
+    'neutralSeat01Lod0ManifestSourceObserved',
+    policyConfig.residentAssetManifestSource
+        === RESIDENT_ASSET_MANIFEST_SOURCE
+      && policyConfig.partialResidentAssetManifestObserved === true
+      && kitMetadata.residentAssetManifestSource
+        === RESIDENT_ASSET_MANIFEST_SOURCE
+      && kitMetadata.neutralSeat01Lod0ManifestObserved === true
+      && partialResidentAssetPolicy.manifestSource
+        === RESIDENT_ASSET_MANIFEST_SOURCE
+      && partialResidentAssetPolicy.manifestSourceObserved === true
+      && partialResidentAssetPolicy.manifestSchema
+        === 'hololand.model-village.neutral-resident-asset-candidate.v1'
+      && partialResidentAssetPolicy.sourceAdmissionStatus
+        === 'manifest_source_observed'
+      && partialResidentAssetPolicy.manifestHashEmbeddedInArtPolicy === false,
+    {
+      policyConfig,
+      kitMetadata,
+      partialResidentAssetPolicy,
+    },
+  );
+  assert(
+    'partialResidentAssetTruthRemainsBounded',
+    partialResidentAssetPolicy.manifestScope
+        === 'neutral_research_seat_01_lod0'
+      && partialResidentAssetPolicy.assetPurpose
+        === 'technical_loader_fixture_not_complete_stormglass_production_art'
+      && partialResidentAssetPolicy.boundResidentId === 'resident-01'
+      && partialResidentAssetPolicy.boundSeatId === 'seat-01'
+      && partialResidentAssetPolicy.lod === 'lod0'
+      && partialResidentAssetPolicy.presentationProfile
+        === 'research_live_blinded'
+      && partialResidentAssetPolicy.publicFamilyMantleBinding === 'none'
+      && partialResidentAssetPolicy.publicFamilyIdentityPresent === false
+      && partialResidentAssetPolicy.adapterIdentityPresent === false
+      && partialResidentAssetPolicy.runtimeAttachmentStatus
+        === 'target_until_rendering_truth_receipt'
+      && partialResidentAssetPolicy.runtimeAttachmentObservedByArtDirectionGate
+        === false
+      && partialResidentAssetPolicy.productionArtObserved === false
+      && partialResidentAssetPolicy.completeStormglassKitObserved === false
+      && partialResidentAssetPolicy.completeLodSetObserved === false
+      && partialResidentAssetPolicy.otherSeatRuntimeAssetsObserved === false
+      && partialResidentAssetPolicy.authoredHumanoidRigObserved === false
+      && partialResidentAssetPolicy.neutralClipSetObserved === false
+      && partialResidentAssetPolicy.productionTextureSetObserved === false
+      && partialResidentAssetPolicy.photorealismObserved === false
+      && partialResidentAssetPolicy.eligibleForCompleteKitPromotion === false
+      && sharedResidentKitPolicy.productionAssetStatus
+        === 'partial_manifest_observed_runtime_attachment_unverified'
+      && policyConfig.authoredProductionAssetsObserved === false
+      && kitMetadata.authoredProductionAssetsObserved === false,
+    {
+      policyConfig,
+      kitMetadata,
+      sharedResidentKitPolicy,
+      partialResidentAssetPolicy,
+    },
   );
   assert(
     'canonicalWorldObjectCountPreserved',
@@ -1176,6 +1260,55 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
       && residentBudgetPolicy.farLod2TrianglesPerResidentMaximum === 2000
       && residentBudgetPolicy.materialsPerResidentMaximum === 2,
     residentBudgetPolicy,
+  );
+  const seat01AssetCandidate = kitByResident.get('resident-01');
+  const otherSeatAssetCandidates = EXPECTED_RESEARCH_RESIDENTS
+    .filter((entry) => entry.residentId !== 'resident-01')
+    .map((entry) => kitByResident.get(entry.residentId));
+  assert(
+    'neutralSeat01IsOnlyManifestedAssetCandidate',
+    kitState.partialRuntimeAssetManifestSource
+        === RESIDENT_ASSET_MANIFEST_SOURCE
+      && kitState.partialRuntimeAssetManifestStatus
+        === 'observed_source_manifest'
+      && kitState.partialRuntimeAssetManifestSchema
+        === 'hololand.model-village.neutral-resident-asset-candidate.v1'
+      && kitState.partialRuntimeAssetScope
+        === 'neutral_research_seat_01_lod0'
+      && kitState.partialRuntimeAssetPurpose
+        === 'technical_loader_fixture_not_complete_stormglass_production_art'
+      && kitState.partialRuntimeAssetResidentId === 'resident-01'
+      && kitState.partialRuntimeAssetSeatId === 'seat-01'
+      && kitState.partialRuntimeAssetLod === 'lod0'
+      && kitState.partialRuntimeAssetRuntimeAttachmentStatus
+        === 'target_until_rendering_truth_receipt'
+      && kitState.completeResidentKitObserved === false
+      && kitState.completeLodSetObserved === false
+      && kitState.authoredHumanoidRigObserved === false
+      && kitState.neutralClipSetObserved === false
+      && kitState.productionTextureSetObserved === false
+      && kitState.photorealismObserved === false
+      && kitState.familyMantleAssetCoupling === 'none'
+      && seat01AssetCandidate?.residentAssetManifestSource
+        === RESIDENT_ASSET_MANIFEST_SOURCE
+      && seat01AssetCandidate?.residentAssetManifestAdmission
+        === 'source_manifest_observed'
+      && seat01AssetCandidate?.residentAssetCandidateKind
+        === 'neutral_research_lod0'
+      && seat01AssetCandidate?.residentAssetPurpose
+        === 'technical_loader_fixture_not_complete_stormglass_production_art'
+      && seat01AssetCandidate?.residentAssetLod === 'lod0'
+      && seat01AssetCandidate?.residentAssetRuntimeAttachmentStatus
+        === 'target_until_rendering_truth_receipt'
+      && seat01AssetCandidate?.productionResidentClaimed === false
+      && otherSeatAssetCandidates.every(
+        (entry) => !Object.hasOwn(entry, 'residentAssetManifestSource'),
+      ),
+    {
+      kitState,
+      seat01AssetCandidate,
+      otherSeatAssetCandidates,
+    },
   );
 
   const researchResidentEvidence = [];
@@ -1474,6 +1607,32 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
       entry.publicDisplayName,
     ]),
   );
+  const residentAssetTruth = {
+    manifestSource: RESIDENT_ASSET_MANIFEST_SOURCE,
+    manifestSourceObserved: true,
+    manifestSchema:
+      partialResidentAssetPolicy.manifestSchema,
+    manifestSourceSha256:
+      sourceEvidence[RESIDENT_ASSET_MANIFEST_SOURCE].sha256,
+    manifestScope: partialResidentAssetPolicy.manifestScope,
+    assetPurpose: partialResidentAssetPolicy.assetPurpose,
+    residentId: partialResidentAssetPolicy.boundResidentId,
+    seatId: partialResidentAssetPolicy.boundSeatId,
+    lod: partialResidentAssetPolicy.lod,
+    presentationProfile: partialResidentAssetPolicy.presentationProfile,
+    sourceAdmissionStatus: partialResidentAssetPolicy.sourceAdmissionStatus,
+    runtimeAttachmentStatus:
+      partialResidentAssetPolicy.runtimeAttachmentStatus,
+    runtimeAttachmentObservedByArtDirectionGate: false,
+    productionArtObserved: false,
+    completeStormglassKitObserved: false,
+    completeLodSetObserved: false,
+    authoredHumanoidRigObserved: false,
+    neutralClipSetObserved: false,
+    productionTextureSetObserved: false,
+    publicFamilyMantleBinding: 'none',
+    photorealismObserved: false,
+  };
 
   const receipt = {
     schemaVersion: SCHEMA_VERSION,
@@ -1514,6 +1673,7 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
       },
       parsedSources: [
         RESIDENT_KIT_SOURCE,
+        RESIDENT_ASSET_MANIFEST_SOURCE,
         PUBLIC_EMBODIMENT_SOURCE,
         ART_POLICY_SOURCE,
         APPEARANCE_PROOF_SOURCE,
@@ -1521,6 +1681,7 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
         OBSERVER_SOURCE,
       ],
     },
+    residentAssetTruth,
     residents: researchResidentEvidence,
     publicEmbodiments: publicEmbodimentCatalog,
     imageEvidence,
@@ -1537,15 +1698,21 @@ export async function runModelVillageArtDirectionCheck(options = {}) {
         'typed_fail_neutral_postlock_evidence_source_contract',
         'adapter_and_condition_research_appearance_invariance_manifest',
         'distinct_q0_capsule_proxy_scales',
+        'neutral_seat_01_lod0_asset_source_manifest',
         'locally_custodied_concept_targets',
       ],
       targetNotObserved: [
-        'authored_resident_glb_or_vrm',
+        'renderer_observed_neutral_seat_01_lod0_attachment',
+        'complete_six_resident_stormglass_asset_kit',
+        'complete_resident_lod0_lod1_lod2_set',
         'facial_rig',
+        'authored_humanoid_rig',
+        'neutral_resident_clip_set',
         'production_character_animation',
         'authored_family_mantle_glb_nodes',
         'six_live_model_family_adapter_bindings',
         'postlock_binding_receipt_runtime_execution',
+        'production_resident_texture_set',
         'production_texture_atlas',
         'production_audio',
         'dynamic_weather',
