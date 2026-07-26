@@ -1,0 +1,303 @@
+// Stormglass Commons — production-shaped neutral resident body.
+//
+// This composition exercises native @clothing geometry, three source-authored @lod
+// topologies, and continuously sampled semantic motion on the shared humanoid palette.
+// It remains identity-neutral: model-family names belong only in detachable public mantles.
+
+composition "Stormglass Neutral Production Body" {
+  metadata {
+    assetId: "mv-stormglass-neutral-production-body-v1"
+    title: "Stormglass Neutral Production Body"
+    version: "1.0.0"
+    source: "source/layers/vr/frontier/model-village/model-village-resident-production-body.holo"
+    productionPlanSource: "docs/specs/HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md"
+    artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
+    presentationProfile: "research_live_blinded"
+    compileTarget: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    units: "meters"
+    upAxis: "Y"
+    forwardAxis: "+Z"
+    artStyle: "stormglass_craftfolk_faceless_hooded"
+    status: "production_shaped_body_lod_motion_witness_not_complete_mv_p2"
+    sourceSovereign: true
+    bridgeProjectionOnly: false
+    providerIdentity: "absent"
+    modelIdentity: "absent"
+    familyIdentity: "absent"
+  }
+
+  environment {
+    mode: "character_authoring"
+    theme: "stormglass_commons"
+    backgroundColor: "#07111F"
+    ambient_light: 0.32
+    shadows: true
+  }
+
+  state {
+    residentId: "shared-neutral-resident"
+    presentationProfile: "research_live_blinded"
+    sharedRigId: "humanoid_65"
+    requiredSemanticClips: ["idle", "listen", "propose", "settle"]
+    authoredSemanticClipCount: 4
+    authoredKeyframesPerClip: 3
+    continuousInterpolation: "quaternion_nlerp_smoothstep"
+    authoredLodLevels: [0, 1, 2]
+    authoredLodDistancesMeters: [0, 12, 28]
+    authoredGarmentSegments: [24, 14, 8]
+    garmentStyle: "stormglass_hooded_tunic"
+    wovenClothMaterialAuthored: true
+    facelessVisorAuthored: true
+    publicFamilyMantleLoaded: false
+    providerIdentityVisible: false
+    modelIdentityVisible: false
+    familyIdentityVisible: false
+    clothSimulationObserved: false
+    authoredTexturesObserved: false
+    observerRuntimeAttachmentObserved: false
+    completeMvP2Claimed: false
+  }
+
+  object "StormglassNeutralProductionBody" {
+    @skeleton(rig: "humanoid_65", ik_enabled: true)
+    @body(
+      height: 2.05,
+      build_scale: 1.15,
+      skin_tone: "#9AB3BE"
+    )
+    @subsurface_scattering(
+      color: "#9AB3BE",
+      scatter_color: "#6F9FB3"
+    )
+    @clothing(
+      style: "stormglass_hooded_tunic",
+      color: "#6E98AA",
+      material: "woven_cloth",
+      faceless: true,
+      cloth_physics: "authored_parameters_only_not_simulated"
+    )
+    @lod(
+      levels: [
+        { level: 0, distance: 0, garment_segments: 24 },
+        { level: 1, distance: 12, garment_segments: 14 },
+        { level: 2, distance: 28, garment_segments: 8 }
+      ]
+    )
+    @locomotion(mode: "walk", speed: 1.1)
+
+    geometry: "avatar"
+    position: [0, 0, 0]
+    scale: [1, 1, 1]
+    residentId: "shared-neutral-resident"
+    seatBinding: "none"
+    neutralResearchBody: true
+    familyMantleSocketRequired: true
+    providerIdentity: "absent"
+    modelIdentity: "absent"
+    familyIdentity: "absent"
+  }
+
+  object "SemanticClipIdle" {
+    type: "model_village_semantic_clip"
+    clipId: "idle"
+    durationSeconds: 4.0
+    loop: true
+    interpolation: "quaternion_nlerp_smoothstep"
+    receiptRequirement: "neutral_fallback_no_action_receipt"
+    permittedPresentationProfiles: [
+      "research_live_blinded",
+      "research_replay_postlock",
+      "village_story_unblinded"
+    ]
+    frames: [
+      {
+        normalizedTime: 0.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -68 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 68 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: 7 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: -7 },
+          { bone: "spine1", axis: [0, 0, 1], degrees: -1 },
+          { bone: "head", axis: [0, 1, 0], degrees: -2 }
+        ]
+      },
+      {
+        normalizedTime: 0.5,
+        easing: "smoothstep",
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -71 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 71 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: 3 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: -3 },
+          { bone: "spine1", axis: [0, 0, 1], degrees: 1.5 },
+          { bone: "head", axis: [0, 1, 0], degrees: 2.5 }
+        ]
+      },
+      {
+        normalizedTime: 1.0,
+        easing: "smoothstep",
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -68 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 68 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: 7 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: -7 },
+          { bone: "spine1", axis: [0, 0, 1], degrees: -1 },
+          { bone: "head", axis: [0, 1, 0], degrees: -2 }
+        ]
+      }
+    ]
+  }
+
+  object "SemanticClipListen" {
+    type: "model_village_semantic_clip"
+    clipId: "listen"
+    durationSeconds: 2.4
+    loop: true
+    interpolation: "quaternion_nlerp_smoothstep"
+    receiptRequirement: "verified_observation_or_turn_receipt"
+    permittedPresentationProfiles: [
+      "research_live_blinded",
+      "research_replay_postlock",
+      "village_story_unblinded"
+    ]
+    frames: [
+      {
+        normalizedTime: 0.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -72 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 72 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: -18 },
+          { bone: "neck", axis: [0, 1, 0], degrees: -8 },
+          { bone: "head", axis: [0, 0, 1], degrees: 10 },
+          { bone: "spine1", axis: [0, 1, 0], degrees: -4 }
+        ]
+      },
+      {
+        normalizedTime: 0.5,
+        easing: "smoothstep",
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -70 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 70 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: -27 },
+          { bone: "neck", axis: [0, 1, 0], degrees: -13 },
+          { bone: "head", axis: [0, 0, 1], degrees: 6 },
+          { bone: "spine1", axis: [0, 1, 0], degrees: -7 }
+        ]
+      },
+      {
+        normalizedTime: 1.0,
+        easing: "smoothstep",
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -72 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 72 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: -18 },
+          { bone: "neck", axis: [0, 1, 0], degrees: -8 },
+          { bone: "head", axis: [0, 0, 1], degrees: 10 },
+          { bone: "spine1", axis: [0, 1, 0], degrees: -4 }
+        ]
+      }
+    ]
+  }
+
+  object "SemanticClipPropose" {
+    type: "model_village_semantic_clip"
+    clipId: "propose"
+    durationSeconds: 1.8
+    loop: false
+    interpolation: "quaternion_nlerp_smoothstep"
+    receiptRequirement: "verified_proposal_or_admitted_action_receipt"
+    permittedPresentationProfiles: [
+      "research_live_blinded",
+      "research_replay_postlock",
+      "village_story_unblinded"
+    ]
+    frames: [
+      {
+        normalizedTime: 0.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -70 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 25 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: -35 },
+          { bone: "spine1", axis: [0, 1, 0], degrees: -6 },
+          { bone: "head", axis: [0, 1, 0], degrees: -5 }
+        ]
+      },
+      {
+        normalizedTime: 0.55,
+        easing: "smoothstep",
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -69 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 43 },
+          { bone: "right_forearm", axis: [0, 0, 1], degrees: -68 },
+          { bone: "right_hand", axis: [0, 1, 0], degrees: 12 },
+          { bone: "spine1", axis: [0, 1, 0], degrees: -9 },
+          { bone: "head", axis: [0, 1, 0], degrees: -7 }
+        ]
+      },
+      {
+        normalizedTime: 1.0,
+        easing: "smoothstep",
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -68 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 57 },
+          { bone: "right_forearm", axis: [0, 0, 1], degrees: -94 },
+          { bone: "right_hand", axis: [0, 1, 0], degrees: 21 },
+          { bone: "spine1", axis: [0, 1, 0], degrees: -11 },
+          { bone: "head", axis: [0, 1, 0], degrees: -9 }
+        ]
+      }
+    ]
+  }
+
+  object "SemanticClipSettle" {
+    type: "model_village_semantic_clip"
+    clipId: "settle"
+    durationSeconds: 1.4
+    loop: false
+    interpolation: "quaternion_nlerp_smoothstep"
+    receiptRequirement: "verified_action_or_public_state_receipt"
+    permittedPresentationProfiles: [
+      "research_live_blinded",
+      "research_replay_postlock",
+      "village_story_unblinded"
+    ]
+    frames: [
+      {
+        normalizedTime: 0.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -50 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 50 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: 10 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: -10 },
+          { bone: "head", axis: [0, 0, 1], degrees: -5 },
+          { bone: "spine1", axis: [0, 0, 1], degrees: 2 }
+        ]
+      },
+      {
+        normalizedTime: 0.5,
+        easing: "smoothstep",
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -63 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 63 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: 4 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: -4 },
+          { bone: "head", axis: [0, 0, 1], degrees: -2 },
+          { bone: "spine1", axis: [0, 0, 1], degrees: 1 }
+        ]
+      },
+      {
+        normalizedTime: 1.0,
+        easing: "smoothstep",
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -72 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 72 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: 0 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: 0 },
+          { bone: "head", axis: [0, 0, 1], degrees: 0 },
+          { bone: "spine1", axis: [0, 0, 1], degrees: 0 }
+        ]
+      }
+    ]
+  }
+}

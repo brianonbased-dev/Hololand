@@ -1,0 +1,154 @@
+// MV-V3 immutable evidence manifest.
+//
+// Pins the identity-neutral Stormglass garment source, three authored sovereign LOD
+// bundles, continuously sampled semantic motion, and native WebGPU visual witnesses.
+// This closes the production-shaped body/LOD/motion slice, not all of MV-P2.
+
+composition "Model Village Stormglass Production Body Manifest" {
+  metadata {
+    schema: "hololand.model-village.production-body.v1"
+    milestone: "MV-V3 Stormglass Production Body + Authored LOD + Continuous Motion"
+    status: "PASS_BOUNDED"
+    generatedDate: "2026-07-26"
+    sourcePath: "source/layers/vr/frontier/model-village/model-village-resident-production-body.holo"
+    sourceSha256: "62e719290da04d6bccf7be4e5cc56ff55192123329ed21cbe29b58feb837f7d5"
+    compileTarget: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    holoscriptEngineCommit: "06ff5a6fb2491aea45ac17813789833fb10101f0"
+    lod0BundlePath: "assets/model-village/residents/stormglass-neutral-production-body-lod0.character.json"
+    lod0BundleSha256: "e02515709007066065b05ff3c13553732a3e507f469d2b2967427fd8b481e600"
+    lod1BundlePath: "assets/model-village/residents/stormglass-neutral-production-body-lod1.character.json"
+    lod1BundleSha256: "e06f34b9ed4ddf3f29c625e5170dfe146fc9c909e39a41eaba5580f0fbd53d71"
+    lod2BundlePath: "assets/model-village/residents/stormglass-neutral-production-body-lod2.character.json"
+    lod2BundleSha256: "36d16a610fdae1788300b2ba689b6c95e7e0f4d0ffa14f6f87db832e269d8fd0"
+    heroPath: "docs/assets/model-village/model-village-neutral-production-body-hero-2026-07-26.png"
+    heroSha256: "9d2ea5fa66aa9a172b77224ca89999f51236c50f059b53cd6a1667b0a2b7fe45"
+    motionSheetPath: "docs/assets/model-village/model-village-neutral-production-body-continuous-motion-2026-07-26.png"
+    motionSheetSha256: "43b9563608458a8bb1779f2465dd92848c962af9302bcdd4f44b02a9aef23097"
+    lodSheetPath: "docs/assets/model-village/model-village-neutral-production-body-lods-2026-07-26.png"
+    lodSheetSha256: "d24fae76b8a6f7d60ab78cc40a5a2cae8b613f3356c59ecc16099537901c4818"
+    identityProfile: "research_live_blinded"
+    providerIdentity: "absent"
+    modelIdentity: "absent"
+    familyIdentity: "absent"
+  }
+
+  state {
+    compileSuccess: true
+    compilerFallbackUsed: false
+    repeatedCompileByteIdenticalForAllLods: true
+    liveWebGpuRenderObserved: true
+    liveJointCount: 55
+    materialGroupCount: 3
+    materialModels: ["skin-sss", "woven-cloth", "lambert"]
+    hoodedGarmentGeometryObserved: true
+    facelessVisorObserved: true
+    wovenClothShaderObserved: true
+    authoredLod0Observed: true
+    authoredLod1Observed: true
+    authoredLod2Observed: true
+    lod0VertexCount: 2089
+    lod0TriangleCount: 1524
+    lod1VertexCount: 1869
+    lod1TriangleCount: 1214
+    lod2VertexCount: 1737
+    lod2TriangleCount: 1028
+    semanticClipCount: 4
+    semanticClipIds: ["idle", "listen", "propose", "settle"]
+    authoredKeyframesPerClip: 3
+    renderedSamplesPerClip: 9
+    interpolation: "quaternion_nlerp_smoothstep"
+    continuousSemanticMotionObserved: true
+    deterministicReplayObservedForAllClips: true
+    externalNetworkFetchCount: 0
+    deniedRelativeWasmFetchTarget: "/holoscript_wasm_bg.wasm"
+    externalDccRequired: false
+    providerAssetRequired: false
+    identityNeutral: true
+    clothSimulationObserved: false
+    authoredTexturesObserved: false
+    productionAnimationRetargetingObserved: false
+    observerRuntimeAttachmentObserved: false
+    sixFamilyMantlesObserved: false
+    completeMvP2Claimed: false
+  }
+
+  object "Lod0Evidence" {
+    type: "model_village_character_lod_evidence"
+    level: 0
+    distanceMeters: 0
+    garmentSegments: 24
+    vertexCount: 2089
+    indexCount: 4572
+    triangleCount: 1524
+    bundleBytes: 217887
+    gpuPixelSha256: "28cb54c671d8b12c5f901810e5afbcf8c90585b9d65e9b09b9b65efded23d7fd"
+    replayChangedPixels: 0
+  }
+
+  object "Lod1Evidence" {
+    type: "model_village_character_lod_evidence"
+    level: 1
+    distanceMeters: 12
+    garmentSegments: 14
+    vertexCount: 1869
+    indexCount: 3642
+    triangleCount: 1214
+    bundleBytes: 187850
+    gpuPixelSha256: "027ece25fb9fa173c3b56325db23e3769fd5b64f853585ec41ec4d4bb2a381cb"
+    replayChangedPixels: 0
+  }
+
+  object "Lod2Evidence" {
+    type: "model_village_character_lod_evidence"
+    level: 2
+    distanceMeters: 28
+    garmentSegments: 8
+    vertexCount: 1737
+    indexCount: 3084
+    triangleCount: 1028
+    bundleBytes: 166662
+    gpuPixelSha256: "6e8291a42a270d79c9a21e0095d425fe09bc80414303c171464957d1a0b2ec6b"
+    replayChangedPixels: 0
+  }
+
+  object "IdleMotionEvidence" {
+    type: "model_village_continuous_clip_evidence"
+    clipId: "idle"
+    authoredClipSha256: "8e2a65fbd9e94de118575851444cccf213f286b19ab15a994a03ce5b7059c1d3"
+    renderedSamples: 9
+    minimumAdjacentChangedPixels: 7453
+    maximumAdjacentChangedPixels: 11497
+    replayChangedPixels: 0
+  }
+
+  object "ListenMotionEvidence" {
+    type: "model_village_continuous_clip_evidence"
+    clipId: "listen"
+    authoredClipSha256: "adeb31bf9e055ec58ce326ed6c4e9e122a22fe2473fe27d118d6542e71a354c0"
+    renderedSamples: 9
+    minimumAdjacentChangedPixels: 6523
+    maximumAdjacentChangedPixels: 10191
+    replayChangedPixels: 0
+  }
+
+  object "ProposeMotionEvidence" {
+    type: "model_village_continuous_clip_evidence"
+    clipId: "propose"
+    authoredClipSha256: "fca6882a604a26493a5041ff34d7083e5bf93bc11d5710ffac677cec9d3a6ec0"
+    renderedSamples: 9
+    minimumAdjacentChangedPixels: 3262
+    maximumAdjacentChangedPixels: 8378
+    replayChangedPixels: 0
+  }
+
+  object "SettleMotionEvidence" {
+    type: "model_village_continuous_clip_evidence"
+    clipId: "settle"
+    authoredClipSha256: "780205717f09abc08d43cab4ec158f13b567f39cbbadb9938fe22db447278566"
+    renderedSamples: 9
+    minimumAdjacentChangedPixels: 6199
+    maximumAdjacentChangedPixels: 9211
+    replayChangedPixels: 0
+  }
+}
