@@ -1,0 +1,173 @@
+// Stormglass Commons - first named family mantle witness.
+//
+// This source is presentation-only. "OpenAI" is visible in the unblinded village
+// story profile after verified binding/unblinding receipts. The live blinded research
+// profile continues to consume the neutral resident body and cannot see this overlay.
+
+composition "Stormglass OpenAI Cloth Mantle" {
+  metadata {
+    assetId: "mv-stormglass-openai-cloth-mantle-v1"
+    title: "OpenAI"
+    version: "1.0.0"
+    source: "source/layers/vr/frontier/model-village/model-village-openai-cloth-mantle.holo"
+    observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    publicEmbodimentCatalogSource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
+    productionPlanSource: "docs/specs/HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md"
+    artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
+    presentationProfile: "village_story_unblinded"
+    compileTarget: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    units: "meters"
+    upAxis: "Y"
+    forwardAxis: "+Z"
+    artStyle: "stormglass_craftfolk_faceless_hooded"
+    namedFamily: "OpenAI"
+    exactModelRevision: "absent"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by OpenAI."
+    providerEndorsementClaimed: false
+    sourceSovereign: true
+    bridgeProjectionOnly: false
+    researchLiveBlindedAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+    status: "first_named_mantle_cloth_texture_attachment_witness_not_complete_mv_p2"
+  }
+
+  environment {
+    mode: "character_authoring"
+    theme: "stormglass_commons"
+    backgroundColor: "#07111F"
+    ambient_light: 0.32
+    shadows: true
+  }
+
+  state {
+    residentId: "openai-story-resident"
+    publicDisplayName: "OpenAI"
+    embodimentTitle: "Codex"
+    familyId: "openai"
+    agentSurfaceId: "codex-hardware"
+    modelFamily: "gpt"
+    exactModelRevision: "absent"
+    presentationProfile: "village_story_unblinded"
+    prohibitedPresentationProfiles: ["research_live_blinded"]
+    requiresReceipts: [
+      "terminal_commitment",
+      "verified_family_binding_receipt",
+      "verified_unblinding_receipt",
+      "verified_family_embodiment_manifest"
+    ]
+    sharedRigId: "humanoid_65"
+    garmentStyle: "stormglass_hooded_tunic"
+    familyMantleId: "stormglass-mantle-openai-v1"
+    familyMantlePatternId: "recursive_cell_interlock"
+    familyMantleGlyphId: "recursive_interlock_glyph"
+    familyMantleAccentColor: "#D6D1C7"
+    mantleDetachable: true
+    clothSolver: "xpbd"
+    fixedStepHz: 120
+    localUvMaterialMapsAuthored: true
+    observerStoryAttachmentAuthored: true
+    researchLiveBlindedAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+    namedFamilyMantlesBuilt: 1
+    targetNamedFamilyMantles: 6
+    completeMvP2Claimed: false
+  }
+
+  object "OpenAI" {
+    @skeleton(rig: "humanoid_65", ik_enabled: true)
+    @body(
+      height: 2.05,
+      build_scale: 1.15,
+      skin_tone: "#9AB3BE"
+    )
+    @subsurface_scattering(
+      color: "#9AB3BE",
+      scatter_color: "#6F9FB3"
+    )
+    @clothing(
+      style: "stormglass_hooded_tunic",
+      color: "#557F91",
+      material: "woven_cloth",
+      faceless: true,
+      mantle_style: "openai_recursive_interlock",
+      mantle_color: "#D6D1C7",
+      mantle_detachable: true,
+      mantle_albedo_map: "assets/model-village/materials/openai-recursive-interlock-albedo.texture.json",
+      mantle_normal_map: "assets/model-village/materials/openai-recursive-interlock-normal.texture.json",
+      mantle_roughness_map: "assets/model-village/materials/openai-recursive-interlock-roughness.texture.json"
+    )
+    @cloth_simulation(
+      solver: "xpbd",
+      fixed_step_hz: 120,
+      iterations: 5,
+      damping: 0.985,
+      gravity: [0, -0.42, 0],
+      wind: [0.34, 0.02, 0.20],
+      wind_frequency: 1.35,
+      tether_stiffness: 8.5,
+      constraint_stiffness: 0.72,
+      max_displacement: 0.18
+    )
+    @lod(
+      levels: [
+        { level: 0, distance: 0, garment_segments: 24 },
+        { level: 1, distance: 12, garment_segments: 14 },
+        { level: 2, distance: 28, garment_segments: 8 }
+      ]
+    )
+    @locomotion(mode: "idle", speed: 1.0)
+
+    geometry: "avatar"
+    position: [0, 0, 0]
+    scale: [1, 1, 1]
+    residentId: "openai-story-resident"
+    publicDisplayName: "OpenAI"
+    embodimentTitle: "Codex"
+    familyId: "openai"
+    agentSurfaceId: "codex-hardware"
+    modelFamily: "gpt"
+    familyMantleId: "stormglass-mantle-openai-v1"
+    familyMantlePatternId: "recursive_cell_interlock"
+    familyMantleGlyphId: "recursive_interlock_glyph"
+    familyMantleAccentColor: "#D6D1C7"
+    neutralBodySource: "source/layers/vr/frontier/model-village/model-village-resident-production-body.holo"
+    detachablePresentationOverlay: true
+    exactModelRevision: "absent"
+    researchLiveBlindedAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+
+  object "OpenAIObserverStoryAttachment" {
+    type: "model_village_story_observer_attachment"
+    attachmentId: "openai-story-verified-target-v1"
+    targetSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    targetObjectSource: "verified_family_binding_receipt.residentTargetObject"
+    targetSeatIdSource: "verified_family_binding_receipt.seatId"
+    publicGalleryPlacementSource: "public_gallery_layout_manifest"
+    postlockPlacementSource: "verified_family_binding_receipt"
+    presentationProfile: "village_story_unblinded"
+    publicDisplayName: "OpenAI"
+    familyId: "openai"
+    mantleObject: "OpenAI"
+    attachmentMode: "verified_receipt_read_only_projection_pose"
+    requiresReceipts: [
+      "terminal_commitment",
+      "verified_family_binding_receipt",
+      "verified_unblinding_receipt",
+      "verified_family_embodiment_manifest"
+    ]
+    deniedPresentationProfiles: ["research_live_blinded"]
+    researchResidentBinding: "none"
+    researchSeatBinding: "none"
+    researchPersonaBinding: "none"
+    adapterAssignmentBinding: "none"
+    researchLiveBlindedAllowed: false
+    mayWriteCanonicalWorld: false
+    mayWriteResidentObservation: false
+    causalEffect: false
+  }
+}

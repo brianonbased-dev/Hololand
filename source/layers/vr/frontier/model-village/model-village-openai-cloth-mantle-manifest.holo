@@ -1,0 +1,143 @@
+// MV-V4 immutable evidence manifest.
+//
+// Pins the first story-only named family mantle, compact local material maps,
+// deterministic cloth samples, native WebGPU witnesses, and verified-receipt
+// observer attachment mechanism. It does not bind OpenAI to a research seat.
+
+composition "Model Village OpenAI Cloth Mantle Manifest" {
+  metadata {
+    schema: "hololand.model-village.cloth-mantle.v1"
+    milestone: "MV-V4 OpenAI Detachable Cloth Mantle + Local UV Maps + Story Attachment"
+    status: "PASS_BOUNDED"
+    generatedDate: "2026-07-26"
+    sourcePath: "source/layers/vr/frontier/model-village/model-village-openai-cloth-mantle.holo"
+    sourceSha256: "f0c60019f6e853784106a504294930e60e5556915339e0a046123042952ceefd"
+    compileTarget: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    holoscriptEngineCommit: "0ed0591de119c631aeb36200f30cedb3e41ac5a1"
+    holoscriptClothFeatureCommit: "98c59f5328b929384819b479c101f1dd5fd7a3ee"
+    bundlePath: "assets/model-village/residents/stormglass-openai-cloth-mantle-lod0.character.json"
+    bundleSha256: "81da82a544bb7293ebfcad39a121c4d0b681516c76fa489606109638bbfaf5af"
+    materialMapPaths: [
+      "assets/model-village/materials/openai-recursive-interlock-albedo.texture.json",
+      "assets/model-village/materials/openai-recursive-interlock-normal.texture.json",
+      "assets/model-village/materials/openai-recursive-interlock-roughness.texture.json"
+    ]
+    materialMapSha256: [
+      "6de8ffa331be8964b0fefae46037777a5bfad3f3b47c4fcb083c117e45f185fe",
+      "01a40edd50cbae0d7d73c59d464cebca1256862795cdd8edb8463c61df3557b5",
+      "5e045e55e95479b9b74157e89cf7f46d1daf5fa521a418740d3862082df5cc34"
+    ]
+    heroPath: "docs/assets/model-village/model-village-openai-cloth-mantle-hero-2026-07-26.png"
+    heroSha256: "9043b3ec184e0712663d637c3496d41b0edfc6e4db26793eebf217be84b927d8"
+    clothSheetPath: "docs/assets/model-village/model-village-openai-cloth-motion-2026-07-26.png"
+    clothSheetSha256: "d72677a6ba38877d4ee647c29cdb7e1470676ae6c9faf2728ed2165c9cf77036"
+    statesSheetPath: "docs/assets/model-village/model-village-openai-mantle-states-2026-07-26.png"
+    statesSheetSha256: "257229a583e92a5b2a59227131f5cbc0a8e61cb4d4d75f5a9220d1fa04e77c9d"
+    presentationProfile: "village_story_unblinded"
+    publicDisplayName: "OpenAI"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by OpenAI."
+    providerEndorsementClaimed: false
+  }
+
+  state {
+    compileSuccess: true
+    compilerFallbackUsed: false
+    repeatedCompileByteIdentical: true
+    liveWebGpuRenderObserved: true
+    liveJointCount: 55
+    vertexCount: 2180
+    triangleCount: 1668
+    uvPairCount: 2180
+    uvDistinctValueCount: 39
+    materialGroupCount: 4
+    materialModels: ["skin-sss", "woven-cloth", "lambert", "woven-cloth"]
+    publicDisplayName: "OpenAI"
+    familyId: "openai"
+    modelFamily: "gpt"
+    embodimentTitle: "Codex"
+    agentSurfaceId: "codex-hardware"
+    presentationProfile: "village_story_unblinded"
+    researchLiveBlindedAllowed: false
+    exactModelRevision: "absent"
+    mantleStyle: "openai_recursive_interlock"
+    mantlePatternId: "recursive_cell_interlock"
+    mantleGlyphId: "recursive_interlock_glyph"
+    mantleDetachmentObserved: true
+    attachedVertexCount: 2180
+    detachedVertexCount: 2089
+    attachedToDetachedChangedPixels: 14930
+    clothSimulationObserved: true
+    clothSolver: "xpbd"
+    clothFixedStepHz: 120
+    clothIterations: 5
+    clothDynamicVertexCount: 366
+    clothSampleTimes: [0, 0.2, 0.4, 0.6, 0.8]
+    clothMaximumObservedDisplacementMeters: 0.04512976607923203
+    clothAuthoredMaximumDisplacementMeters: 0.18
+    clothReplayChangedPixels: 0
+    localUvMaterialMapsObserved: true
+    materialMapSize: 4
+    materialMapCount: 3
+    texturedToFlatChangedPixels: 14928
+    externalTextureFetchCount: 0
+    observerStoryAttachmentObserved: true
+    observerTargetSource: "verified_family_binding_receipt"
+    observerAttachmentFixtureTarget: "ObserverResident01"
+    observerAttachmentFixtureSeat: "seat-01"
+    fixtureClaimsCanonicalAssignment: false
+    researchSeatBinding: "none"
+    researchResidentBinding: "none"
+    canonicalWriteAuthority: false
+    causalEffect: false
+    externalNetworkFetchCount: 0
+    externalDccRequired: false
+    providerAssetRequired: false
+    namedFamilyMantlesObserved: 1
+    targetNamedFamilyMantles: 6
+    completeMvP2Claimed: false
+  }
+
+  object "ClothEvidence" {
+    type: "model_village_deterministic_cloth_evidence"
+    solver: "xpbd"
+    fixedStepHz: 120
+    sampleTimes: [0, 0.2, 0.4, 0.6, 0.8]
+    fixedSteps: [0, 24, 48, 72, 96]
+    positionDigests: [
+      "cfc78611",
+      "60666b8e",
+      "b8333dc4",
+      "f73e5f3f",
+      "91442a3c"
+    ]
+    adjacentChangedPixels: [8146, 11801, 10534, 8403]
+    replayChangedPixels: 0
+  }
+
+  object "MaterialEvidence" {
+    type: "model_village_local_uv_material_evidence"
+    tileId: "openai-recursive-interlock-v1"
+    size: 4
+    repeat: 3
+    normalScale: 0.82
+    mapKinds: ["albedo-luminance", "normal-xy", "roughness"]
+    valueCounts: [16, 32, 16]
+    texturedToFlatChangedPixels: 14928
+    externalTextureFetchCount: 0
+  }
+
+  object "AttachmentEvidence" {
+    type: "model_village_story_attachment_evidence"
+    attachmentId: "openai-story-verified-target-v1"
+    targetObjectSource: "verified_family_binding_receipt.residentTargetObject"
+    targetSeatIdSource: "verified_family_binding_receipt.seatId"
+    fixtureTargetObject: "ObserverResident01"
+    fixtureTargetSeatId: "seat-01"
+    fixtureCanonicalAssignment: false
+    presentationProfile: "village_story_unblinded"
+    researchLiveBlindedAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+}

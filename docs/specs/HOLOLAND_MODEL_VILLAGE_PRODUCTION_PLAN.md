@@ -2,7 +2,7 @@
 
 **Status:** Execution plan with locked art direction
 
-**Version:** 0.8.0
+**Version:** 0.9.0
 
 **Date:** 2026-07-26
 
@@ -15,6 +15,10 @@
 **MV-V1 neutral resident witness:** [2026-07-25 bounded runtime receipt](../reports/HOLOLAND_MODEL_VILLAGE_MV_V1_NEUTRAL_RESIDENT_RUNTIME_2026-07-25.md)
 
 **MV-V2 sovereign rig and motion witness:** [2026-07-26 bounded native-WebGPU receipt](../reports/HOLOLAND_MODEL_VILLAGE_MV_V2_SOVEREIGN_RESIDENT_RIG_2026-07-26.md)
+
+**MV-V3 production body witness:** [2026-07-26 bounded garment/LOD/motion receipt](../reports/HOLOLAND_MODEL_VILLAGE_MV_V3_PRODUCTION_BODY_2026-07-26.md)
+
+**MV-V4 first family mantle witness:** [2026-07-26 bounded cloth/UV/attachment receipt](../reports/HOLOLAND_MODEL_VILLAGE_MV_V4_CLOTH_MANTLE_2026-07-26.md)
 
 **Product source:** HoloScript
 
@@ -64,6 +68,14 @@ presentation-only HoloScript source:
 It has no adapter-assignment authority and is forbidden in
 `research_live_blinded`.
 
+The first operative member of that keyed public catalog is the OpenAI
+cloth-mantle source:
+
+`source/layers/vr/frontier/model-village/model-village-openai-cloth-mantle.holo`
+
+It consumes a verified binding-receipt target at runtime; it contains no static
+research resident, seat, persona, adapter, or exact-model assignment.
+
 The source policy requires typed verification and a fail-neutral result for
 missing, malformed, mismatched, or unverified post-lock evidence. Actual
 post-lock receipt verification and reveal execution remain unobserved until
@@ -104,6 +116,8 @@ receipts.
 | Observed | The refreshed browser witness renders six seat-stable, differently scaled resident proxies while retaining zero observer mutation, the bounded seven-field V4 comparison, WebGL2 hardware evidence, and the existing performance gate. |
 | Observed | MV-V1 now locally custodies one neutral Seat 01 LOD0 HoloScript source and a byte-reproducible 335,140-byte GLB projection. The projection keeps 30 scene-reachable LOD0 meshes and 5,380 triangles while 23 node-level `MSFT_lod` groups reference 29 isolated, strictly reducing synthetic lower-detail nodes. The v0.4 browser witness recomputes the manifest hash on host and browser, verifies seven anchors, 2.47 m scale, grounding, 30 shadow casters/receivers, five remaining capsules, zero asset requests, and zero authoritative mutation. The generated tiers are bridge metadata, and this remains a technical loader candidate rather than the complete Stormglass production resident kit. |
 | Observed | MV-V2 now locally custodies an identity-neutral `.holo` resident source that compiles byte-identically through the sovereign `character-webgpu` target to a 661,871-byte draw-spec bundle: 55 live joints, 4,238 vertices, 9,252 indices, 3,084 triangles, and skin-SSS, Marschner-hair, and refractive-eye material groups. Four receipt-gated `idle`, `listen`, `propose`, and `settle` pose samples each produce changed native-WebGPU pixels and exact replay pixels on the local RTX 3060 Laptop GPU/D3D12 path. The authored Stormglass scatter color is operative in HoloScript engine commit `3614129c2`; the contact sheet remains a procedural technical rig witness with visible segment seams and no finished hood/garment, cloth, textures, authored LOD1/LOD2, observer attachment, or six mantles. |
+| Observed | MV-V3 now locally custodies an identity-neutral `.holo` production-shaped body with an operative faceless Stormglass hood/tunic, native woven-cloth shading, three source-authored LOD topologies, and four continuously interpolated receipt-gated semantic clips. LOD0/1/2 contain 1,524 / 1,214 / 1,028 triangles; every adjacent motion sample changes native-WebGPU pixels and every replay is pixel-identical. This remains procedural character art without cloth simulation, UV material maps, observer attachment, or a named family mantle. |
+| Observed | MV-V4 now locally custodies the first named story mantle: OpenAI. One `.holo` source compiles byte-identically without fallback to a 247,746-byte bundle with 55 joints, 2,180 vertices, 1,668 triangles, 2,180 UV pairs, operative XPBD cloth, and a detachable fourth woven-cloth group. Three compact local material tiles change 14,928 rendered pixels; detachment reduces the body to 2,089 vertices and changes 14,930 pixels. Five absolute-time cloth samples advance 0 / 24 / 48 / 72 / 96 fixed steps, remain under the 0.18 m bound, and replay with zero pixel delta on the RTX 3060/Dawn path. The observer attachment target comes from a verified receipt; the Seat 01 proof target is a noncanonical in-memory fixture, not a family-seat assignment. |
 | Observed | The canonical three-format pilot parses, materializes twelve objects, and reproduces its canonical scene and pose/physics projections in two native headless runs. |
 | Observed | A 1600 x 900 HoloScript screenshot was captured from the canonical `.holo` source. |
 | Observed | The local hardware baseline reports an RTX 3060 Laptop GPU with 6 GB VRAM, 32 GB system memory, Node 24, and installed Chrome/Edge browsers. |
@@ -117,13 +131,13 @@ receipts.
 | Observed | The Living Commons witness binds the admitted water receipt to the cistern level and receipt halo, the accepted-action count to the hearth, and the blocked external-message receipt to the boundary ward. The blocked receipt links to the admitted receipt and equals the action root. A separate binding derived from the fully verified execution ledger anchors both receipt hashes, their link, the root, and the run commitments before the browser may render. Every receipt-driven cue references an existing V4 action receipt; raw model content and adapter identity are absent. |
 | Observed | The original captured-fixture bridge still materializes six identity-neutral observation envelopes and two syntactically chained fixture receipts. Three source-authored assignment vectors remain distinct, balanced, counterbalanced once per seat, and statically excluded from the exact pre-inference observation schema. That fixture lane remains separate from the bounded six-resident V4 execution. |
 | Observed | The refreshed 390 x 844 witness shows both admitted and blocked route legends plus the complete WebGL2/ANGLE/NVIDIA/D3D11 provenance. Browser-measured overlay bounds are inside the viewport, the evidence-card/footer gap is at least eight pixels, and neither text nor the document overflows horizontally. |
-| Gap | The observer is now an executing premium greybox with a receipt-driven cistern, hearth, two warm cottages, one verified neutral resident loader candidate, five capsule fallbacks, Receipt Loom, and boundary ward. A separate sovereign 55-joint rig and four deterministic semantic pose samples are observed but are not attached to the observer. Production-authored garment bodies, continuous character clips, authored LOD1/LOD2, cloth, ambient life, audio, fluid simulation, texture-rich materials, WebXR, six detachable mantles, and the complete living village remain targets. |
+| Gap | The observer is now an executing premium greybox with a receipt-driven cistern, hearth, two warm cottages, one verified neutral resident loader candidate, five capsule fallbacks, Receipt Loom, and boundary ward. Separate sovereign witnesses now cover a production-shaped garment body, continuous semantic motion, authored LOD0-2, deterministic cloth, compact local UV maps, and one detachable OpenAI story mantle. The full observer consumer still uses the earlier loader/capsule lane; the other five family mantles, browser post-lock attachment runtime, ambient life, audio, fluid simulation, production textures, WebXR, and the complete living village remain targets. |
 | Gap | Phase 0B executes only the named twelve-object static V4 projection, `.hs` plan entrypoint, deterministic engine-owned `.hsplus` action subset, and bounded stop bridge. Live model turns, provider routes, full/native `.hs` and `.hsplus` language execution, native `.holo` lifecycle, production trust custody, and fleet durability remain unobserved. |
 | Gap | The bounded observer consumer toggle, canonical lifecycle, and frozen adapter-matrix execution now pass. Browser deployment of the twelve-object lifecycle consumer and post-inference outcome equivalence remain open; the browser does not claim scientific equivalence. |
 | Gap | The older CLI baseline still launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. MV-P9 uses a separate, focused browser witness; it does not silently promote that CLI route. |
 | Gap | The current React Three adapter cannot be cited as an executing Model Village route: its typecheck still imports the removed `R3FCompiler` surface. The dedicated MV-P9 adapter is a bounded proof bridge, not a claim that the general platform renderer is repaired. |
-| Gap | Detachable mantle assets, profile admission receipts, and production family characters remain targets until their individual evidence gates close. |
-| Unknown | WebGPU, headset performance, long-duration thermal behavior, browser families beyond the named Chrome run, and cross-hardware pixel or physics agreement remain unmeasured. |
+| Gap | Five additional detachable family mantles, a shared typed mantle catalog, production-resolution assets, browser profile-admission receipts, material-budget consolidation, and the complete production family cast remain targets. |
+| Unknown | Browser WebGPU production integration, headset performance, long-duration thermal behavior, browser families beyond the named Chrome run, and cross-hardware pixel or physics agreement remain unmeasured. |
 | Target | A premium browser, desktop, and XR living-observatory experience whose spectacle is HoloScript-authored, receipt-backed, and unable to contaminate the study. |
 
 ### Durable visual before-state
@@ -1086,6 +1100,28 @@ skeleton. MV-P2 remains open because the witnessed procedural body is not the
 finished faceless Stormglass garment, the samples are not production animation
 clips, authored LOD1/LOD2 and textures are absent, and the observer still uses
 the MV-V1 loader candidate plus five capsule fallbacks.
+
+**MV-V3 bounded closure (2026-07-26):** a new identity-neutral `.holo` source
+now drives the faceless Stormglass hood/tunic, native woven-cloth material,
+three genuinely different source-authored LOD topologies, and continuously
+sampled `idle`, `listen`, `propose`, and `settle` clips on the sovereign
+WebGPU renderer. Repeated compile and replay are deterministic. MV-P2 remains
+open because the body is procedural, cloth physics and UV maps are absent from
+this neutral source, the observer consumer has not switched to it, and no
+public family mantle is part of the live research profile.
+
+**MV-V4 bounded closure (2026-07-26):** the first named public/story mantle now
+compiles and renders as a detachable OpenAI overlay over the shared Stormglass
+body. The source authors locally custodied albedo-luminance, tangent-normal,
+and roughness tile references plus deterministic 120 Hz XPBD parameters. Native
+GPU evidence shows distinct cloth samples, exact replay, operative UV material
+maps, and a real geometry/material change after detachment. A read-only
+CharacterHost accepts a verified binding-receipt target from the existing
+observer projection. The proof fixture targets Seat 01 only in memory and
+explicitly claims no canonical assignment; the source contains no static
+family-seat join. MV-P2 remains open for the other five mantles, the shared
+catalog/runtime consumer, production textures/tailoring, material-budget
+consolidation, full observer integration, and the complete six-resident kit.
 
 ### MV-S1: Proof in the Light
 

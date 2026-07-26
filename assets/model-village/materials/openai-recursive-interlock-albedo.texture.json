@@ -1,0 +1,13 @@
+{
+  "schema": "hololand.local-material-tile.v1",
+  "tileId": "openai-recursive-interlock-v1",
+  "kind": "albedo-luminance",
+  "size": 4,
+  "repeat": 3,
+  "values": [
+    0.86, 0.96, 1.02, 0.89,
+    0.95, 0.84, 0.91, 1.00,
+    1.01, 0.90, 0.85, 0.96,
+    0.88, 1.00, 0.94, 0.84
+  ]
+}

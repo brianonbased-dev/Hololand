@@ -40,13 +40,15 @@ neither photorealism nor a cartoon look.
 The inhabitants are the **Stormglass Family Craftfolk**: six public
 model-family embodiments named **Claude**, **OpenAI**, **Gemini**, **Grok**,
 **GLM**, and **Brittney**. The production design specifies one shared body/rig
-and material language. No complete authored rig or detachable-mantle runtime
-kit exists. One neutral Seat 01 LOD0 source manifest is now admitted as a
-bounded technical loader slice. Its browser attachment remains owned by the
-separate rendering truth receipt. A detachable family mantle is specified to
-communicate the public family identity. A separate neutral civic-role kit
-communicates what a research persona tends in the village and grants no
-different logical capability.
+and material language. No complete six-resident production kit exists. One
+neutral Seat 01 LOD0 source manifest remains admitted as a bounded technical
+loader slice, while a separate sovereign MV-V3 source now proves the shared
+faceless garment, three authored LODs, and continuous semantic motion. MV-V4
+adds the first operative detachable family mantle: a story-only OpenAI
+recursive-cell interpretation with local UV material tiles, deterministic
+cloth, and verified-receipt observer attachment. Its browser attachment
+remains open. A separate neutral civic-role kit communicates what a research
+persona tends in the village and grants no different logical capability.
 
 This public cast is not the adapter-assignment matrix. The planned study still
 contains three sealed adapters rotated across six personas in twelve
@@ -134,6 +136,23 @@ authored shared-rig character asset or runtime claim.
 
 SHA-256:
 `1925248b8f4b5a65a3cd367022b8e80e03462b771af30d9a5428f4397a135fe1`
+
+### First operative family-mantle witness
+
+![OpenAI Stormglass cloth mantle](../assets/model-village/model-village-openai-cloth-mantle-hero-2026-07-26.png)
+
+MV-V4 promotes one bounded member of the concept vocabulary: the OpenAI
+`recursive_cell_interlock` mantle. It is a shaped pearl panel with compact
+locally custodied UV material tiles and deterministic cloth, rendered through
+the sovereign native-WebGPU character path. It uses original HoloLand pattern
+language and carries the independent-project disclosure; it does not reproduce
+OpenAI logo geometry or claim endorsement.
+
+This is a `village_story_unblinded` witness only. The source contains no static
+research seat, resident, persona, role, adapter, or transform join. A verified
+binding-receipt fixture exercised observer-pose attachment with
+`canonicalAssignment: false`. The remaining five mantles and browser consumer
+are still targets.
 
 ### Executing Q0 proxy witness
 
@@ -443,10 +462,13 @@ Stormglass production art. It does not embed the asset hash in the art policy.
 The manifest and asset-validation receipts own asset bytes and hashes.
 
 This bounded admission does not claim that the art-direction checker observed a
-browser attachment. That belongs to the rendering truth gate. It also does not
-promote the complete six-seat kit, LOD1/LOD2, an authored humanoid rig, the four
-neutral clips, production textures, facial animation, detachable family
-mantles, or photorealism. The live-research identity remains neutral and has no
+browser attachment. That belongs to the rendering truth gate. Separate MV-V3
+and MV-V4 receipts now prove a sovereign procedural humanoid garment, four
+continuous neutral clips, LOD0-2, compact local UV material tiles,
+deterministic cloth, and one detachable OpenAI story mantle. They do not
+promote the complete six-seat kit, production textures/tailoring, facial
+animation, the remaining five family mantles, browser post-lock reveal, or
+photorealism. The live-research identity remains neutral and has no static
 public-family mantle binding.
 
 ## HoloScript format ownership
@@ -472,9 +494,11 @@ It may not become a second canonical art or resident policy.
 | Observed | The focused v2 checker parses the world, neutral resident kit, neutral Seat 01 LOD0 asset manifest, public family overlay, observer, art policy, and invariance proof with the built HoloScript core. It validates the bounded asset source admission, the six-entry neutral research catalog, and the separate six-entry public family catalog without treating catalog order as a cross-catalog join, recomputes distinct research-appearance and public-embodiment digests, preserves every neutral appearance across adapter/condition permutations, excludes public family fields from live research, and checks the source-declared typed, fail-neutral presentation policy. |
 | Observed | One neutral Seat 01 LOD0 asset source manifest is admitted without embedding its asset hash in the art policy. This is source truth, not a browser-render receipt or a complete-kit claim. |
 | Observed | The separate v0.4 rendering witness validates the neutral GLB on host and browser, attaches 30 runtime meshes at Seat 01, verifies grounding and shadows, hides only that proxy, preserves five capsules and all authoritative hashes, makes zero asset requests, and emits inspected wide and close-up frames. |
-| Target | Detachable runtime family mantles, authored basalt/timber/stormglass buildings, a complete six-resident humanoid asset kit, facial rig, textures, animation, ambient audio, water, cloth, vegetation, and additional physics exhibits. |
-| Gap | The full LOD0-2 six-seat kit, authored humanoid rig, four neutral clips, production texture set, HDRI, and audio remain unverified. |
-| Gap | The art-direction gate still does not own browser attachment truth; that evidence belongs to the separate rendering receipt. Only Seat 01 has a verified technical loader candidate, the other five residents remain capsule fallbacks, and no public family mantle is a runtime character claim. |
+| Observed | MV-V3 proves the shared faceless Stormglass garment, native woven-cloth shading, three source-authored LOD topologies, and four continuously sampled neutral semantic clips on the sovereign WebGPU renderer. |
+| Observed | MV-V4 proves one story-only OpenAI mantle with locally custodied UV tiles, deterministic 120 Hz cloth, operative material-map pixels, geometry/material detachment, and verified-receipt observer-pose attachment. The source has no static family-to-research-seat join. |
+| Target | Five additional detachable family mantles, authored basalt/timber/stormglass buildings, a complete six-resident humanoid asset kit, facial rig, production textures, browser attachment, ambient audio, water, vegetation, and additional physics exhibits. |
+| Gap | The complete six-seat observer kit, imported/production tailoring, blended garment weights, production texture set, HDRI, facial animation, and audio remain unverified. |
+| Gap | The art-direction gate still does not own browser attachment truth; that evidence belongs to the separate rendering receipt. The observer still uses one verified technical loader candidate plus five capsule fallbacks; MV-V4 proves only an offscreen native CharacterHost attachment mechanism. |
 | Gap | WebGPU feature parity, photorealism, path tracing, ray-traced GI, dynamic weather, advanced physics presentation, and headset support remain unobserved. |
 
 ## Promotion gates
