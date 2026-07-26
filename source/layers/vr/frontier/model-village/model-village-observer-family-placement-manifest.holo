@@ -1,0 +1,135 @@
+// MV-V7 public-family placement contract and immutable witness anchors.
+//
+// Placement objects are keyed by public family ID. None may contain a research
+// resident, seat, persona, village role, adapter, or exact-model join.
+
+composition "Stormglass Observer Family Placement Manifest" {
+  metadata {
+    schema: "hololand.model-village.observer-family-placement-manifest.v1"
+    version: "1.0.0"
+    milestone: "MV-V7"
+    source: "source/layers/vr/frontier/model-village/model-village-observer-family-placement-manifest.holo"
+    integrationSource: "source/layers/vr/frontier/model-village/model-village-observer-family-integration.holo"
+    integrationSourceSha256: "2538be338b45dfc5c530b9d5fe30b5b2f48778bd8c339068255ee61f5f84d997"
+    observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    observerProjectionSourceSha256: "6a627545a256b26d54802ff0371ea94ef1a7a088553a8a027a8534528bfa21f1"
+    browserStudioLineupSource: "source/layers/vr/frontier/model-village/model-village-browser-studio-lineup.holo"
+    browserStudioLineupSourceSha256: "21a79886721ba47a623ed2618220904db446310c34f3ce660bbec44dcc151444"
+    browserStudioLineupManifestSource: "source/layers/vr/frontier/model-village/model-village-browser-studio-lineup-manifest.holo"
+    browserStudioLineupManifestSourceSha256: "40c4173a6e3badd75a9b514403ab29c9b2b915e6a84029f5f45a36f3e7da21f1"
+    placementContractSha256: "d9d616f0cfbce4f73b9c6bcecef6d11dd673eee05a3ea0828afb8bbe2bcc7d32"
+    observerCanonicalFieldsSha256: "a3918fe62693c481b269ffd07d29c4912d697372ef5ee3a8bfa5efe5141bfde4"
+    storyAdmissionSha256: "144f6772f95a3091424a2733351312ede5d333ae72471fdc0ebcbd5e8f6da65b"
+    postlockAdmissionSha256: "4eaac497674f2ac93583bd4117025bc870e6644060d13c934443a9165c49a81b"
+    integrationHtmlSha256: "06a815a33c35adb9cd72f5ae576a401595967252c5115666df6165b82858398d"
+    heroSha256: "0bdde5fe68ab9a59e57839911d2806de13f37fe042ee5f9ae042063013425dc4"
+    portraitSha256: "4739cba9dfb3698101d2d8188b051abce334a2f6d5f4fa2d27c256e5c3e60ce5"
+    deuteranopiaSha256: "f6a86a00cd5a915825ebee066953608f4b105cce7b3cf201867b239ed1a8ca31"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    providerEndorsementClaimed: false
+    exactModelRevisions: "absent"
+  }
+
+  state {
+    placementCount: 6
+    placementKey: "family_id"
+    placementUsesCatalogArrayOrder: false
+    staticResearchJoin: false
+    researchLiveBlindedAllowed: false
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    causalEffect: false
+    browserNativeWebgpuObserved: true
+    observerWebgl2Observed: true
+    canonicalHashNoninterferenceObserved: true
+    researchAppearanceHashNoninterferenceObserved: true
+    accessibilityModesObserved: 3
+    externalNetworkFetchesObserved: 0
+    externalVisualAssetsObserved: 0
+    completeMvP2Claimed: false
+  }
+
+  object "AnthropicStoryPlacement" {
+    familyId: "anthropic"
+    slug: "claude"
+    publicDisplayName: "Claude"
+    patternId: "quiet_nested_open_arcs"
+    storyPlacementId: "stormglass-west-outer"
+    worldAnchor: [-7.4, 0.0, 2.4]
+    desktop: [10, 62, 0.90]
+    portrait: [18, 39, 0.58]
+    depthBand: "near"
+    labelAlign: "left"
+    researchBinding: "none"
+  }
+
+  object "OpenAIStoryPlacement" {
+    familyId: "openai"
+    slug: "openai"
+    publicDisplayName: "OpenAI"
+    patternId: "recursive_cell_interlock"
+    storyPlacementId: "stormglass-west-inner"
+    worldAnchor: [-4.4, 0.0, 4.8]
+    desktop: [25, 67, 0.82]
+    portrait: [50, 39, 0.58]
+    depthBand: "mid"
+    labelAlign: "center"
+    researchBinding: "none"
+  }
+
+  object "GoogleStoryPlacement" {
+    familyId: "google"
+    slug: "gemini"
+    publicDisplayName: "Gemini"
+    patternId: "paired_offset_prismatic_panels"
+    storyPlacementId: "stormglass-center-west"
+    worldAnchor: [-1.7, 0.0, 6.2]
+    desktop: [39, 60, 0.94]
+    portrait: [82, 39, 0.58]
+    depthBand: "near"
+    labelAlign: "center"
+    researchBinding: "none"
+  }
+
+  object "XAIStoryPlacement" {
+    familyId: "xai"
+    slug: "grok"
+    publicDisplayName: "Grok"
+    patternId: "off_axis_signal_bands"
+    storyPlacementId: "stormglass-center-east"
+    worldAnchor: [1.7, 0.0, 6.2]
+    desktop: [55, 60, 0.94]
+    portrait: [18, 61, 0.58]
+    depthBand: "near"
+    labelAlign: "center"
+    researchBinding: "none"
+  }
+
+  object "OllamaStoryPlacement" {
+    familyId: "ollama"
+    slug: "glm"
+    publicDisplayName: "GLM"
+    patternId: "modular_phase_lattice"
+    storyPlacementId: "stormglass-east-inner"
+    worldAnchor: [4.4, 0.0, 4.8]
+    desktop: [70, 67, 0.82]
+    portrait: [50, 61, 0.58]
+    depthBand: "mid"
+    labelAlign: "center"
+    researchBinding: "none"
+  }
+
+  object "SovereignStoryPlacement" {
+    familyId: "sovereign"
+    slug: "brittney"
+    publicDisplayName: "Brittney"
+    patternId: "sovereign_locality_mesh"
+    storyPlacementId: "stormglass-east-outer"
+    worldAnchor: [7.4, 0.0, 2.4]
+    desktop: [85, 62, 0.90]
+    portrait: [82, 61, 0.58]
+    depthBand: "near"
+    labelAlign: "right"
+    researchBinding: "none"
+  }
+}

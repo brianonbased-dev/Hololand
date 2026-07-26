@@ -1,0 +1,213 @@
+// Stormglass Commons public-family observer integration.
+//
+// This is a read-only presentation overlay for the verified observer. Public
+// family IDs select story placements only; they never select a research
+// resident, seat, persona, village role, adapter, or exact model revision.
+
+composition "Stormglass Observer Family Integration" {
+  metadata {
+    schema: "hololand.model-village.observer-family-integration.v1"
+    assetId: "mv-stormglass-observer-family-integration-v1"
+    title: "The Six at Stormglass"
+    version: "1.0.0"
+    milestone: "MV-V7"
+    source: "source/layers/vr/frontier/model-village/model-village-observer-family-integration.holo"
+    placementManifestSource: "source/layers/vr/frontier/model-village/model-village-observer-family-placement-manifest.holo"
+    observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
+    browserStudioLineupSource: "source/layers/vr/frontier/model-village/model-village-browser-studio-lineup.holo"
+    browserStudioLineupManifestSource: "source/layers/vr/frontier/model-village/model-village-browser-studio-lineup-manifest.holo"
+    appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    renderRoute: "observer_webgl2_plus_holoscript_character_webgpu"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    sourceSovereign: true
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    causalEffect: false
+    status: "public_story_and_postlock_read_only_overlay"
+  }
+
+  environment {
+    mode: "verified_observer_replay"
+    theme: "stormglass_commons"
+    timeOfDay: "blue_hour"
+    presentationMood: "hearthlight_gathering"
+    worldRenderer: "existing_observer_webgl2_sceneir_adapter"
+    characterRenderer: "HoloScript CharacterRender.renderCharacter"
+    externalVisualAssets: false
+    externalNetworkAllowed: false
+  }
+
+  state {
+    defaultPresentationProfile: "research_live_blinded"
+    admittedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    deniedPresentationProfiles: ["research_live_blinded"]
+    namedFamilyCount: 6
+    placementKey: "family_id"
+    placementUsesCatalogArrayOrder: false
+    placementUsesResearchResident: false
+    placementUsesResearchSeat: false
+    placementUsesResearchPersona: false
+    placementUsesVillageRole: false
+    placementUsesAdapterAssignment: false
+    placementUsesExactModelRevision: false
+    researchResidentBinding: "none"
+    researchSeatBinding: "none"
+    researchPersonaBinding: "none"
+    researchRoleBinding: "none"
+    adapterAssignmentBinding: "none"
+    exactModelRevisionBinding: "none"
+    postlockResearchJoinExecuted: false
+    missingAdmissionBehavior: "fail_neutral"
+    invalidAdmissionBehavior: "fail_neutral"
+    researchProfileBehavior: "preserve_neutral_observer"
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    scheduleWriteAuthority: false
+    clockWriteAuthority: false
+    actionWriteAuthority: false
+    receiptWriteAuthority: false
+    causalEffect: false
+    readOnlyObserver: true
+    presentationMotionSource: "sealed_replay_only"
+    worldAmbienceCausalEffect: false
+    browserNativeWebgpuRequired: true
+    observerWebgl2Required: true
+    secureLoopbackWitnessRequired: true
+    externalVisualAssets: false
+    supportedAccessibilityModes: ["color", "grayscale", "deuteranopia"]
+    identityRedundantChannels: ["silhouette", "pattern", "glyph", "caption"]
+    sealedPhysicsPhaseSeconds: [0, 0.6, 1.2]
+    continuousBrowserClothSolverClaimed: false
+    realTimeClaimed: false
+    photorealismClaimed: false
+    productionTailoringClaimed: false
+    completeMvP2Claimed: false
+  }
+
+  object "ObserverIntegrationAdmissionGate" {
+    profileSource: "url.profile"
+    integrationAdmissionSource: "url.integration"
+    admittedProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    deniedProfile: "research_live_blinded"
+    admissionMode: "exact_source_and_canonical_field_bound_hash"
+    admissionBinds: [
+      "observer_family_integration_source_sha256",
+      "placement_contract_sha256",
+      "observer_projection_source_sha256",
+      "browser_studio_lineup_source_sha256",
+      "browser_studio_lineup_manifest_source_sha256",
+      "observer_canonical_fields_sha256",
+      "presentation_profile",
+      "independent_project_disclosure"
+    ]
+    failNeutral: true
+    failNeutralDestination: "unchanged_neutral_observer"
+    mayWriteCanonicalWorld: false
+    mayWriteResidentObservation: false
+  }
+
+  object "VerifiedPlacementConsumer" {
+    manifestKey: "family_id"
+    expectedPlacementCount: 6
+    familyCatalogOrderIgnored: true
+    researchSeatOrderIgnored: true
+    placementSpace: "observer_screen_projection"
+    worldAnchorsArePresentationOnly: true
+    browserCompositeWritesBack: false
+    duplicateFamilyBehavior: "deny_integration"
+    missingFamilyBehavior: "deny_integration"
+  }
+
+  object "DualRendererWitness" {
+    worldRenderer: "HoloScript SceneIR observer adapter on WebGL2"
+    residentRenderer: "HoloScript CharacterRender.renderCharacter on WebGPU"
+    navigatorGpuRequired: true
+    gpuAdapterRequired: true
+    gpuDeviceRequired: true
+    observerReceiptAcknowledgementRequired: true
+    observerCanonicalFieldsRemainEqual: true
+    sourceToCharacterBundleIntegrityRequired: true
+    threeJsUsedForWorldObserverOnly: true
+    threeJsUsedForCharacterRendering: false
+  }
+
+  object "SealedPhysicsPresentation" {
+    residentClothSolver: "xpbd"
+    residentClothFixedStepHz: 120
+    residentClothIterations: 5
+    residentClothPhases: [0, 0.6, 1.2]
+    observerTokenPhysics: "sealed_holoscript_cpu_frames"
+    replayMustBeExact: true
+    presentationMayAdvanceCanonicalClock: false
+    presentationMayScheduleAction: false
+    presentationMayCreateObservation: false
+    continuousBrowserClothSolverClaimed: false
+  }
+
+  object "ObserverAccessibilityDeck" {
+    modes: ["color", "grayscale", "deuteranopia"]
+    minimumIdentityChannels: 4
+    requiredIdentityChannels: ["silhouette", "pattern", "glyph", "caption"]
+    captionsAlwaysVisible: true
+    reducedMotionDefault: true
+    flashingEffects: false
+    meaningUsesColorAlone: false
+    audioDescriptionText: "Six faceless public family embodiments gather across the moonlit Stormglass Commons while the verified read-only village replay continues behind them."
+  }
+
+  object "NoFeedbackBoundary" {
+    browserMayWriteCanonicalWorld: false
+    browserMayWriteResidentObservation: false
+    browserMayWriteSchedule: false
+    browserMayWriteClock: false
+    browserMayWritePrompt: false
+    browserMayWriteAction: false
+    browserMayWriteReceipt: false
+    residentCanObservePresentation: false
+    presentationCanAffectOutcome: false
+    protectedHashes: [
+      "canonical_scene_hash",
+      "canonical_pose_hash",
+      "logical_clock_hash",
+      "public_state_hash",
+      "executed_schedule_hash",
+      "resident_observation_hash",
+      "action_receipt_root",
+      "research_appearance_hash"
+    ]
+  }
+
+  object "ClaimBoundary" {
+    provedWhenReceipted: [
+      "six_named_public_family_mantles_inside_verified_observer",
+      "family_id_keyed_placement_without_research_join",
+      "browser_webgpu_character_rendering",
+      "observer_webgl2_sceneir_rendering",
+      "sealed_xpbd_phase_replay",
+      "canonical_and_research_appearance_hash_noninterference",
+      "color_grayscale_deuteranopia_modes",
+      "zero_external_visual_assets_or_fetches"
+    ]
+    notProved: [
+      "live_research_unblinding",
+      "provider_affiliation_or_endorsement",
+      "exact_provider_model_revision",
+      "provider_to_research_seat_assignment",
+      "postlock_research_identity_join",
+      "continuous_browser_cloth_solver",
+      "production_tailoring_or_collision",
+      "photorealism",
+      "published_real_time_performance",
+      "headset_or_webxr_performance",
+      "complete_mv_p2"
+    ]
+  }
+}
