@@ -1,0 +1,237 @@
+// Stormglass Commons — shared neutral resident rig and semantic motion source.
+//
+// This composition targets HoloScript's sovereign `character-webgpu` compiler.
+// It is provider/model/family neutral and deliberately separate from the GLB
+// loader bridge. The four clip records below are executable pose samples for
+// the native humanoid palette. They are a rig/motion witness, not the finished
+// faceless garment body, authored LOD set, cloth simulation, or mantle catalog.
+
+composition "Stormglass Shared Neutral Resident Rig" {
+  metadata {
+    assetId: "mv-stormglass-shared-neutral-rig-v1"
+    title: "Stormglass Shared Neutral Resident Rig"
+    version: "1.0.0"
+    source: "source/layers/vr/frontier/model-village/model-village-resident-shared-rig.holo"
+    productionPlanSource: "docs/specs/HOLOLAND_MODEL_VILLAGE_PRODUCTION_PLAN.md"
+    artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
+    presentationProfile: "research_live_blinded"
+    compileTarget: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    units: "meters"
+    upAxis: "Y"
+    forwardAxis: "+Z"
+    artStyle: "stormglass_craftfolk_sovereign_rig_witness"
+    status: "shared_rig_and_semantic_motion_witness_not_complete_mv_p2"
+    sourceSovereign: true
+    bridgeProjectionOnly: false
+    providerIdentity: "absent"
+    modelIdentity: "absent"
+    familyIdentity: "absent"
+  }
+
+  environment {
+    mode: "character_authoring"
+    theme: "stormglass_commons"
+    backgroundColor: "#07111F"
+    ambient_light: 0.32
+    shadows: true
+  }
+
+  state {
+    residentId: "shared-neutral-resident"
+    presentationProfile: "research_live_blinded"
+    sharedRigId: "humanoid_65"
+    sharedRigRequiredForAllSixResidents: true
+    requiredSemanticClips: ["idle", "listen", "propose", "settle"]
+    authoredSemanticClipCount: 4
+    clipSamplesPerClip: 2
+    publicFamilyMantleLoaded: false
+    providerIdentityVisible: false
+    modelIdentityVisible: false
+    familyIdentityVisible: false
+    productionGarmentMeshObserved: false
+    authoredLod1Observed: false
+    authoredLod2Observed: false
+    observerRuntimeAttachmentObserved: false
+    completeMvP2Claimed: false
+  }
+
+  object "StormglassSharedNeutralResident" {
+    @skeleton(rig: "humanoid_65", ik_enabled: true)
+    @body(
+      height: 2.05,
+      build_scale: 1.15,
+      skin_tone: "#9AB3BE"
+    )
+    @subsurface_scattering(
+      color: "#9AB3BE",
+      scatter_color: "#6F9FB3"
+    )
+    @hair(
+      style: "hooded",
+      color: "#D7E6EB"
+    )
+    @locomotion(
+      mode: "walk",
+      speed: 1.1
+    )
+
+    geometry: "avatar"
+    position: [0, 0, 0]
+    scale: [1, 1, 1]
+    residentId: "shared-neutral-resident"
+    seatBinding: "none"
+    neutralResearchBody: true
+    familyMantleSocketRequired: true
+    providerIdentity: "absent"
+    modelIdentity: "absent"
+    familyIdentity: "absent"
+  }
+
+  object "SemanticClipIdle" {
+    type: "model_village_semantic_clip"
+    clipId: "idle"
+    durationSeconds: 4.0
+    loop: true
+    receiptRequirement: "neutral_fallback_no_action_receipt"
+    permittedPresentationProfiles: [
+      "research_live_blinded",
+      "research_replay_postlock",
+      "village_story_unblinded"
+    ]
+    frames: [
+      {
+        normalizedTime: 0.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -68 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 68 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: 8 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: -8 },
+          { bone: "spine1", axis: [0, 0, 1], degrees: -1 },
+          { bone: "head", axis: [0, 1, 0], degrees: -2 }
+        ]
+      },
+      {
+        normalizedTime: 1.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -70 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 70 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: 5 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: -5 },
+          { bone: "spine1", axis: [0, 0, 1], degrees: 1 },
+          { bone: "head", axis: [0, 1, 0], degrees: 2 }
+        ]
+      }
+    ]
+  }
+
+  object "SemanticClipListen" {
+    type: "model_village_semantic_clip"
+    clipId: "listen"
+    durationSeconds: 2.4
+    loop: true
+    receiptRequirement: "verified_observation_or_turn_receipt"
+    permittedPresentationProfiles: [
+      "research_live_blinded",
+      "research_replay_postlock",
+      "village_story_unblinded"
+    ]
+    frames: [
+      {
+        normalizedTime: 0.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -72 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 72 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: -18 },
+          { bone: "neck", axis: [0, 1, 0], degrees: -8 },
+          { bone: "head", axis: [0, 0, 1], degrees: 10 },
+          { bone: "spine1", axis: [0, 1, 0], degrees: -4 }
+        ]
+      },
+      {
+        normalizedTime: 1.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -70 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 70 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: -24 },
+          { bone: "neck", axis: [0, 1, 0], degrees: -12 },
+          { bone: "head", axis: [0, 0, 1], degrees: 6 },
+          { bone: "spine1", axis: [0, 1, 0], degrees: -6 }
+        ]
+      }
+    ]
+  }
+
+  object "SemanticClipPropose" {
+    type: "model_village_semantic_clip"
+    clipId: "propose"
+    durationSeconds: 1.8
+    loop: false
+    receiptRequirement: "verified_proposal_or_admitted_action_receipt"
+    permittedPresentationProfiles: [
+      "research_live_blinded",
+      "research_replay_postlock",
+      "village_story_unblinded"
+    ]
+    frames: [
+      {
+        normalizedTime: 0.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -70 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 25 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: -35 },
+          { bone: "spine1", axis: [0, 1, 0], degrees: -6 },
+          { bone: "head", axis: [0, 1, 0], degrees: -5 }
+        ]
+      },
+      {
+        normalizedTime: 1.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -68 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 55 },
+          { bone: "right_forearm", axis: [0, 0, 1], degrees: -92 },
+          { bone: "right_hand", axis: [0, 1, 0], degrees: 20 },
+          { bone: "spine1", axis: [0, 1, 0], degrees: -10 },
+          { bone: "head", axis: [0, 1, 0], degrees: -8 }
+        ]
+      }
+    ]
+  }
+
+  object "SemanticClipSettle" {
+    type: "model_village_semantic_clip"
+    clipId: "settle"
+    durationSeconds: 1.4
+    loop: false
+    receiptRequirement: "verified_action_or_public_state_receipt"
+    permittedPresentationProfiles: [
+      "research_live_blinded",
+      "research_replay_postlock",
+      "village_story_unblinded"
+    ]
+    frames: [
+      {
+        normalizedTime: 0.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -50 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 50 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: 10 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: -10 },
+          { bone: "head", axis: [0, 0, 1], degrees: -5 },
+          { bone: "spine1", axis: [0, 0, 1], degrees: 2 }
+        ]
+      },
+      {
+        normalizedTime: 1.0,
+        rotations: [
+          { bone: "left_upper_arm", axis: [0, 0, 1], degrees: -72 },
+          { bone: "right_upper_arm", axis: [0, 0, 1], degrees: 72 },
+          { bone: "left_forearm", axis: [1, 0, 0], degrees: 0 },
+          { bone: "right_forearm", axis: [1, 0, 0], degrees: 0 },
+          { bone: "head", axis: [0, 0, 1], degrees: 0 },
+          { bone: "spine1", axis: [0, 0, 1], degrees: 0 }
+        ]
+      }
+    ]
+  }
+}

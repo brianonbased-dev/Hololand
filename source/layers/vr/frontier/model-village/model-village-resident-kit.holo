@@ -4,13 +4,14 @@
 // Model Village personas. Family identity belongs to the separately gated
 // public embodiment overlay and cannot enter a live research projection.
 // Capsule geometry remains the live-research fallback. One neutral Seat 01
-// LOD0 asset manifest is admitted as a bounded source slice; renderer-observed
-// attachment, the complete kit, rig, textures, and animation remain targets.
+// LOD0 loader candidate and a separate sovereign 55-joint rig/four-pose witness
+// are admitted as bounded source slices. Observer attachment, the complete
+// garment kit, production clips, textures, and authored LOD1/LOD2 remain targets.
 
 composition "HoloLand Model Village Neutral Stormglass Craftfolk Kit" {
   metadata {
     title: "Neutral Stormglass Craftfolk"
-    version: "1.2.0"
+    version: "1.3.0"
     source: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
     artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
     appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
@@ -18,9 +19,12 @@ composition "HoloLand Model Village Neutral Stormglass Craftfolk Kit" {
     observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
     publicEmbodimentOverlaySource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
     residentAssetManifestSource: "source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo"
+    sovereignResidentRigSource: "source/layers/vr/frontier/model-village/model-village-resident-shared-rig.holo"
+    sovereignResidentRigManifestSource: "source/layers/vr/frontier/model-village/model-village-resident-rig-manifest.holo"
+    sovereignResidentRigBundle: "assets/model-village/residents/stormglass-neutral-shared-rig.character.json"
     neutralResearchConceptAsset: "docs/assets/model-village/model-village-stormglass-craftfolk-lineup-2026-07-25.png"
     artStyle: "hearthlight_biorealism"
-    assetTier: "q0_proxy_plus_one_neutral_lod0_manifest"
+    assetTier: "q0_proxy_plus_loader_candidate_plus_sovereign_rig_motion_witness"
     neutralSeat01Lod0ManifestObserved: true
     authoredProductionAssetsObserved: false
   }
@@ -54,6 +58,7 @@ composition "HoloLand Model Village Neutral Stormglass Craftfolk Kit" {
     artStyle: "hearthlight_biorealism"
     residentCount: 6
     sharedRig: "stormglass_craftfolk_humanoid_shared"
+    observedSovereignRig: "humanoid_65"
     sharedNeutralClips: ["idle", "listen", "propose", "settle"]
     currentGeometry: "capsule_proxy_until_renderer_receipt"
     productionGeometry: "authored_humanoid_glb_or_vrm_target"
@@ -66,6 +71,13 @@ composition "HoloLand Model Village Neutral Stormglass Craftfolk Kit" {
     partialRuntimeAssetSeatId: "seat-01"
     partialRuntimeAssetLod: "lod0"
     partialRuntimeAssetRuntimeAttachmentStatus: "target_until_rendering_truth_receipt"
+    sovereignRigManifestStatus: "hash_pinned_native_webgpu_witness_observed"
+    sovereignRigLiveJointCount: 55
+    semanticPoseSamplesObserved: true
+    semanticPoseSampleIds: ["idle", "listen", "propose", "settle"]
+    deterministicGpuPoseReplayObserved: true
+    authoredScatterColorObserved: true
+    sovereignRigObserverAttachmentObserved: false
     completeResidentKitObserved: false
     completeLodSetObserved: false
     authoredHumanoidRigObserved: false

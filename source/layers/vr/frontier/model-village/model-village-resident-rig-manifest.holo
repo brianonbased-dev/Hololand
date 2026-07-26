@@ -1,0 +1,104 @@
+// MV-V2 immutable evidence manifest.
+//
+// This pins the shared neutral resident's authored source, sovereign compiler
+// output, and native WebGPU visual witnesses. It does not promote the procedural
+// body to the finished Stormglass resident kit.
+
+composition "Model Village Sovereign Resident Rig Manifest" {
+  metadata {
+    schema: "hololand.model-village.sovereign-resident-rig.v1"
+    milestone: "MV-V2 Sovereign Resident Rig + Semantic Motion Witness"
+    status: "PASS_BOUNDED"
+    generatedDate: "2026-07-26"
+    sourcePath: "source/layers/vr/frontier/model-village/model-village-resident-shared-rig.holo"
+    sourceSha256: "1ed652b27c4bea9d772081d206c32ddfaf92f9a39c5882fdcedca6eed0f9733e"
+    compileTarget: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    holoscriptEngineCommit: "3614129c2fc123b7d1b47feda65888b4fb7f9b5b"
+    bundlePath: "assets/model-village/residents/stormglass-neutral-shared-rig.character.json"
+    bundleSha256: "d0aba49ddcac4a045b47f17c57f38a8f21e7205c331db43028b900ed4e21e544"
+    bundleBytes: 661871
+    heroPath: "docs/assets/model-village/model-village-neutral-shared-rig-propose-2026-07-26.png"
+    heroSha256: "1f6aff9a4de3686c5c94dd57f7497e879123b3cc31f65566de95decc0d32ee41"
+    contactSheetPath: "docs/assets/model-village/model-village-neutral-shared-rig-motion-contact-sheet-2026-07-26.png"
+    contactSheetSha256: "8f350088f72c968c2401324edda1362a11775738b919e675972facf18ab49f6d"
+    identityProfile: "research_live_blinded"
+    providerIdentity: "absent"
+    modelIdentity: "absent"
+    familyIdentity: "absent"
+  }
+
+  state {
+    compileSuccess: true
+    compilerFallbackUsed: false
+    repeatedCompileByteIdentical: true
+    liveWebGpuRenderObserved: true
+    liveJointCount: 55
+    vertexCount: 4238
+    indexCount: 9252
+    triangleCount: 3084
+    materialGroupCount: 3
+    materialModels: ["skin-sss", "marschner-hair", "refractive-eye"]
+    authoredScatterColorObserved: true
+    semanticClipCount: 4
+    semanticClipIds: ["idle", "listen", "propose", "settle"]
+    deterministicReplayObservedForAllClips: true
+    externalNetworkFetchCount: 0
+    deniedRelativeWasmFetchTarget: "/holoscript_wasm_bg.wasm"
+    externalDccRequired: false
+    providerAssetRequired: false
+    identityNeutral: true
+    hoodedGarmentGeometryObserved: false
+    authoredLod1Observed: false
+    authoredLod2Observed: false
+    clothSimulationObserved: false
+    authoredTexturesObserved: false
+    observerRuntimeAttachmentObserved: false
+    sixFamilyMantlesObserved: false
+    completeMvP2Claimed: false
+  }
+
+  object "IdleEvidence" {
+    type: "model_village_semantic_clip_evidence"
+    clipId: "idle"
+    authoredClipSha256: "94be935e6c3dfe79038da49a266bb88b7111d85448062791e387f57e7f25ad61"
+    frameASha256: "1f85df3f9c27e9ebf80ca50728f891d10c8a83f22e9302b06c9a4b3e4427641f"
+    frameBSha256: "facba02685f2f96c0c16417759ea1368bd521e8742ac2004e556d75acaa0b725"
+    replaySha256: "facba02685f2f96c0c16417759ea1368bd521e8742ac2004e556d75acaa0b725"
+    changedPixels: 7951
+    replayChangedPixels: 0
+  }
+
+  object "ListenEvidence" {
+    type: "model_village_semantic_clip_evidence"
+    clipId: "listen"
+    authoredClipSha256: "dd69d0f4c804c7b25cab927a7f0626b847ad2b686cbdce1702542dab8115a13b"
+    frameASha256: "0481bbac98ebfddd61a7523aa9fc259d7b53fd18e9a7f3bdc8ef6f151f8ec966"
+    frameBSha256: "92ba7abeb25a1e05759b30f5d10a939fb3acf18190444b97c389b2ac307d10bb"
+    replaySha256: "92ba7abeb25a1e05759b30f5d10a939fb3acf18190444b97c389b2ac307d10bb"
+    changedPixels: 16898
+    replayChangedPixels: 0
+  }
+
+  object "ProposeEvidence" {
+    type: "model_village_semantic_clip_evidence"
+    clipId: "propose"
+    authoredClipSha256: "035fddc0238b65507cc68070fddb1e1994025e359656f233e1394768c81a436d"
+    frameASha256: "7efa6c2e066428d52f0624ed25517d375a64f046211108b9b29da9b7a037e904"
+    frameBSha256: "8d5e7f979c02eb41fb6f213222232bb8ebdcd73bfebb214335ca19c0670e2756"
+    replaySha256: "8d5e7f979c02eb41fb6f213222232bb8ebdcd73bfebb214335ca19c0670e2756"
+    changedPixels: 19244
+    replayChangedPixels: 0
+  }
+
+  object "SettleEvidence" {
+    type: "model_village_semantic_clip_evidence"
+    clipId: "settle"
+    authoredClipSha256: "058b9ecc28e350c6cd76801ad7d3e4f830170e6c66ed6c86670e0d6b18fb42a0"
+    frameASha256: "9a55f728dc47b4732b79fb0ceb2d38f457eaf191709f15b64f697147debfabc2"
+    frameBSha256: "02ce173f09448699d6a0e20ad01b6567e8361aa4cfd64fc6a2236c47e9b409a9"
+    replaySha256: "02ce173f09448699d6a0e20ad01b6567e8361aa4cfd64fc6a2236c47e9b409a9"
+    changedPixels: 15048
+    replayChangedPixels: 0
+  }
+}

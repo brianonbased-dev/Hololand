@@ -2,9 +2,9 @@
 
 **Status:** Execution plan with locked art direction
 
-**Version:** 0.7.0
+**Version:** 0.8.0
 
-**Date:** 2026-07-25
+**Date:** 2026-07-26
 
 **Canonical experiment contract:** [HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md](./HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md)
 
@@ -13,6 +13,8 @@
 **Model-family embodiment lock:** [2026-07-25 decision and claim boundary](../reports/HOLOLAND_MODEL_VILLAGE_MODEL_FAMILY_EMBODIMENT_LOCK_2026-07-25.md)
 
 **MV-V1 neutral resident witness:** [2026-07-25 bounded runtime receipt](../reports/HOLOLAND_MODEL_VILLAGE_MV_V1_NEUTRAL_RESIDENT_RUNTIME_2026-07-25.md)
+
+**MV-V2 sovereign rig and motion witness:** [2026-07-26 bounded native-WebGPU receipt](../reports/HOLOLAND_MODEL_VILLAGE_MV_V2_SOVEREIGN_RESIDENT_RIG_2026-07-26.md)
 
 **Product source:** HoloScript
 
@@ -101,6 +103,7 @@ receipts.
 | Observed | The world concept, earlier neutral Craftfolk reference, and inspected model-family embodiment lineup are locally custodied art targets. They are not runtime screenshots or proof that authored assets have shipped. |
 | Observed | The refreshed browser witness renders six seat-stable, differently scaled resident proxies while retaining zero observer mutation, the bounded seven-field V4 comparison, WebGL2 hardware evidence, and the existing performance gate. |
 | Observed | MV-V1 now locally custodies one neutral Seat 01 LOD0 HoloScript source and a byte-reproducible 335,140-byte GLB projection. The projection keeps 30 scene-reachable LOD0 meshes and 5,380 triangles while 23 node-level `MSFT_lod` groups reference 29 isolated, strictly reducing synthetic lower-detail nodes. The v0.4 browser witness recomputes the manifest hash on host and browser, verifies seven anchors, 2.47 m scale, grounding, 30 shadow casters/receivers, five remaining capsules, zero asset requests, and zero authoritative mutation. The generated tiers are bridge metadata, and this remains a technical loader candidate rather than the complete Stormglass production resident kit. |
+| Observed | MV-V2 now locally custodies an identity-neutral `.holo` resident source that compiles byte-identically through the sovereign `character-webgpu` target to a 661,871-byte draw-spec bundle: 55 live joints, 4,238 vertices, 9,252 indices, 3,084 triangles, and skin-SSS, Marschner-hair, and refractive-eye material groups. Four receipt-gated `idle`, `listen`, `propose`, and `settle` pose samples each produce changed native-WebGPU pixels and exact replay pixels on the local RTX 3060 Laptop GPU/D3D12 path. The authored Stormglass scatter color is operative in HoloScript engine commit `3614129c2`; the contact sheet remains a procedural technical rig witness with visible segment seams and no finished hood/garment, cloth, textures, authored LOD1/LOD2, observer attachment, or six mantles. |
 | Observed | The canonical three-format pilot parses, materializes twelve objects, and reproduces its canonical scene and pose/physics projections in two native headless runs. |
 | Observed | A 1600 x 900 HoloScript screenshot was captured from the canonical `.holo` source. |
 | Observed | The local hardware baseline reports an RTX 3060 Laptop GPU with 6 GB VRAM, 32 GB system memory, Node 24, and installed Chrome/Edge browsers. |
@@ -114,7 +117,7 @@ receipts.
 | Observed | The Living Commons witness binds the admitted water receipt to the cistern level and receipt halo, the accepted-action count to the hearth, and the blocked external-message receipt to the boundary ward. The blocked receipt links to the admitted receipt and equals the action root. A separate binding derived from the fully verified execution ledger anchors both receipt hashes, their link, the root, and the run commitments before the browser may render. Every receipt-driven cue references an existing V4 action receipt; raw model content and adapter identity are absent. |
 | Observed | The original captured-fixture bridge still materializes six identity-neutral observation envelopes and two syntactically chained fixture receipts. Three source-authored assignment vectors remain distinct, balanced, counterbalanced once per seat, and statically excluded from the exact pre-inference observation schema. That fixture lane remains separate from the bounded six-resident V4 execution. |
 | Observed | The refreshed 390 x 844 witness shows both admitted and blocked route legends plus the complete WebGL2/ANGLE/NVIDIA/D3D11 provenance. Browser-measured overlay bounds are inside the viewport, the evidence-card/footer gap is at least eight pixels, and neither text nor the document overflows horizontally. |
-| Gap | The observer is now an executing premium greybox with a receipt-driven cistern, hearth, two warm cottages, one verified neutral resident loader candidate, five capsule fallbacks, Receipt Loom, and boundary ward. Production-authored residents, a bound humanoid rig, authored LOD1/LOD2, character animation, ambient life, audio, fluid simulation, texture-rich materials, WebXR, and the complete living village remain targets. |
+| Gap | The observer is now an executing premium greybox with a receipt-driven cistern, hearth, two warm cottages, one verified neutral resident loader candidate, five capsule fallbacks, Receipt Loom, and boundary ward. A separate sovereign 55-joint rig and four deterministic semantic pose samples are observed but are not attached to the observer. Production-authored garment bodies, continuous character clips, authored LOD1/LOD2, cloth, ambient life, audio, fluid simulation, texture-rich materials, WebXR, six detachable mantles, and the complete living village remain targets. |
 | Gap | Phase 0B executes only the named twelve-object static V4 projection, `.hs` plan entrypoint, deterministic engine-owned `.hsplus` action subset, and bounded stop bridge. Live model turns, provider routes, full/native `.hs` and `.hsplus` language execution, native `.holo` lifecycle, production trust custody, and fleet durability remain unobserved. |
 | Gap | The bounded observer consumer toggle, canonical lifecycle, and frozen adapter-matrix execution now pass. Browser deployment of the twelve-object lifecycle consumer and post-inference outcome equivalence remain open; the browser does not claim scientific equivalence. |
 | Gap | The older CLI baseline still launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. MV-P9 uses a separate, focused browser witness; it does not silently promote that CLI route. |
@@ -1072,6 +1075,17 @@ profile budget, zero network requests, and zero authoritative mutation. The
 other five capsules remain visible. A procedural technical GLB may exercise the
 loader but is not Stormglass production art. MV-P2 remains open until all three
 LODs and the `idle`, `listen`, `propose`, and `settle` clips exist.
+
+**MV-V2 bounded closure (2026-07-26):** the identity-neutral shared resident
+source now compiles through HoloScript's sovereign `character-webgpu` target
+without fallback to a live 55-joint skinned draw spec. Two authored samples for
+each of `idle`, `listen`, `propose`, and `settle` produce distinct 384 x 384
+native-WebGPU pixels and byte-identical replays. The generic GLB armature was
+not promoted: it remains a compatibility projection with an unbound synthetic
+skeleton. MV-P2 remains open because the witnessed procedural body is not the
+finished faceless Stormglass garment, the samples are not production animation
+clips, authored LOD1/LOD2 and textures are absent, and the observer still uses
+the MV-V1 loader candidate plus five capsule fallbacks.
 
 ### MV-S1: Proof in the Light
 

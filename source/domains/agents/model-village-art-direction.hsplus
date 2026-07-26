@@ -8,7 +8,7 @@
 composition "HoloLand Model Village Art Direction Contract" {
   config {
     domain: "agents"
-    version: "1.2.0"
+    version: "1.3.0"
     source: "source/domains/agents/model-village-art-direction.hsplus"
     sourceLayer: "HoloScript"
     worldName: "Stormglass Commons"
@@ -19,6 +19,8 @@ composition "HoloLand Model Village Art Direction Contract" {
     observerProjectionSource: "source/layers/vr/frontier/model-village/model-village-observer-projection.holo"
     residentKitSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
     residentAssetManifestSource: "source/layers/vr/frontier/model-village/model-village-resident-asset-manifest.holo"
+    sovereignResidentRigSource: "source/layers/vr/frontier/model-village/model-village-resident-shared-rig.holo"
+    sovereignResidentRigManifestSource: "source/layers/vr/frontier/model-village/model-village-resident-rig-manifest.holo"
     publicEmbodimentOverlaySource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
     appearanceInvarianceSource: "source/proofs/model-village-appearance-invariance.hs"
     artDirectionSpec: "docs/specs/HOLOLAND_MODEL_VILLAGE_ART_DIRECTION.md"
@@ -30,6 +32,8 @@ composition "HoloLand Model Village Art Direction Contract" {
     status: "locked_production_direction"
     executionStatus: "structured_contract_target_observed_only_where_receipted"
     partialResidentAssetManifestObserved: true
+    sovereignSharedRigWitnessObserved: true
+    sovereignSemanticPoseWitnessObserved: true
     authoredProductionAssetsObserved: false
     photorealisticClaimed: false
     nativeWebGPUClaimed: false
@@ -41,7 +45,7 @@ composition "HoloLand Model Village Art Direction Contract" {
     artStyle: "hearthlight_biorealism"
     canonicalResidentCount: 6
     currentVisualTier: "executing_premium_greybox"
-    partialResidentAssetSourceTier: "neutral_seat_01_lod0_manifest_observed"
+    partialResidentAssetSourceTier: "neutral_seat_01_lod0_plus_sovereign_shared_rig_motion_witness"
     residentAssetRuntimeAttachmentObserved: false
     completeResidentKitObserved: false
     targetVisualTier: "stylized_physically_grounded_living_village"
@@ -160,6 +164,31 @@ composition "HoloLand Model Village Art Direction Contract" {
     clonedVoicesAllowed: false
     voiceIdentityCuesAllowed: false
     productionAssetStatus: "partial_manifest_observed_runtime_attachment_unverified"
+    sovereignRigMotionWitnessStatus: "observed_bounded_not_complete_production_asset"
+  }
+
+  template "SovereignSharedRigMotionSlice" {
+    type: "model_village_partial_resident_rig_truth"
+    source: "source/layers/vr/frontier/model-village/model-village-resident-shared-rig.holo"
+    manifestSource: "source/layers/vr/frontier/model-village/model-village-resident-rig-manifest.holo"
+    bundleSource: "assets/model-village/residents/stormglass-neutral-shared-rig.character.json"
+    compileTarget: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    presentationProfile: "research_live_blinded"
+    identityNeutral: true
+    liveJointCount: 55
+    semanticPoseSampleIds: ["idle", "listen", "propose", "settle"]
+    semanticPoseSamplesObserved: true
+    deterministicGpuReplayObserved: true
+    authoredScatterColorObserved: true
+    observerRuntimeAttachmentObserved: false
+    hoodedGarmentGeometryObserved: false
+    continuousAnimationClipsObserved: false
+    authoredLod1Observed: false
+    authoredLod2Observed: false
+    productionTexturesObserved: false
+    completeStormglassKitObserved: false
+    eligibleForCompleteKitPromotion: false
   }
 
   template "NeutralSeat01Lod0AssetSlice" {
