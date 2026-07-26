@@ -23,6 +23,8 @@ import {
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { extractCanonicalWorldManifest } from './model-village-canonical-lifecycle.mjs';
+
 export const PHASE0B_RECEIPT_SCHEMA =
   'hololand.model-village-phase0b-runtime-bridge.v2';
 export const PHASE0B_STATE_SCHEMA =
@@ -274,6 +276,24 @@ function assertSha256(value, label) {
 
 function readSource(root, relativePath) {
   return normalizeSource(readFileSync(path.resolve(root, relativePath), 'utf8'));
+}
+
+function validateCanonicalTwelveObjectProjection(visibleWorld, boundedWorld) {
+  const canonical = extractCanonicalWorldManifest(visibleWorld);
+  const bounded = extractCanonicalWorldManifest(boundedWorld);
+  if (canonicalJson(canonical) !== canonicalJson(bounded)) {
+    throw new Error(
+      'Phase 0B twelve-object projection differs from the canonical world',
+    );
+  }
+  return {
+    boundedWorldSourceHash: sourceDigest(boundedWorld),
+    exactIdsAndTransformsMatch: true,
+    objectCount: canonical.length,
+    objectIds: canonical.map((entry) => entry.id),
+    transformManifestHash: canonicalDigest(canonical),
+    visibleWorldSourceHash: sourceDigest(visibleWorld),
+  };
 }
 
 function resolveHoloScriptRoot(root) {
@@ -619,7 +639,7 @@ function buildRunManifest({
     planManifest.schema !== 'holoscript.headless-experiment-plan.v1'
     || planManifest.runId !== 'mv-phase0b-tracer-001'
     || planActions.length !== 2
-    || plan.filter((entry) => entry.kind === 'observation').length !== 2
+    || plan.filter((entry) => entry.kind === 'observation').length !== 6
   ) {
     throw new Error('Phase 0B tracer plan identity/counts are invalid');
   }
@@ -948,10 +968,10 @@ function validateSourceRun(run, runManifest, { observerRequired }) {
   }
   const counts = execution.terminal.actualCounts;
   if (
-    counts.schedule !== 4
-    || counts.observations !== 2
+    counts.schedule !== 8
+    || counts.observations !== 6
     || counts.actions !== 2
-    || counts.publicStateSnapshots !== 5
+    || counts.publicStateSnapshots !== 9
   ) {
     throw new Error(`Phase 0B source-run counts differ: ${canonicalJson(counts)}`);
   }
@@ -960,7 +980,14 @@ function validateSourceRun(run, runManifest, { observerRequired }) {
   );
   if (
     canonicalJson(observationSubjects)
-    !== canonicalJson([['resident-01'], ['resident-02']])
+    !== canonicalJson([
+      ['resident-01'],
+      ['resident-02'],
+      ['resident-03'],
+      ['resident-04'],
+      ['resident-05'],
+      ['resident-06'],
+    ])
   ) {
     throw new Error('Phase 0B observations are not resident-subject-bound');
   }
@@ -1223,12 +1250,12 @@ export function buildPhase0BObserverProjectionWitness({
     || admittedAction.stateChanged !== true
     || admittedAction.entrypoint !== 'contribute_water'
     || canonicalJson(admittedAction.targetIds)
-      !== canonicalJson(['commons_cistern'])
+      !== canonicalJson(['VillageCommons'])
     || blockedAction.allowed !== false
     || blockedAction.stateChanged !== false
     || blockedAction.entrypoint !== 'deny_external_message'
     || canonicalJson(blockedAction.targetIds)
-      !== canonicalJson(['outside_village'])
+      !== canonicalJson(['IsolationBoundary'])
     || blockedAction.previousEntryHash !== admittedAction.entryHash
     || !Number.isInteger(finalPublicState?.acceptedActionCount)
     || !Number.isInteger(finalPublicState?.publicWaterUnits)
@@ -1301,7 +1328,7 @@ export function buildPhase0BObserverProjectionWitness({
     || !sourceRunCommitmentEqual
     || !terminalCommitmentEqual
     || observerIntroducedExperimentExecutionCount !== 0
-    || sealedSourceRun.execution.scene.objectCount !== 4
+    || sealedSourceRun.execution.scene.objectCount !== 12
   ) {
     throw new Error(
       `Phase 0B observer off/on projection differs: ${canonicalJson(
@@ -2188,6 +2215,7 @@ export async function verifyPhase0BReceipt(
       'atomicActionAdmissionAndWorldMutation',
       'atomicCommitBoundToVerifiedV4SourceRun',
       'capturedResponseHashesBound',
+      'canonicalTwelveObjectWorldProjectionMatches',
       'challengeAndMetricManifestsFrozenAndHashed',
       'emergencyStopBridgeExecuted',
       'faultAfterRenameRecoversCompleteState',
@@ -2290,6 +2318,10 @@ export async function verifyPhase0BReceipt(
     const rawSources = Object.fromEntries(
       Object.entries(PHASE0B_SOURCE_PATHS)
         .map(([key, relativePath]) => [key, readSource(root, relativePath)]),
+    );
+    const canonicalWorldProjection = validateCanonicalTwelveObjectProjection(
+      rawSources.visibleWorld,
+      rawSources.world,
     );
     const manifests = instantiatePhase1Manifests({
       core: holoScript.core,
@@ -2394,6 +2426,7 @@ export async function verifyPhase0BReceipt(
       observerProof: structuredClone(mainRun.observerProof),
       observerProjection,
       providerCalls: 0,
+      worldProjection: canonicalWorldProjection,
       sourceBundleHash: executionSummary.sourceBundleHash,
       sourceClaimBoundary: structuredClone(freshReplay.run.claimBoundary),
       sourceRunCommitment: executionSummary.sourceRunCommitment,
@@ -2567,6 +2600,10 @@ export async function runPhase0BEngineeringTracer(options = {}) {
   const rawSources = Object.fromEntries(
     Object.entries(PHASE0B_SOURCE_PATHS)
       .map(([key, relativePath]) => [key, readSource(root, relativePath)]),
+  );
+  const canonicalWorldProjection = validateCanonicalTwelveObjectProjection(
+    rawSources.visibleWorld,
+    rawSources.world,
   );
   const manifests = instantiatePhase1Manifests({
     core: holoScript.core,
@@ -2866,6 +2903,9 @@ export async function runPhase0BEngineeringTracer(options = {}) {
         action.args.capturedResponseHash
           === manifests.capturedResponses[index].responseHash
       )),
+    canonicalTwelveObjectWorldProjectionMatches:
+      canonicalWorldProjection.objectCount === 12
+      && canonicalWorldProjection.exactIdsAndTransformsMatch === true,
     challengeAndMetricManifestsFrozenAndHashed:
       manifests.bundle.frozenBeforeFirstTurn === true
       && SHA256_PATTERN.test(manifests.challengeManifestHash)
@@ -3008,6 +3048,7 @@ export async function runPhase0BEngineeringTracer(options = {}) {
       observerProof: structuredClone(first.run.observerProof),
       observerProjection,
       providerCalls: 0,
+      worldProjection: canonicalWorldProjection,
       sourceBundleHash: executionSummary.sourceBundleHash,
       sourceClaimBoundary: structuredClone(first.run.claimBoundary),
       sourceRunCommitment: executionSummary.sourceRunCommitment,

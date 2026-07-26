@@ -100,7 +100,7 @@ receipts.
 | Locked decision | Neutral research aliases, civic roles, props, silhouettes, glyphs, and accents remain a separate persona layer outside the family mantle digest. |
 | Observed | The world concept, earlier neutral Craftfolk reference, and inspected model-family embodiment lineup are locally custodied art targets. They are not runtime screenshots or proof that authored assets have shipped. |
 | Observed | The refreshed browser witness renders six seat-stable, differently scaled resident proxies while retaining zero observer mutation, the bounded seven-field V4 comparison, WebGL2 hardware evidence, and the existing performance gate. |
-| Observed | MV-V1 now locally custodies one neutral Seat 01 LOD0 HoloScript source and a byte-reproducible 360,952-byte GLB projection. The v0.4 browser witness recomputes the manifest hash on host and browser, parses 30 attached meshes and 5,380 triangles from embedded bytes, verifies seven anchors, 2.47 m scale, grounding, 30 shadow casters/receivers, five remaining capsules, zero asset requests, and zero authoritative mutation. This is a technical loader candidate, not the complete Stormglass production resident kit. |
+| Observed | MV-V1 now locally custodies one neutral Seat 01 LOD0 HoloScript source and a byte-reproducible 335,140-byte GLB projection. The projection keeps 30 scene-reachable LOD0 meshes and 5,380 triangles while 23 node-level `MSFT_lod` groups reference 29 isolated, strictly reducing synthetic lower-detail nodes. The v0.4 browser witness recomputes the manifest hash on host and browser, verifies seven anchors, 2.47 m scale, grounding, 30 shadow casters/receivers, five remaining capsules, zero asset requests, and zero authoritative mutation. The generated tiers are bridge metadata, and this remains a technical loader candidate rather than the complete Stormglass production resident kit. |
 | Observed | The canonical three-format pilot parses, materializes twelve objects, and reproduces its canonical scene and pose/physics projections in two native headless runs. |
 | Observed | A 1600 x 900 HoloScript screenshot was captured from the canonical `.holo` source. |
 | Observed | The local hardware baseline reports an RTX 3060 Laptop GPU with 6 GB VRAM, 32 GB system memory, Node 24, and installed Chrome/Edge browsers. |
@@ -109,14 +109,14 @@ receipts.
 | Observed | The MV-P10 tracer now runs three fresh 600-step, fixed-1/60 HoloScript CPU-physics worlds through one `PhysicsWorld.addBodyWithConfig` path. Two source-bound fixtures release sphere-collider tokens; missing, tampered, and duplicate fixtures fail dark; exactly the admitted-token/admitted-floor and blocked-token/blocked-floor contact starts occur, and contact, sleep, final-transform, and frame-trace roots match locally. |
 | Observed | The refreshed MV-P9 witness parsed and compiled the two HoloScript compositions, mapped all 39 source meshes (29 observer plus 10 calibration) to `MeshPhysicalMaterial`, verified every authored-to-effective physical-material value with only two disclosed decorative-chute overrides, and observed hardware WebGL2 on ANGLE Direct3D 11 / NVIDIA RTX 3060 with no known software-renderer indicator. It applied sRGB output, ACES filmic tone mapping at exposure 1.05, PCF soft shadows, and a hashed local procedural `RoomEnvironment`/PMREM with `hdri: false`. |
 | Observed | The final named-browser sample used 60 warm-up and 180 measured frames. It captured rAF cadence and CPU `renderer.render()` submission percentiles separately, exact 1600 x 900 and 390 x 844 hero images, a settled-contact frame, and a 1600 x 900 calibration image without external network assets. |
-| Observed | The bounded Phase 0B V4 bridge executes four schedule rows, two subject-bound resident observations, two `.hsplus` subset actions, and five public-state snapshots from canonical `.holo`, `.hsplus`, and `.hs` sources. One `contribute_water` action mutates the public cistern to three units; one `deny_external_message` action is blocked without mutation. A fresh captured-response replay matches, the visible emergency-stop binding dispatches the bounded `freeze_run` path, and zero provider calls occur. |
-| Observed | One sealed four-object Phase 0B V4 execution now passes the post-seal observer consumer with identical canonical payload and seven canonical fields. The browser then executes an actual off/on consumer sandwich: off withholds the payload; on recomputes its exact SHA-256 digest before presentation and renders only from that parsed acknowledged string. The complete host physics receipt, compiled source hashes, twelve-object visible-world source/materialization, and read-only observer contract remain unchanged. This is a bounded consumer proof, not full twelve-object lifecycle execution. |
+| Observed | The bounded Phase 0B V4 bridge executes eight schedule rows, six ordered subject-bound resident observations, two `.hsplus` subset actions, and nine public-state snapshots from the exact twelve-object `.holo`, canonical `.hsplus`, and `.hs` sources. One `contribute_water` action mutates the public cistern to three units; one `deny_external_message` action is blocked without mutation. A fresh captured-response replay matches, the visible emergency-stop binding dispatches the bounded `freeze_run` path, and zero provider calls occur. |
+| Observed | One sealed twelve-object, six-resident Phase 0B V4 execution now passes the post-seal observer consumer with identical canonical payload and seven canonical fields. The browser then executes an actual off/on consumer sandwich: off withholds the payload; on recomputes its exact SHA-256 digest before presentation and renders only from that parsed acknowledged string. The complete host physics receipt, compiled source hashes, canonical object transforms, and read-only observer contract remain unchanged. This is a bounded static-projection rehearsal, not native `.holo` lifecycle execution. |
 | Observed | The Living Commons witness binds the admitted water receipt to the cistern level and receipt halo, the accepted-action count to the hearth, and the blocked external-message receipt to the boundary ward. The blocked receipt links to the admitted receipt and equals the action root. A separate binding derived from the fully verified execution ledger anchors both receipt hashes, their link, the root, and the run commitments before the browser may render. Every receipt-driven cue references an existing V4 action receipt; raw model content and adapter identity are absent. |
-| Observed | The original captured-fixture bridge still materializes six identity-neutral observation envelopes and two syntactically chained fixture receipts. Three source-authored assignment vectors remain distinct, balanced, counterbalanced once per seat, and statically excluded from the exact pre-inference observation schema. That fixture lane remains separate from the bounded two-resident V4 execution. |
+| Observed | The original captured-fixture bridge still materializes six identity-neutral observation envelopes and two syntactically chained fixture receipts. Three source-authored assignment vectors remain distinct, balanced, counterbalanced once per seat, and statically excluded from the exact pre-inference observation schema. That fixture lane remains separate from the bounded six-resident V4 execution. |
 | Observed | The refreshed 390 x 844 witness shows both admitted and blocked route legends plus the complete WebGL2/ANGLE/NVIDIA/D3D11 provenance. Browser-measured overlay bounds are inside the viewport, the evidence-card/footer gap is at least eight pixels, and neither text nor the document overflows horizontally. |
 | Gap | The observer is now an executing premium greybox with a receipt-driven cistern, hearth, two warm cottages, one verified neutral resident loader candidate, five capsule fallbacks, Receipt Loom, and boundary ward. Production-authored residents, a bound humanoid rig, authored LOD1/LOD2, character animation, ambient life, audio, fluid simulation, texture-rich materials, WebXR, and the complete living village remain targets. |
-| Gap | Phase 0B executes only the named four-object V4 scene, `.hs` plan entrypoint, deterministic engine-owned `.hsplus` action subset, and bounded stop bridge. Live model turns, provider routes, full/native `.hs` and `.hsplus` language execution, native `.holo` lifecycle, full twelve-object lifecycle, production trust custody, and fleet durability remain unobserved. |
-| Gap | The bounded observer consumer toggle now passes. Full MV-P0 remains open for the twelve-object lifecycle and executed adapter permutations/post-inference outcome equivalence. The browser proves exact digest consumption of the bounded projection; it does not run the full semantic verifier or claim scientific equivalence. |
+| Gap | Phase 0B executes only the named twelve-object static V4 projection, `.hs` plan entrypoint, deterministic engine-owned `.hsplus` action subset, and bounded stop bridge. Live model turns, provider routes, full/native `.hs` and `.hsplus` language execution, native `.holo` lifecycle, production trust custody, and fleet durability remain unobserved. |
+| Gap | The bounded observer consumer toggle, canonical lifecycle, and frozen adapter-matrix execution now pass. Browser deployment of the twelve-object lifecycle consumer and post-inference outcome equivalence remain open; the browser does not claim scientific equivalence. |
 | Gap | The older CLI baseline still launches Chrome with GPU disabled, hardcodes primitive materials and lighting, and checks screenshot byte size rather than visual correctness. MV-P9 uses a separate, focused browser witness; it does not silently promote that CLI route. |
 | Gap | The current React Three adapter cannot be cited as an executing Model Village route: its typecheck still imports the removed `R3FCompiler` surface. The dedicated MV-P9 adapter is a bounded proof bridge, not a claim that the general platform renderer is repaired. |
 | Gap | Detachable mantle assets, profile admission receipts, and production family characters remain targets until their individual evidence gates close. |
@@ -922,13 +922,13 @@ pair. No live model calls wait on visual polish, and no spectacle bypasses the
 runtime gates.
 
 The bounded MV-P9/MV-P10 slice passed locally on 2026-07-24. On 2026-07-25 the
-four-object Phase 0B V4 runtime also exposed recomputable schedule,
-resident-observation, logical-clock, public-state, and action-root fields and
-passed both its single-sealed-receipt observer proof and a browser payload
-withheld/consumed sandwich. The twelve-object visible-world source and exact ID
-set remained unchanged, but their full lifecycle did not execute. Full MV-P0
-therefore remains open for the twelve-object runtime and adapter-permutation
-execution; the bounded observer-consumer dependency is closed.
+Phase 0B V4 runtime expanded to the exact twelve-object static projection and
+six ordered resident observations while retaining the two captured actions,
+recomputable schedule, logical-clock, public-state, action-root, replay, stop,
+persistence, and observer gates. MV-L12 separately executed the canonical
+register, six-resident stage, start, freeze, and close lifecycle for every
+frozen adapter block. Browser lifecycle deployment and post-inference outcome
+equivalence remain open.
 
 ## Delivery waves
 
@@ -989,23 +989,20 @@ go/no-go list.
 
 ## Immediate next build slice
 
-The two-resident runtime, visual greybox, physics gate, rendering truth gate,
-and bounded observer consumer now execute. Stormglass Commons and Hearthlight
+The twelve-object, six-resident zero-provider rehearsal, visual greybox, physics
+gate, rendering truth gate, and bounded observer consumer now execute.
+Stormglass Commons and Hearthlight
 Biorealism are locked. The public roster is Claude, OpenAI, Gemini, Grok, GLM,
 and Brittney, while the current executing observer remains a neutral capsule
-witness. The next three tracks are:
+witness. The rehearsal track is complete; the next two production tracks are:
 
-1. **Six-resident zero-provider rehearsal:** expand the bounded runtime from two
-   subject-bound observations to all six seats, preserve the frozen assignment
-   matrix, run the deterministic schedule without provider calls, and retain
-   the same semantic verifier, stop, persistence, replay, and observer gates.
-2. **Living Commons production pass:** promote the current distinct resident
+1. **Living Commons production pass:** promote the current distinct resident
    proxies to one locally custodied shared humanoid kit with a neutral research
    mantle and detachable family mantles, replace the remaining primitive
    cottages with one modular authored building kit, add ambient life and audio
    only after source/asset receipts, and keep every state-driven cue tied to an
    existing receipt. This remains observer-only work.
-3. **Platform profile proof:** retain the measured desktop and portrait gates,
+2. **Platform profile proof:** retain the measured desktop and portrait gates,
    then add one real mobile/WebXR or headset profile without weakening material,
    backend, accessibility, comfort, and no-network evidence.
 

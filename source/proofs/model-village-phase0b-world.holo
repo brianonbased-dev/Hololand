@@ -1,21 +1,66 @@
-// Model Village Phase 0B deterministic engineering-tracer world.
+// Model Village Phase 0B six-resident deterministic rehearsal world.
 //
-// This composition is intentionally static. The bounded HoloLand bridge may
-// materialize these declarations, but no lifecycle or behavior is owned here.
-composition "Model Village Phase 0B World" {
-  object "Resident01" {
-    position: [-1.25, 0.9, 0.4]
+// This bounded static projection mirrors the exact twelve canonical object IDs
+// and transforms from model-village.holo. The HoloLand verifier hash-binds both
+// sources and fails closed if the canonical contract drifts.
+composition "Model Village Phase 0B Twelve Object World" {
+  object "ResidentSeat01" {
+    position: [-3.0, 1.0, 1.8]
+    scale: [0.68, 1.5, 0.68]
   }
 
-  object "Resident02" {
-    position: [1.25, 0.9, 0.4]
+  object "ResidentSeat02" {
+    position: [-1.8, 1.0, 2.8]
+    scale: [0.68, 1.5, 0.68]
+  }
+
+  object "ResidentSeat03" {
+    position: [-0.6, 1.0, 3.35]
+    scale: [0.68, 1.5, 0.68]
+  }
+
+  object "ResidentSeat04" {
+    position: [0.6, 1.0, 3.35]
+    scale: [0.68, 1.5, 0.68]
+  }
+
+  object "ResidentSeat05" {
+    position: [1.8, 1.0, 2.8]
+    scale: [0.68, 1.5, 0.68]
+  }
+
+  object "ResidentSeat06" {
+    position: [3.0, 1.0, 1.8]
+    scale: [0.68, 1.5, 0.68]
   }
 
   object "VillageCommons" {
     position: [0, 0.1, 0]
+    scale: [5.5, 0.2, 5.5]
+  }
+
+  object "PublicStateBoard" {
+    position: [-2.2, 1.35, -2.4]
+    scale: [1.8, 1.0, 0.08]
+  }
+
+  object "ReceiptLedger" {
+    position: [0, 1.35, -2.8]
+    scale: [1.8, 1.0, 0.08]
+  }
+
+  object "ObserverDeck" {
+    position: [2.2, 1.35, -2.4]
+    scale: [1.8, 1.0, 0.08]
+  }
+
+  object "IsolationBoundary" {
+    position: [0, 0.05, 5.4]
+    scale: [12.0, 0.1, 0.12]
   }
 
   object "EmergencyStop" {
-    position: [3.4, 1.0, -1.8]
+    position: [4.2, 1.0, -2.2]
+    scale: [0.7, 0.7, 0.7]
   }
 }

@@ -22,7 +22,7 @@ import {
   runCanonicalModelVillageLifecycle,
 } from './model-village-canonical-lifecycle.mjs';
 
-const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.5.0';
+const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.6.0';
 const WORLD_SOURCE = 'source/layers/vr/frontier/model-village/model-village.holo';
 const OBSERVER_PROJECTION_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-observer-projection.holo';
@@ -1518,12 +1518,15 @@ function buildAssertions({
     phase0BSourceRunV4CountsAreBounded:
       engineeringTracer.runtime.sourceRunSchema
         === 'holoscript.headless-experiment-source-run.v4'
-      && engineeringTracer.runtime.counts.schedule === 4
-      && engineeringTracer.runtime.counts.observations === 2
+      && engineeringTracer.runtime.counts.schedule === 8
+      && engineeringTracer.runtime.counts.observations === 6
       && engineeringTracer.runtime.counts.actions === 2
-      && engineeringTracer.runtime.counts.publicStateSnapshots === 5
+      && engineeringTracer.runtime.counts.publicStateSnapshots === 9
       && engineeringTracer.runtime.capturedResponsesConsumed === 2
-      && engineeringTracer.runtime.providerCalls === 0,
+      && engineeringTracer.runtime.providerCalls === 0
+      && engineeringTracer.runtime.worldProjection.objectCount === 12
+      && engineeringTracer.runtime.worldProjection
+        .exactIdsAndTransformsMatch === true,
     phase0BTrustPersistenceAtomicityReplayAndStopPass:
       engineeringTracer.assertions.trustedValidatorCryptographicallyVerified === true
       && engineeringTracer.assertions.hostSuppliedValidatorConfigPinned === true
@@ -1533,6 +1536,8 @@ function buildAssertions({
       && engineeringTracer.assertions.separateProcessPersistentStateRecovery === true
       && engineeringTracer.assertions.freshCapturedResponseReplayMatches === true
       && engineeringTracer.assertions.emergencyStopBridgeExecuted === true
+      && engineeringTracer.assertions
+        .canonicalTwelveObjectWorldProjectionMatches === true
       && engineeringTracer.persistence.authorizationAttemptsConsumed === 2
       && engineeringTracer.persistence.deniedAttemptsConsumed === 1
       && engineeringTracer.persistence.atomicActionReceiptsCommitted === 2
@@ -1953,7 +1958,7 @@ export async function runModelVillageCheck(options = {}) {
       capturedResponseActionReplay:
         engineeringTracer.assertions.freshCapturedResponseReplayMatches,
       perStepPublicStateSnapshots:
-        engineeringTracer.runtime.counts.publicStateSnapshots === 5,
+        engineeringTracer.runtime.counts.publicStateSnapshots === 9,
       challengeAndMetricManifestsHashed:
         engineeringTracer.assertions.challengeAndMetricManifestsFrozenAndHashed,
       cryptographicTrustedValidator:
@@ -2097,7 +2102,7 @@ export async function runModelVillageCheck(options = {}) {
     checkerOwnsExperimentBehavior: false,
     checkerOwnsDeterministicFixtureProjection: true,
     fixtureInputsOwnedByHoloScript: true,
-    boundedFourObjectObserverProjectionToggleExecuted:
+    boundedTwelveObjectRehearsalObserverProjectionToggleExecuted:
       engineeringTracer.runtime.observerProjection.projectionToggleExecuted
         === true,
     canonicalTwelveObjectObserverProjectionToggleExecuted: true,
@@ -2123,10 +2128,10 @@ export async function runModelVillageCheck(options = {}) {
       'canonical scene and pose replay',
       'source-declared captured fixture schedule, six resident observations, and action-receipt chain replay through the bounded HoloLand bridge',
       'static adapter-assignment exclusion from the pre-inference fixture projection',
-      'bounded HoloScript V4 source-run engineering tracer with four schedule entries, two resident observations, two captured-response actions, and five public-state snapshots',
+      'bounded HoloScript V4 source-run engineering tracer with eight schedule entries, six resident observations, two captured-response actions, and nine public-state snapshots',
       'host-supplied ephemeral engineering validator config plus monotonic authorization, same-process and separate-process reread recovery, and a verified-V4 per-action single-host file-atomic bridge',
       'fresh captured-response replay match and bounded emergency-stop bridge execution',
-      'single-sealed-execution observer projection off/on equivalence for the bounded four-object Phase 0B runtime',
+      'single-sealed-execution observer projection off/on equivalence for the bounded twelve-object, six-resident Phase 0B rehearsal',
       'canonical twelve-object static world projection with exact source-locked transforms across three replay-verified observer toggles',
       'canonical register, six-resident stage, start, freeze, and close lifecycle execution for every frozen adapter block',
       'exact resident, persona, and seat bindings with each seat receiving every adapter once across the three-block matrix',

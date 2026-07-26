@@ -43,7 +43,7 @@ const { receipt } = await runModelVillageCheck({
   tickRate: 10,
 });
 
-assert.equal(receipt.schemaVersion, 'hololand.model-village-experiment.v0.5.0');
+assert.equal(receipt.schemaVersion, 'hololand.model-village-experiment.v0.6.0');
 assert.equal(receipt.studyPhase, 'phase0b_canonical_lifecycle_closure');
 assert.equal(receipt.status, 'pass');
 assert.equal(receipt.sourceContract.threeFormat, true);
@@ -70,10 +70,10 @@ assert.equal(receipt.runtimeEvidence.nativeHsPipelineExecutionClaimed, false);
 assert.equal(receipt.runtimeEvidence.nativeHsplusActionExecutionClaimed, false);
 assert.deepEqual(receipt.runtimeEvidence.boundedPhase0B, {
   sourceRunSchema: 'holoscript.headless-experiment-source-run.v4',
-  scheduleEntriesExecuted: 4,
-  residentObservationsMaterialized: 2,
+  scheduleEntriesExecuted: 8,
+  residentObservationsMaterialized: 6,
   boundedHsplusSubsetActionsExecuted: 2,
-  publicStateSnapshotsMaterialized: 5,
+  publicStateSnapshotsMaterialized: 9,
   capturedResponsesConsumed: 2,
   allowedWorldMutationsCommitted: 1,
   deniedAuthorizationAttemptsConsumed: 1,
@@ -154,7 +154,7 @@ assert.equal(
   'hololand.model-village-phase0b-runtime-bridge.v2',
 );
 assert.equal(
-  receipt.sourceContract.boundedFourObjectObserverProjectionToggleExecuted,
+  receipt.sourceContract.boundedTwelveObjectRehearsalObserverProjectionToggleExecuted,
   true,
 );
 assert.equal(
@@ -171,10 +171,10 @@ assert.equal(
   true,
 );
 assert.deepEqual(receipt.engineeringTracer.runtime.counts, {
-  schedule: 4,
-  observations: 2,
+  schedule: 8,
+  observations: 6,
   actions: 2,
-  publicStateSnapshots: 5,
+  publicStateSnapshots: 9,
 });
 assert.deepEqual(
   receipt.engineeringTracer.runtime.actionDecisions.map(

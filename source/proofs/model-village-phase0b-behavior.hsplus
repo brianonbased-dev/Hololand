@@ -25,6 +25,34 @@ composition "ModelVillagePhase0BBehavior" {
       }
     }
 
+    action observe_resident_03() {
+      return {
+        location: "VillageCommons",
+        publicEventIds: ["commons_water_shortage"]
+      }
+    }
+
+    action observe_resident_04() {
+      return {
+        location: "VillageCommons",
+        publicEventIds: ["commons_water_shortage"]
+      }
+    }
+
+    action observe_resident_05() {
+      return {
+        location: "VillageCommons",
+        publicEventIds: ["commons_water_shortage"]
+      }
+    }
+
+    action observe_resident_06() {
+      return {
+        location: "VillageCommons",
+        publicEventIds: ["commons_water_shortage"]
+      }
+    }
+
     action contribute_water(capturedResponseHash, challengeManifestHash, metricSpecHash, parsedProposal, residentId) {
       state.acceptedActionCount = state.acceptedActionCount + 1
       state.publicWaterUnits = state.publicWaterUnits + 1

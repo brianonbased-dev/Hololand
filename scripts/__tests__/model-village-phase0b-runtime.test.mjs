@@ -124,15 +124,32 @@ try {
   assert.equal(Object.values(baseline.assertions).every(Boolean), true);
   assert.deepEqual(baseline.runtime.counts, {
     actions: 2,
-    observations: 2,
-    publicStateSnapshots: 5,
-    schedule: 4,
+    observations: 6,
+    publicStateSnapshots: 9,
+    schedule: 8,
   });
   assert.deepEqual(baseline.runtime.finalPublicState, firstAllowedPostWorld);
   assert.deepEqual(
     baseline.runtime.observationSubjects,
-    [['resident-01'], ['resident-02']],
+    [
+      ['resident-01'],
+      ['resident-02'],
+      ['resident-03'],
+      ['resident-04'],
+      ['resident-05'],
+      ['resident-06'],
+    ],
   );
+  assert.equal(
+    baseline.assertions.canonicalTwelveObjectWorldProjectionMatches,
+    true,
+  );
+  assert.equal(baseline.runtime.worldProjection.objectCount, 12);
+  assert.equal(
+    baseline.runtime.worldProjection.exactIdsAndTransformsMatch,
+    true,
+  );
+  assert.equal(baseline.runtime.worldProjection.objectIds.length, 12);
   assert.equal(baseline.runtime.providerCalls, 0);
   assert.equal(baseline.runtime.boundedHsplusSubsetActionsExecuted, 2);
   assert.equal(baseline.runtime.capturedResponsesConsumed, 2);
@@ -184,7 +201,7 @@ try {
   assert.equal(
     baseline.runtime.observerProjection.claimBoundary
       .boundedRuntimeSceneObjectCount,
-    4,
+    12,
   );
   assert.equal(
     baseline.runtime.observerProjection.claimBoundary
