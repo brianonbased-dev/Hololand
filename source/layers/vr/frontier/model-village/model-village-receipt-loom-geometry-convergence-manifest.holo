@@ -1,0 +1,132 @@
+// Immutable witness manifest for Receipt Loom Courtyard — Geometry Convergence C.
+// Regenerate only when the authored overlay, deterministic geometry bridge,
+// focused test, accepted report, hero capture, or verified hardware receipt changes.
+
+composition "HoloLand Model Village Receipt Loom Geometry Convergence Manifest" {
+  metadata {
+    title: "Receipt Loom Courtyard — Geometry Convergence C Witness"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV_V1_GEOMETRY_CONVERGENCE_C"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-receipt-loom-geometry-convergence.holo"
+      sha256: "1f6f495e63bfd17afeb8d83fc6640efbd1f9fe0e1708224f6a53fdd70f12e530"
+      sceneIrSha256: "cab8f47f484004456bde55e6c6ce0743d5e7d9a091765cccc334f9c963abd6c1"
+      geometryPlanSha256: "fc05193f42883cf0a1368b4cdc8201cd4e7d1f2c9fa61dc886ec875550805538"
+    }
+    inheritedArtConvergenceA: {
+      sourcePath: "source/layers/vr/frontier/model-village/model-village-receipt-loom-courtyard.holo"
+      sourceSha256: "6396f15623bab2f910c081943e58f53dc4d121bedc52f5b050de58443706d4bd"
+      bridgePath: "scripts/check-hololand-model-village-receipt-loom-courtyard.mjs"
+      bridgeSha256: "261d01c8ad75ec2fb62d922ff29702ee0390377b97b08bb07204ce4ae0999a19"
+      manifestPath: "source/layers/vr/frontier/model-village/model-village-receipt-loom-courtyard-manifest.holo"
+      manifestSha256: "34391ca6b74cba3ef8a1b37147b0cb0bc61072b9e6d8a1f2a4158cea21888db4"
+      browserApplicationSha256: "5cc197400420924983df7d97f3d48b69108b8ac24c831b5f31ccbb1af2f1f140"
+      immutable: true
+    }
+    inheritedMaterialConvergenceB: {
+      sourcePath: "source/layers/vr/frontier/model-village/model-village-receipt-loom-material-convergence.holo"
+      sourceSha256: "525ae37b814bc6c57d6b4b5e6e8c5ddf0ec4404b0ac9bc65ef037d2045bd59fa"
+      checkerPath: "scripts/check-hololand-model-village-material-convergence.mjs"
+      checkerSha256: "952b5a90dfeeffec8de189a5f17a7da5d0d1c5e297928264864d8c27992f0eed"
+      synthesisPath: "scripts/lib/model-village-material-synthesis.mjs"
+      synthesisSha256: "9838215454f610996b054ec788389e572359f1bb1c1dac29615669189662c814"
+      manifestPath: "source/layers/vr/frontier/model-village/model-village-receipt-loom-material-convergence-manifest.holo"
+      manifestSha256: "9adaad729bee087f12f6d3edd5537a97a0ab36cab5cf13751d93a8106ffa5755"
+      heroPath: "docs/assets/model-village/model-village-receipt-loom-material-convergence-b-2026-07-27.png"
+      heroSha256: "4e252a018a6362db15af91d6288ad27f961f92e4287ce1d989f112921e21a252"
+      immutable: true
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-geometry-convergence.mjs"
+      sha256: "8d97f7cd49da48ff09e0cc85f759579922655b186bb1347fcd6d3fc6125efbb4"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-geometry-convergence.test.mjs"
+      sha256: "164161d1d856bdf6353520497c74a64802797dfa67a5d4bad22d516018faef3d"
+    }
+    report: {
+      path: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_GEOMETRY_CONVERGENCE_C_2026-07-27.md"
+      sha256: "a09ecac1b9036473c0808626054e2f3457527aa6ced3e63571b628044cd6b8fd"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-receipt-loom-geometry-convergence-c-2026-07-27.png"
+      sha256: "ddc7eed44c2793c4ba51cf1ce818a3eca46c97701d3ac33a241c3307b5d05648"
+      width: 1600
+      height: 900
+      bytes: 1204426
+      visuallyInspected: true
+      iterationAccepted: 5
+    }
+    geometry: {
+      kitCount: 5
+      instanceCount: 290
+      batchCount: 15
+      shadowCasterBatches: 12
+      inheritedWindowProxyPartsHidden: 16
+      inheritedFoundationProxyPartsHidden: 1
+      masonryReliefInstances: 61
+      roofAssemblyInstances: 140
+      windowDepthInstances: 50
+      timberJoineryInstances: 25
+      weatheringInstances: 14
+      browserPlanHashAgreement: true
+    }
+    bridge: {
+      route: "HoloScript geometry overlay -> deterministic placement plan -> immutable A application with immutable B material binding -> batched Three/WebGL2 presentation"
+      appSourceSha256: "fdb52ebf8f9dda097747b5bf434774b4a4a4fbbff77a3018c2b59699e30cefb4"
+      bundleSha256: "1ae78f130ed76f515d38fd0b9d97060eb6586886cd067a7667e2c479f2bf04e2"
+      htmlSha256: "c5efdf812eb548bae038a60e74af6605b3528e637f5eb5ed39862f1528671351"
+      esbuildSha256: "8331fe1d8b3a07381f33cc425fcfaa94776e263113653f80ec3ba433e9657e73"
+      inheritedSourcesImmutable: true
+      externalAssets: []
+    }
+    hardware: {
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      browser: "Chrome 150.0.7871.182"
+      browserBackend: "ANGLE Direct3D11 D3D11"
+      softwareRenderer: false
+      holoScriptCoreSha256: "68809748b0aa139d06febd6933a9375f23d3d398495638515b9b71494abf747d"
+    }
+    metrics: {
+      drawCallsShadowInclusive: 503
+      triangles: 71108
+      geometries: 412
+      textures: 21
+      materials: 30
+      externalNetworkRequests: 0
+      pageErrors: 0
+    }
+    composition: {
+      cottageWidthRatio: 0.3972069217710584
+      cottageHeightRatio: 0.6648160181774619
+      loomWidthRatio: 0.3251780545518762
+      loomHeightRatio: 0.6532386269920474
+    }
+    boundaries: {
+      canonicalWritesAllowed: false
+      modelCalls: 0
+      publicFamilyIdentityPresented: false
+      exactModelIdentityPresented: false
+      neutralCraftfolkCount: 2
+      productionResidentClaimed: false
+      fullWorldConvergenceClaimed: false
+      gameplayPhysicsClaimed: false
+      scannedAssetClaimed: false
+      atmosphereConvergenceClaimed: false
+      measuredRealTimePerformanceClaimed: false
+      photorealismClaimed: false
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      sha256: "11d6153d0704049194d9baadbae86e41cd1968d0f85aae8c1021fdfdeb79c2b3"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/geometry-convergence-c/geometry-convergence-c-witness.json"
+    }
+  }
+}

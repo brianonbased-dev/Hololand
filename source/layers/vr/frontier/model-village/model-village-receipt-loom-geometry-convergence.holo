@@ -1,0 +1,203 @@
+// HoloLand Model Village — Receipt Loom Geometry Convergence C.
+//
+// This composition is a provenance-bound, presentation-only geometry overlay
+// for the immutable Art Convergence A courtyard and Material Convergence B
+// surface witness. HoloScript owns the architectural kit, counts, placement
+// seeds, camera, batching contract, and truth boundary. The JavaScript bridge
+// may materialize these declarations into deterministic Three.js instances; it
+// may not invent experiment state, resident identity, canonical writes, model
+// calls, or network dependencies.
+
+composition "HoloLand Model Village Receipt Loom Geometry Convergence" {
+  metadata {
+    title: "Receipt Loom Courtyard — Geometry Convergence C"
+    version: "0.1.0"
+    date: "2026-07-27"
+    source: "source/layers/vr/frontier/model-village/model-village-receipt-loom-geometry-convergence.holo"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    milestone: "MV_V1_GEOMETRY_CONVERGENCE_C"
+    projectionRole: "read_only_architectural_development"
+    baseScene: "source/layers/vr/frontier/model-village/model-village-receipt-loom-courtyard.holo"
+    baseSceneSha256: "6396f15623bab2f910c081943e58f53dc4d121bedc52f5b050de58443706d4bd"
+    baseBridge: "scripts/check-hololand-model-village-receipt-loom-courtyard.mjs"
+    baseBridgeSha256: "261d01c8ad75ec2fb62d922ff29702ee0390377b97b08bb07204ce4ae0999a19"
+    baseManifest: "source/layers/vr/frontier/model-village/model-village-receipt-loom-courtyard-manifest.holo"
+    baseManifestSha256: "34391ca6b74cba3ef8a1b37147b0cb0bc61072b9e6d8a1f2a4158cea21888db4"
+    materialSource: "source/layers/vr/frontier/model-village/model-village-receipt-loom-material-convergence.holo"
+    materialSourceSha256: "525ae37b814bc6c57d6b4b5e6e8c5ddf0ec4404b0ac9bc65ef037d2045bd59fa"
+    materialBridge: "scripts/check-hololand-model-village-material-convergence.mjs"
+    materialBridgeSha256: "952b5a90dfeeffec8de189a5f17a7da5d0d1c5e297928264864d8c27992f0eed"
+    materialSynthesis: "scripts/lib/model-village-material-synthesis.mjs"
+    materialSynthesisSha256: "9838215454f610996b054ec788389e572359f1bb1c1dac29615669189662c814"
+    materialManifest: "source/layers/vr/frontier/model-village/model-village-receipt-loom-material-convergence-manifest.holo"
+    materialManifestSha256: "9adaad729bee087f12f6d3edd5537a97a0ab36cab5cf13751d93a8106ffa5755"
+    materialHero: "docs/assets/model-village/model-village-receipt-loom-material-convergence-b-2026-07-27.png"
+    materialHeroSha256: "4e252a018a6362db15af91d6288ad27f961f92e4287ce1d989f112921e21a252"
+    referenceConcept: "docs/assets/model-village/model-village-stormglass-commons-concept-2026-07-25.png"
+    referenceConceptSha256: "2aa7deae838068e0caffa22d793abb85f76702c9d3e0a55f3169d81de9b611bf"
+    inheritedSourcesImmutable: true
+    bridgeMayOwnPresentationOnly: true
+    externalAssetsRequired: false
+  }
+
+  state {
+    authority: "read_only"
+    presentationProfile: "village_story_unblinded"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    researchLiveBlindedCompatible: true
+    publicFamilyIdentityPresented: false
+    exactModelIdentityPresented: false
+    residentFormStatus: "neutral_craftfolk_staging_form"
+    productionResidentClaimed: false
+    fullWorldConvergenceClaimed: false
+    gameplayPhysicsClaimed: false
+    scannedAssetClaimed: false
+    sourceGeometryAuthority: "holoscript"
+    geometryMaterializationBridge: "deterministic_local_presentation_only"
+    inheritedArtConvergence: "A"
+    inheritedMaterialConvergence: "B"
+    detailKitCount: 5
+    detailInstanceCount: 290
+    detailBatchCount: 15
+    inheritedWindowProxyPartCount: 16
+    inheritedFoundationProxyPartCount: 1
+    qualityBudget: {
+      maxDrawCalls: 800
+      maxTriangles: 300000
+      maxMaterials: 32
+      maxTextures: 26
+      maxDetailBatches: 15
+      renderWidth: 1600
+      renderHeight: 900
+    }
+    inspectionCamera: {
+      position: [5.5, 6.8, 14.2]
+      target: [-4.0, 3.1, -2.7]
+      fov: 37
+      near: 0.1
+      far: 180
+      purpose: "architectural_relief_and_receipt_loom_context"
+    }
+    geometryKits: {
+      masonryRelief: {
+        seed: 41019
+        primitive: "beveled_box"
+        frontCourseBlocks: [9, 8, 9, 8]
+        eastCourseBlocks: [7, 6, 7, 6]
+        totalBlocks: 60
+        backingInstances: 1
+        totalInstances: 61
+        courseCount: 4
+        reliefDepth: 0.18
+        mortarGap: 0.055
+        material: "dry_basalt_detail"
+        physicalReading: "individual hand-set blocks, recessed joints, irregular rain-darkened faces"
+      }
+      roofAssembly: {
+        seed: 73117
+        primitive: "box"
+        sideCount: 2
+        tileRows: 9
+        tilesPerRow: 7
+        tileInstances: 126
+        tileThickness: 0.085
+        ridgeCaps: 10
+        fasciaBoards: 4
+        totalInstances: 140
+        material: "slate_roof"
+        physicalReading: "overlapping hand-split slate, visible eave thickness, repaired ridge and fascia"
+      }
+      windowDepth: {
+        seed: 25163
+        primitive: "box"
+        windowCount: 5
+        revealPanels: 5
+        glassPanels: 5
+        trimPiecesPerWindow: 8
+        trimPieces: 40
+        totalInstances: 50
+        inheritedProxyPartsReplaced: 16
+        inheritedProxyNames: ["WindowFrame", "LitWindow", "WindowMullion"]
+        physicalReading: "dark reveal, set-back hearth glass, proud frame, sill, drip cap, and mullions"
+      }
+      timberJoinery: {
+        seed: 68209
+        pegCount: 13
+        repairPlateCount: 6
+        scarfKeyCount: 6
+        totalInstances: 25
+        pegPrimitive: "cylinder"
+        platePrimitive: "box"
+        material: "aged_bronze"
+        physicalReading: "visible pegs, scarf keys, and restrained repair plates at load-bearing intersections"
+      }
+      weathering: {
+        seed: 99401
+        stainCount: 8
+        mossLedgeCount: 6
+        totalInstances: 14
+        stainPrimitive: "circle"
+        mossPrimitive: "icosahedron"
+        physicalReading: "low plaster damp marks and small moss pockets without decorative noise"
+      }
+    }
+  }
+
+  object "MasonryReliefKit" {
+    geometry: "box"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_architectural_detail"
+      kitKey: "masonryRelief"
+      authority: "holoscript"
+      instanceCount: 61
+    }
+  }
+
+  object "RoofAssemblyKit" {
+    geometry: "box"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_architectural_detail"
+      kitKey: "roofAssembly"
+      authority: "holoscript"
+      instanceCount: 140
+    }
+  }
+
+  object "WindowDepthKit" {
+    geometry: "box"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_architectural_detail"
+      kitKey: "windowDepth"
+      authority: "holoscript"
+      instanceCount: 50
+    }
+  }
+
+  object "TimberJoineryKit" {
+    geometry: "cylinder"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_architectural_detail"
+      kitKey: "timberJoinery"
+      authority: "holoscript"
+      instanceCount: 25
+    }
+  }
+
+  object "WeatheringKit" {
+    geometry: "plane"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_architectural_detail"
+      kitKey: "weathering"
+      authority: "holoscript"
+      instanceCount: 14
+    }
+  }
+}
