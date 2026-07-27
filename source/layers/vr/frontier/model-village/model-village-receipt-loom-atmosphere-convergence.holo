@@ -1,0 +1,316 @@
+// HoloLand Model Village - Receipt Loom Atmosphere Convergence D.
+//
+// This composition is a provenance-bound, presentation-only atmosphere overlay
+// for the immutable Art Convergence A, Material Convergence B, and Geometry
+// Convergence C witnesses. HoloScript owns the sealed weather state, atmosphere
+// kits, deterministic seeds, practical-light coverage, inspection camera,
+// quality budget, and truth boundary. The JavaScript bridge may materialize
+// these declarations into a local Three.js GPU witness; it may not invent
+// experiment state, resident identity, canonical writes, model calls, network
+// dependencies, continuous simulation, or production-physics claims.
+
+composition "HoloLand Model Village Receipt Loom Atmosphere Convergence" {
+  metadata {
+    title: "Receipt Loom Courtyard - Atmosphere Convergence D"
+    version: "0.1.0"
+    date: "2026-07-27"
+    source: "source/layers/vr/frontier/model-village/model-village-receipt-loom-atmosphere-convergence.holo"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    milestone: "MV_V1_ATMOSPHERE_CONVERGENCE_D"
+    projectionRole: "read_only_atmosphere_development"
+    geometrySource: "source/layers/vr/frontier/model-village/model-village-receipt-loom-geometry-convergence.holo"
+    geometrySourceSha256: "1f6f495e63bfd17afeb8d83fc6640efbd1f9fe0e1708224f6a53fdd70f12e530"
+    geometryBridge: "scripts/check-hololand-model-village-geometry-convergence.mjs"
+    geometryBridgeSha256: "8d97f7cd49da48ff09e0cc85f759579922655b186bb1347fcd6d3fc6125efbb4"
+    geometryBrowserApplicationSha256: "cf60626974830e8c6310e740c05a6bacad72505d19e02947ac26ed293f500ebf"
+    geometryTest: "scripts/__tests__/hololand-model-village-geometry-convergence.test.mjs"
+    geometryTestSha256: "164161d1d856bdf6353520497c74a64802797dfa67a5d4bad22d516018faef3d"
+    geometryReport: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_GEOMETRY_CONVERGENCE_C_2026-07-27.md"
+    geometryReportSha256: "a09ecac1b9036473c0808626054e2f3457527aa6ced3e63571b628044cd6b8fd"
+    geometryHero: "docs/assets/model-village/model-village-receipt-loom-geometry-convergence-c-2026-07-27.png"
+    geometryHeroSha256: "ddc7eed44c2793c4ba51cf1ce818a3eca46c97701d3ac33a241c3307b5d05648"
+    geometryManifest: "source/layers/vr/frontier/model-village/model-village-receipt-loom-geometry-convergence-manifest.holo"
+    geometryManifestSha256: "84fe103b2c55644bc32a8d4ae7b86e2d0c1025dd97d71cee71408473d24d26ed"
+    inheritedSourcesImmutable: true
+    bridgeMayOwnPresentationOnly: true
+    externalAssetsRequired: false
+  }
+
+  state {
+    authority: "read_only"
+    presentationProfile: "village_story_unblinded"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    researchLiveBlindedCompatible: true
+    publicFamilyIdentityPresented: false
+    exactModelIdentityPresented: false
+    residentFormStatus: "neutral_craftfolk_staging_form"
+    productionResidentClaimed: false
+    fullWorldConvergenceClaimed: false
+    gameplayPhysicsClaimed: false
+    scannedAssetClaimed: false
+    measuredRealTimePerformanceClaimed: false
+    photorealismClaimed: false
+    atmosphereConvergenceClaimed: true
+    continuousWeatherSimulationClaimed: false
+    volumetricFogClaimed: false
+    fluidSimulationClaimed: false
+    physicallySimulatedRainClaimed: false
+    productionFoliagePhysicsClaimed: false
+    sourceAtmosphereAuthority: "holoscript"
+    atmosphereMaterializationBridge: "deterministic_local_presentation_only"
+    inheritedArtConvergence: "A"
+    inheritedMaterialConvergence: "B"
+    inheritedGeometryConvergence: "C"
+    environmentMode: "stormglass_blue_hour_after_rain"
+    sealedWeatherState: "light_rain_mist_wet_surfaces_hearthlight"
+    atmosphereKitCount: 9
+    atmosphereInstanceCount: 442
+    atmosphereBatchCount: 11
+    practicalLightCount: 6
+    generatedTextureCount: 1
+    atmospherePalette: {
+      background: "#020711"
+      fog: "#102331"
+      rain: "#b8d9da"
+      mist: "#8fb8bd"
+      smoke: "#809098"
+      cloud: "#334b62"
+      hearth: "#ffb25b"
+      copper: "#6f3d24"
+      wet: "#0b1c26"
+      ripple: "#9ce4e3"
+      foliage: "#516f58"
+      contact: "#010407"
+    }
+    fogProfile: {
+      model: "exponential_squared"
+      density: 0.0115
+      generatedSoftTextureResolution: 128
+      toneMappingExposure: 0.94
+    }
+    practicalLightProfile: {
+      intensity: 3.8
+      distance: 5.8
+      decay: 1.8
+      castShadow: false
+      glassEmissiveIntensity: 1.8
+      glassOpacity: 0.94
+    }
+    atmosphereOpacityProfile: {
+      rain: 0.21
+      mist: 0.16
+      puddle: 0.72
+      smoke: 0.18
+      ripple: 0.5
+      contact: 0.24
+      cloud: 0.18
+    }
+    qualityBudget: {
+      maxDrawCalls: 620
+      maxTriangles: 110000
+      maxMaterials: 44
+      maxTextures: 28
+      maxAtmosphereBatches: 11
+      maxPracticalLights: 6
+      renderWidth: 1600
+      renderHeight: 900
+    }
+    inspectionCamera: {
+      position: [5.5, 6.8, 14.2]
+      target: [-4.0, 3.1, -2.7]
+      fov: 37
+      near: 0.1
+      far: 180
+      purpose: "comparable_blue_hour_atmosphere_and_receipt_loom_context"
+    }
+    atmosphereKits: {
+      rainField: {
+        seed: 81173
+        primitive: "box"
+        instanceCount: 320
+        batchCount: 1
+        material: "sealed_rain"
+        extent: [27, 12, 23]
+        streakLengthRange: [0.45, 1.35]
+        slantRadians: -0.18
+        physicalReading: "one deterministic light-rain sheet frozen at a sealed inspection phase"
+      }
+      mistSheets: {
+        seed: 44729
+        primitive: "plane"
+        instanceCount: 10
+        batchCount: 1
+        material: "ground_mist"
+        opacity: 0.105
+        technique: "soft_local_camera_facing_sheets"
+        physicalReading: "low blue-grey mist pools at courtyard and mountain depth"
+      }
+      practicalLanterns: {
+        seed: 12011
+        primitive: "three_part_fixture"
+        fixtureCount: 6
+        instancesPerFixture: 3
+        instanceCount: 18
+        batchCount: 3
+        pointLightCount: 6
+        material: "aged_copper_and_hearth_glass"
+        physicalReading: "warm practicals cover the path, loom threshold, cottage door, and cistern edge"
+      }
+      wetPuddles: {
+        seed: 73819
+        primitive: "circle"
+        instanceCount: 14
+        batchCount: 1
+        material: "rain_wet_puddle"
+        clearcoat: 0.92
+        physicalReading: "restrained shallow accumulation reinforces the already-wet basalt response"
+      }
+      chimneySmoke: {
+        seed: 31667
+        primitive: "circle"
+        instanceCount: 12
+        batchCount: 1
+        material: "soft_chimney_smoke"
+        technique: "soft_local_camera_facing_sheets"
+        physicalReading: "one sealed, wind-bent hearth plume rises from the cottage chimney"
+      }
+      waterRipples: {
+        seed: 65029
+        primitive: "torus"
+        instanceCount: 8
+        batchCount: 1
+        material: "cistern_ripple_highlight"
+        sealedPhase: 0.625
+        physicalReading: "concentric highlight rings imply the captured rain-contact phase without a fluid-simulation claim"
+      }
+      windFoliage: {
+        seed: 98257
+        primitive: "box"
+        instanceCount: 48
+        batchCount: 1
+        material: "stormglass_wind_leaf"
+        sealedWindPoseRadians: 0.21
+        physicalReading: "one shared wind pose bends courtyard reeds and grasses toward the rain"
+      }
+      contactDepth: {
+        seed: 51047
+        primitive: "circle"
+        instanceCount: 6
+        batchCount: 1
+        material: "soft_contact_depth"
+        physicalReading: "subtle contact patches anchor residents, loom, cottage, and cistern without baking false geometry"
+      }
+      cloudVeils: {
+        seed: 24971
+        primitive: "plane"
+        instanceCount: 6
+        batchCount: 1
+        material: "storm_cloud_veil"
+        technique: "soft_local_camera_facing_sheets"
+        physicalReading: "restrained cloud bands separate the blue-hour sky from the mountain silhouettes"
+      }
+    }
+  }
+
+  object "RainFieldKit" {
+    geometry: "box"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_atmosphere_detail"
+      kitKey: "rainField"
+      authority: "holoscript"
+      instanceCount: 320
+    }
+  }
+
+  object "MistSheetsKit" {
+    geometry: "plane"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_atmosphere_detail"
+      kitKey: "mistSheets"
+      authority: "holoscript"
+      instanceCount: 10
+    }
+  }
+
+  object "PracticalLanternsKit" {
+    geometry: "cylinder"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_atmosphere_detail"
+      kitKey: "practicalLanterns"
+      authority: "holoscript"
+      instanceCount: 18
+    }
+  }
+
+  object "WetPuddlesKit" {
+    geometry: "circle"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_atmosphere_detail"
+      kitKey: "wetPuddles"
+      authority: "holoscript"
+      instanceCount: 14
+    }
+  }
+
+  object "ChimneySmokeKit" {
+    geometry: "circle"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_atmosphere_detail"
+      kitKey: "chimneySmoke"
+      authority: "holoscript"
+      instanceCount: 12
+    }
+  }
+
+  object "WaterRipplesKit" {
+    geometry: "torus"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_atmosphere_detail"
+      kitKey: "waterRipples"
+      authority: "holoscript"
+      instanceCount: 8
+    }
+  }
+
+  object "WindFoliageKit" {
+    geometry: "box"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_atmosphere_detail"
+      kitKey: "windFoliage"
+      authority: "holoscript"
+      instanceCount: 48
+    }
+  }
+
+  object "ContactDepthKit" {
+    geometry: "circle"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_atmosphere_detail"
+      kitKey: "contactDepth"
+      authority: "holoscript"
+      instanceCount: 6
+    }
+  }
+
+  object "CloudVeilsKit" {
+    geometry: "plane"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_atmosphere_detail"
+      kitKey: "cloudVeils"
+      authority: "holoscript"
+      instanceCount: 6
+    }
+  }
+}

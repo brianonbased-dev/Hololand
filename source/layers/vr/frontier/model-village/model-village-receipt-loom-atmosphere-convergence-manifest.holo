@@ -1,0 +1,135 @@
+// Immutable witness manifest for Receipt Loom Courtyard - Atmosphere Convergence D.
+// Regenerate only when the authored overlay, deterministic atmosphere bridge,
+// focused test, accepted report, hero capture, or verified hardware receipt changes.
+
+composition "HoloLand Model Village Receipt Loom Atmosphere Convergence Manifest" {
+  metadata {
+    title: "Receipt Loom Courtyard - Atmosphere Convergence D Witness"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV_V1_ATMOSPHERE_CONVERGENCE_D"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-receipt-loom-atmosphere-convergence.holo"
+      sha256: "51963bf2641f76b82c0ee05052124ab684546a4e78b7ba8c525ad8b45e7e940f"
+      sceneIrSha256: "87881c2499b94effdc6970b6e3b63c12d683b472319ec6249d0e45c212a6475c"
+      atmospherePlanSha256: "dd1f3e0b5d6ed71f9297564f8da441ea81ed11e0a83d6fd72b3145f27a6ec651"
+    }
+    inheritedGeometryConvergenceC: {
+      sourcePath: "source/layers/vr/frontier/model-village/model-village-receipt-loom-geometry-convergence.holo"
+      sourceSha256: "1f6f495e63bfd17afeb8d83fc6640efbd1f9fe0e1708224f6a53fdd70f12e530"
+      sceneIrSha256: "cab8f47f484004456bde55e6c6ce0743d5e7d9a091765cccc334f9c963abd6c1"
+      geometryPlanSha256: "fc05193f42883cf0a1368b4cdc8201cd4e7d1f2c9fa61dc886ec875550805538"
+      checkerPath: "scripts/check-hololand-model-village-geometry-convergence.mjs"
+      checkerSha256: "8d97f7cd49da48ff09e0cc85f759579922655b186bb1347fcd6d3fc6125efbb4"
+      browserApplicationSha256: "cf60626974830e8c6310e740c05a6bacad72505d19e02947ac26ed293f500ebf"
+      testPath: "scripts/__tests__/hololand-model-village-geometry-convergence.test.mjs"
+      testSha256: "164161d1d856bdf6353520497c74a64802797dfa67a5d4bad22d516018faef3d"
+      reportPath: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_GEOMETRY_CONVERGENCE_C_2026-07-27.md"
+      reportSha256: "a09ecac1b9036473c0808626054e2f3457527aa6ced3e63571b628044cd6b8fd"
+      heroPath: "docs/assets/model-village/model-village-receipt-loom-geometry-convergence-c-2026-07-27.png"
+      heroSha256: "ddc7eed44c2793c4ba51cf1ce818a3eca46c97701d3ac33a241c3307b5d05648"
+      manifestPath: "source/layers/vr/frontier/model-village/model-village-receipt-loom-geometry-convergence-manifest.holo"
+      manifestSha256: "84fe103b2c55644bc32a8d4ae7b86e2d0c1025dd97d71cee71408473d24d26ed"
+      inheritedArtAndMaterialWitnessesImmutable: true
+      immutable: true
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-atmosphere-convergence.mjs"
+      sha256: "ed892e36d2ea8073b8ae6e468b34760ee4f0a9131f0face85757300a7295c367"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-atmosphere-convergence.test.mjs"
+      sha256: "4749082f7c94b834899a2c4fefb4281504ddb506993726f66533719dc7f0c3a1"
+    }
+    report: {
+      path: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_ATMOSPHERE_CONVERGENCE_D_2026-07-27.md"
+      sha256: "28726cc4e888fd81671b88bd2b0570e04bd0ed3212ebfef023e5ca8c105a4e6e"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-receipt-loom-atmosphere-convergence-d-2026-07-27.png"
+      sha256: "c7ff9d38ff16014533f488019894a4f1c34fc56186c52ee4695c9f55b5760a0b"
+      width: 1600
+      height: 900
+      bytes: 1299506
+      visuallyInspected: true
+      iterationAccepted: 2
+    }
+    atmosphere: {
+      environmentMode: "stormglass_blue_hour_after_rain"
+      kitCount: 9
+      instanceCount: 442
+      batchCount: 11
+      practicalLightCount: 6
+      generatedTextureCount: 1
+      rainInstances: 320
+      mistInstances: 10
+      lanternFixtureInstances: 18
+      wetPuddleInstances: 14
+      chimneySmokeInstances: 12
+      waterRippleInstances: 8
+      windFoliageInstances: 48
+      contactDepthInstances: 6
+      cloudVeilInstances: 6
+      fogModel: "FogExp2"
+      fogColor: "#102331"
+      fogDensity: 0.0115
+      toneMappingExposure: 0.94
+      browserPlanHashAgreement: true
+    }
+    bridge: {
+      route: "HoloScript atmosphere overlay -> deterministic sealed-state plan -> immutable C application -> immutable B material binding -> immutable A courtyard -> batched Three/WebGL2 presentation"
+      appSourceSha256: "be9a9f1342280ab089965a8a98d7cd0d6d70712cc4cc75551b2bcac408c5f7e2"
+      bundleSha256: "7b84bbff9485faa4e1fff1b933ffa5fdeedbc4b42bf26cbf4ad71c23b8a83167"
+      htmlSha256: "6ba60d2f3ff8f0b2f7aca6498458c3a98e2442e4cd25c927babd37cfb5535e24"
+      esbuildSha256: "8331fe1d8b3a07381f33cc425fcfaa94776e263113653f80ec3ba433e9657e73"
+      inheritedSourcesImmutable: true
+      externalAssets: []
+    }
+    hardware: {
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      browser: "Chrome 150.0.7871.182"
+      browserBackend: "ANGLE Direct3D11 D3D11"
+      softwareRenderer: false
+      holoScriptCoreSha256: "68809748b0aa139d06febd6933a9375f23d3d398495638515b9b71494abf747d"
+    }
+    metrics: {
+      drawCallsShadowInclusive: 520
+      triangles: 85348
+      geometries: 418
+      textures: 22
+      materials: 40
+      externalNetworkRequests: 0
+      pageErrors: 0
+    }
+    boundaries: {
+      canonicalWritesAllowed: false
+      modelCalls: 0
+      publicFamilyIdentityPresented: false
+      exactModelIdentityPresented: false
+      neutralCraftfolkCount: 2
+      productionResidentClaimed: false
+      fullWorldConvergenceClaimed: false
+      gameplayPhysicsClaimed: false
+      scannedAssetClaimed: false
+      atmosphereConvergenceClaimed: true
+      measuredRealTimePerformanceClaimed: false
+      photorealismClaimed: false
+      continuousWeatherSimulationClaimed: false
+      volumetricFogClaimed: false
+      fluidSimulationClaimed: false
+      physicallySimulatedRainClaimed: false
+      productionFoliagePhysicsClaimed: false
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      sha256: "054171bed8b6a10d00f01d97e1d3dfb0fb5cb85af9e6101d9feefb9cd3c6680d"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/atmosphere-convergence-d/atmosphere-convergence-d-witness.json"
+    }
+  }
+}
