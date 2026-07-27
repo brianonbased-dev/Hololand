@@ -1,4 +1,4 @@
-/* global Buffer, process */
+/* global Buffer, process, structuredClone */
 
 /**
  * Model Village sealed local custody store (MV-B1 engineering certification
@@ -39,11 +39,21 @@
  *   entries are nonidentifying: they carry custodyIds and ciphertext hashes,
  *   never kind, label, plaintext, or plaintext hashes beyond the custodyId
  *   itself (which the spec already treats as a public nonidentifying hash).
- * - Key destruction overwrites the key file with zeros, fsyncs, unlinks, and
- *   appends a nonidentifying tombstone; the append-only chain is never
- *   rewritten. After destruction, integrity verification degrades to
- *   ciphertext-checksum-only mode using the ciphertext sha256 values that
- *   were recorded in the seal access-log entries.
+ * - Key destruction commits through the HASH-CHAINED ACCESS LOG: the
+ *   'destroy-key' entry is appended and fsynced FIRST — that append is the
+ *   durable commit record — and only then is the nonidentifying tombstone
+ *   written and the key file overwritten with zeros, fsynced, and unlinked;
+ *   the append-only chain is never rewritten. The access log is the only
+ *   AUTHENTICATED record in the store (every entry chains from genesis and
+ *   re-hashes), so it — never an unauthenticated tombstone line — is what
+ *   decides that a destruction happened. Because the entry commits first, a
+ *   crash mid-destroy is recoverable: open sees the committed entry, rolls the
+ *   destruction forward (re-emitting the tombstone if needed, completing the
+ *   scrub/unlink), and never resurrects the key. A tombstone with no
+ *   corroborating chain entry fails CLOSED rather than destroying a live key.
+ *   After destruction, integrity verification degrades to
+ *   ciphertext-checksum-only mode using the ciphertext sha256 values that were
+ *   recorded in the seal access-log entries.
  * - Backups deliberately EXCLUDE key/ — a backup must not widen key custody.
  *   A backup that carried the content key would silently create a second key
  *   custodian and defeat key-destruction deletion. Backups therefore contain
@@ -94,8 +104,11 @@ import {
 import path from 'node:path';
 
 import {
+  breakStaleLockFile,
   canonicalDigest,
   canonicalJson,
+  releaseOwnedLockFile,
+  rememberOwnedLockFile,
 } from './model-village-phase0b-runtime.mjs';
 
 export const SEALED_CUSTODY_STORE_SCHEMA =
@@ -368,6 +381,59 @@ function readJsonlEntries(filePath, label) {
 }
 
 /**
+ * Tombstone reader with ONE narrow, documented repair: a trailing line that is
+ * NOT newline-terminated is an append that never completed. appendLineDurable
+ * writes `${line}\n` in a single write+fsync, so a completed append always ends
+ * the file with '\n'; an unterminated tail therefore cannot be a durable
+ * record. Such a tail is dropped when it does not parse (and kept, re-
+ * terminated, when it does), and the file is rewritten to a clean
+ * newline-terminated form. Without that rewrite a later append would glue
+ * itself onto the fragment and turn a recoverable interruption into a permanent
+ * parse failure — the exact wedge G1 exists to eliminate.
+ *
+ * DELIBERATELY NOT APPLIED to access-log.jsonl. That file is the hash-chained
+ * record of authority: a torn tail there is tamper-or-corruption evidence and
+ * openSealedCustodyStore must keep failing closed on it (the MV-B5
+ * access-log-torn-append drill asserts exactly that). Only committed lines
+ * are ever dropped here — never one that was fsynced with its newline.
+ */
+function readTombstoneEntries(filePath) {
+  if (!existsSync(filePath)) return { entries: [], repairedTail: null };
+  const raw = readFileSync(filePath, 'utf8');
+  if (raw.length === 0) return { entries: [], repairedTail: null };
+  const lines = raw.split('\n').filter((line) => line.length > 0);
+  let repairedTail = null;
+  if (!raw.endsWith('\n') && lines.length > 0) {
+    let tailParses = true;
+    try {
+      JSON.parse(lines[lines.length - 1]);
+    } catch {
+      tailParses = false;
+    }
+    if (tailParses) {
+      repairedTail = 're-terminated-complete-partial-append';
+    } else {
+      lines.pop();
+      repairedTail = 'dropped-unparseable-partial-append';
+    }
+    writeFileDurable(
+      filePath,
+      Buffer.from(lines.map((line) => `${line}\n`).join(''), 'utf8'),
+    );
+  }
+  const entries = lines.map((line, index) => {
+    try {
+      return JSON.parse(line);
+    } catch (error) {
+      throw new CustodyIntegrityError(
+        `tombstones line ${index + 1} is not valid JSON: ${error.message}`,
+      );
+    }
+  });
+  return { entries, repairedTail };
+}
+
+/**
  * AES-256-GCM seal: file bytes = IV || authTag || ciphertext. A fresh random
  * 12-byte IV is generated per object (never reused; key+IV reuse would break
  * GCM). The AAD binds the ciphertext to its custody address so an .enc file
@@ -446,7 +512,14 @@ function validateManifest(manifest) {
   validateRetentionPolicy(manifest.retentionPolicy);
 }
 
-function validateTombstone(tombstone, label) {
+/**
+ * Shape validation plus, when `expectedKeyFingerprint` is supplied, a BINDING
+ * check that the tombstone names THIS store's content key. Without the binding
+ * a tombstone copied from another store (or carrying an arbitrary digest) would
+ * be accepted as this store's deletion record; verifyIntegrity already enforces
+ * the same cross-check, so the two paths now agree.
+ */
+function validateTombstone(tombstone, label, expectedKeyFingerprint) {
   assertExactKeys(tombstone, TOMBSTONE_KEYS, label);
   if (tombstone.schema !== CUSTODY_TOMBSTONE_SCHEMA) {
     throw new CustodyValidationError(
@@ -465,6 +538,15 @@ function validateTombstone(tombstone, label) {
   }
   assertIsoUtc(tombstone.at, `${label} at`);
   assertSha256(tombstone.keyFingerprint, `${label} keyFingerprint`);
+  if (
+    expectedKeyFingerprint !== undefined
+    && tombstone.keyFingerprint !== expectedKeyFingerprint
+  ) {
+    throw new CustodyIntegrityError(
+      `${label} keyFingerprint does not match the manifest keyFingerprint; a `
+      + 'tombstone from another store is not this store\'s deletion record',
+    );
+  }
 }
 
 function validateAccessLogEntryShape(entry, label) {
@@ -563,6 +645,16 @@ function pidIsAlive(pid) {
  * loud. A lock whose recorded pid is no longer alive is crash residue and is
  * broken exactly once; a lock held by a live pid is never stolen (manual
  * unlink of the lock file is the deliberate operator recovery path).
+ *
+ * The stale break goes through the SHARED breakStaleLockFile primitive in
+ * model-village-phase0b-runtime.mjs (MV-B5 gap G2) so the two custody-bearing
+ * locks in this codebase cannot drift. A bare unlinkSync here had the same
+ * defect the phase0b lock did: it is bound to a PATH, so every contender that
+ * read one stale holder removed whatever was at that path — measured at TWO
+ * simultaneous handles per trial against a store whose entire lock rationale is
+ * that a second handle forks the append-only chain. Mutual exclusion is decided
+ * only by the exclusive create; the break just clears crash residue, and it now
+ * proves it removed the exact bytes it inspected.
  */
 function acquireStoreLock(rootDir, operator) {
   const lockPath = path.join(rootDir, LOCK_FILE_NAME);
@@ -573,12 +665,20 @@ function acquireStoreLock(rootDir, operator) {
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       writeFileDurable(lockPath, payload, { exclusive: true });
+      rememberOwnedLockFile(lockPath, payload);
       return lockPath;
     } catch (error) {
       if (error?.code !== 'EEXIST') throw error;
+      let observed;
+      try {
+        observed = readFileSync(lockPath);
+      } catch (readError) {
+        if (readError?.code === 'ENOENT') continue; // vanished; retry create
+        throw readError;
+      }
       let holder = null;
       try {
-        holder = JSON.parse(readFileSync(lockPath, 'utf8'));
+        holder = JSON.parse(observed.toString('utf8'));
       } catch {
         holder = null;
       }
@@ -596,19 +696,67 @@ function acquireStoreLock(rootDir, operator) {
           + 'contended); refusing to open a second handle blind',
         );
       }
-      // Crash residue: the recorded pid is gone. Break the stale lock once.
-      unlinkSync(lockPath);
+      // Crash residue: the recorded pid is gone. Break it EXACTLY ONCE and
+      // IDENTITY-BOUND (shared primitive; never a bare path unlink).
+      const outcome = breakStaleLockFile(lockPath, observed);
+      // ONLY the contender that actually moved the stale file may retry.
+      if (outcome === 'broke') continue;
+      throw new CustodyLockError(
+        `store lock at ${lockPath} was claimed by another contender while its `
+        + `stale holder (pid ${holder.pid}) was being cleared (${outcome}); `
+        + 'refusing to break a lock that is no longer the one that was proven '
+        + 'dead',
+      );
     }
   }
   throw new CustodyLockError(`store lock at ${lockPath} could not be acquired`);
 }
 
+/**
+ * Ownership-verified release: only the bytes this process wrote are removed, so
+ * close() can never unlink a SUCCESSOR's lock and hand two handles the same
+ * append-only chain.
+ */
 function releaseStoreLock(lockPath) {
+  releaseOwnedLockFile(lockPath);
+}
+
+/**
+ * True when the key file holds exactly the all-zero residue our own scrub
+ * writes. This is deliberately narrow: under a tombstone we accept ONLY the
+ * two states destroyContentKey itself can leave behind (the still-intact key,
+ * or this zeroed residue). Any other key bytes are tamper, not crash residue.
+ */
+function isZeroedKeyResidue(keyBytes) {
+  return keyBytes.length === KEY_BYTE_LENGTH && keyBytes.every((byte) => byte === 0);
+}
+
+/**
+ * Idempotent key-file destruction: overwrite with zeros, fsync, unlink. Safe
+ * to re-run against an already-scrubbed or already-absent file, which is what
+ * makes destruction roll-forward-able after a crash (see destroyContentKey and
+ * openSealedCustodyStore).
+ */
+function scrubAndUnlinkKeyFile(keyPath) {
+  if (!existsSync(keyPath)) return;
   try {
-    if (existsSync(lockPath)) unlinkSync(lockPath);
-  } catch {
-    // Best-effort release; a leftover lock from a dead pid is broken on the
-    // next acquire.
+    const fd = openSync(keyPath, 'r+');
+    try {
+      const zeros = Buffer.alloc(KEY_BYTE_LENGTH);
+      writeSync(fd, zeros, 0, zeros.length, 0);
+      fsyncSync(fd);
+    } finally {
+      closeSync(fd);
+    }
+  } catch (error) {
+    // The file vanished between the existsSync and the open (another
+    // roll-forward completed it); the unlink below is then a no-op.
+    if (error?.code !== 'ENOENT') throw error;
+  }
+  try {
+    unlinkSync(keyPath);
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
   }
 }
 
@@ -999,13 +1147,38 @@ class SealedCustodyStore {
 
   /**
    * Deletion is reconciled through key destruction, never by rewriting the
-   * append-only chain (spec sealed-store requirement). Sequence:
-   * 1. overwrite key file bytes with zeros + fsync (best-effort scrub),
-   * 2. unlink the key file,
-   * 3. zero and drop the in-memory key,
-   * 4. append a NONIDENTIFYING tombstone (no labels, no kinds, no custodyIds
+   * append-only chain (spec sealed-store requirement).
+   *
+   * CRASH-ATOMICITY (MV-B5 gap G1): the durable COMMIT RECORD is the
+   * HASH-CHAINED 'destroy-key' access-log entry, and it is appended and fsynced
+   * FIRST, before a single key byte is touched. Sequence:
+   * 1. append the 'destroy-key' access-log entry + fsync — it carries the whole
+   *    nonidentifying tombstone in its detail, so the tombstone is recoverable
+   *    from the authenticated chain alone,
+   * 2. append the NONIDENTIFYING tombstone (no labels, no kinds, no custodyIds
    *    — scope 'all-objects' plus the key fingerprint and a bounded reason),
-   * 5. append the destroy-key access-log entry.
+   * 3. overwrite key file bytes with zeros + fsync, then unlink it,
+   * 4. zero and drop the in-memory key (in a finally: once step 1 lands the
+   *    destruction is COMMITTED, so this handle must never serve plaintext
+   *    again even if 2 or 3 throws).
+   *
+   * WHY THE CHAIN AND NOT THE TOMBSTONE: tombstones.jsonl is unauthenticated —
+   * any stray, duplicated, or restored line would look identical to a real
+   * record. Making the tombstone the commit record therefore let ONE appended
+   * line irreversibly destroy a healthy store at its next open. The access log
+   * chains every entry from genesis and re-hashes it, so an accidental or
+   * partial-restore artifact cannot forge a commit: it breaks the chain and
+   * fails loud instead.
+   *
+   * A crash anywhere in 2-4 leaves the committed entry on disk with the
+   * tombstone present or absent and the key file intact or zeroed;
+   * openSealedCustodyStore recognizes the committed entry and rolls the
+   * destruction FORWARD (never backward — destruction stays irreversible),
+   * re-emitting the tombstone from the entry when needed. A crash before step 1
+   * leaves an untouched live store, which is the correct "the destroy never
+   * happened" outcome. The original order (scrub first, commit last) left a
+   * zeroed key with no commit record, which no code path could recover.
+   *
    * Afterwards readObject/sealObject throw CustodyKeyDestroyedError and
    * verifyIntegrity switches to ciphertext-checksum-only mode.
    */
@@ -1019,18 +1192,6 @@ class SealedCustodyStore {
       );
     }
     this.#requireLiveKey('destroyContentKey');
-    const keyPath = this.#keyPath;
-    const fd = openSync(keyPath, 'r+');
-    try {
-      const zeros = Buffer.alloc(KEY_BYTE_LENGTH);
-      writeSync(fd, zeros, 0, zeros.length, 0);
-      fsyncSync(fd);
-    } finally {
-      closeSync(fd);
-    }
-    unlinkSync(keyPath);
-    this.#key.fill(0);
-    this.#key = null;
     const tombstone = {
       at: isoNow(),
       keyFingerprint: this.#manifest.keyFingerprint,
@@ -1038,12 +1199,24 @@ class SealedCustodyStore {
       schema: CUSTODY_TOMBSTONE_SCHEMA,
       scope: TOMBSTONE_SCOPE,
     };
-    validateTombstone(tombstone, 'tombstone');
-    appendLineDurable(this.#tombstonesPath, canonicalJson(tombstone));
-    this.#tombstones = [...this.#tombstones, tombstone];
+    validateTombstone(tombstone, 'tombstone', this.#manifest.keyFingerprint);
+    // STEP 1 — COMMIT POINT (authenticated, append-only, fsynced).
     this.#appendAccessEntry('destroy-key', {
-      detail: { keyFingerprint: this.#manifest.keyFingerprint },
+      detail: { keyFingerprint: this.#manifest.keyFingerprint, tombstone },
     });
+    try {
+      // STEP 2 — the nonidentifying tombstone. Append-only: never rewritten.
+      appendLineDurable(this.#tombstonesPath, canonicalJson(tombstone));
+      this.#tombstones = [...this.#tombstones, tombstone];
+      // STEP 3 — zero, fsync, unlink the key file.
+      scrubAndUnlinkKeyFile(this.#keyPath);
+    } finally {
+      // STEP 4 — the in-memory key dies with the commit, unconditionally.
+      if (this.#key !== null) {
+        this.#key.fill(0);
+        this.#key = null;
+      }
+    }
     return deepFreeze(tombstone);
   }
 
@@ -1556,28 +1729,11 @@ export function openSealedCustodyStore({ rootDir, operator } = {}) {
   try {
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
     validateManifest(manifest);
-    const tombstonesPath = path.join(resolvedRoot, 'tombstones.jsonl');
-    const tombstones = readJsonlEntries(tombstonesPath, 'tombstones');
-    tombstones.forEach((tombstone, index) => {
-      validateTombstone(tombstone, `tombstone ${index + 1}`);
-    });
-    const keyPath = path.join(resolvedRoot, 'key', 'content-key.bin');
-    let key = null;
-    if (existsSync(keyPath)) {
-      key = readFileSync(keyPath);
-      if (
-        key.length !== KEY_BYTE_LENGTH
-        || sha256Hex(key) !== manifest.keyFingerprint
-      ) {
-        throw new CustodyIntegrityError(
-          'content key file does not match the manifest keyFingerprint',
-        );
-      }
-    } else if (tombstones.length === 0) {
-      throw new CustodyIntegrityError(
-        'content key file is missing but no tombstone records its destruction',
-      );
-    }
+
+    // The hash-chained access log is read and validated FIRST because it is
+    // the only AUTHENTICATED record in the store. It — never an
+    // unauthenticated tombstone line — decides whether a key destruction was
+    // committed (MV-B5 G1). A tampered or torn chain still fails the open loud.
     const accessLogPath = path.join(resolvedRoot, 'access-log.jsonl');
     const entries = readJsonlEntries(accessLogPath, 'access-log');
     if (entries.length === 0) {
@@ -1586,6 +1742,99 @@ export function openSealedCustodyStore({ rootDir, operator } = {}) {
       );
     }
     const tail = validateAccessLogChain(entries);
+    const destroyEntry = entries
+      .filter((entry) => entry.operation === 'destroy-key')
+      .pop() ?? null;
+    const destructionCommitted = destroyEntry !== null;
+
+    const tombstonesPath = path.join(resolvedRoot, 'tombstones.jsonl');
+    const { entries: tombstones } = readTombstoneEntries(tombstonesPath);
+    tombstones.forEach((tombstone, index) => {
+      validateTombstone(
+        tombstone,
+        `tombstone ${index + 1}`,
+        manifest.keyFingerprint,
+      );
+    });
+    if (!destructionCommitted && tombstones.length > 0) {
+      // A tombstone is a CONSEQUENCE of a committed destruction, never the
+      // commit itself. One stray/duplicated/restored line must not be able to
+      // destroy a healthy store's key at open.
+      throw new CustodyIntegrityError(
+        'tombstone(s) are on record but the hash-chained access log records no '
+        + "'destroy-key' entry committing that destruction; an unauthenticated "
+        + 'tombstone line is not a commit record, so the live content key is '
+        + 'NOT destroyed — repair the store rather than losing the key',
+      );
+    }
+
+    const keyPath = path.join(resolvedRoot, 'key', 'content-key.bin');
+    let key = null;
+    let keyDestructionCompletedOnOpen = false;
+    if (destructionCommitted) {
+      // MV-B5 gap G1 recovery. The chain says the destruction is committed, so
+      // roll it FORWARD — never backward, a committed destruction must stay
+      // irreversible.
+      if (existsSync(keyPath)) {
+        const keyBytes = readFileSync(keyPath);
+        const matchesFingerprint = keyBytes.length === KEY_BYTE_LENGTH
+          && sha256Hex(keyBytes) === manifest.keyFingerprint;
+        // Only the two states destroyContentKey itself can leave are accepted
+        // (still-intact key, or the all-zero scrub residue); anything else is
+        // tamper and the fingerprint check still fails closed.
+        if (!matchesFingerprint && !isZeroedKeyResidue(keyBytes)) {
+          keyBytes.fill(0);
+          throw new CustodyIntegrityError(
+            'content key file is neither the manifest key nor the zeroed '
+            + 'residue of an interrupted destruction, yet a tombstone records '
+            + 'that destruction; refusing to open a tampered key file',
+          );
+        }
+        keyBytes.fill(0);
+        scrubAndUnlinkKeyFile(keyPath);
+        keyDestructionCompletedOnOpen = true;
+      }
+      if (tombstones.length === 0) {
+        // Crash between step 1 (commit) and step 2 (tombstone append). The
+        // tombstone travels inside the committed, hash-chained entry, so it is
+        // re-emitted verbatim rather than reconstructed from guesswork.
+        const committedTombstone = destroyEntry.detail?.tombstone;
+        if (!committedTombstone || typeof committedTombstone !== 'object') {
+          throw new CustodyIntegrityError(
+            "the committed 'destroy-key' access-log entry carries no "
+            + 'recoverable tombstone and tombstones.jsonl is empty; the '
+            + 'nonidentifying tombstone cannot be re-emitted',
+          );
+        }
+        validateTombstone(
+          committedTombstone,
+          'committed tombstone',
+          manifest.keyFingerprint,
+        );
+        appendLineDurable(tombstonesPath, canonicalJson(committedTombstone));
+        tombstones.push(committedTombstone);
+        keyDestructionCompletedOnOpen = true;
+      }
+    } else if (existsSync(keyPath)) {
+      const keyBytes = readFileSync(keyPath);
+      // Unchanged, and deliberately NOT weakened: an intact key file that
+      // disagrees with the manifest fingerprint, with no committed destruction
+      // on record, is corruption or tamper.
+      if (
+        keyBytes.length !== KEY_BYTE_LENGTH
+        || sha256Hex(keyBytes) !== manifest.keyFingerprint
+      ) {
+        throw new CustodyIntegrityError(
+          'content key file does not match the manifest keyFingerprint',
+        );
+      }
+      key = keyBytes;
+    } else {
+      throw new CustodyIntegrityError(
+        'content key file is missing but no committed destroy-key entry '
+        + 'records its destruction',
+      );
+    }
     return SealedCustodyStore.bootstrap(
       CONSTRUCTOR_TOKEN,
       {
@@ -1599,7 +1848,13 @@ export function openSealedCustodyStore({ rootDir, operator } = {}) {
         tombstones,
       },
       'open',
-      { detail: { keyPresent: key !== null } },
+      {
+        detail: keyDestructionCompletedOnOpen
+          // Recorded in the append-only chain because this open MUTATED the
+          // store: it completed a committed-but-interrupted key destruction.
+          ? { keyDestructionCompletedOnOpen: true, keyPresent: false }
+          : { keyPresent: key !== null },
+      },
     );
   } catch (error) {
     releaseStoreLock(lockPath);

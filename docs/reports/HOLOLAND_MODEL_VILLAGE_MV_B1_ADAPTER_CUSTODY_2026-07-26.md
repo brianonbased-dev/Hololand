@@ -188,8 +188,17 @@ determinism (temperature zero is not a determinism receipt). All pinned
 ## Reproduce
 
 ```bash
+# 1. FULL / LIVE — this is the form the evidence in this report came from.
+#    Exercises the real sovereign routes (HoloServe 127.0.0.1:8099, Jetson
+#    192.168.0.119:18080); both must be up, or it fails for that reason.
 npm run test:hololand-model-village
-npm run check:hololand-model-village-adapter-custody          # live sovereign drill
-node scripts/check-hololand-model-village-adapter-custody.mjs --skip-live   # hermetic
+npm run check:hololand-model-village-adapter-custody
+
+# 2. HERMETIC SUBSET — in-process OpenAI-compatible loopback stubs.
+#    It does NOT exercise the sovereign routes, so a PASS here does NOT
+#    reproduce the live evidence above; it only shows the offline lane is green.
+node scripts/check-hololand-model-village-adapter-custody.mjs --skip-live
+
+# 3. Re-verify an already-emitted receipt without re-running the drill.
 node scripts/check-hololand-model-village-adapter-custody.mjs --verify .tmp/hololand/model-village/adapter-custody-receipt.json
 ```

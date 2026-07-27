@@ -27,18 +27,24 @@
  *
  * MECHANISM NOTE (honesty): production writeAtomicState performs
  * temp-write -> fsync -> rename SYNCHRONOUSLY with no yield, and the custody
- * store's key-zeroing / log-append windows are sub-syscall. Those exact
+ * store's key-scrub / log-append windows are sub-syscall. Those exact
  * intra-syscall windows cannot be hit by an EXTERNAL SIGKILL, and the code
- * exposes no fault seam that a NEW-FILE consumer can drive (the injectable
- * before_rename/after_rename fault and the withStoreLock/commit functions are
- * module-private in model-village-phase0b-runtime.mjs — see gapsFound). For
- * those windows the worker deterministically establishes the exact on-disk
+ * exposes only a partial fault seam that a NEW-FILE consumer can drive (the
+ * injectable before_rename/after_rename fault and the commit functions are
+ * still module-private in model-village-phase0b-runtime.mjs — see gapsFound).
+ * For those windows the worker deterministically establishes the exact on-disk
  * state a crash at that window produces (orphan temp / partial log line /
- * zeroed key / leaked lock) using real file ops and is THEN really SIGKILLed;
- * recovery runs against 100% production recovery code. Each receipt states its
- * mechanism in observedOutcome. The custody object-write and lock-held windows
- * are caught by a genuine mid-operation kill (large ciphertext write / live
- * lock holder).
+ * post-commit key residue) using production code plus real file ops and is
+ * THEN really SIGKILLed; recovery runs against 100% production recovery code.
+ * Each receipt states its mechanism in observedOutcome. FOUR windows are caught
+ * with no state modeling at all: the custody object-write (large ciphertext
+ * write), the custody lock-held window (live lock holder), the phase0b
+ * persistence lock leak (the worker holds a REAL production lock via
+ * acquirePersistentStoreLock and is killed holding it, so its release never
+ * runs), and the custody key-destruction ORDERING window (production
+ * destroyContentKey is interrupted at the key scrub by a real filesystem
+ * fault, so the state under test is produced by production code failing at the
+ * ordering boundary rather than by the worker writing it).
  *
  * NEW FILE — reuses, never reimplements, MV-B1..B4 production scripts.
  */
@@ -152,25 +158,57 @@ const SCENARIO_CONFIG = Object.freeze({
   'persistent-state-lock-leak-after-kill': {
     killTrigger: 'ready-signal',
     killWindow: 'persistent-state-lock-leak',
-    gapReference: 'G2',
-    expectedInvariantHeld: false,
+    gapReference: null,
+    expectedInvariantHeld: true,
     invariantDescription:
-      'GAP DRILL (G2): a persistence state.lock leaked by a SIGKILLed writer '
-      + 'is auto-reclaimable. phase0b withStoreLock has NO stale reclamation, '
-      + 'so this invariant is expected to NOT hold — a fresh writer is blocked '
-      + 'permanently with "locked by another writer".',
+      'A phase0b state.lock genuinely leaked by a SIGKILLed holder is '
+      + 'auto-reclaimed: the pid it records is proven dead, the stale lock is '
+      + 'broken exactly once, a fresh writer gets past the lock, and no lock '
+      + 'file is left behind. Was gap G2 (fixed: withStoreLock now takes a '
+      + 'pid-stamped lock mirroring the sealed custody store).',
   },
   'custody-destroy-key-killed-mid-destroy': {
     killTrigger: 'ready-signal',
     killWindow: 'custody-key-destruction',
-    gapReference: 'G1',
-    expectedInvariantHeld: false,
+    gapReference: null,
+    expectedInvariantHeld: true,
     invariantDescription:
-      'GAP DRILL (G1): a store crashed between content-key zeroing and '
-      + 'tombstone-append is still openable. There is no recovery path — '
-      + 'openSealedCustodyStore throws CustodyIntegrityError (key present but '
-      + 'zeroed) — so this invariant is expected to NOT hold; manual tombstone '
-      + 'repair is required.',
+      'A key destruction that crashed after its commit point (the hash-chained '
+      + "'destroy-key' access-log entry) is rolled FORWARD, never backward: "
+      + 'openSealedCustodyStore accepts the committed store, completes the key '
+      + 'scrub/unlink, refuses to resurrect the key (readObject throws '
+      + 'CustodyKeyDestroyedError), and verifyIntegrity passes in '
+      + 'ciphertext-checksum-only mode. Was gap G1 (RECOVERY half).',
+  },
+  'custody-destroy-key-killed-before-key-scrub': {
+    killTrigger: 'ready-signal',
+    killWindow: 'custody-key-destruction-before-key-scrub',
+    gapReference: null,
+    expectedInvariantHeld: true,
+    invariantDescription:
+      'ORDERING half of gap G1: the destroy COMMIT RECORD is durable before a '
+      + 'single key byte is touched. The real production destroyContentKey is '
+      + 'interrupted at the key scrub itself (the key file is made unwritable, '
+      + 'so scrubAndUnlinkKeyFile throws from inside production code at exactly '
+      + 'the ordering boundary), and recovery must still roll the destruction '
+      + 'forward. If the commit ever moves back after the scrub, this window '
+      + 'commits nothing, the store reopens with a LIVE key, and this scenario '
+      + 'goes red — which the completion-then-restore case structurally cannot '
+      + 'detect.',
+  },
+  'custody-tombstone-torn-append': {
+    killTrigger: 'ready-signal',
+    killWindow: 'custody-tombstone-append',
+    gapReference: null,
+    expectedInvariantHeld: true,
+    invariantDescription:
+      'A crash INSIDE the tombstone append (step 2 of destroyContentKey) does '
+      + 'not wedge the store: an unterminated trailing line was never a durable '
+      + 'record, so open drops it and re-emits the tombstone verbatim from the '
+      + 'COMMITTED hash-chained destroy-key entry, leaving exactly one valid '
+      + 'tombstone and the destruction rolled forward. The hash-chained access '
+      + 'log keeps its opposite, fail-closed behaviour (access-log-torn-append) '
+      + '— only the unauthenticated tombstone tail is repairable.',
   },
 });
 

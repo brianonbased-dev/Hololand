@@ -138,8 +138,17 @@ worth watching under MV-B5's contention drills.
 ## Reproduce
 
 ```bash
+# 1. FULL / LIVE — this is the form the evidence in this report came from.
+#    Exercises the real sovereign routes (HoloServe 127.0.0.1:8099, Jetson
+#    192.168.0.119:18080); both must be up, or it fails for that reason.
 npm run test:hololand-model-village
-npm run check:hololand-model-village-turn-scheduler          # live sovereign rehearsal
-node scripts/check-hololand-model-village-turn-scheduler.mjs --skip-live   # hermetic
+npm run check:hololand-model-village-turn-scheduler
+
+# 2. HERMETIC SUBSET — in-process OpenAI-compatible loopback stubs.
+#    It does NOT exercise the sovereign routes, so a PASS here does NOT
+#    reproduce the live evidence above; it only shows the offline lane is green.
+node scripts/check-hololand-model-village-turn-scheduler.mjs --skip-live
+
+# 3. Re-verify an already-emitted receipt without re-running the rehearsal.
 node scripts/check-hololand-model-village-turn-scheduler.mjs --verify .tmp/hololand/model-village/turn-scheduler-receipt.json
 ```

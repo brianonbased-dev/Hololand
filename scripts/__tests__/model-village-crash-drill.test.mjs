@@ -118,24 +118,39 @@ test('access-log-torn recovery fails closed with a typed integrity error', {
   assert.match(receipt.observedOutcome, /failed closed/i);
 });
 
-test('G1 and G2 gap scenarios are receipted as invariantHeld:false, never masked', {
+test('the two formerly-gapped scenarios (G1, G2) now hold and stay unmasked', {
   timeout: SCENARIO_TIMEOUT_MS,
 }, async () => {
+  // G1: destroyContentKey commits its tombstone FIRST, so a crash after that
+  // commit point is rolled forward at open rather than wedging the store.
   const g1 = await runCrashDrill({
     scratchRoot: SCRATCH_ROOT,
     scenario: 'custody-destroy-key-killed-mid-destroy',
   });
-  assert.equal(g1.receipt.invariantHeld, false);
-  assert.equal(g1.receipt.gapReference, 'G1');
-  assert.match(g1.receipt.observedOutcome, /wedge|no code path recovers/i);
+  assert.equal(
+    g1.receipt.invariantHeld,
+    true,
+    `G1 must stay fixed — observed: ${g1.receipt.observedOutcome}`,
+  );
+  assert.equal(g1.receipt.gapReference, null);
+  assert.match(g1.receipt.observedOutcome, /rolled FORWARD/);
+  assert.match(g1.receipt.observedOutcome, /CustodyKeyDestroyedError/);
+  assert.doesNotMatch(g1.receipt.observedOutcome, /REGRESSION/);
 
+  // G2: the phase0b state.lock is pid-stamped, so a lock leaked by a SIGKILLed
+  // holder is reclaimed once its recorded pid is proven dead.
   const g2 = await runCrashDrill({
     scratchRoot: SCRATCH_ROOT,
     scenario: 'persistent-state-lock-leak-after-kill',
   });
-  assert.equal(g2.receipt.invariantHeld, false);
-  assert.equal(g2.receipt.gapReference, 'G2');
-  assert.match(g2.receipt.observedOutcome, /no stale reclamation|locked by another writer/i);
+  assert.equal(
+    g2.receipt.invariantHeld,
+    true,
+    `G2 must stay fixed — observed: ${g2.receipt.observedOutcome}`,
+  );
+  assert.equal(g2.receipt.gapReference, null);
+  assert.match(g2.receipt.observedOutcome, /reclaimed/);
+  assert.doesNotMatch(g2.receipt.observedOutcome, /REGRESSION/);
 });
 
 test('NEGATIVE CONTROL: recovery checker catches a torn state.json (drill is not vacuous)', {
@@ -189,4 +204,61 @@ test('scratch is cleaned up per case (no lingering case dirs)', {
   // (created by the drill) may remain and it must be empty of case dirs.
   const leftovers = existsSync(localRoot) ? readdirSync(localRoot) : [];
   assert.equal(leftovers.length, 0, `no leftover case dirs: ${leftovers.join(',')}`);
+});
+
+test('the G1 ORDERING case really interrupts production code at the commit boundary', {
+  timeout: SCENARIO_TIMEOUT_MS,
+}, async () => {
+  // The completion-then-restore case (custody-destroy-key-killed-mid-destroy)
+  // leaves the SAME on-disk state whether the commit record is written first or
+  // last, so it can only prove the recovery half of G1. This case interrupts
+  // the real destroyContentKey AT the key scrub, which only a commit-first
+  // ordering survives — it is the assertion that goes red if the ordering
+  // regresses.
+  const { receipt } = await runCrashDrill({
+    scratchRoot: SCRATCH_ROOT,
+    scenario: 'custody-destroy-key-killed-before-key-scrub',
+  });
+  assertCommonReceipt(receipt, 'custody-destroy-key-killed-before-key-scrub');
+  assert.equal(
+    receipt.invariantHeld,
+    true,
+    `ordering must stay fixed — observed: ${receipt.observedOutcome}`,
+  );
+  assert.equal(receipt.gapReference, null);
+  assert.match(receipt.observedOutcome, /rolled FORWARD/);
+  assert.doesNotMatch(receipt.observedOutcome, /REGRESSION/);
+  // On this host the injected fault must really have interrupted production
+  // code; anything else would make the case non-discriminating, and the receipt
+  // says which mechanism ran rather than implying coverage it does not have.
+  assert.match(
+    receipt.observedOutcome,
+    /really interrupted AT the key scrub|did NOT discriminate the commit ordering/,
+    'the receipt states which mechanism the run achieved',
+  );
+});
+
+test('a torn tombstone append is repaired while a torn access-log tail still fails closed', {
+  timeout: SCENARIO_TIMEOUT_MS,
+}, async () => {
+  const torn = await runCrashDrill({
+    scratchRoot: SCRATCH_ROOT,
+    scenario: 'custody-tombstone-torn-append',
+  });
+  assert.equal(
+    torn.receipt.invariantHeld,
+    true,
+    `a torn tombstone must not wedge the store — observed: ${torn.receipt.observedOutcome}`,
+  );
+  assert.match(torn.receipt.observedOutcome, /exactly one valid line/);
+  assert.match(torn.receipt.observedOutcome, /re-emitted from the committed destroy-key/);
+
+  // The authenticated record keeps the OPPOSITE behaviour, on purpose.
+  const log = await runCrashDrill({
+    scratchRoot: SCRATCH_ROOT,
+    scenario: 'access-log-torn-append',
+  });
+  assert.equal(log.receipt.invariantHeld, true);
+  assert.match(log.receipt.observedOutcome, /failed closed/i);
+  assert.match(log.receipt.observedOutcome, /no auto-truncate/i);
 });

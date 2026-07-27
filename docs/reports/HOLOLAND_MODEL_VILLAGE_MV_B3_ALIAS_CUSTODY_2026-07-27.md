@@ -7,10 +7,17 @@
 **Lane:** MV-B3 (experiment backend), building on MV-B1 (`a021acd`) and MV-B2
 (`814fcb4`). Board: task_1785113448191_nmnh (claimed by claude5).
 
-**Gate closed:** [HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md](../specs/HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md)
+**Gate addressed:** [HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md](../specs/HOLOLAND_MODEL_VILLAGE_EXPERIMENT.md)
 line 576, "Captured replay" row, remaining column — *"Real captured-response
 custody and provider-route evidence."* Plus spec lines 216-228 (per-adapter
 sampling and custody evidence) and 188-204 (blinding).
+
+That row is **still open in the spec** and this slice does not close it: the
+drop-in swap was proven *eligible-or-not* by an executable verifier but never
+*admitted* (`frozenPlanSwapPerformed: false`), so the frozen synthetic fixtures
+remain the ones the replay lane actually executes. Closing line 576 requires
+performing the swap — which changes `planExecutionSourceHash` — and that is a
+study-lane decision, not this lane's.
 
 ## What this slice is
 
@@ -163,8 +170,20 @@ appears in any `.github/workflows` file, so none of these gates run in CI.
 ## Reproduce
 
 ```bash
+# 1. FULL / LIVE — this is the form the evidence in this report came from,
+#    including the "drop-in: not eligible" outcome. Exercises the real sovereign
+#    routes (HoloServe 127.0.0.1:8099, Jetson 192.168.0.119:18080); both must be
+#    up, or it fails for that reason. The sovereign model is nondeterministic, so
+#    the drop-in verdict is a live measurement and may legitimately differ.
 npm run test:hololand-model-village
-npm run check:hololand-model-village-alias-custody          # live sovereign drill
-node scripts/check-hololand-model-village-alias-custody.mjs --skip-live   # hermetic
+npm run check:hololand-model-village-alias-custody
+
+# 2. HERMETIC SUBSET — in-process OpenAI-compatible loopback stubs.
+#    It does NOT exercise the sovereign routes, so a PASS here does NOT
+#    reproduce the live evidence above; the stub lane deliberately produces an
+#    eligible drop-in pair and hard-fails if it ever stops doing so.
+node scripts/check-hololand-model-village-alias-custody.mjs --skip-live
+
+# 3. Re-verify an already-emitted receipt without re-running the drill.
 node scripts/check-hololand-model-village-alias-custody.mjs --verify .tmp/hololand/model-village/alias-custody-receipt.json
 ```

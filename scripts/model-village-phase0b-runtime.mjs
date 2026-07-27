@@ -13,6 +13,7 @@ import {
   closeSync,
   existsSync,
   fsyncSync,
+  linkSync,
   mkdirSync,
   openSync,
   readFileSync,
@@ -1574,22 +1575,305 @@ function writeAtomicState(storeDir, state, faultInjection = 'none') {
   }
 }
 
-function withStoreLock(storeDir, callback) {
-  mkdirSync(storeDir, { recursive: true });
-  let descriptor;
+const LOCK_HOLDER_MESSAGE =
+  'Persistent authorization store is locked by another writer';
+
+function pidIsAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
   try {
-    descriptor = openSync(lockPath(storeDir), 'wx');
+    process.kill(pid, 0);
+    return true;
   } catch (error) {
-    if (error.code === 'EEXIST') {
-      throw new Error('Persistent authorization store is locked by another writer');
-    }
+    // EPERM means the process exists but is not signalable by us — alive.
+    return error?.code === 'EPERM';
+  }
+}
+
+/**
+ * IDENTITY-BOUND stale-lock break — the single shared implementation used by
+ * BOTH the phase0b persistence lock and the sealed custody store lock
+ * (model-village-custody-store.mjs), so the two can never drift.
+ *
+ * WHY IT IS NOT `unlinkSync(lockPath)`. An unlink is bound to a PATH, not to
+ * the file the caller inspected. Every contender that read the same stale
+ * holder independently concluded "dead, break it", and each one then removed
+ * whatever happened to be at that path — including a lock a winner had already
+ * re-created microseconds earlier. Measured with 8 real OS processes racing one
+ * genuinely stale lock, that produced 2-8 simultaneous "winners" in 12/12
+ * trials and could delete a LIVE holder's lock. Bounding the retry loop does
+ * not help: one unlink each is enough to destroy mutual exclusion.
+ *
+ * The break is therefore made identity-bound and globally once-only:
+ *   1. re-read the lock immediately before acting; if the bytes changed since
+ *      the staleness decision, that decision is VOID -> 'changed' (refuse),
+ *   2. rename the file aside to a per-caller unique name. rename removes the
+ *      SOURCE atomically, so exactly ONE contender in a field of N can move any
+ *      given file instance; every other contender gets ENOENT -> 'gone',
+ *   3. verify the bytes we actually moved are the bytes we inspected. If they
+ *      are not, we moved somebody else's — possibly LIVE — lock in the gap
+ *      between step 1 and step 2, so put it back with a NON-CLOBBERING link
+ *      (never a rename that could overwrite a newer holder) and refuse.
+ * ONLY 'broke' lets a caller retry the exclusive create. Every other outcome —
+ * including 'gone' — FAILS CLOSED, and that is load-bearing, not conservatism:
+ * if the losers of the rename race retried, they would be sitting on openSync
+ * 'wx' precisely while the winner's path is momentarily free, and a lock
+ * transiently moved aside would let several of them in at once (measured: 1-3
+ * simultaneous winners per trial even with the identity check, until the losers
+ * were made to fail closed; 1/1 every trial afterwards). A refusal is already a
+ * first-class, retried outcome for both callers, so failing closed costs
+ * nothing and removes the whole class.
+ *
+ * RESIDUAL WINDOW, stated honestly: steps 1 and 2 are separate syscalls, so a
+ * preemption between them can still move a fresh lock aside. That case is
+ * DETECTED (step 3) and undone; it degrades to a refusal rather than to shared
+ * access, unless a brand-new contender acquires the free path inside that same
+ * two-syscall gap AND the restore link therefore fails — which returns
+ * 'stolen' and fails closed loudly. Perfect exclusion would need an OS-backed
+ * lock (flock/LockFileEx), which node's builtin fs does not expose.
+ *
+ * @returns {'broke'|'gone'|'changed'|'contended'|'stolen'}
+ */
+export function breakStaleLockFile(lockFilePath, observedBytes) {
+  // Everything that is not a syscall is done BEFORE the re-read, so the
+  // read -> rename window is as close to adjacent as JS allows.
+  const aside = `${lockFilePath}.stale-${process.pid}-${randomUUID()}`;
+
+  // (1) The staleness decision is only valid for the exact bytes it was made
+  //     from.
+  let current;
+  try {
+    current = readFileSync(lockFilePath);
+  } catch (error) {
+    if (error?.code === 'ENOENT') return 'gone';
     throw error;
   }
+  if (!current.equals(observedBytes)) return 'changed';
+
+  // (2) Move it aside. Unique per caller so two breakers never inspect each
+  //     other's aside file.
+  try {
+    renameSync(lockFilePath, aside);
+  } catch (error) {
+    // ENOENT: another contender moved it first. EPERM/EACCES/EBUSY: a
+    // transient win32 sharing refusal. Neither is a licence to delete.
+    if (error?.code === 'ENOENT') return 'gone';
+    if (['EACCES', 'EBUSY', 'EPERM'].includes(error?.code)) return 'contended';
+    throw error;
+  }
+
+  // (3) Prove we moved the file we inspected, which a path-bound unlink can
+  //     never do.
+  let moved = null;
+  try {
+    moved = readFileSync(aside);
+  } catch {
+    moved = null;
+  }
+  if (moved !== null && moved.equals(observedBytes)) {
+    try {
+      unlinkSync(aside);
+    } catch {
+      // The aside copy is inert residue; leaving it never blocks an acquire.
+    }
+    return 'broke';
+  }
+
+  // We moved a lock that is NOT the stale one. Restore it without clobbering a
+  // newer holder: linkSync fails EEXIST rather than overwriting.
+  try {
+    linkSync(aside, lockFilePath);
+    try {
+      unlinkSync(aside);
+    } catch {
+      // Inert residue.
+    }
+    return 'changed';
+  } catch (error) {
+    if (error?.code !== 'EEXIST') {
+      // Hard links unavailable (non-NTFS/exotic volume): fall back to a rename
+      // back, still guarded so an existing newer lock is not overwritten.
+      try {
+        if (!existsSync(lockFilePath)) {
+          renameSync(aside, lockFilePath);
+          return 'changed';
+        }
+      } catch {
+        // Fall through to the loud 'stolen' outcome.
+      }
+    }
+  }
+  return 'stolen';
+}
+
+/**
+ * Lock files this process currently owns: absolute lock path -> the exact bytes
+ * we wrote. Release verifies ownership against this map so a handle can never
+ * unlink a SUCCESSOR's lock (which would hand two writers the same store).
+ */
+const OWNED_LOCK_FILES = new Map();
+
+/** Records ownership of a lock file this process just created. */
+export function rememberOwnedLockFile(lockFilePath, payloadBytes) {
+  OWNED_LOCK_FILES.set(path.resolve(lockFilePath), Buffer.from(payloadBytes));
+}
+
+/**
+ * Ownership-verified release: unlinks the lock ONLY when the bytes on disk are
+ * still the bytes this process wrote. A lock that was broken and retaken by
+ * someone else is left alone — releasing it would delete a live holder's lock.
+ * Returns true when this call removed the file.
+ */
+export function releaseOwnedLockFile(lockFilePath) {
+  const resolved = path.resolve(lockFilePath);
+  const owned = OWNED_LOCK_FILES.get(resolved);
+  OWNED_LOCK_FILES.delete(resolved);
+  if (!owned) return false;
+  try {
+    if (!existsSync(resolved)) return false;
+    const current = readFileSync(resolved);
+    if (!current.equals(owned)) return false;
+    unlinkSync(resolved);
+    return true;
+  } catch {
+    // Best-effort release; a lock left by a dead pid is reclaimed on the next
+    // acquire.
+    return false;
+  }
+}
+
+/**
+ * Exclusive writer lock over the persistence store, pid-stamped so crash
+ * residue is distinguishable from a live holder. Mirrors the ratified sealed
+ * custody-store lock (model-village-custody-store.mjs acquireStoreLock).
+ *
+ * MV-B5 gap G2: the previous implementation wrote an EMPTY state.lock and had
+ * no reclamation, so a SIGKILLed writer leaked it permanently and every later
+ * initializePersistentStore/commit failed with no repair path. The lock now
+ * records {acquiredAt, pid}; on EEXIST the recorded pid decides:
+ *   - alive  -> refuse (a live holder's lock is NEVER stolen),
+ *   - dead   -> crash residue, broken through breakStaleLockFile: the break is
+ *               IDENTITY-bound (it proves it moved the exact bytes it
+ *               inspected) and globally once-only per file instance, so N
+ *               contenders that all read one stale lock still produce exactly
+ *               ONE winner. The unconditional `unlinkSync(target)` this
+ *               replaces destroyed mutual exclusion outright,
+ *   - unreadable / unparseable / missing pid -> FAIL CLOSED. An unknown holder
+ *               is not a dead holder; deliberate operator unlink is the repair.
+ * Mutual exclusion itself is always decided by the atomic openSync(target,
+ * 'wx'), never by the break: breaking only clears crash residue out of the way.
+ * Every refusal keeps the historical message so existing callers (the
+ * contention drill's refusal classifier, adversarial tests) still match.
+ *
+ * Exported (with its release twin) purely as the crash-drill seam: the MV-B5
+ * worker must hold a REAL production lock and then be SIGKILLed, so that the
+ * leak it recovers from is a genuine leak rather than a hand-built file. No
+ * existing caller's behavior changes; withStoreLock remains the only in-module
+ * user.
+ */
+export function acquirePersistentStoreLock(storeDir) {
+  const target = lockPath(storeDir);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    let descriptor;
+    try {
+      descriptor = openSync(target, 'wx');
+    } catch (error) {
+      if (error.code !== 'EEXIST') throw error;
+      let observed;
+      try {
+        observed = readFileSync(target);
+      } catch (readError) {
+        if (readError?.code === 'ENOENT') continue; // vanished; retry create
+        throw readError;
+      }
+      let holder = null;
+      try {
+        holder = JSON.parse(observed.toString('utf8'));
+      } catch {
+        holder = null;
+      }
+      // A pid must be PLAUSIBLE before it is worth a liveness probe. A missing,
+      // non-integer, or non-positive pid is an unidentifiable holder, not a
+      // dead one — pidIsAlive() would answer "not alive" for pid<=0 and the
+      // lock would be broken on the strength of garbage.
+      const holderPid = holder && Number.isInteger(holder.pid) && holder.pid > 0
+        ? holder.pid
+        : null;
+      if (holderPid !== null && pidIsAlive(holderPid)) {
+        throw new Error(
+          `${LOCK_HOLDER_MESSAGE} (live pid ${holderPid}, acquired `
+          + `${holder.acquiredAt ?? 'unknown'})`,
+        );
+      }
+      if (holderPid === null) {
+        throw new Error(
+          `${LOCK_HOLDER_MESSAGE}: the lock at ${target} records no readable `
+          + 'pid, so its holder cannot be proven dead; refusing to break it '
+          + '(remove the file deliberately to recover)',
+        );
+      }
+      if (attempt === 1) {
+        throw new Error(
+          `${LOCK_HOLDER_MESSAGE}: the lock at ${target} was re-acquired by a `
+          + 'contender while its stale holder was being cleared',
+        );
+      }
+      // Crash residue: the recorded pid is gone. Break it EXACTLY ONCE and
+      // IDENTITY-BOUND — never a bare unlink of whatever sits at the path.
+      const outcome = breakStaleLockFile(target, observed);
+      // ONLY the contender that actually moved the stale file may retry. A
+      // loser that retried would race the winner's momentarily-free path.
+      if (outcome === 'broke') continue;
+      throw new Error(
+        `${LOCK_HOLDER_MESSAGE}: the lock at ${target} was claimed by another `
+        + `contender while its stale holder (pid ${holderPid}) was being `
+        + `cleared (${outcome}); refusing to break a lock that is no longer `
+        + 'the one that was proven dead',
+      );
+    }
+    let payload;
+    try {
+      payload = Buffer.from(
+        `${canonicalJson({ acquiredAt: new Date().toISOString(), pid: process.pid })}\n`,
+        'utf8',
+      );
+      writeFileSync(descriptor, payload);
+      fsyncSync(descriptor);
+    } catch (error) {
+      closeSync(descriptor);
+      // We created this file in this call and never published ownership, so
+      // remove it directly rather than through the ownership-verified release.
+      try {
+        unlinkSync(target);
+      } catch {
+        // Best-effort: an empty lock left here fails closed on the next
+        // acquire (unidentifiable holder) rather than being broken blind.
+      }
+      throw error;
+    }
+    rememberOwnedLockFile(target, payload);
+    return descriptor;
+  }
+  throw new Error(`${LOCK_HOLDER_MESSAGE}: ${target} could not be acquired`);
+}
+
+/**
+ * Ownership-verified release. A bare unlink here would delete whatever lock
+ * happens to be at the path — including a SUCCESSOR's lock, if this holder's
+ * own lock had been broken meanwhile. Only the bytes this process wrote are
+ * ever removed.
+ */
+export function releasePersistentStoreLock(storeDir) {
+  releaseOwnedLockFile(lockPath(storeDir));
+}
+
+function withStoreLock(storeDir, callback) {
+  mkdirSync(storeDir, { recursive: true });
+  const descriptor = acquirePersistentStoreLock(storeDir);
   try {
     return callback();
   } finally {
     closeSync(descriptor);
-    unlinkSync(lockPath(storeDir));
+    releasePersistentStoreLock(storeDir);
   }
 }
 

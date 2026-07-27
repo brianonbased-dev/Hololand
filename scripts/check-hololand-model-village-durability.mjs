@@ -23,8 +23,8 @@
  *      window would produce), is really SIGKILLed, and is recovered in a
  *      genuinely FRESH Node process using only production recovery code. The
  *      full scenario set is run because each scenario maps to a distinct
- *      durability invariant and the two known gap scenarios (G1, G2) MUST be
- *      surfaced honestly, never hidden.
+ *      durability invariant, including the two that were once the known gap
+ *      scenarios (G1, G2) and now assert their positive invariants.
  *   2. CONTENTION DRILL — N real child processes race the SAME sealed custody
  *      store and the SAME phase0b persistence store; the exclusive locks
  *      serialize them, the final access-log chain is linear/monotonic, and a
@@ -33,13 +33,16 @@
  *      read-only, without acquiring the lock and without appending an
  *      access-log entry (byte-identical log, no lock file created).
  *
- * HONESTY, PINNED: two real HIGH-severity durability gaps are EXECUTED and
- * receipted with invariantHeld:false and a file:line minimal fix for the owning
- * lane — they are NOT applied (new-files-only boundary), and they are NOT masked
- * to keep the check green. `allInvariantsHeld` reflects reality (false while G1
- * and G2 stand); the CHECK passes when every scenario matches the harness's
- * DOCUMENTED expectation (including the two gaps behaving as gaps), and it fails
- * the moment durability REGRESSES from that documentation.
+ * HONESTY, PINNED: `allInvariantsHeld` reflects REALITY, computed from the
+ * embedded receipts — it is never forced true to keep the check green, and any
+ * crash drill that receipts invariantHeld:false must surface as an executed gap
+ * (a hidden gap is a hard failure). The two HIGH-severity gaps this slice
+ * originally receipted as invariantHeld:false, G1 (destroyContentKey was not
+ * crash-atomic) and G2 (phase0b leaked state.lock forever), have since been
+ * FIXED in their owning lanes; their drills now assert the positive invariants
+ * and this check FAILS the moment either regresses. The CHECK passes when every
+ * scenario matches the harness's DOCUMENTED expectation and fails the moment
+ * durability REGRESSES from that documentation.
  *
  * CLAIM BOUNDARY (HARD): proves SINGLE-HOST process-crash durability and
  * SAME-HOST multi-process contention only. Does NOT claim production/fleet
@@ -117,54 +120,49 @@ const PINNED_CLAIM_BOUNDARY = Object.freeze({
 });
 
 /**
- * Static catalog of every durability gap the MV-B5 builders reported, keyed by
- * reference. G1/G2 are EXECUTED (a crash drill receipts invariantHeld:false);
- * the rest are DOCUMENTED by source read (out of the executed set) and carried
- * so a reviewer sees the full honest picture. Each carries a file:line and the
- * minimal fix for the OWNING lane — none is applied here (new-files-only).
+ * Static catalog of every durability gap the MV-B5 builders reported that is
+ * still OPEN, keyed by reference. All remaining entries are DOCUMENTED by
+ * source read (none is surfaced by an executed crash drill), and each carries a
+ * file:line and the minimal fix for the OWNING lane. The catalog stays wired to
+ * the executed drills: if a fixed gap ever regresses, its drill receipts
+ * invariantHeld:false and assembleGaps demands a catalog entry that no longer
+ * exists — the check fails loudly rather than quietly re-listing it.
+ *
+ * BOTH HIGH-severity gaps are now FIXED and therefore no longer catalogued:
+ *   - G1 (destroyContentKey was not crash-atomic): the durable commit record is
+ *     the HASH-CHAINED 'destroy-key' access-log entry and it is appended FIRST,
+ *     before any key byte is touched; openSealedCustodyStore rolls a
+ *     committed-but-interrupted destruction forward instead of wedging, and
+ *     refuses to destroy a live key on the strength of an unauthenticated
+ *     tombstone line that no chain entry corroborates.
+ *   - G2 (phase0b leaked state.lock forever): withStoreLock now takes a
+ *     pid-stamped lock mirroring the sealed custody store, breaking a stale
+ *     lock exactly once when its recorded pid is proven dead and failing closed
+ *     when the holder cannot be identified. The break is IDENTITY-bound (it
+ *     proves it moved the exact bytes it inspected) and is the same shared
+ *     primitive both custody-bearing locks use, so N contenders racing one
+ *     stale lock still produce exactly ONE winner.
+ * Their drill scenarios (custody-destroy-key-killed-mid-destroy,
+ * custody-destroy-key-killed-before-key-scrub, custody-tombstone-torn-append,
+ * persistent-state-lock-leak-after-kill) now expect invariantHeld:true and FAIL
+ * this check if either fix regresses — including the ORDERING half of G1, which
+ * the completion-then-restore case structurally cannot detect.
  */
 const GAP_CATALOG = Object.freeze({
-  G1: {
-    severity: 'HIGH',
-    file: 'scripts/model-village-custody-store.mjs:1026-1042',
-    summary:
-      'destroyContentKey is not crash-atomic: a crash between content-key '
-      + 'zeroing+fsync and tombstone-append leaves the key present-but-zeroed '
-      + 'with no tombstone, and openSealedCustodyStore then throws '
-      + 'CustodyIntegrityError with no recovery path.',
-    minimalFix:
-      'Append the nonidentifying tombstone as the FIRST durable step (reorder '
-      + 'so the tombstone at :1042 precedes the key zero/unlink at :1023-1031), '
-      + 'or write it via temp+atomic-rename; then accept "key absent-or-zeroed '
-      + 'AND tombstone present" as the destroyed state on open.',
-    owner: 'MV-B1 custody-store lane',
-  },
-  G2: {
-    severity: 'HIGH',
-    file: 'scripts/model-village-phase0b-runtime.mjs:1577-1593',
-    summary:
-      'phase0b withStoreLock has zero stale-lock reclamation: a SIGKILLed '
-      + 'writer leaks state.lock permanently, so every later '
-      + 'initializePersistentStore/commit throws "locked by another writer" '
-      + '(reads still succeed).',
-    minimalFix:
-      'Mirror the custody store pid-stamped lock (custody-store.mjs:567-601): '
-      + 'write {pid} into state.lock and, on EEXIST, break it once when '
-      + 'process.kill(recordedPid,0) shows the holder is dead.',
-    owner: 'phase0b-runtime lane',
-  },
   'G-EXPORT': {
     severity: 'MEDIUM',
     file: 'scripts/model-village-phase0b-runtime.mjs:1546-2564',
     summary:
-      'Durability-VERIFICATION gap (not a runtime defect): writeAtomicState, '
+      'Durability-VERIFICATION gap (not a runtime defect), NARROWED: the '
+      + 'persistence lock seam is now exported (acquire/releasePersistentStore'
+      + 'Lock), so the lock-leak drill holds a REAL production lock and is '
+      + 'killed holding it. Still module-private: writeAtomicState, '
       + 'withStoreLock, the three commit* functions and '
-      + 'readPersistentStateHashInFreshProcess are module-private, so a '
-      + 'new-file consumer cannot drive the deterministic '
-      + 'before_rename/after_rename fault seam; the synchronous '
-      + 'temp->fsync->rename window cannot be split by an external SIGKILL, so '
-      + 'the drill models the pre-rename disk state and recovers with '
-      + 'production code.',
+      + 'readPersistentStateHashInFreshProcess — so a consumer still cannot '
+      + 'drive the deterministic before_rename/after_rename fault seam; the '
+      + 'synchronous temp->fsync->rename window cannot be split by an external '
+      + 'SIGKILL, so the drill models the pre-rename disk state and recovers '
+      + 'with production code.',
     minimalFix:
       'Export a thin test-only fault-injection seam (e.g. '
       + 'export { commitVerifiedAttemptFromSourceRun }) so a crash drill can '
@@ -189,22 +187,56 @@ const GAP_CATALOG = Object.freeze({
   },
   'G4-G5': {
     severity: 'LOW',
-    file: 'scripts/model-village-custody-store.mjs:363-366,871',
+    file: 'scripts/model-village-custody-store.mjs:412-415,930',
     summary:
       'Fail-loud-by-design, consistency-safe states (not silent corruption): a '
       + 'partial seal leaves an orphan .enc that verifyIntegrity flags and the '
-      + 'duplicate guard (:871) blocks re-sealing; a torn access-log tail '
-      + 'wedges open via readJsonlEntries JSON.parse (:363-366) with no '
-      + 'auto-truncate. Recovery is manual.',
+      + 'duplicate guard blocks re-sealing; a torn ACCESS-LOG tail wedges open '
+      + 'via readJsonlEntries JSON.parse with no auto-truncate. Recovery is '
+      + 'manual. NARROWED: the torn TOMBSTONE tail no longer belongs to this '
+      + 'class — an unterminated tombstone line was never a durable record, so '
+      + 'open repairs it and re-emits the tombstone from the committed chain '
+      + 'entry (drill: custody-tombstone-torn-append). The access log keeps the '
+      + 'opposite behaviour on purpose: it is the authenticated record, so a '
+      + 'torn tail there is evidence, not residue.',
     minimalFix:
       'No production change recommended beyond an optional operator repair '
-      + 'tool; both states already fail loud rather than corrupt silently.',
+      + 'tool; both remaining states already fail loud rather than corrupt '
+      + 'silently.',
     owner: 'MV-B1 custody-store lane',
+  },
+  'G-LOCKBREAK': {
+    severity: 'LOW',
+    file: 'scripts/model-village-phase0b-runtime.mjs:1591-1700',
+    summary:
+      'Residual (not executed, not reproduced): breakStaleLockFile re-reads the '
+      + 'lock immediately before renaming it aside, but those are two separate '
+      + 'syscalls, so a preemption between them can still move a FRESH lock '
+      + 'aside. The case is DETECTED by the post-rename identity check and '
+      + 'undone with a non-clobbering link, degrading to a refusal; it only '
+      + 'reaches shared access if a brand-new contender takes the momentarily '
+      + 'free path inside that same two-syscall gap AND the restore therefore '
+      + "fails, which returns 'stolen' and fails closed loudly. Measured after "
+      + 'the fix: 8 real processes racing one genuinely stale lock produced '
+      + 'exactly ONE winner in 12/12 trials (before: 2-8 winners in 12/12), and '
+      + 'the deterministic live-holder interleaving now refuses instead of '
+      + 'stealing.',
+    minimalFix:
+      'An OS-backed advisory lock (flock / LockFileEx) would remove the window '
+      + "entirely; node's builtin fs exposes neither, so it would need a native "
+      + 'addon or an out-of-process lock service — out of scope for a '
+      + 'node-builtins-only lane.',
+    owner: 'phase0b-runtime + custody-store lanes',
   },
 });
 
 /** Documented-only references (not surfaced by an executed crash drill). */
-const DOCUMENTED_GAP_REFS = Object.freeze(['G-EXPORT', 'G6', 'G4-G5']);
+const DOCUMENTED_GAP_REFS = Object.freeze([
+  'G-EXPORT',
+  'G-LOCKBREAK',
+  'G6',
+  'G4-G5',
+]);
 
 const CLAIM_BOUNDARY_OBSERVED = Object.freeze([
   'single-host process-crash durability: for each scenario a REAL child process '
@@ -220,10 +252,22 @@ const CLAIM_BOUNDARY_OBSERVED = Object.freeze([
   'read-only audit-open of a preserved custody copy: the on-disk sealed store is '
   + 're-verified without acquiring the lock and without appending an access-log '
   + 'entry (byte-identical log, unchanged mtime, no lock file created)',
-  'two real HIGH-severity durability gaps (G1 destroyContentKey wedge, G2 '
-  + 'phase0b lock leak) are EXECUTED and receipted honestly with '
-  + 'invariantHeld:false and file:line minimal fixes for the owning lanes — not '
-  + 'applied, per the new-files-only boundary',
+  'both previously receipted HIGH-severity durability gaps are FIXED, and their '
+  + 'drills now execute the POSITIVE invariants: a key destruction crashed '
+  + 'after its commit point (the hash-chained destroy-key entry) is rolled '
+  + 'forward at open (the key is never resurrected, verifyIntegrity passes in '
+  + 'ciphertext-checksum-only mode), and a state.lock genuinely leaked by a '
+  + 'SIGKILLed holder is reclaimed exactly once after its recorded pid is '
+  + 'proven dead',
+  'the ORDERING half of G1 is executed, not assumed: the real production '
+  + 'destroyContentKey is interrupted AT the key scrub by a real filesystem '
+  + 'fault, so the drill goes red if the commit record ever moves back behind '
+  + 'the first key byte — the window that the completion-then-restore case is '
+  + 'structurally blind to',
+  'a torn tombstone append is repaired rather than fatal (the tombstone is '
+  + 're-emitted verbatim from the committed chain entry) while a torn '
+  + 'access-log tail still fails closed — the authenticated record and the '
+  + 'unauthenticated one are treated differently on purpose',
 ]);
 
 const CLAIM_BOUNDARY_NOT_OBSERVED = Object.freeze([
@@ -235,10 +279,18 @@ const CLAIM_BOUNDARY_NOT_OBSERVED = Object.freeze([
   'no production or fleet deployment: this is an engineering durability drill '
   + 'under os.tmpdir scratch, not a deployed store',
   'the synchronous temp->fsync->rename window and the sub-syscall '
-  + 'key-zero/tombstone/log-append windows cannot be split by an external '
-  + 'SIGKILL and expose no consumer-drivable fault seam (G-EXPORT); those windows '
-  + 'are modeled with real file ops and recovered with production code, and each '
-  + 'such receipt states its mechanism in observedOutcome',
+  + 'tombstone/key-scrub/log-append windows cannot be split by an external '
+  + 'SIGKILL and still expose no consumer-drivable fault seam (G-EXPORT, now '
+  + 'narrowed: the persistence lock seam IS exported, so the lock-leak drill is '
+  + 'a genuine leak of a real production lock); the remaining windows are '
+  + 'modeled with production code plus real file ops and recovered with '
+  + 'production code, and each such receipt states its mechanism in '
+  + 'observedOutcome',
+  'no proof of PERFECT lock mutual exclusion: the stale-lock break is '
+  + 'identity-bound and measured at exactly one winner per race, but it is '
+  + 'built from separate read/rename syscalls, so a two-syscall residual window '
+  + 'remains (G-LOCKBREAK). Removing it needs an OS-backed advisory lock, which '
+  + 'node builtins do not expose',
 ]);
 
 export class DurabilityCheckError extends Error {
@@ -728,9 +780,10 @@ function parseArgs(argv = process.argv.slice(2)) {
 Turns the spec's claimed file-state fault-boundary property (gate rows 578/581)
 into an EXECUTED, RECEIPTED drill: real SIGKILL of a real child mid-operation,
 fresh-process recovery with production code, same-host multi-process lock
-serialization, and a read-only audit-open of a preserved custody copy. Two real
-HIGH-severity durability gaps (G1, G2) are executed and receipted honestly with
-file:line minimal fixes; they are NOT applied. Fully offline; node builtins only.
+serialization, and a read-only audit-open of a preserved custody copy. The two
+HIGH-severity gaps this slice once receipted (G1 destroyContentKey wedge, G2
+phase0b lock leak) are FIXED; their drills now assert the positive invariants and
+this check fails if either regresses. Offline; node builtins only.
 
 Usage:
   node scripts/check-hololand-model-village-durability.mjs [options]
@@ -773,7 +826,12 @@ if (invokedPath && import.meta.url === pathToFileURL(invokedPath).href) {
         console.log('[hololand-model-village-durability] ok');
         console.log(`receipt: ${output}`);
         console.log(`scratch: ${scratchRoot} (removed)`);
-        console.log(`allInvariantsHeld: ${receipt.allInvariantsHeld} (reality — gaps below stand)`);
+        console.log(
+          `allInvariantsHeld: ${receipt.allInvariantsHeld} (reality, computed `
+          + `from the embedded receipts${receipt.allInvariantsHeld
+            ? '; the gaps listed below are documented-only, none executed'
+            : '; executed gaps below stand'})`,
+        );
         for (const drill of receipt.crashDrills) {
           const verdict = drill.invariantHeld ? 'HELD' : `GAP ${drill.gapReference}`;
           console.log(
