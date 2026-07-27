@@ -1,0 +1,169 @@
+// Immutable witness manifest for Receipt Loom Courtyard - Performance
+// Convergence G. Regenerate only when the authored .holo/.hsplus/.hs stack,
+// checker, focused test, accepted report, GPU images, measured profile, or
+// bounded temporal-accumulation claim changes.
+
+composition "HoloLand Model Village Receipt Loom Performance Convergence Manifest" {
+  metadata {
+    title: "Receipt Loom Courtyard - Performance Convergence G Witness"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV_V1_PERFORMANCE_CONVERGENCE_G"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-receipt-loom-performance-convergence.holo"
+      sha256: "9ee8ecb9dc672f24d18f4902590d8472ae7f80a5d4a7800512a26ed2a9ae36dc"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-receipt-loom-performance-convergence-policy.hsplus"
+      sha256: "21b3d550bedb4960ab54bca5c3ca557cf7ea9506b66b644e989eda8cd7490725"
+      parser: "HoloScriptPlusParser"
+      nativeActionExecutionClaimed: false
+    }
+    seed: {
+      path: "source/proofs/model-village-receipt-loom-performance-convergence-seed.hs"
+      sha256: "c568221cdf626d03feab2cae2333b46a7b4a813451764fea7d3e60945e85e1af"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-performance-convergence.mjs"
+      sha256: "0ea6d6d15c3d4364d0f3d0bb90c34cabcec2bd6ca3fc30753c15b002b4fe4c4d"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-performance-convergence.test.mjs"
+      sha256: "ae598caa9c476469349d19e8c170458ab68b17c7e9ec1637c6ba5df572addda9"
+    }
+    report: {
+      path: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_PERFORMANCE_CONVERGENCE_G_2026-07-27.md"
+      sha256: "9d61aeaaa2554dc43a671ec816e4956c36ec101bb0188ea42663eab66012fee3"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-receipt-loom-performance-convergence-g-2026-07-27.png"
+      sha256: "1721249e37efa73bbfae28d79d0558036e2d54bcd8657544b24718b71676b53e"
+      width: 1600
+      height: 900
+      bytes: 1386358
+      visuallyInspected: true
+      iterationAccepted: 2
+    }
+    comparison: {
+      path: "docs/assets/model-village/model-village-receipt-loom-performance-convergence-g-comparison-2026-07-27.png"
+      sha256: "fd665e91035627a3f3e9c7b6008dc51483f041b3e8b0618d2c051dfedf500d65"
+      width: 2400
+      height: 600
+      bytes: 527132
+      visuallyInspected: true
+      panels: ["LOD0", "LOD1", "LOD2", "TAA32"]
+      iterationAccepted: 2
+    }
+    profile: {
+      id: "desktop_cinematic_g1"
+      renderWidth: 1600
+      renderHeight: 900
+      devicePixelRatio: 1
+      warmupFrames: 600
+      measuredFrames: 1800
+      continuousPhysicsDuringBenchmark: false
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+    }
+    performance: {
+      rafP50Milliseconds: 16.69999999999709
+      rafP95Milliseconds: 16.80000000000291
+      rafP99Milliseconds: 16.89999999999418
+      rafMaximumMilliseconds: 33.40000000000873
+      renderSubmitP50Milliseconds: 1.2999999821186066
+      renderSubmitP95Milliseconds: 4
+      renderSubmitP99Milliseconds: 6.0999999940395355
+      renderSubmitMaximumMilliseconds: 9.900000005960464
+      droppedFramesAbove25Milliseconds: 1
+      droppedFrameRatio: 0.0005555555555555556
+      shadowInclusiveDrawCalls: 741
+      lod0FullSceneTriangles: 115940
+      lod1FullSceneTriangles: 111500
+      lod2FullSceneTriangles: 109124
+      lod0ResidentTriangles: 10008
+      lod1ResidentTriangles: 7788
+      lod2ResidentTriangles: 6600
+      residentLod2ReductionRatio: 0.3405275779376499
+    }
+    lod: {
+      runtimeClass: "LODManager"
+      runtimePackage: "@holoscript/engine"
+      strategy: "distance"
+      levels: [0, 1, 2]
+      distancesMeters: [0, 12, 28]
+      hysteresis: 0.08
+      residentCount: 6
+      sourceAuthoredTiers: 18
+      repeatedCompileByteIdentity: true
+      compilerFallbackUsed: false
+      staticSettledPresentationOnly: true
+    }
+    temporal: {
+      implementation: "three_taa_render_pass"
+      mode: "static_jittered_accumulation"
+      historySamples: 32
+      settledSamples: 32
+      historyResetCount: 9
+      resetEvents: ["camera_cut", "lod_change", "profile_change", "resize"]
+      firstWindowMeanPixelDelta: 0.12642415364583334
+      lastWindowMeanPixelDelta: 0.1315578884548611
+      stabilityConverged: true
+      motionReprojection: false
+      velocityBuffer: false
+      disocclusionRejection: false
+      reactiveMask: false
+      neighborhoodClamp: false
+    }
+    physicalPreservation: {
+      inheritedMilestone: "MV_V1_PHYSICAL_CONVERGENCE_F"
+      replayDigestBefore: "5b65d9d44350cbd1e9d6a3879c31f947fb2541d3b2204e36d1be93483403f315"
+      replayDigestAfter: "5b65d9d44350cbd1e9d6a3879c31f947fb2541d3b2204e36d1be93483403f315"
+      inheritedArtifactsImmutable: true
+      continuousPhysicsMeasuredConcurrently: false
+    }
+    boundaries: {
+      presentationProfile: "village_story_unblinded"
+      separateFromLiveExperiment: true
+      researchLiveIdentityNeutralPreserved: true
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCalls: 0
+      networkFetches: 0
+      providerEndorsementClaimed: false
+      exactModelRevisionPresented: false
+      modelBehaviorSimulated: false
+      motionReprojectionClaimed: false
+      productionTaaClaimed: false
+      dynamicResolutionClaimed: false
+      crossDevicePerformanceClaimed: false
+      headsetPerformanceClaimed: false
+      nativeWebGpuTaaClaimed: false
+      concurrentPhysicsAndRenderPerformanceClaimed: false
+      photorealismClaimed: false
+      fullWorldConvergenceClaimed: false
+    }
+    bridge: {
+      route: "HoloScript G .holo/.hsplus/.hs -> immutable Physical F browser surface -> HoloScript engine LODManager -> source-authored family tiers -> Three static TAA accumulation -> local Chrome/WebGL2 D3D11 measurement"
+      appSourceSha256: "7661e47f6f9cceb6bdb2c63bcf85f6e07e738bc53cf6ad6ee9e1024a7ba32a4c"
+      inheritedPhysicalBundleSha256: "490e24223ed88b9a8e73171b7ef71f2b824eaa0e4836904ffe8158bf399dcd93"
+      bundleSha256: "580b556c328b684367a8a5e998692877a4f85a1fa1084789daa1d38fca41946e"
+      htmlSha256: "7df3b71360bbdbcc495eb0ce13bcb9f4c4fd9a83053f76b8808d593e29e12e78"
+      esbuildSha256: "8331fe1d8b3a07381f33cc425fcfaa94776e263113653f80ec3ba433e9657e73"
+      externalAssets: []
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedBootstrapSha256: "fcd8e13e8df318e8e968751f775e1aadd7e474e1436c2735464c6bf5333bb634"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/performance-convergence-g/performance-convergence-g-witness.json"
+    }
+  }
+}

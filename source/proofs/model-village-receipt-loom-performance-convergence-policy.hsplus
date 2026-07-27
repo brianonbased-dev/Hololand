@@ -1,0 +1,157 @@
+// Receipt Loom Performance / LOD / TAA Convergence G executable-shape policy.
+//
+// .hsplus owns profile admission, benchmark scheduling, native LOD binding,
+// temporal-history invalidation, acceptance, and the no-causal-merge firewall.
+// The receipted HoloLand bridge evaluates this structured policy. The action
+// blocks are parser-verified policy and are not claimed as native execution.
+
+composition "Model Village Receipt Loom Performance Convergence Policy" {
+  config {
+    schema: "hololand.model-village.performance-convergence-policy.v1"
+    milestone: "MV_V1_PERFORMANCE_CONVERGENCE_G"
+    source: "source/proofs/model-village-receipt-loom-performance-convergence-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-receipt-loom-performance-convergence.holo"
+    seedSource: "source/proofs/model-village-receipt-loom-performance-convergence-seed.hs"
+    inheritedPhysicalSource: "source/layers/vr/frontier/model-village/model-village-receipt-loom-physical-convergence.holo"
+    formatRole: "quality_profile_lod_history_timing_and_acceptance_policy"
+    executionStatus: "structured_contract_evaluated_by_receipted_hololand_bridge"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state PerformanceConvergenceState {
+    frame: 0
+    warmupFramesCompleted: 0
+    measuredFramesCompleted: 0
+    qualityProfile: "desktop_cinematic_g1"
+    profileAccepted: false
+    historySamples: 0
+    historyResetCount: 0
+    inheritedPhysicalReplayDigest: ""
+    presentationLane: "mv_v1_performance_convergence_g"
+    liveResearchLane: "research_live_blinded"
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+  }
+
+  template "DesktopCinematicProfile" {
+    type: "model_village_measured_quality_profile"
+    id: "desktop_cinematic_g1"
+    renderWidth: 1600
+    renderHeight: 900
+    devicePixelRatio: 1
+    targetFramesPerSecond: 60
+    warmupFrames: 600
+    measuredFrames: 1800
+    maximumRafP95Milliseconds: 25
+    maximumRafP99Milliseconds: 34
+    maximumRenderSubmitP95Milliseconds: 12
+    maximumDroppedFrameRatio: 0.02
+    droppedFrameThresholdMilliseconds: 25
+    timingExcludedFromPhysicalDigest: true
+    settledPhysicalFrameOnly: true
+    concurrentPhysicsAndRenderPerformanceClaimed: false
+  }
+
+  template "HoloScriptLodRuntimeBinding" {
+    type: "holoscript_engine_lod_runtime_binding"
+    package: "@holoscript/engine"
+    runtimeClass: "LODManager"
+    sourceFile: "packages/engine/src/lod/LODManager.ts"
+    typesFile: "packages/engine/src/lod/LODTypes.ts"
+    strategy: "distance"
+    transition: "instant"
+    hysteresis: 0.08
+    levels: [0, 1, 2]
+    distancesMeters: [0, 12, 28]
+    sourceAuthoredFamilyTiersRequired: 18
+    rendererSwapBridgeReceipted: true
+    privateSelectorReimplementationAllowed: false
+  }
+
+  template "StaticTemporalAccumulationContract" {
+    type: "static_jittered_temporal_accumulation"
+    implementation: "three_taa_render_pass"
+    sampleLevel: 0
+    historySamples: 32
+    accumulationEnabled: true
+    resetEvents: ["camera_cut", "lod_change", "profile_change", "resize"]
+    motionReprojectionClaimed: false
+    velocityBufferClaimed: false
+    disocclusionRejectionClaimed: false
+    neighborhoodClampClaimed: false
+    productionTaaClaimed: false
+  }
+
+  template "BenchmarkAcceptanceGate" {
+    type: "model_village_performance_acceptance_gate"
+    exactProfileHashRequired: true
+    exactBrowserRequired: true
+    exactGpuRequired: true
+    hardwareRendererRequired: true
+    d3d11BackendRequired: true
+    requestAnimationFrameTimingRequired: true
+    cpuRenderSubmitTimingRequired: true
+    p50P95P99Required: true
+    droppedFrameRatioRequired: true
+    expectedWarmupFrames: 600
+    expectedMeasuredFrames: 1800
+    shortSampleAcceptanceAllowed: false
+  }
+
+  template "PhysicalReplayPreservationGate" {
+    type: "immutable_physical_f_preservation_gate"
+    exactInheritedArtifactHashesRequired: true
+    exactInheritedBrowserApplicationHashRequired: true
+    exactReplayDigestBeforeRequired: true
+    exactReplayDigestAfterRequired: true
+    timingExcludedFromDigest: true
+    lodExcludedFromPhysicalDigest: true
+    temporalHistoryExcludedFromPhysicalDigest: true
+  }
+
+  template "NoCausalMergeGate" {
+    type: "model_village_performance_lane_firewall"
+    presentationLane: "mv_v1_performance_convergence_g"
+    prohibitedLane: "research_live_blinded"
+    allowedInputs: ["performance_g_world_source", "performance_g_policy_source", "performance_g_seed_source", "immutable_physical_f_witness", "family_mantle_source", "local_gpu_timing"]
+    prohibitedInputs: ["live_model_output", "resident_observation", "canonical_village_receipt", "adapter_assignment", "seat_wallet"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_schedule", "village_action", "village_receipt", "wallet_identity"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+  }
+
+  template "FormatRoleContract" {
+    type: "holoscript_three_format_system"
+    holoRole: "quality_profile_lod_temporal_accumulation_camera_budget_and_truth_boundary"
+    hsplusRole: "profile_admission_lod_binding_history_reset_benchmark_acceptance_and_firewall"
+    hsRole: "flat_profile_lod_probe_and_history_reset_inputs"
+    holoParser: "HoloCompositionParser"
+    hsplusParser: "HoloScriptPlusParser"
+    hsParser: "HoloScriptCodeParser"
+    interchangeableFormatsClaimed: false
+  }
+
+  action accept_profile(sample, budget) {
+    if (sample.warmupFrames != budget.warmupFrames) {
+      return { accepted: false, reason: "warmup_frame_count_mismatch" }
+    }
+    if (sample.measuredFrames != budget.measuredFrames) {
+      return { accepted: false, reason: "measured_frame_count_mismatch" }
+    }
+    if (sample.rafP95Milliseconds > budget.maximumRafP95Milliseconds) {
+      return { accepted: false, reason: "raf_p95_budget_exceeded" }
+    }
+    if (sample.droppedFrameRatio > budget.maximumDroppedFrameRatio) {
+      return { accepted: false, reason: "dropped_frame_ratio_exceeded" }
+    }
+    return { accepted: true, reason: "measured_local_profile_within_budget" }
+  }
+
+  action reset_history(event, acceptedEvents) {
+    if (!acceptedEvents.includes(event)) {
+      return { reset: false, reason: "event_not_admitted" }
+    }
+    return { reset: true, reason: "temporal_history_invalidated" }
+  }
+}

@@ -1,0 +1,252 @@
+// HoloLand Model Village - Receipt Loom Performance / LOD / TAA Convergence G.
+//
+// This composition extends the immutable Physical Convergence F witness with
+// one measured local desktop quality profile. HoloScript owns the profile,
+// benchmark protocol, three source-authored family LOD tiers, hysteresis,
+// static temporal accumulation, history invalidation, budgets, cameras, and
+// truth boundary. The local bridge may materialize and receipt these
+// declarations; it may not rewrite F, call models, mutate village state, join
+// live blinded research, or describe static accumulation as motion-reprojected
+// production TAA.
+
+composition "HoloLand Model Village Receipt Loom Performance Convergence" {
+  metadata {
+    title: "Receipt Loom Courtyard - Performance / LOD / TAA Convergence G"
+    version: "0.1.0"
+    date: "2026-07-27"
+    source: "source/layers/vr/frontier/model-village/model-village-receipt-loom-performance-convergence.holo"
+    policySource: "source/proofs/model-village-receipt-loom-performance-convergence-policy.hsplus"
+    seedSource: "source/proofs/model-village-receipt-loom-performance-convergence-seed.hs"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    milestone: "MV_V1_PERFORMANCE_CONVERGENCE_G"
+    projectionRole: "public_postlock_measured_local_quality_profile"
+    inheritedPhysicalSource: "source/layers/vr/frontier/model-village/model-village-receipt-loom-physical-convergence.holo"
+    inheritedPhysicalSourceSha256: "d77a4833a01bbedbff50f992c81837a658c522987754b2f8083afef32ff4ef43"
+    inheritedPhysicalPolicy: "source/proofs/model-village-receipt-loom-physical-convergence-policy.hsplus"
+    inheritedPhysicalPolicySha256: "94cc92b2ce87281d5eb148178338a6e56f1cc2c8e898d873173d565cb3fbc548"
+    inheritedPhysicalSeed: "source/proofs/model-village-receipt-loom-physical-convergence-seed.hs"
+    inheritedPhysicalSeedSha256: "edbdeb5afdb91883e42bf3d6d0859fa8ed3c3f8c8e1c6e16cbf6417c4d23cc68"
+    inheritedPhysicalChecker: "scripts/check-hololand-model-village-physical-convergence.mjs"
+    inheritedPhysicalCheckerSha256: "aa41fb4c885d2f398f51f340e4b18b86df5634f70653d684e8883c9f61d2eaf1"
+    inheritedPhysicalTest: "scripts/__tests__/hololand-model-village-physical-convergence.test.mjs"
+    inheritedPhysicalTestSha256: "385fc7b66b27e5df543429e70170941f88513bbea10181772235679c74c63a9c"
+    inheritedPhysicalReport: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_PHYSICAL_CONVERGENCE_F_2026-07-27.md"
+    inheritedPhysicalReportSha256: "feab356d75a1d0df7f38d8878e0d6c933cbaf27af8f102a2fbc76aa84823b8b3"
+    inheritedPhysicalHero: "docs/assets/model-village/model-village-receipt-loom-physical-convergence-f-2026-07-27.png"
+    inheritedPhysicalHeroSha256: "385253d56f33c685ba3b6d6bd41f65543956ffc77c8b2ad848a84783ab7d8ccc"
+    inheritedPhysicalContactSheet: "docs/assets/model-village/model-village-receipt-loom-physical-convergence-f-motion-2026-07-27.png"
+    inheritedPhysicalContactSheetSha256: "6b34ba7be0b392ae30fb3046e2bc08413d5247ecea0e6c01039bfd96ad4e80b0"
+    inheritedPhysicalManifest: "source/layers/vr/frontier/model-village/model-village-receipt-loom-physical-convergence-manifest.holo"
+    inheritedPhysicalManifestSha256: "eac175042fdd6a266c4993d2434d24f740870be67003470ae9de5762e78c8369"
+    familyMantleSource: "source/layers/vr/frontier/model-village/model-village-family-mantle-catalog.holo"
+    familyMantleSourceSha256: "e366ee5cc51d4b0c3d9ba38643b683e688b7f902d315745acc76c00d6c06cfd2"
+    holoScriptLodManagerSource: "packages/engine/src/lod/LODManager.ts"
+    holoScriptLodManagerSourceSha256: "be14a495a996cc0d9afd5cd44944fee17bbe5361e3e1838b2d6c7427ede02461"
+    holoScriptLodTypesSource: "packages/engine/src/lod/LODTypes.ts"
+    holoScriptLodTypesSourceSha256: "8e59a2a0607a502fd4eecec1f8788f271a164feca7d17260eb5efcb7bc53ffe4"
+    temporalPassSource: "node_modules/three/examples/jsm/postprocessing/TAARenderPass.js"
+    temporalPassSourceSha256: "9382601b054937b1e55459302a2f6031e576eb090de5aab7521b2e7bc39c8ba2"
+    inheritedWitnessesImmutable: true
+    bridgeMayOwnMeasurementAndPresentationOnly: true
+    externalAssetsRequired: false
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+  }
+
+  environment {
+    mode: "public_story_projection"
+    theme: "stormglass_commons"
+    timeOfDay: "blue_hour_after_rain"
+    weather: "settled_physical_f_frame"
+    backgroundColor: "#020711"
+    ambient_light: 0.32
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    presentationProfile: "village_story_unblinded"
+    measuredQualityProfile: "desktop_cinematic_g1"
+    separateFromLiveExperiment: true
+    researchLiveIdentityNeutralPreserved: true
+    researchLiveBlindedCompatible: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    providerEndorsementClaimed: false
+    exactModelRevisionPresented: false
+    modelBehaviorSimulated: false
+    inheritedArtConvergence: "A"
+    inheritedMaterialConvergence: "B"
+    inheritedGeometryConvergence: "C"
+    inheritedAtmosphereConvergence: "D"
+    inheritedResidentConvergence: "E"
+    inheritedPhysicalConvergence: "F"
+    performanceConvergenceClaimed: true
+    authoredFamilyLodConvergenceClaimed: true
+    staticTemporalAccumulationClaimed: true
+    measuredLocalDesktopPerformanceClaimed: true
+    concurrentPhysicsAndRenderPerformanceClaimed: false
+    motionReprojectionClaimed: false
+    velocityBufferClaimed: false
+    disocclusionRejectionClaimed: false
+    dynamicResolutionClaimed: false
+    crossDevicePerformanceClaimed: false
+    headsetPerformanceClaimed: false
+    nativeWebGpuTaaClaimed: false
+    productionTaaClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+    namedResidentCount: 6
+    publicDisplayNames: ["Claude", "OpenAI", "Gemini", "Grok", "GLM", "Brittney"]
+    familyIds: ["anthropic", "openai", "google", "xai", "ollama", "sovereign"]
+    qualityProfile: {
+      id: "desktop_cinematic_g1"
+      renderWidth: 1600
+      renderHeight: 900
+      devicePixelRatio: 1
+      targetFramesPerSecond: 60
+      warmupFrames: 600
+      measuredFrames: 1800
+      timingSource: "request_animation_frame_and_cpu_submit"
+      settledPhysicalFrameOnly: true
+      continuousPhysicsDuringBenchmark: false
+      maximumRafP95Milliseconds: 25
+      maximumRafP99Milliseconds: 34
+      maximumRenderSubmitP95Milliseconds: 12
+      maximumDroppedFrameRatio: 0.02
+      droppedFrameThresholdMilliseconds: 25
+      maximumShadowInclusiveDrawCalls: 800
+      maximumLod0Triangles: 145000
+      minimumResidentLod2TriangleReductionRatio: 0.10
+      exactBrowserAndGpuRequired: true
+    }
+    lod: {
+      runtimeClass: "LODManager"
+      runtimePackage: "@holoscript/engine"
+      strategy: "distance"
+      transition: "instant"
+      transitionDurationSeconds: 0
+      hysteresis: 0.08
+      bias: 0
+      fadeEnabled: false
+      levels: [
+        { level: 0, distanceMeters: 0, garmentSegments: 24, polygonRatio: 1.0, textureScale: 1.0 },
+        { level: 1, distanceMeters: 12, garmentSegments: 14, polygonRatio: 0.78, textureScale: 1.0 },
+        { level: 2, distanceMeters: 28, garmentSegments: 8, polygonRatio: 0.66, textureScale: 1.0 }
+      ]
+      sourceAuthoredFamilyTiers: 18
+      sourceAuthoredResidentCount: 6
+      repeatedCompileByteIdentityRequired: true
+      compilerFallbackAllowed: false
+      staticSettledPresentationOnly: true
+      lowerTierClothSimulationClaimed: false
+    }
+    temporalAccumulation: {
+      implementation: "three_taa_render_pass"
+      mode: "static_jittered_accumulation"
+      sampleLevel: 0
+      historySamples: 32
+      accumulationEnabled: true
+      jitterSequence: "three_reference_32_sample_sequence"
+      resetOnCameraCut: true
+      resetOnLodChange: true
+      resetOnProfileChange: true
+      resetOnResize: true
+      motionReprojection: false
+      velocityBuffer: false
+      disocclusionRejection: false
+      reactiveMask: false
+      neighborhoodClamp: false
+      productionTaaClaimed: false
+    }
+    comparison: {
+      width: 2400
+      height: 600
+      columns: ["LOD0", "LOD1", "LOD2", "TAA32"]
+      forcedLodLevels: [0, 1, 2]
+      temporalSampleCount: 32
+      captureAfterHistorySettled: true
+    }
+    simulationContract: {
+      inheritedPhysicalReplayDigestRequired: true
+      inheritedPhysicalSourceHashesRequired: true
+      exactProfileHashRequired: true
+      exactLodBundleHashesRequired: true
+      timingExcludedFromPhysicalStateDigest: true
+      gpuRenderingExcludedFromPhysicalStateDigest: true
+      deterministicLodSelectionRequired: true
+      historyResetReceiptsRequired: true
+    }
+    inspectionCamera: {
+      position: [8.4, 5.7, 16.4]
+      target: [-0.9, 2.15, -1.0]
+      fov: 42
+      near: 0.1
+      far: 180
+      purpose: "measured_six_resident_desktop_cinematic_profile"
+    }
+    lodProbeDistancesMeters: [8, 18, 36]
+  }
+
+  object "PerformanceConvergenceRuntime" {
+    geometry: "box"
+    visible: false
+    properties: {
+      authority: "holoscript"
+      qualityProfile: "desktop_cinematic_g1"
+      warmupFrames: 600
+      measuredFrames: 1800
+      continuousPhysicsDuringBenchmark: false
+    }
+  }
+
+  object "FamilyResidentLodManager" {
+    geometry: "sphere"
+    visible: false
+    properties: {
+      authority: "holoscript"
+      runtimeClass: "LODManager"
+      residentCount: 6
+      lodLevels: 3
+      sourceAuthoredTiers: 18
+      hysteresis: 0.08
+      lowerTierClothSimulationClaimed: false
+    }
+  }
+
+  object "StaticTemporalAccumulator" {
+    geometry: "plane"
+    visible: false
+    properties: {
+      authority: "holoscript"
+      implementation: "three_taa_render_pass"
+      historySamples: 32
+      resetOnLodChange: true
+      motionReprojectionClaimed: false
+      productionTaaClaimed: false
+    }
+  }
+
+  object "PerformanceConvergenceClaimBoundary" {
+    geometry: "box"
+    visible: false
+    properties: {
+      inheritedPhysicalConvergenceImmutable: true
+      modelCallsAllowed: false
+      canonicalWritesAllowed: false
+      researchLiveJoinAllowed: false
+      concurrentPhysicsAndRenderPerformanceClaimed: false
+      crossDevicePerformanceClaimed: false
+      headsetPerformanceClaimed: false
+      dynamicResolutionClaimed: false
+      motionReprojectionClaimed: false
+      nativeWebGpuTaaClaimed: false
+      productionTaaClaimed: false
+      photorealismClaimed: false
+      fullWorldConvergenceClaimed: false
+    }
+  }
+}
