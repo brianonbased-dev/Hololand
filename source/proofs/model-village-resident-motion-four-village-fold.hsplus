@@ -1,0 +1,184 @@
+// MV-S4 deterministic motion, profile, traversal, and observer policy.
+//
+// .hsplus owns executable-shape behavior policy. The current HoloLand bridge
+// evaluates this structured contract and receipts it; native action execution
+// is explicitly outside this milestone.
+
+composition "Model Village Resident Motion and Fold Contract" {
+  config {
+    schema: "hololand.model-village.resident-motion-fold-contract.v1"
+    milestone: "MV-S4"
+    source: "source/proofs/model-village-resident-motion-four-village-fold.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-resident-motion-four-village-fold.holo"
+    seedSource: "source/proofs/model-village-resident-motion-four-village-fold-seed.hs"
+    formatRole: "motion_profile_navigation_and_replay_policy"
+    executionStatus: "structured_contract_evaluated_by_receipted_hololand_bridge"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state ModelVillageFoldState {
+    frame: 0
+    fixedTimestepSeconds: 0.016666666666666666
+    genesisPhase: "source_glyphs"
+    focusedFoldId: "fold-01"
+    routeMarkCount: 0
+    replayRunsCompleted: 0
+    replayAccepted: false
+    activePresentationProfile: "village_story_unblinded"
+    canonicalVillageWriteCount: 0
+    residentObservationWriteCount: 0
+    residentPromptWriteCount: 0
+    residentActionWriteCount: 0
+    villageReceiptWriteCount: 0
+    modelCallCount: 0
+  }
+
+  template "FixedStepMotionContract" {
+    type: "model_village_resident_fixed_step_motion"
+    timestepNumerator: 1
+    timestepDenominator: 60
+    steps: 720
+    runs: 3
+    deterministicSeed: 30510364
+    genesisEndStep: 239
+    traversalStartStep: 240
+    domainOrder: ["genesis_phase", "resident_motion", "social_stage", "fold_focus", "route_mark"]
+    interpolation: "piecewise_linear_fixed_step"
+    headingMode: "normalized_route_tangent"
+    wallClockInSimulationInput: false
+    browserFrameDeltaInSimulationInput: false
+    randomSource: "seed_manifest_only"
+    droppedStepBehavior: "fail_witness"
+    variableDeltaAllowed: false
+  }
+
+  template "ResidentSocialStagingContract" {
+    type: "model_village_noncanonical_social_staging"
+    allowedStages: ["arrive", "walk", "pause", "route_greeting", "wayfinding_point"]
+    prohibitedWithoutReceipt: ["propose", "settle", "success", "commit", "completed_task"]
+    gestureSemantics: "presentation_only_noncanonical"
+    residentObservationRequired: false
+    modelOutputRequired: false
+    villageReceiptRequired: false
+  }
+
+  template "ProfileProjectionGate" {
+    type: "model_village_disclosure_safe_projection"
+    supportedProfiles: ["village_story_unblinded", "research_live_blinded"]
+    profileSelectionRequiredBeforeCatalogLoad: true
+    storyCatalog: "model-village-public-embodiments.holo"
+    storyDisclosureRequired: true
+    storyLiveResearchClaimed: false
+    blindedCatalog: "model-village-resident-kit.holo"
+    publicCatalogMayLoadInBlindedProfile: false
+    catalogsMaySerializeTogether: false
+    crossProfileIdentityJoinAllowed: false
+    crossProfileSeatJoinAllowed: false
+    crossProfileSpatialJoinAllowed: false
+    adapterIdentityAllowedInBlindedProjection: false
+    familyIdentityAllowedInBlindedProjection: false
+    exactModelRevisionAllowedInBlindedProjection: false
+    failClosedOnForbiddenField: true
+  }
+
+  template "FoldNavigationGate" {
+    type: "model_village_observer_fold_navigation"
+    foldIds: ["fold-01", "fold-02", "fold-03", "fold-04"]
+    observerWritableFields: ["camera_target", "presentation_focus", "reduced_motion", "route_mark"]
+    navigationAffectsMotionReplay: false
+    navigationAffectsGenesis: false
+    navigationAffectsResidentInput: false
+    navigationAffectsResearchOutcome: false
+    invalidFoldBehavior: "deny_without_state_change"
+    routeMarkMeaning: "local_observer_progress_only"
+  }
+
+  template "NoFeedbackGate" {
+    type: "model_village_observer_no_feedback"
+    prohibitedWrites: [
+      "canonical_village",
+      "resident_observation",
+      "village_clock",
+      "village_schedule",
+      "resident_prompt",
+      "resident_action",
+      "village_receipt",
+      "model_call"
+    ]
+    protectedHashes: [
+      "canonical_scene_hash",
+      "canonical_pose_hash",
+      "logical_clock_hash",
+      "public_state_hash",
+      "executed_schedule_hash",
+      "resident_observation_hash",
+      "action_receipt_root"
+    ]
+    expectedMutationDelta: 0
+    residentCanObservePresentation: false
+    presentationCanAffectOutcome: false
+  }
+
+  template "ReplayAcceptanceGate" {
+    type: "model_village_resident_motion_replay_gate"
+    exactSourceHashesRequired: true
+    exactInputManifestHashRequired: true
+    exactActorStateDigestRequired: true
+    exactGenesisStateDigestRequired: true
+    exactFoldFocusDigestRequired: true
+    exactRouteMarkDigestRequired: true
+    exactCombinedStateDigestRequired: true
+    timingExcludedFromStateDigests: true
+    gpuRenderingExcludedFromStateDigests: true
+    finiteNumbersRequired: true
+    expectedRuns: 3
+    acceptedOnlyWhenAllRunsMatch: true
+  }
+
+  template "GpuWitnessContract" {
+    type: "model_village_webgpu_fold_presentation_witness"
+    requiredObjects: ["adapter", "device", "canvas_context", "render_pipeline", "command_encoder"]
+    requiredDraws: ["fold_terrain", "fold_architecture", "resident_silhouettes", "genesis_light"]
+    timestampQuery: "required_when_adapter_supports_timestamp_query"
+    cpuSubmitTimingRequired: true
+    gpuTimingReportedSeparately: true
+    softwareFallbackRejected: true
+    webglFallbackAllowed: false
+  }
+
+  template "FormatRoleContract" {
+    type: "holoscript_three_format_system"
+    holoRole: "world_topology_visual_grammar_profile_boundary_and_claim_boundary"
+    hsplusRole: "motion_profile_navigation_replay_and_no_feedback_policy"
+    hsRole: "flat_waypoints_profile_local_tracks_and_fixed_inputs"
+    holoParser: "HoloCompositionParser"
+    hsplusParser: "HoloScriptPlusParser"
+    hsParser: "HoloScriptCodeParser"
+    interchangeableFormatsClaimed: false
+  }
+
+  action select_fold(requestedFoldId, allowedFoldIds) {
+    if (!allowedFoldIds.includes(requestedFoldId)) {
+      return { accepted: false, reason: "unknown_fold", stateChanged: false }
+    }
+    return {
+      accepted: true,
+      reason: "presentation_focus_only",
+      stateChanged: true,
+      canonicalMutation: false
+    }
+  }
+
+  action accept_replay(runDigests, expectedRunCount) {
+    if (runDigests.length != expectedRunCount) {
+      return { accepted: false, reason: "run_count_mismatch" }
+    }
+    if (
+      runDigests[0].combined != runDigests[1].combined ||
+      runDigests[1].combined != runDigests[2].combined
+    ) {
+      return { accepted: false, reason: "state_digest_mismatch" }
+    }
+    return { accepted: true, reason: "same_input_same_motion_state" }
+  }
+}

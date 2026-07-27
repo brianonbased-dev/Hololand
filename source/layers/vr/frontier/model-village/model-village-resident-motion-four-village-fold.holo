@@ -1,0 +1,297 @@
+// MV-S4 authored resident motion, Genesis arrival, and Four-Village Fold.
+//
+// This composition owns world topology, visual grammar, accessibility, profile
+// separation, and the no-feedback boundary. It references the existing public
+// and neutral embodiment catalogs without joining their identities. The
+// HoloLand witness evaluates this source through a receipted bridge; it does
+// not claim native .hsplus action execution or a completed research run.
+
+composition "Stormglass Genesis and the Four-Village Fold" {
+  metadata {
+    schema: "hololand.model-village.resident-motion-fold.v1"
+    assetId: "mv-stormglass-resident-motion-fold-v1"
+    title: "Stormglass Commons: The Four-Village Fold"
+    version: "1.0.0"
+    milestone: "MV-S4"
+    source: "source/layers/vr/frontier/model-village/model-village-resident-motion-four-village-fold.holo"
+    manifestSource: "source/layers/vr/frontier/model-village/model-village-resident-motion-four-village-fold-manifest.holo"
+    policySource: "source/proofs/model-village-resident-motion-four-village-fold.hsplus"
+    seedSource: "source/proofs/model-village-resident-motion-four-village-fold-seed.hs"
+    publicEmbodimentSource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
+    neutralResidentSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    sharedRigSource: "source/layers/vr/frontier/model-village/model-village-resident-shared-rig.holo"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    sourceSovereign: true
+    browserPresentationBridgeOnly: true
+    independentProjectDisclosure: "HoloLand-authored visual interpretations; not affiliated with or endorsed by the named model providers."
+  }
+
+  environment {
+    mode: "deterministic_traversal_and_social_staging_witness"
+    theme: "stormglass_genesis_four_village_fold"
+    sky: "blue_hour_indigo_rainbreak"
+    atmosphere: "mist_between_fold_islands"
+    toneMapping: "aces"
+    targetDisplay: "srgb"
+    targetBackend: "webgpu"
+    externalNetworkAllowed: false
+    residentModelCallsAllowed: false
+    capturedResponseResearchClaimed: false
+  }
+
+  state {
+    fixedTimestepNumerator: 1
+    fixedTimestepDenominator: 60
+    fixedTimestepSeconds: 0.016666666666666666
+    replaySteps: 720
+    replayRuns: 3
+    replaySeed: 30510364
+    genesisEndStep: 239
+    traversalStartStep: 240
+    traversalEndStep: 719
+    foldCount: 4
+    storyActorCount: 6
+    blindedActorCount: 6
+    defaultPresentationProfile: "village_story_unblinded"
+    supportedPresentationProfiles: ["village_story_unblinded", "research_live_blinded"]
+    presentationProfileMustBeSelectedBeforeProjection: true
+    publicAndBlindedPayloadsMayMerge: false
+    researchConditionIdentityVisible: false
+    researchAdapterIdentityVisible: false
+    researchSeatToPublicIdentityMappingExists: false
+    canonicalVillageWriteAuthority: false
+    residentObservationWriteAuthority: false
+    villageReceiptWriteAuthority: false
+    presentationCanAffectOutcome: false
+    nativeHsplusActionExecutionClaimed: false
+    productionResidentAssetsClaimed: false
+    completedResearchRunClaimed: false
+    photorealismClaimed: false
+  }
+
+  material "FoldStormglass" @advanced_pbr {
+    base_color: "#5E93A8"
+    roughness: 0.10
+    metallic: 0.06
+    transmission: 0.42
+    ior: 1.46
+    clearcoat: 0.92
+    emission_color: "#16344B"
+    emission_intensity: 0.34
+  }
+
+  material "WetBasalt" @advanced_pbr {
+    base_color: "#172431"
+    roughness: 0.72
+    metallic: 0.08
+    wetness: 0.68
+  }
+
+  material "HearthCopper" @advanced_pbr {
+    base_color: "#9B5A3E"
+    roughness: 0.30
+    metallic: 0.78
+    emission_color: "#FFB76A"
+    emission_intensity: 1.4
+  }
+
+  object "GenesisAperture" {
+    geometry: "faceted_stormglass_iris"
+    position: [0, 1.2, 0]
+    scale: [4.8, 0.48, 4.8]
+    material: "FoldStormglass"
+    genesisPhases: [
+      "source_glyphs",
+      "terrain_weave",
+      "institution_lights",
+      "six_seat_ring",
+      "manifest_seal"
+    ]
+    phaseEndSteps: [47, 95, 143, 191, 239]
+    completesBeforeResidentObservation: true
+    canonicalWorldCreationClaimed: false
+    presentationOnly: true
+  }
+
+  object "ReceiptLoomHearth" @emissive {
+    geometry: "woven_copper_lantern"
+    position: [0, 2.2, 0]
+    scale: [0.74, 1.9, 0.74]
+    material: "HearthCopper"
+    emission_color: "#FFB76A"
+    emission_intensity: 3.6
+    presentationOnly: true
+    receiptAuthority: false
+  }
+
+  template "FoldIsland" {
+    type: "model_village_fold_island"
+    geometry: "floating_basalt_terrace"
+    material: "WetBasalt"
+    conditionIdentity: "withheld"
+    researchConditionBinding: "none"
+    capturedResponseBinding: "none"
+    canonical_write_authority: false
+    observer_navigation_target: true
+    accessible_route_required: true
+  }
+
+  spatial_group "FourVillageFold" {
+    object "Fold01" using "FoldIsland" {
+      label: "FOLD 01"
+      position: [-8.6, 0.0, -5.8]
+      scale: [5.4, 0.7, 4.1]
+      visualCharacter: "tideglass_courtyard"
+      routeAccent: "#69D7DA"
+      routeId: "fold-route-01"
+      @waypoint { id: "fold-observer-01" radius: 1.4 }
+    }
+
+    object "Fold02" using "FoldIsland" {
+      label: "FOLD 02"
+      position: [8.6, 0.0, -5.8]
+      scale: [5.4, 0.7, 4.1]
+      visualCharacter: "ember_kiln_terrace"
+      routeAccent: "#F2A65A"
+      routeId: "fold-route-02"
+      @waypoint { id: "fold-observer-02" radius: 1.4 }
+    }
+
+    object "Fold03" using "FoldIsland" {
+      label: "FOLD 03"
+      position: [-8.6, 0.0, 6.6]
+      scale: [5.4, 0.7, 4.1]
+      visualCharacter: "moonseed_orchard"
+      routeAccent: "#B79AF2"
+      routeId: "fold-route-03"
+      @waypoint { id: "fold-observer-03" radius: 1.4 }
+    }
+
+    object "Fold04" using "FoldIsland" {
+      label: "FOLD 04"
+      position: [8.6, 0.0, 6.6]
+      scale: [5.4, 0.7, 4.1]
+      visualCharacter: "wind_archive_spires"
+      routeAccent: "#9ED47B"
+      routeId: "fold-route-04"
+      @waypoint { id: "fold-observer-04" radius: 1.4 }
+    }
+  }
+
+  object "FoldTraversalRail" {
+    routeIds: ["fold-route-01", "fold-route-02", "fold-route-03", "fold-route-04"]
+    observerControls: ["previous_fold", "next_fold", "overview", "reduced_motion"]
+    keyboardControls: ["Digit1", "Digit2", "Digit3", "Digit4", "ArrowLeft", "ArrowRight", "Home", "KeyM"]
+    navigationChanges: ["camera_target", "presentation_focus", "route_mark"]
+    forbiddenNavigationChanges: [
+      "canonical_village",
+      "resident_observation",
+      "village_clock",
+      "village_schedule",
+      "resident_prompt",
+      "resident_action",
+      "village_receipt",
+      "model_call"
+    ]
+    @accessible {
+      keyboard: true
+      screen_reader: true
+      reduced_motion: true
+      high_contrast: true
+    }
+  }
+
+  object "ResidentMotionGrammar" @locomotion {
+    mode: "walk"
+    speed: 1.1
+    fixed_step_only: true
+    position_source: "model-village-resident-motion-four-village-fold-seed.hs"
+    socialStages: ["arrive", "walk", "pause", "route_greeting", "wayfinding_point"]
+    receiptSuccessGesturesAllowed: false
+    sharedRigSemanticClipsReused: ["idle"]
+    presentationBridgeMotion: true
+    nativeAnimationClipClaimed: false
+  }
+
+  object "ProfileProjectionBoundary" {
+    storyProfile: "village_story_unblinded"
+    storyCatalogSource: "model-village-public-embodiments.holo"
+    storyDisclosureRequired: true
+    storyIsLiveResearch: false
+    blindedProfile: "research_live_blinded"
+    blindedCatalogSource: "model-village-resident-kit.holo"
+    blindedAllowedIdentityFields: ["residentId", "displayName", "researchAlias", "villageRole", "silhouetteId", "accentColor"]
+    blindedForbiddenIdentityFields: [
+      "publicEmbodimentId",
+      "publicDisplayName",
+      "embodimentTitle",
+      "familyId",
+      "agentSurfaceId",
+      "modelFamily",
+      "familyMantleId"
+    ]
+    publicCatalogLoadedInBlindedProfile: false
+    crossProfileIdentityJoinAllowed: false
+    crossProfileSpatialJoinAllowed: false
+  }
+
+  object "ObserverNoFeedbackBoundary" {
+    observerMayRead: ["projected_motion", "fold_topology", "presentation_labels", "disclosure"]
+    observerMayWrite: ["camera_target", "presentation_focus", "reduced_motion", "route_mark"]
+    observerMayNotWrite: [
+      "canonical_scene",
+      "canonical_pose",
+      "logical_clock",
+      "public_state",
+      "executed_schedule",
+      "resident_observation",
+      "resident_prompt",
+      "resident_action",
+      "action_receipt"
+    ]
+    residentCanObservePresentation: false
+    presentationCanAffectOutcome: false
+    externalRequestsAllowed: false
+    modelCallsAllowed: false
+  }
+
+  object "VisibleWitnessLabels" {
+    labels: [
+      "MV-S4 · AUTHORED MOTION",
+      "GENESIS → FOUR-VILLAGE FOLD",
+      "STORY PROFILE · PUBLIC EMBODIMENTS",
+      "RESEARCH PROFILE · NEUTRAL RESIDENTS",
+      "OBSERVER NAVIGATION · NO CAUSAL FEEDBACK"
+    ]
+    colorAloneRequired: false
+    visibleInWitness: true
+  }
+
+  object "ClaimBoundary" {
+    provedWhenReceipted: [
+      "holoscript_authored_genesis_phase_grammar",
+      "holoscript_authored_four_fold_world_topology",
+      "three_run_fixed_step_resident_motion_replay",
+      "story_and_blinded_profile_payload_separation",
+      "public_identity_omitted_from_live_blinded_projection",
+      "observer_navigation_changes_presentation_only",
+      "real_browser_webgpu_adapter_device_pipelines_and_draws",
+      "deterministic_desktop_screenshot",
+      "keyboard_reduced_motion_and_screen_reader_contract",
+      "holo_hsplus_hs_format_roles_enforced_by_parsers"
+    ]
+    notProved: [
+      "completed_multi_model_village_experiment",
+      "captured_model_response_replay",
+      "mixed_or_homogeneous_condition_comparison",
+      "research_unblinding",
+      "live_model_adapter_binding",
+      "native_hsplus_action_execution",
+      "production_humanoid_animation_assets",
+      "photorealism",
+      "webxr_or_headset_performance",
+      "provider_affiliation_or_endorsement"
+    ]
+  }
+}

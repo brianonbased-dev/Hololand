@@ -1,0 +1,107 @@
+// MV-S4 immutable resident-motion and Four-Village Fold evidence anchors.
+//
+// This manifest binds the authored three-format input stack, the two separately
+// evaluated profile digests, the no-feedback proof, and the inspected desktop
+// WebGPU hero. Variable CPU/GPU timings remain in the report and runtime
+// receipt, not this manifest.
+
+composition "Stormglass Resident Motion and Four-Village Fold Manifest" {
+  metadata {
+    schema: "hololand.model-village.resident-motion-fold-manifest.v1"
+    version: "1.0.0"
+    milestone: "MV-S4"
+    status: "PASS_BOUNDED"
+    generatedDate: "2026-07-27"
+    source: "source/layers/vr/frontier/model-village/model-village-resident-motion-four-village-fold-manifest.holo"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-resident-motion-four-village-fold.holo"
+    worldSourceSha256: "d61312c88dc3b63d0c1a3bc829ac127f8463271287fc738df89f8bea364d8cbf"
+    policySource: "source/proofs/model-village-resident-motion-four-village-fold.hsplus"
+    policySourceSha256: "8e687bfb83006342b9959d12c0574d12323ee60f02258c6f71b4d14f4721f347"
+    seedSource: "source/proofs/model-village-resident-motion-four-village-fold-seed.hs"
+    seedSourceSha256: "a7eabc4bcd96b3a82ca52ae354bfe05bbe3d4de099ccfec59265896fad5fa1bc"
+    publicEmbodimentSource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
+    publicEmbodimentSourceSha256: "2d02f29cbbff1b4d5317b8fc3f5e3ad9de0c8ff9390a065849e459f22ab69767"
+    neutralResidentSource: "source/layers/vr/frontier/model-village/model-village-resident-kit.holo"
+    neutralResidentSourceSha256: "53df0dc1ce1749d2af6eeb21c4571d1dcaef7b6127eff0e5c4369ec9e6067169"
+    bridgeLibrary: "scripts/lib/model-village-four-village-fold.mjs"
+    bridgeLibrarySha256: "87c51626e2481c126e022da346ecfa09df79bab001bf804f09950421056ae1ea"
+    checker: "scripts/check-hololand-model-village-resident-motion-four-village-fold.mjs"
+    checkerSha256: "017cc29f57046b9151a54b32f875d809214c1c6d5b22b3c88de5b723cc042ad0"
+    testSource: "scripts/__tests__/hololand-model-village-resident-motion-four-village-fold.test.mjs"
+    testSourceSha256: "06be5e1d53349666f28c738016d96251d303484ede77e459f24f66555bcd0381"
+    heroFrame: "docs/assets/model-village/model-village-resident-motion-four-village-fold-hero-2026-07-27.png"
+    heroFrameSha256: "ec4d63f57ff25109f5672c576e8355730f8d0e7f88ba5e63a6dff23c6fb5bc58"
+    report: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_S4_RESIDENT_MOTION_FOUR_VILLAGE_FOLD_2026-07-27.md"
+    reportSha256: "5dc3848101e6fb9aaf800c6ee3ba61cc348384b628a6109b6efbed497040a444"
+    namedHardware: "NVIDIA GeForce RTX 3060 Laptop GPU"
+    browser: "Chrome 150.0.7871.182"
+    independentProjectDisclosure: "HoloLand-authored visual interpretations; not affiliated with or endorsed by the named model providers."
+    providerEndorsementClaimed: false
+  }
+
+  state {
+    evidenceLane: "mv_s4_resident_motion_four_village_fold"
+    storyProfile: "village_story_unblinded"
+    blindedProfile: "research_live_blinded"
+    storyReplaySha256: "b657bc3b6f240bb1f9bd8cc83b3c2d59065ed0a48f4a63344c372683dd46d581"
+    blindedReplaySha256: "2070c7aa772a4e44fb2b042c46458868a549124f8b4b74ba7497d899a5799b10"
+    combinedProfileReplaySha256: "0646b64bb5f494574a21d0f5f3bad43bda7516ca2bf556827b2c6b145a9f5afc"
+    blindedPayloadSha256: "6b14401d8f47e1ff2aa71b8747fe2aa5eed53eac4e16a7cc264d700011483d6f"
+    observerProtectedStateSha256: "618863fe6a54b2110e80aebfe7a14cd47418ac1461d1c4a2c34ad21907c7dc21"
+    replayRunsPerProfile: 3
+    replaySteps: 720
+    fixedStepHz: 60
+    deterministicSeed: 30510364
+    genesisPhaseCount: 5
+    foldCount: 4
+    storyActorCount: 6
+    blindedActorCount: 6
+    storyAndBlindedActorIdsDisjoint: true
+    publicCatalogLoadedInBlindedProfile: false
+    blindedPayloadContainsPublicNames: false
+    observerMutationDelta: 0
+    browserGpuPipelineCount: 4
+    browserGpuTimestampSamples: 24
+    exactRepeatScreenshotObserved: true
+    realWebGpuPresentationObserved: true
+    gpuTimestampQueryObserved: true
+    cpuAndGpuTimingsSeparated: true
+    externalNetworkFetchCount: 0
+    modelCallCount: 0
+    canonicalVillageWriteCount: 0
+    residentObservationWriteCount: 0
+    residentPromptWriteCount: 0
+    residentActionWriteCount: 0
+    villageReceiptWriteCount: 0
+  }
+
+  object "EvidenceBoundary" {
+    type: "model_village_resident_motion_fold_evidence_boundary"
+    proved: [
+      "parser_verified_three_format_roles",
+      "authored_genesis_phase_grammar",
+      "authored_four_fold_world_topology",
+      "three_run_exact_story_motion_replay",
+      "three_run_exact_blinded_motion_replay",
+      "story_and_blinded_projection_separation",
+      "public_identity_omitted_from_blinded_payload",
+      "four_route_observer_navigation",
+      "seven_protected_hashes_unchanged",
+      "real_browser_webgpu_presentation",
+      "exact_repeat_desktop_screenshot",
+      "zero_external_fetches_model_calls_and_village_writes"
+    ]
+    notProved: [
+      "completed_multi_model_village_experiment",
+      "captured_model_response_replay",
+      "mixed_or_homogeneous_condition_comparison",
+      "research_unblinding",
+      "live_model_adapter_binding",
+      "native_hsplus_action_execution",
+      "production_humanoid_animation_assets",
+      "photorealism",
+      "webxr_or_headset_performance",
+      "provider_affiliation_or_endorsement"
+    ]
+  }
+}
