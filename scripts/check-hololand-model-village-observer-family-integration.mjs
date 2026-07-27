@@ -924,14 +924,14 @@ function candidateBrowsers(explicitPath) {
   ];
 }
 
-function resolveBrowser(explicitPath) {
+export function resolveBrowser(explicitPath) {
   const candidates = candidateBrowsers(explicitPath);
   const found = candidates.find((candidate) => candidate && fs.existsSync(candidate));
   if (found) return found;
   throw new Error(`No Chrome/Edge executable found. Tried: ${candidates.join(', ')}`);
 }
 
-function delay(milliseconds) {
+export function delay(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
@@ -947,7 +947,7 @@ async function fetchJson(url, timeoutMs = 2_000) {
   }
 }
 
-async function waitForDebuggerTarget(port, timeoutMs) {
+export async function waitForDebuggerTarget(port, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   let lastError = null;
   while (Date.now() < deadline) {
@@ -981,7 +981,7 @@ function waitForEvent(client, method, timeoutMs) {
   });
 }
 
-async function createCdpClient(webSocketUrl) {
+export async function createCdpClient(webSocketUrl) {
   const socket = new WebSocket(webSocketUrl);
   const pending = new Map();
   const handlers = new Set();
@@ -1043,7 +1043,7 @@ async function createCdpClient(webSocketUrl) {
   };
 }
 
-async function evaluate(client, expression, timeoutMs = 30_000) {
+export async function evaluate(client, expression, timeoutMs = 30_000) {
   const result = await client.send(
     'Runtime.evaluate',
     { expression, awaitPromise: true, returnByValue: true },
@@ -1059,7 +1059,7 @@ async function evaluate(client, expression, timeoutMs = 30_000) {
   return result.result?.value;
 }
 
-async function waitForExpression(client, expression, timeoutMs = 120_000) {
+export async function waitForExpression(client, expression, timeoutMs = 120_000) {
   const deadline = Date.now() + timeoutMs;
   let last = null;
   while (Date.now() < deadline) {
@@ -1078,7 +1078,7 @@ async function navigate(client, url, timeoutMs = 120_000) {
   return evaluate(client, 'window.__MV_V7_SNAPSHOT__()');
 }
 
-async function setViewport(client, width, height) {
+export async function setViewport(client, width, height) {
   await client.send('Emulation.setDeviceMetricsOverride', {
     width,
     height,
@@ -1090,7 +1090,7 @@ async function setViewport(client, width, height) {
   await delay(500);
 }
 
-async function captureScreenshot(client, filePath, width, height) {
+export async function captureScreenshot(client, filePath, width, height) {
   await setViewport(client, width, height);
   const screenshot = await client.send('Page.captureScreenshot', {
     format: 'png',
@@ -1109,7 +1109,7 @@ async function captureScreenshot(client, filePath, width, height) {
   };
 }
 
-async function removeDirectoryBestEffort(directory) {
+export async function removeDirectoryBestEffort(directory) {
   for (let attempt = 0; attempt < 8; attempt += 1) {
     try {
       fs.rmSync(directory, { recursive: true, force: true });

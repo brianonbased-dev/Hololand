@@ -1,0 +1,255 @@
+// Stormglass Commons bounded cinematic observer sequence.
+//
+// This source owns two exact presentation beats over the admitted MV-V7
+// observer tableau. Camera framing, captions, and optional local audio are
+// read-only exhibit surfaces. They cannot affect the village, residents,
+// research identities, schedules, observations, actions, or receipts.
+
+composition "Stormglass Observer Cinematic Sequence" {
+  metadata {
+    schema: "hololand.model-village.observer-cinematic-sequence.v1"
+    assetId: "mv-stormglass-observer-cinematic-sequence-v1"
+    title: "Stormglass Commons: Proof in the Light"
+    version: "1.0.0"
+    milestone: "MV-V8"
+    source: "source/layers/vr/frontier/model-village/model-village-observer-cinematic-sequence.holo"
+    manifestSource: "source/layers/vr/frontier/model-village/model-village-observer-cinematic-sequence-manifest.holo"
+    observerFamilyIntegrationSource: "source/layers/vr/frontier/model-village/model-village-observer-family-integration.holo"
+    observerFamilyPlacementManifestSource: "source/layers/vr/frontier/model-village/model-village-observer-family-placement-manifest.holo"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    format: "bounded_two_beat_exhibit_replay"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    sourceSovereign: true
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    causalEffect: false
+    status: "public_story_and_postlock_read_only_cinematic"
+  }
+
+  environment {
+    mode: "verified_observer_cinematic_replay"
+    theme: "stormglass_commons"
+    timeOfDay: "blue_hour"
+    presentationMood: "hearthlight_revelation"
+    observerRenderer: "existing_mv_v7_dual_renderer"
+    cameraMode: "deterministic_discrete_exhibit_cut"
+    transitionMode: "reduced_motion_cut"
+    externalVisualAssets: false
+    externalAudioAssets: false
+    externalNetworkAllowed: false
+  }
+
+  state {
+    defaultPresentationProfile: "research_live_blinded"
+    admittedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    deniedPresentationProfiles: ["research_live_blinded"]
+    beatCount: 2
+    sequenceDurationMs: 6800
+    defaultBeatIndex: 0
+    autoplayDefault: false
+    manualPlaybackRequired: true
+    reducedMotionDefault: true
+    captionsAlwaysVisible: true
+    audioDescriptionAlwaysAvailable: true
+    audioDefaultMuted: true
+    audioMode: "optional_local_procedural_witness"
+    audioExternalAssets: false
+    audioWorldCausalEffect: false
+    audioHumanMixApproved: false
+    exactReplayBoundary: "camera_annotation_phase_and_character_pixels"
+    observerCompositePixelEqualityClaimed: false
+    researchResidentBinding: "none"
+    researchSeatBinding: "none"
+    researchPersonaBinding: "none"
+    researchRoleBinding: "none"
+    adapterAssignmentBinding: "none"
+    exactModelRevisionBinding: "none"
+    postlockResearchJoinExecuted: false
+    missingAdmissionBehavior: "fail_neutral"
+    invalidAdmissionBehavior: "fail_neutral"
+    researchProfileBehavior: "preserve_neutral_observer"
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    scheduleWriteAuthority: false
+    clockWriteAuthority: false
+    actionWriteAuthority: false
+    receiptWriteAuthority: false
+    causalEffect: false
+    residentCanObservePresentation: false
+    presentationCanAffectOutcome: false
+    externalVisualAssets: false
+  }
+
+  object "ObserverCinematicAdmissionGate" {
+    profileSource: "url.profile"
+    sequenceAdmissionSource: "url.sequence"
+    admittedProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    deniedProfile: "research_live_blinded"
+    admissionMode: "exact_source_contract_mv_v7_and_canonical_hash"
+    admissionBinds: [
+      "observer_cinematic_sequence_source_sha256",
+      "sequence_contract_sha256",
+      "mv_v7_observer_family_admission_sha256",
+      "observer_canonical_fields_sha256",
+      "presentation_profile",
+      "independent_project_disclosure"
+    ]
+    failNeutral: true
+    failNeutralDestination: "unchanged_neutral_observer"
+    deniedProfileMayInstantiateNamedRenderer: false
+    invalidAdmissionMayInstantiateNamedRenderer: false
+    mayWriteCanonicalWorld: false
+    mayWriteResidentObservation: false
+  }
+
+  object "BeatTheCommonsWakes" {
+    beatId: "the_commons_wakes"
+    beatIndex: 0
+    durationMs: 3200
+    eyebrow: "BEAT 01 / ARRIVAL"
+    title: "The Commons Wakes"
+    presenterCopy: "Hearthlight crosses six public mantles. Beneath the exhibit, the verified village replay remains unchanged and unable to observe the presentation."
+    audioDescription: "A wide blue-hour view reveals six faceless family mantles arranged across the illuminated Stormglass Commons."
+    sealedClothPhaseSeconds: 0.6
+    cameraScale: 1.0
+    cameraTranslateXPercent: 0.0
+    cameraTranslateYPercent: 0.0
+    cameraOriginXPercent: 50
+    cameraOriginYPercent: 50
+    cameraLens: "wide_commons"
+    annotationGlyph: "six_fold_hearth"
+    optionalAudioCueHz: 196
+    optionalAudioCueDurationMs: 420
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+
+  object "BeatProofInTheLight" {
+    beatId: "proof_in_the_light"
+    beatIndex: 1
+    durationMs: 3600
+    eyebrow: "BEAT 02 / WITNESS"
+    title: "Proof in the Light"
+    presenterCopy: "The lens closes toward the Receipt Loom as the sealed 1.2-second cloth phase resolves. Camera, caption, and cue remain presentation-only."
+    audioDescription: "The exhibit moves to a tighter centered frame while the six mantles hold a sealed later cloth pose."
+    sealedClothPhaseSeconds: 1.2
+    cameraScale: 1.12
+    cameraTranslateXPercent: 0.0
+    cameraTranslateYPercent: -1.8
+    cameraOriginXPercent: 50
+    cameraOriginYPercent: 48
+    cameraLens: "receipt_loom_push"
+    annotationGlyph: "receipt_loom"
+    optionalAudioCueHz: 293.66
+    optionalAudioCueDurationMs: 520
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+
+  object "PresenterAccessibilityDeck" {
+    playbackControls: ["previous", "next", "replay"]
+    keyboardControls: ["ArrowLeft", "ArrowRight", "Home"]
+    reducedMotionDefault: true
+    continuousCameraMotion: false
+    flashingEffects: false
+    captionsAlwaysVisible: true
+    captionsUseColorAlone: false
+    audioDescriptionTextAvailable: true
+    muteControlAlwaysVisible: true
+    portraitLayoutRequired: true
+    desktopLayoutRequired: true
+  }
+
+  object "OptionalLocalAudioBoundary" {
+    implementation: "browser_web_audio_procedural_two_tone_witness"
+    sourceOwnedCueFields: [
+      "optional_audio_cue_hz",
+      "optional_audio_cue_duration_ms"
+    ]
+    enabledByDefault: false
+    requiresUserAction: true
+    externalAudioAssets: false
+    externalNetworkAllowed: false
+    spatialAudioClaimed: false
+    adaptiveMusicClaimed: false
+    voiceOrTtsClaimed: false
+    audibleOutputVerified: false
+    humanMixApproved: false
+    mayWriteCanonicalWorld: false
+    mayAffectResidentObservation: false
+  }
+
+  object "ExactReplayBoundary" {
+    exactFields: [
+      "beat_id",
+      "beat_index",
+      "camera_transform",
+      "presenter_annotation",
+      "sealed_cloth_phase",
+      "character_pixel_digest"
+    ]
+    observerCompositePixelEqualityClaimed: false
+    rationale: "The verified observer retains its independent render loop; exactness is asserted only for the sealed exhibit state and HoloScript character pixels."
+    replayMayAdvanceCanonicalClock: false
+    replayMayScheduleAction: false
+    replayMayCreateObservation: false
+    replayMayCreateReceipt: false
+  }
+
+  object "NoFeedbackBoundary" {
+    browserMayWriteCanonicalWorld: false
+    browserMayWriteResidentObservation: false
+    browserMayWriteSchedule: false
+    browserMayWriteClock: false
+    browserMayWritePrompt: false
+    browserMayWriteAction: false
+    browserMayWriteReceipt: false
+    residentCanObservePresentation: false
+    presentationCanAffectOutcome: false
+    protectedHashes: [
+      "canonical_scene_hash",
+      "canonical_pose_hash",
+      "logical_clock_hash",
+      "public_state_hash",
+      "executed_schedule_hash",
+      "resident_observation_hash",
+      "action_receipt_root",
+      "research_appearance_hash"
+    ]
+  }
+
+  object "ClaimBoundary" {
+    provedWhenReceipted: [
+      "two_holoscript_owned_discrete_cinematic_beats",
+      "exact_camera_annotation_phase_and_character_pixel_replay",
+      "desktop_and_portrait_sequence_contact_sheets",
+      "optional_local_procedural_audio_graph_muted_by_default",
+      "captions_reduced_motion_and_audio_description",
+      "browser_webgpu_characters_over_verified_webgl2_observer",
+      "research_live_blinded_fail_neutral_without_named_renderer",
+      "canonical_schedule_observation_and_appearance_noninterference",
+      "zero_external_visual_or_audio_assets_and_fetches"
+    ]
+    notProved: [
+      "mv_s1_fifty_two_second_six_beat_show",
+      "audible_output_or_human_approved_mix",
+      "spatial_audio_adaptive_music_voice_or_tts",
+      "continuous_camera_animation",
+      "whole_observer_composite_pixel_equality",
+      "live_research_unblinding",
+      "provider_affiliation_or_endorsement",
+      "exact_provider_model_revision",
+      "postlock_research_identity_join",
+      "photorealism",
+      "published_real_time_performance",
+      "webxr_or_headset_performance"
+    ]
+  }
+}

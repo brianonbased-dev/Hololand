@@ -1,0 +1,44 @@
+// MV-V8 bounded cinematic sequence immutable witness anchors.
+
+composition "Stormglass Observer Cinematic Sequence Manifest" {
+  metadata {
+    schema: "hololand.model-village.observer-cinematic-sequence-manifest.v1"
+    version: "1.0.0"
+    milestone: "MV-V8"
+    source: "source/layers/vr/frontier/model-village/model-village-observer-cinematic-sequence-manifest.holo"
+    sequenceSource: "source/layers/vr/frontier/model-village/model-village-observer-cinematic-sequence.holo"
+    sequenceSourceSha256: "40987c3fd1ee7ba0ca49b8e93f45839a35b8f08f1ff0e754615c08d32894c03d"
+    sequenceContractSha256: "639e49197c1129993e6e0185d1beba7840eb9015e1aee64a843bedf6b4761b0b"
+    mvV7IntegrationSourceSha256: "2538be338b45dfc5c530b9d5fe30b5b2f48778bd8c339068255ee61f5f84d997"
+    observerCanonicalFieldsSha256: "a3918fe62693c481b269ffd07d29c4912d697372ef5ee3a8bfa5efe5141bfde4"
+    storyAdmissionSha256: "74063b7348cacfa78b803cf2bab57bfea6f6a74e0befc8124dc03f13e6ec9241"
+    postlockAdmissionSha256: "cfebf7be7ad70d985039e9d03443ae7ac4df3974893a8e6c0d86758e93890e85"
+    sequenceHtmlSha256: "72094d6690e02a80fb963704a83e527583e7899e60c740d2051ff90ae9eb5b25"
+    desktopContactSheetSha256: "dee2f909fcb25281e7214f3f283f6febeb516346667404abcc5087527362774a"
+    portraitContactSheetSha256: "9e8ee049710213caca19aef9bae07bbb6e47bf103af836881c7694ea251c659e"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    providerEndorsementClaimed: false
+    exactModelRevisions: "absent"
+  }
+
+  state {
+    beatCount: 2
+    sequenceDurationMs: 6800
+    deterministicReplayObserved: true
+    desktopContactSheetObserved: true
+    portraitContactSheetObserved: true
+    browserNativeWebgpuObserved: true
+    observerWebgl2Observed: true
+    optionalLocalAudioGraphObserved: true
+    audibleOutputVerified: false
+    humanMixApproved: false
+    researchLiveBlindedAllowed: false
+    namedRendererInstantiatedForResearch: false
+    canonicalHashNoninterferenceObserved: true
+    researchAppearanceHashNoninterferenceObserved: true
+    externalNetworkFetchesObserved: 0
+    externalVisualAssetsObserved: 0
+    externalAudioAssetsObserved: 0
+    mvS1FullShowClaimed: false
+  }
+}
