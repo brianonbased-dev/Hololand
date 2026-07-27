@@ -1,0 +1,362 @@
+// HoloLand Model Village — Receipt Loom Courtyard, Art Convergence A.
+//
+// This composition owns the visible scene semantics and look-development
+// contract. The HoloLand browser adapter may materialize the declared kits into
+// detailed Three.js geometry, but it may not invent story state, resident
+// identity, experiment outcomes, or canonical writes.
+
+composition "HoloLand Model Village Receipt Loom Courtyard" {
+  metadata {
+    title: "Receipt Loom Courtyard — Art Convergence A"
+    version: "0.1.0"
+    source: "source/layers/vr/frontier/model-village/model-village-receipt-loom-courtyard.holo"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    milestone: "MV-V1_ART_CONVERGENCE_A"
+    projectionRole: "read_only_art_development"
+    referenceConcept: "docs/assets/model-village/model-village-stormglass-commons-concept-2026-07-25.png"
+    referenceConceptSha256: "2aa7deae838068e0caffa22d793abb85f76702c9d3e0a55f3169d81de9b611bf"
+    characterReference: "docs/assets/model-village/model-village-stormglass-family-craftfolk-lineup-2026-07-25.png"
+    characterReferenceSha256: "1925248b8f4b5a65a3cd367022b8e80e03462b771af30d9a5428f4397a135fe1"
+    calibrationSource: "source/layers/vr/frontier/model-village/model-village-render-calibration.holo"
+    sourceSemanticsRewritten: false
+    bridgeMayOwnPresentationOnly: true
+    externalAssetsRequired: false
+  }
+
+  environment {
+    mode: "stormglass_blue_hour_after_rain"
+    theme: "hearthlight_biorealism"
+    backgroundColor: "#07101f"
+    ambient_light: 0.31
+    fogColor: "#111d35"
+    fogNear: 22
+    fogFar: 68
+    shadows: true
+  }
+
+  light "MoonKey" {
+    type: "directional"
+    color: "#b9d8ff"
+    intensity: 1.85
+    position: [-9, 13, 8]
+    cast_shadow: true
+  }
+
+  light "LoomHearth" {
+    type: "point"
+    color: "#ffad5c"
+    intensity: 9.5
+    position: [0, 3.4, 0.3]
+    range: 17
+  }
+
+  light "CottageHearth" {
+    type: "point"
+    color: "#ffc274"
+    intensity: 4.6
+    position: [-5.6, 2.8, -2.4]
+    range: 10
+  }
+
+  light "StormglassRim" {
+    type: "directional"
+    color: "#70ddff"
+    intensity: 1.35
+    position: [9, 7, -7]
+    cast_shadow: false
+  }
+
+  state {
+    authority: "read_only"
+    presentationProfile: "village_story_unblinded"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    researchLiveBlindedCompatible: true
+    publicFamilyIdentityPresented: false
+    exactModelIdentityPresented: false
+    residentFormStatus: "neutral_craftfolk_staging_form"
+    productionResidentClaimed: false
+    camera: {
+      width: 1600
+      height: 900
+      position: [15.2, 9.4, 17.6]
+      target: [0, 2.15, -0.4]
+      fov: 42
+      near: 0.1
+      far: 120
+    }
+    renderer: {
+      outputColorSpace: "srgb"
+      toneMapping: "aces_filmic"
+      exposure: 1.08
+      shadowMap: "pcf_soft"
+      pixelRatio: 1
+      antialias: true
+      environmentKind: "three_room_environment_procedural_local"
+      hdri: false
+      bloomRequired: false
+    }
+    composition: {
+      villageViewportWidthTarget: [0.55, 0.75]
+      villageViewportHeightTarget: [0.50, 0.70]
+      loomScreenRegion: "lower_center_third"
+      foreground: ["wet_cobbles", "cistern_edge", "stormglass_reeds", "timber_rail"]
+      midground: ["receipt_loom", "two_neutral_craftfolk", "courtyard_path", "workshop_props"]
+      background: ["timber_basalt_cottage", "ridge_silhouette", "storm_moon", "indigo_sky"]
+    }
+    materialPalette: {
+      wetBasalt: "#26353b"
+      dryBasalt: "#35444a"
+      oldTimber: "#6f3f24"
+      timberHighlight: "#b06e3b"
+      limePlaster: "#918779"
+      slateRoof: "#233449"
+      agedBronze: "#8d572d"
+      bronzeHighlight: "#d18a45"
+      stormglass: "#8ad9e7"
+      stormglassDeep: "#347d96"
+      hearth: "#ffad5c"
+      moss: "#526b42"
+      reed: "#728a55"
+      water: "#5f9dab"
+      indigoSky: "#07101f"
+      horizonSky: "#283a62"
+    }
+    qualityBudget: {
+      maxDrawCalls: 760
+      maxPrimarySceneObjects: 380
+      maxTriangles: 260000
+      shadowCasters: 90
+      transparentMaterialCount: 4
+      textureNetworkRequests: 0
+      browserSafeCompositionComplete: true
+    }
+  }
+
+  object "StormglassSky" {
+    geometry: "sphere"
+    position: [0, 10, 0]
+    scale: [75, 75, 75]
+    visible: true
+    material: {
+      color: "#07101f"
+      metalness: 0
+      roughness: 1
+    }
+    properties: {
+      presentationKit: "gradient_sky_dome"
+      zenithColor: "#0d1c38"
+      upperColor: "#203657"
+      horizonColor: "#4e6280"
+      moonColor: "#e6efff"
+      moonScreenAnchor: [0.22, 0.18]
+      moonAngularDiameterDegrees: 4.2
+    }
+  }
+
+  object "MountainRidge" {
+    geometry: "box"
+    position: [0, 6, -26]
+    scale: [48, 13, 8]
+    material: {
+      color: "#101a2a"
+      metalness: 0
+      roughness: 0.96
+    }
+    properties: {
+      presentationKit: "layered_mountain_ridge"
+      ridgeLayers: 3
+      peakCount: 17
+      deterministicSeed: 41027
+    }
+  }
+
+  object "CourtyardTerrain" {
+    geometry: "cylinder"
+    position: [0, -0.45, 0]
+    scale: [15, 0.9, 12]
+    material: {
+      color: "#26353b"
+      metalness: 0.02
+      roughness: 0.42
+      clearcoat: 0.35
+      clearcoatRoughness: 0.24
+    }
+    properties: {
+      presentationKit: "terraced_wet_basalt_courtyard"
+      terraceCount: 4
+      cobbleCount: 118
+      puddleCount: 8
+      perimeterRockCount: 26
+      deterministicSeed: 82411
+    }
+  }
+
+  object "ReceiptLoom" {
+    geometry: "torus"
+    position: [0, 2.55, -0.25]
+    scale: [1.9, 1.9, 1.9]
+    material: {
+      color: "#8d572d"
+      metalness: 0.82
+      roughness: 0.3
+      clearcoat: 0.18
+      emissive: "#241007"
+      emissiveIntensity: 0.3
+    }
+    properties: {
+      presentationKit: "receipt_loom_hero"
+      ringCount: 3
+      radialSpokes: 12
+      stormglassNodes: 9
+      receiptThreads: 16
+      plinthSteps: 3
+      canonicalDecisionClaimed: false
+      presentationOnly: true
+    }
+  }
+
+  object "TimberBasaltCottage" {
+    geometry: "box"
+    position: [-5.7, 2.2, -4.15]
+    scale: [6.4, 4.4, 4.8]
+    material: {
+      color: "#c9bda5"
+      metalness: 0
+      roughness: 0.78
+    }
+    properties: {
+      presentationKit: "timber_basalt_cottage"
+      storeys: 2
+      timberBeamCount: 18
+      slateCourseCount: 11
+      litWindowCount: 4
+      basaltFoundationCourses: 3
+      chimneyCount: 1
+      workshopAwning: true
+    }
+  }
+
+  object "CisternEdge" {
+    geometry: "cylinder"
+    position: [6.1, 0.15, 3.15]
+    scale: [2.7, 0.55, 2.7]
+    material: {
+      color: "#35444a"
+      metalness: 0.02
+      roughness: 0.36
+      clearcoat: 0.42
+      clearcoatRoughness: 0.2
+    }
+    properties: {
+      presentationKit: "stone_cistern_and_water"
+      stoneSegments: 22
+      waterVisible: true
+      fluidSimulationClaimed: false
+      waterChannelCount: 2
+    }
+  }
+
+  object "CraftfolkResident01" {
+    geometry: "capsule"
+    position: [-2.15, 1.0, 2.35]
+    scale: [0.72, 1.75, 0.72]
+    material: {
+      color: "#a96339"
+      metalness: 0
+      roughness: 0.72
+      sheen: 0.2
+      sheenColor: "#d68b56"
+    }
+    properties: {
+      presentationKit: "neutral_craftfolk_staging_form"
+      neutralSeat: "Seat01"
+      publicFamilyIdentity: false
+      productionResidentClaimed: false
+      tool: "receipt_tongs"
+      mantleColor: "#b5683d"
+    }
+  }
+
+  object "CraftfolkResident02" {
+    geometry: "capsule"
+    position: [2.85, 1.0, 1.15]
+    scale: [0.72, 1.75, 0.72]
+    material: {
+      color: "#476d76"
+      metalness: 0
+      roughness: 0.72
+      sheen: 0.2
+      sheenColor: "#75aab0"
+    }
+    properties: {
+      presentationKit: "neutral_craftfolk_staging_form"
+      neutralSeat: "Seat02"
+      publicFamilyIdentity: false
+      productionResidentClaimed: false
+      tool: "stormglass_lantern"
+      mantleColor: "#476d76"
+    }
+  }
+
+  object "CourtyardGardens" {
+    geometry: "box"
+    position: [0, 0, 0]
+    scale: [14, 2.4, 10]
+    material: {
+      color: "#526b42"
+      metalness: 0
+      roughness: 0.9
+    }
+    properties: {
+      presentationKit: "stormglass_reeds_and_moss"
+      reedClumps: 34
+      grassTufts: 72
+      mossPatches: 18
+      stormglassBudCount: 15
+      raisedPlanterCount: 4
+      deterministicSeed: 7319
+    }
+  }
+
+  object "WorkshopProps" {
+    geometry: "box"
+    position: [-3.5, 0.4, 0.2]
+    scale: [6, 1.6, 5]
+    material: {
+      color: "#6f3f24"
+      metalness: 0
+      roughness: 0.75
+    }
+    properties: {
+      presentationKit: "lived_in_craft_props"
+      basketCount: 4
+      toolRackCount: 2
+      crateCount: 5
+      lanternCount: 5
+      timberRailMeters: 19
+    }
+  }
+
+  object "Atmosphere" {
+    geometry: "sphere"
+    position: [0, 7, 0]
+    scale: [30, 14, 30]
+    material: {
+      color: "#8ebbd0"
+      metalness: 0
+      roughness: 1
+      transparent: true
+      opacity: 0.08
+    }
+    properties: {
+      presentationKit: "blue_hour_mist_and_fireflies"
+      mistLayers: 4
+      fireflyCount: 36
+      rainStreakCount: 0
+      animated: false
+    }
+  }
+}

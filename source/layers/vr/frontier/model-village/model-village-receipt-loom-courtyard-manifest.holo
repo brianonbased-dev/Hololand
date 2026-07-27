@@ -1,0 +1,80 @@
+// Immutable witness manifest for Receipt Loom Courtyard — Art Convergence A.
+// Regenerate this manifest only when the authored source, presentation bridge,
+// accepted hero capture, or verified hardware receipt changes.
+
+composition "HoloLand Model Village Receipt Loom Courtyard Manifest" {
+  metadata {
+    title: "Receipt Loom Courtyard — Art Convergence A Witness"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV-V1_ART_CONVERGENCE_A"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-receipt-loom-courtyard.holo"
+      sha256: "6396f15623bab2f910c081943e58f53dc4d121bedc52f5b050de58443706d4bd"
+      sceneIrSha256: "f2d63746360b18c3ae5aee47f96f0f2ef7b6c5e9d664e07d2eb6a40646912e79"
+    }
+    calibration: {
+      path: "source/layers/vr/frontier/model-village/model-village-render-calibration.holo"
+      sha256: "492d0b4c2718cb62c0213098b26df7307f70687f6b224c0cff532cd1fc833ef0"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-receipt-loom-courtyard.mjs"
+      sha256: "261d01c8ad75ec2fb62d922ff29702ee0390377b97b08bb07204ce4ae0999a19"
+      testPath: "scripts/__tests__/hololand-model-village-receipt-loom-courtyard.test.mjs"
+      testSha256: "1f11b6b6fff06c8aa740c3f83835edc7676f214a1601cfeaae3973362c095645"
+    }
+    bridge: {
+      route: "HoloScript source -> HoloCompositionParser -> SceneIRCompiler -> HoloLand presentation-only Three adapter"
+      appSourceSha256: "e25535eed0fa43a719af2f56b5bbe195d2ef32a6b8a26f5c300cae28ac94864b"
+      bundleSha256: "e93ddd91c5f6e1a58200d00892ff0d842e6968b361699e964065d516293bf4db"
+      sourceSemanticsRewritten: false
+      externalAssets: []
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-receipt-loom-courtyard-art-convergence-a-2026-07-27.png"
+      sha256: "83dd9e31b0df2222737a1f10c76d3f64635a1d86ce6aef583fcb41d6dc89821a"
+      width: 1600
+      height: 900
+      bytes: 942357
+      visuallyInspected: true
+    }
+    hardware: {
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      browserBackend: "ANGLE Direct3D11 D3D11"
+      softwareRenderer: false
+      holoScriptCoreSha256: "68809748b0aa139d06febd6933a9375f23d3d398495638515b9b71494abf747d"
+      esbuildSha256: "8331fe1d8b3a07381f33cc425fcfaa94776e263113653f80ec3ba433e9657e73"
+    }
+    metrics: {
+      drawCallsShadowInclusive: 742
+      triangles: 80692
+      points: 36
+      geometries: 407
+      textures: 6
+      materials: 23
+      villageViewportWidthRatio: 0.7067448957673436
+      villageViewportHeightRatio: 0.7756828281538918
+    }
+    boundaries: {
+      canonicalWritesAllowed: false
+      modelCalls: 0
+      externalNetworkRequests: 0
+      publicFamilyIdentityPresented: false
+      neutralCraftfolkCount: 2
+      productionResidentClaimed: false
+      fullWorldConvergenceClaimed: false
+      gameplayPhysicsClaimed: false
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      sha256: "c026e0e820df5cce22588f0c52451f99948898fde5ef8bfac31d9b6a684f1555"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/receipt-loom-courtyard/receipt-loom-courtyard-witness.json"
+    }
+  }
+}
