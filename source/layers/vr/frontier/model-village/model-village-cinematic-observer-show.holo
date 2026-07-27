@@ -1,0 +1,428 @@
+// Stormglass Commons 52-second cinematic observer show.
+//
+// This source owns six sealed, reduced-motion presentation beats over the
+// admitted MV-V7 observer tableau. Beats 2-4 cite only V4 RUN village
+// evidence. Beat 5 is an explicitly separate MV-P10 PHYSICS FIXTURE replay.
+// The exhibit forbids any inference that the fixture caused the V4 receipts.
+// The browser is read-only and the first executable cut is intentionally silent.
+
+composition "Stormglass Cinematic Observer Show" {
+  metadata {
+    schema: "hololand.model-village.cinematic-observer-show.v1"
+    assetId: "mv-stormglass-cinematic-observer-show-v1"
+    title: "Stormglass Commons: Proof in the Light"
+    version: "1.0.0"
+    milestone: "MV-S1"
+    source: "source/layers/vr/frontier/model-village/model-village-cinematic-observer-show.holo"
+    manifestSource: "source/layers/vr/frontier/model-village/model-village-cinematic-observer-show-manifest.holo"
+    primitiveSource: "source/layers/vr/frontier/model-village/model-village-observer-cinematic-sequence.holo"
+    observerFamilyIntegrationSource: "source/layers/vr/frontier/model-village/model-village-observer-family-integration.holo"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    format: "fifty_two_second_six_beat_desktop_exhibit_replay"
+    productionLock: "a1c8c9ad6142ba4795385dac6551a4131befa809"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    sourceSovereign: true
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    causalEffect: false
+    status: "public_story_and_postlock_read_only_cinematic_show"
+  }
+
+  environment {
+    mode: "verified_observer_cinematic_show_replay"
+    theme: "stormglass_commons"
+    timeOfDay: "blue_hour"
+    presentationMood: "hearthlight_revelation"
+    observerRenderer: "existing_mv_v7_dual_renderer"
+    cameraMode: "deterministic_discrete_exhibit_cut"
+    transitionMode: "reduced_motion_cut"
+    audioMode: "silent_first_executable_cut"
+    externalVisualAssets: false
+    externalAudioAssets: false
+    externalNetworkAllowed: false
+  }
+
+  state {
+    defaultPresentationProfile: "research_live_blinded"
+    admittedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    deniedPresentationProfiles: ["research_live_blinded"]
+    beatCount: 6
+    sequenceDurationMs: 52000
+    defaultBeatIndex: 0
+    autoplayDefault: false
+    manualPlaybackRequired: true
+    pauseRequired: true
+    replayRequired: true
+    reducedMotionDefault: true
+    continuousCameraMotion: false
+    captionsAlwaysVisible: true
+    audioDescriptionTextAvailable: true
+    audioEnabled: false
+    audioGraphAllowed: false
+    audioAssetsAllowed: false
+    exactReplayBoundary: "beat_camera_annotation_lane_phase_physics_frame_v4_projection_and_character_pixels"
+    observerCompositePixelEqualityClaimed: false
+    crossLaneCausalityAllowed: false
+    researchResidentBinding: "none"
+    researchSeatBinding: "none"
+    researchPersonaBinding: "none"
+    researchRoleBinding: "none"
+    adapterAssignmentBinding: "none"
+    exactModelRevisionBinding: "none"
+    postlockResearchJoinExecuted: false
+    missingAdmissionBehavior: "fail_neutral"
+    invalidAdmissionBehavior: "fail_neutral"
+    researchProfileBehavior: "preserve_neutral_observer"
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    scheduleWriteAuthority: false
+    clockWriteAuthority: false
+    actionWriteAuthority: false
+    receiptWriteAuthority: false
+    causalEffect: false
+    residentCanObservePresentation: false
+    presentationCanAffectOutcome: false
+    externalVisualAssets: false
+  }
+
+  object "CinematicShowAdmissionGate" {
+    profileSource: "url.profile"
+    showAdmissionSource: "url.show"
+    admittedProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    deniedProfile: "research_live_blinded"
+    admissionMode: "exact_source_contract_mv_v7_canonical_hash_and_production_lock"
+    admissionBinds: [
+      "cinematic_observer_show_source_sha256",
+      "show_contract_sha256",
+      "mv_v7_observer_family_admission_sha256",
+      "observer_canonical_fields_sha256",
+      "production_lock",
+      "presentation_profile",
+      "independent_project_disclosure"
+    ]
+    failNeutral: true
+    failNeutralDestination: "unchanged_neutral_observer"
+    deniedProfileMayInstantiateNamedRenderer: false
+    invalidAdmissionMayInstantiateNamedRenderer: false
+    mayWriteCanonicalWorld: false
+    mayWriteResidentObservation: false
+  }
+
+  object "EvidenceLaneBoundary" {
+    v4RunLaneId: "v4_run"
+    v4RunLabel: "V4 RUN RECEIPT"
+    v4RunOwns: [
+      "public_water_units",
+      "accepted_action_count",
+      "boundary_blocked_receipt"
+    ]
+    physicsFixtureLaneId: "mv_p10_physics_fixture"
+    physicsFixtureLabel: "SEPARATE MV-P10 PHYSICS FIXTURE"
+    physicsFixtureOwns: [
+      "sealed_gravity_token_frame",
+      "physics_visual_frame_hash"
+    ]
+    synthesisLaneId: "exhibit_synthesis"
+    synthesisLabel: "EXHIBIT SYNTHESIS"
+    crossLaneCausalityAllowed: false
+    physicsFixtureMayExplainV4Receipts: false
+    v4ReceiptsMayClaimPhysicsFixtureExecution: false
+    synthesisMayMergeEvidence: false
+    rationale: "The show may juxtapose independently sealed evidence, but it cannot create a causal edge between the V4 village run and the MV-P10 fixture."
+  }
+
+  object "BeatStormglassBeforeTheProof" {
+    beatId: "stormglass_before_the_proof"
+    beatIndex: 0
+    durationMs: 7000
+    actId: "act_one_village_receipts"
+    evidenceLane: "v4_run"
+    evidenceLaneLabel: "V4 RUN RECEIPT"
+    evidenceKey: "observer_stage"
+    evidenceValue: "read_only"
+    causalSource: "v4_run_observer_projection"
+    eyebrow: "BEAT 01 / THE WITNESS ARRIVES"
+    title: "Stormglass Before the Proof"
+    presenterCopy: "Six public mantles gather at blue hour. The camera enters as an observer only; the village cannot see the show and the show cannot change the village."
+    audioDescription: "A wide blue-hour view establishes six faceless model-family mantles around the glowing Stormglass Commons."
+    sealedClothPhaseSeconds: 0.6
+    physicsFrameStep: 42
+    cameraScale: 1.0
+    cameraTranslateXPercent: 0.0
+    cameraTranslateYPercent: 0.0
+    cameraOriginXPercent: 50
+    cameraOriginYPercent: 50
+    cameraLens: "wide_commons"
+    annotationGlyph: "six_fold_hearth"
+    crossLaneCausalityAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+
+  object "BeatWaterGiven" {
+    beatId: "water_given"
+    beatIndex: 1
+    durationMs: 9000
+    actId: "act_one_village_receipts"
+    evidenceLane: "v4_run"
+    evidenceLaneLabel: "V4 RUN RECEIPT"
+    evidenceKey: "public_water_units"
+    evidenceValue: "3"
+    causalSource: "v4_run_living_commons_projection"
+    eyebrow: "BEAT 02 / THE CISTERN"
+    title: "Water Given"
+    presenterCopy: "The cistern brightens from the sealed V4 RUN public-water field. This is receipt projection, not a cinematic simulation of generosity."
+    audioDescription: "The frame cuts closer to the cyan cistern and its visible water-level witness on the left side of the Commons."
+    sealedClothPhaseSeconds: 0.6
+    physicsFrameStep: 42
+    cameraScale: 1.22
+    cameraTranslateXPercent: 10.0
+    cameraTranslateYPercent: -1.0
+    cameraOriginXPercent: 38
+    cameraOriginYPercent: 50
+    cameraLens: "cistern_receipt_close"
+    annotationGlyph: "water_receipt"
+    crossLaneCausalityAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+
+  object "BeatTheHearthAnswers" {
+    beatId: "the_hearth_answers"
+    beatIndex: 2
+    durationMs: 9000
+    actId: "act_one_village_receipts"
+    evidenceLane: "v4_run"
+    evidenceLaneLabel: "V4 RUN RECEIPT"
+    evidenceKey: "accepted_action_count"
+    evidenceValue: "1"
+    causalSource: "v4_run_living_commons_projection"
+    eyebrow: "BEAT 03 / THE HEARTH"
+    title: "The Hearth Answers"
+    presenterCopy: "One admitted action is visible as hearthlight because the V4 RUN receipt says it was accepted. The presenter adds no action and writes no receipt."
+    audioDescription: "The frame centers the tall amber hearth column and its circular light while the six mantles hold a sealed cloth pose."
+    sealedClothPhaseSeconds: 1.2
+    physicsFrameStep: 42
+    cameraScale: 1.25
+    cameraTranslateXPercent: 0.0
+    cameraTranslateYPercent: -1.5
+    cameraOriginXPercent: 50
+    cameraOriginYPercent: 50
+    cameraLens: "accepted_action_hearth"
+    annotationGlyph: "accepted_action"
+    crossLaneCausalityAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+
+  object "BeatTheBoundaryHolds" {
+    beatId: "the_boundary_holds"
+    beatIndex: 3
+    durationMs: 9000
+    actId: "act_two_separate_witness"
+    evidenceLane: "v4_run"
+    evidenceLaneLabel: "V4 RUN RECEIPT"
+    evidenceKey: "external_message"
+    evidenceValue: "blocked"
+    causalSource: "v4_run_boundary_receipt_projection"
+    eyebrow: "BEAT 04 / THE WARD"
+    title: "The Boundary Holds"
+    presenterCopy: "The violet ward records a blocked external message from the V4 RUN. It is protection made visible, with no prompt, schedule, or observation write edge."
+    audioDescription: "The camera cuts toward the violet boundary ward and its suspended blocked-message witness on the right."
+    sealedClothPhaseSeconds: 0.6
+    physicsFrameStep: 42
+    cameraScale: 1.23
+    cameraTranslateXPercent: -10.0
+    cameraTranslateYPercent: -1.0
+    cameraOriginXPercent: 63
+    cameraOriginYPercent: 50
+    cameraLens: "boundary_ward_close"
+    annotationGlyph: "blocked_external_message"
+    crossLaneCausalityAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+
+  object "BeatSeparatePhysicsWitness" {
+    beatId: "separate_physics_witness"
+    beatIndex: 4
+    durationMs: 9000
+    actId: "act_two_separate_witness"
+    evidenceLane: "mv_p10_physics_fixture"
+    evidenceLaneLabel: "SEPARATE MV-P10 PHYSICS FIXTURE"
+    evidenceKey: "sealed_gravity_token_frame"
+    evidenceValue: "599"
+    causalSource: "mv_p10_independent_physics_fixture"
+    eyebrow: "BEAT 05 / INDEPENDENT FIXTURE"
+    title: "A Separate Gravity Witness"
+    presenterCopy: "Now—and only now—the exhibit replays the sealed MV-P10 gravity-token fixture at its settled step 599. It did not cause the cistern, hearth, or boundary receipts."
+    audioDescription: "Amber and violet faceted tokens appear at their separately sealed settled physics frame beneath a prominent fixture label."
+    sealedClothPhaseSeconds: 1.2
+    physicsFrameStep: 599
+    cameraScale: 1.2
+    cameraTranslateXPercent: 0.0
+    cameraTranslateYPercent: -2.0
+    cameraOriginXPercent: 50
+    cameraOriginYPercent: 52
+    cameraLens: "separate_physics_fixture"
+    annotationGlyph: "sealed_gravity_tokens"
+    crossLaneCausalityAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+
+  object "BeatProofInTheLight" {
+    beatId: "proof_in_the_light"
+    beatIndex: 5
+    durationMs: 9000
+    actId: "act_two_separate_witness"
+    evidenceLane: "exhibit_synthesis"
+    evidenceLaneLabel: "EXHIBIT SYNTHESIS"
+    evidenceKey: "cross_lane_causality"
+    evidenceValue: "forbidden"
+    causalSource: "none_presentation_only"
+    eyebrow: "BEAT 06 / THE COMMONS REMEMBERS"
+    title: "Proof in the Light"
+    presenterCopy: "The lens returns to the whole Commons: V4 receipts beside a separately sealed physics fixture, never merged into one causal story. What shines is what was proved."
+    audioDescription: "The final wide tableau reunites all six mantles, the receipt-lit Commons, and the explicitly separate physics witness."
+    sealedClothPhaseSeconds: 1.2
+    physicsFrameStep: 599
+    cameraScale: 1.06
+    cameraTranslateXPercent: 0.0
+    cameraTranslateYPercent: -1.0
+    cameraOriginXPercent: 50
+    cameraOriginYPercent: 50
+    cameraLens: "final_proof_tableau"
+    annotationGlyph: "proof_without_causal_merge"
+    crossLaneCausalityAllowed: false
+    canonicalWriteAuthority: false
+    causalEffect: false
+  }
+
+  object "PresenterAccessibilityDeck" {
+    playbackControls: [
+      "previous",
+      "play",
+      "pause",
+      "next",
+      "replay"
+    ]
+    keyboardControls: [
+      "ArrowLeft",
+      "ArrowRight",
+      "Space",
+      "Home"
+    ]
+    autoplayDefault: false
+    pausedDefault: true
+    reducedMotionDefault: true
+    continuousCameraMotion: false
+    flashingEffects: false
+    captionsAlwaysVisible: true
+    captionsUseColorAlone: false
+    audioDescriptionTextAvailable: true
+    desktopLayoutRequired: true
+  }
+
+  object "SilentFirstCutBoundary" {
+    implementation: "no_audio_graph_no_audio_assets"
+    audioEnabled: false
+    audioGraphAllowed: false
+    externalAudioAssets: false
+    externalNetworkAllowed: false
+    audibleOutputVerified: false
+    humanMixApproved: false
+    spatialAudioClaimed: false
+    adaptiveMusicClaimed: false
+    voiceOrTtsClaimed: false
+    laterSlice: "receipted_spatial_audio_and_human_listen_pass"
+    mayWriteCanonicalWorld: false
+    mayAffectResidentObservation: false
+  }
+
+  object "ExactReplayBoundary" {
+    exactFields: [
+      "beat_id",
+      "beat_index",
+      "duration_ms",
+      "camera_transform",
+      "presenter_annotation",
+      "evidence_lane",
+      "causal_source",
+      "sealed_cloth_phase",
+      "observer_physics_frame_step",
+      "observer_physics_visual_frame_hash",
+      "v4_living_commons_projection",
+      "character_pixel_digest"
+    ]
+    observerCompositePixelEqualityClaimed: false
+    rationale: "The verified observer retains an independent render loop; exactness is asserted only for the sealed exhibit state, evidence projection, physics frame, and HoloScript character pixels."
+    replayMayAdvanceCanonicalClock: false
+    replayMayScheduleAction: false
+    replayMayCreateObservation: false
+    replayMayCreateReceipt: false
+  }
+
+  object "NoFeedbackBoundary" {
+    browserMayWriteCanonicalWorld: false
+    browserMayWriteResidentObservation: false
+    browserMayWriteSchedule: false
+    browserMayWriteClock: false
+    browserMayWritePrompt: false
+    browserMayWriteAction: false
+    browserMayWriteReceipt: false
+    browserMayCallModel: false
+    residentCanObservePresentation: false
+    presentationCanAffectOutcome: false
+    protectedHashes: [
+      "canonical_scene_hash",
+      "canonical_pose_hash",
+      "logical_clock_hash",
+      "public_state_hash",
+      "executed_schedule_hash",
+      "resident_observation_hash",
+      "action_receipt_root",
+      "research_appearance_hash"
+    ]
+  }
+
+  object "ClaimBoundary" {
+    provedWhenReceipted: [
+      "fifty_two_second_six_beat_holoscript_owned_desktop_show",
+      "manual_play_pause_next_previous_and_replay_controls",
+      "reduced_motion_discrete_cuts",
+      "exact_exhibit_state_and_character_pixel_replay",
+      "v4_run_receipts_visibly_separate_from_mv_p10_physics_fixture",
+      "cross_lane_causality_forbidden",
+      "deterministic_desktop_screenshots",
+      "silent_first_cut_with_no_audio_graph_or_assets",
+      "browser_webgpu_characters_over_verified_webgl2_observer",
+      "research_live_blinded_fail_neutral_without_named_renderer",
+      "canonical_schedule_observation_and_appearance_noninterference",
+      "zero_external_assets_fetches_model_calls_and_browser_writes"
+    ]
+    notProved: [
+      "audible_output_or_human_approved_mix",
+      "spatial_audio_adaptive_music_voice_or_tts",
+      "weather_or_fluid_physics",
+      "authored_continuous_camera_or_character_motion",
+      "whole_observer_composite_pixel_equality",
+      "live_research_unblinding",
+      "provider_affiliation_or_endorsement",
+      "exact_provider_model_revision",
+      "postlock_research_identity_join",
+      "photorealism",
+      "published_real_time_performance",
+      "webxr_or_headset_performance",
+      "genesis_sequence",
+      "four_village_fold"
+    ]
+  }
+}

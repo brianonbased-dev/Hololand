@@ -24,6 +24,9 @@ import {
   waitForDebuggerTarget,
   waitForExpression,
 } from './check-hololand-model-village-observer-family-integration.mjs';
+import {
+  compareRenderedPngs,
+} from './lib/model-village-rendered-png-proof.mjs';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SCRIPT_DIR, '..');
@@ -374,7 +377,7 @@ function validateManifestSource(ast, expected, { requireAnchors = true } = {}) {
   return { metadata: ast.metadata, state };
 }
 
-function prepareMvV7(args) {
+export function prepareMvV7(args) {
   const outputDir = path.join(REPO_ROOT, MV_V7_OUTPUT_REL);
   const childArgs = [
     'scripts/check-hololand-model-village-observer-family-integration.mjs',
@@ -1282,16 +1285,30 @@ async function main() {
         }
     )
     : null;
-  if (browser && !args.writeArtifacts) {
+  const renderedArtifactComparisons = browser
+    ? {
+      desktopContact: compareRenderedPngs({
+        repoRoot: REPO_ROOT,
+        durableRelativePath: DESKTOP_CONTACT_REL,
+        capturedPath: browser.captures.desktopContact.path,
+      }),
+      portraitContact: compareRenderedPngs({
+        repoRoot: REPO_ROOT,
+        durableRelativePath: PORTRAIT_CONTACT_REL,
+        capturedPath: browser.captures.portraitContact.path,
+      }),
+    }
+    : null;
+  if (browser) {
     assert(durable.desktopContact.sha256, `Missing durable ${DESKTOP_CONTACT_REL}`);
     assert(durable.portraitContact.sha256, `Missing durable ${PORTRAIT_CONTACT_REL}`);
     assert(
-      durable.desktopContact.sha256 === browser.captures.desktopContact.sha256,
-      'Durable desktop contact sheet is stale'
+      renderedArtifactComparisons.desktopContact.acceptedGpuRasterTolerance,
+      'Durable desktop contact sheet exceeds the sealed GPU raster tolerance'
     );
     assert(
-      durable.portraitContact.sha256 === browser.captures.portraitContact.sha256,
-      'Durable portrait contact sheet is stale'
+      renderedArtifactComparisons.portraitContact.acceptedGpuRasterTolerance,
+      'Durable portrait contact sheet exceeds the sealed GPU raster tolerance'
     );
   }
   const expectedManifest = browser ? {
@@ -1306,8 +1323,8 @@ async function main() {
       (admission) => admission.canonical.presentationProfile === POSTLOCK_PROFILE
     ).sha256,
     sequenceHtmlSha256: sha256(html),
-    desktopContactSheetSha256: browser.captures.desktopContact.sha256,
-    portraitContactSheetSha256: browser.captures.portraitContact.sha256,
+    desktopContactSheetSha256: durable.desktopContact.sha256,
+    portraitContactSheetSha256: durable.portraitContact.sha256,
   } : {};
   const manifest = validateManifestSource(
     manifestParsed.ast,
@@ -1389,6 +1406,7 @@ async function main() {
       externalAudioAssets: 0,
     },
     durable,
+    renderedArtifactComparisons,
     manifest,
     claimBoundary: {
       proved:

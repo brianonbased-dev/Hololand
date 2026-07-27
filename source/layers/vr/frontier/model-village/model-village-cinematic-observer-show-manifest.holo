@@ -1,0 +1,56 @@
+// MV-S1 cinematic observer show immutable witness anchors.
+//
+// Bootstrap values are replaced only after the HoloScript source, browser
+// witness, deterministic captures, and exact admissions have been recomputed.
+
+composition "Stormglass Cinematic Observer Show Manifest" {
+  metadata {
+    schema: "hololand.model-village.cinematic-observer-show-manifest.v1"
+    version: "1.0.0"
+    milestone: "MV-S1"
+    source: "source/layers/vr/frontier/model-village/model-village-cinematic-observer-show-manifest.holo"
+    showSource: "source/layers/vr/frontier/model-village/model-village-cinematic-observer-show.holo"
+    showSourceSha256: "fb9002968422535dcbe1699171e37a5e82dd14758880dc6667ff737ab693b01a"
+    showContractSha256: "34eb47dc87ab1f600238974adc671bc0286676f74f3e04896aa2295c82eb49ac"
+    mvV7IntegrationSourceSha256: "2538be338b45dfc5c530b9d5fe30b5b2f48778bd8c339068255ee61f5f84d997"
+    observerCanonicalFieldsSha256: "a3918fe62693c481b269ffd07d29c4912d697372ef5ee3a8bfa5efe5141bfde4"
+    storyAdmissionSha256: "9d023f4389d1a1e595df5f58135b96ec9c13087a42352790d4b6863c8099d7ea"
+    postlockAdmissionSha256: "df68922b8841395162d15932f919745083499ce0618f5e1697620bae2c1b320a"
+    showHtmlSha256: "df4dbee4a2b63fc32db011292da5c3db97de5f3d13e8657f5e095b7522abb649"
+    actOneContactSheetSha256: "7b9278e26271ad4a4d2362c7db9183f23cf1c0431f7509964416bd3cea6a3a01"
+    actTwoContactSheetSha256: "eb9c91cfc2a86e5ba45c4c1ca4d450ff7e9a7b3bd5e773b6ed9c32503869fe42"
+    heroFrameSha256: "e468b0b259f04f1a6a9bc7eb05031041c1aed15c3b5aae4452635c9c5eb682e1"
+    productionLock: "a1c8c9ad6142ba4795385dac6551a4131befa809"
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+    providerEndorsementClaimed: false
+    exactModelRevisions: "absent"
+  }
+
+  state {
+    beatCount: 6
+    sequenceDurationMs: 52000
+    deterministicReplayObserved: true
+    manualPlayPauseReplayObserved: true
+    actOneContactSheetObserved: true
+    actTwoContactSheetObserved: true
+    heroFrameObserved: true
+    browserNativeWebgpuObserved: true
+    observerWebgl2Observed: true
+    v4RunAndPhysicsFixtureVisiblySeparated: true
+    crossLaneCausalityAllowed: false
+    audioEnabled: false
+    audioGraphObserved: false
+    audibleOutputVerified: false
+    humanMixApproved: false
+    researchLiveBlindedAllowed: false
+    namedRendererInstantiatedForResearch: false
+    canonicalHashNoninterferenceObserved: true
+    researchAppearanceHashNoninterferenceObserved: true
+    externalNetworkFetchesObserved: 0
+    externalVisualAssetsObserved: 0
+    externalAudioAssetsObserved: 0
+    modelCallsObserved: 0
+    browserWritesObserved: 0
+    mvS1FirstExecutableCutClaimed: true
+  }
+}
