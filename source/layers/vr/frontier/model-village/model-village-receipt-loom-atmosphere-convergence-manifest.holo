@@ -48,7 +48,7 @@ composition "HoloLand Model Village Receipt Loom Atmosphere Convergence Manifest
     }
     report: {
       path: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_ATMOSPHERE_CONVERGENCE_D_2026-07-27.md"
-      sha256: "28726cc4e888fd81671b88bd2b0570e04bd0ed3212ebfef023e5ca8c105a4e6e"
+      sha256: "15f89ced35d0c2e7aa8784d28b358d2c1ea71efc15566a396e9bef4da6130e4e"
     }
     hero: {
       path: "docs/assets/model-village/model-village-receipt-loom-atmosphere-convergence-d-2026-07-27.png"

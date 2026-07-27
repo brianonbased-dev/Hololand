@@ -1,10 +1,10 @@
 # HoloLand Model Village MV-V1 - Atmosphere Convergence D
 
-**Date:** 2026-07-27  
-**Status:** PASS - bounded atmosphere witness  
-**World:** Stormglass Commons  
-**Art direction:** Hearthlight Biorealism  
-**Courtyard:** Receipt Loom Courtyard  
+**Date:** 2026-07-27
+**Status:** PASS - bounded atmosphere witness
+**World:** Stormglass Commons
+**Art direction:** Hearthlight Biorealism
+**Courtyard:** Receipt Loom Courtyard
 
 ## Outcome
 
