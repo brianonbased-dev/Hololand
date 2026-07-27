@@ -1,0 +1,73 @@
+// MV-S2 spatial soundscape immutable witness anchors.
+//
+// Bootstrap hashes are replaced only after source parsing, deterministic PCM
+// materialization, real browser Web Audio, Godot lowering, and admissions pass.
+
+composition "Stormglass Spatial Soundscape Manifest" {
+  metadata {
+    schema: "hololand.model-village.spatial-soundscape-manifest.v1"
+    version: "1.0.0"
+    milestone: "MV-S2"
+    source: "source/layers/vr/frontier/model-village/model-village-spatial-soundscape-manifest.holo"
+    soundscapeSource: "source/layers/vr/frontier/model-village/model-village-spatial-soundscape.holo"
+    soundscapeSourceSha256: "99834d95186654a809e5105bc981e54f13fa0dd923c3239bf4f3d4df71aa1d3d"
+    soundscapeContractSha256: "ffdc920042d432ee8b8a48238cf68099ace2363b2e965af0b0ec194cc1831351"
+    parentShowSourceSha256: "fb9002968422535dcbe1699171e37a5e82dd14758880dc6667ff737ab693b01a"
+    parentShowContractSha256: "34eb47dc87ab1f600238974adc671bc0286676f74f3e04896aa2295c82eb49ac"
+    audioAssetManifestSha256: "9af7fef7877ea921952df2a60b8358c1cba57b82a56dd2ccbd45b854b819ea30"
+    storyAdmissionSha256: "b0eab1b7323f315af3b0e94d13b1acc4127e38ec43cf3352ea4f78fc1041cb55"
+    postlockAdmissionSha256: "8f5ed8987030639b7a8ad33cff5b6ac0eb64f4d7a8992be9d41a20f09a4e9e36"
+    soundscapeHtmlSha256: "41d1aede21e3aaa78b8b847aa7fe345771b4056ef5ad340db41ca90019040412"
+    rainAssetSha256: "5ba9ce851108ed1c52a9412184e244b7be7dd874298b3b125095ab32ec6693e3"
+    cisternAssetSha256: "958ea7080b7f6a5b1f0708d8b514281a69a18714f248cbee0153889b739acab5"
+    hearthAssetSha256: "e55d49e65ce8fa6e14a89abf19468008fef439a31df0cd078c849947c3d022b0"
+    wardAssetSha256: "91211b9e320f02b9b6cc09b3aaa5805760422e52aeb4a0d7606e54f1f315e264"
+    gravityAssetSha256: "f114d6844e6f2fc24e845c792017c5f47feeaa972d046bfcc89b286635c73722"
+    resolveAssetSha256: "fa168546e5c753f6876ab0ad35f6e789864691a2cb0aeef98f61933b8be0b072"
+    masterMixSha256: "32c06c8c155016cf0d16030181945db69117589f23f48b2c803f2d971c199551"
+    offlineMasterPcmSha256: "4f068aca3dde32638afb5256cc1d4e23f3354f9323f52576d6b42f888d046593"
+    godotAudioLoweringSha256: "0923c23ee179234b8e7d3b6b744da40a80d9b2b31dbed715ff28c9c92c8f618d"
+    heroFrameSha256: "f41ce2bbf11f9f0c83ffbdd5c0315d9fad03ad5a8780756e6bd4d78aca1b3f80"
+    soundscapeProductionLock: "638827424736e4bebc088cea62aac7d6f9026b7a5f41088419ef63a5ef565e27"
+    parentProductionLock: "a1c8c9ad6142ba4795385dac6551a4131befa809"
+    independentProjectDisclosure: "HoloLand-authored visual and sonic interpretation; not affiliated with or endorsed by the named providers."
+    providerEndorsementClaimed: false
+    exactModelRevisions: "absent"
+  }
+
+  state {
+    sourceCount: 6
+    sequenceDurationMs: 52000
+    sampleRateHz: 24000
+    channelCount: 2
+    bitDepth: 16
+    deterministicPcmObserved: true
+    exactTwoPassOfflinePcmReplayObserved: true
+    playableMasterWavObserved: true
+    browserAudioContextObserved: true
+    browserAudioContextRunningObserved: true
+    browserPannerNodeCountObserved: 5
+    browserGainNodeCountObserved: 7
+    browserCompressorObserved: true
+    browserDestinationConnectionObserved: true
+    defaultMutedObserved: true
+    userGestureSoundOnObserved: true
+    muteReplayObserved: true
+    captionsRemainVisibleWhenMutedObserved: true
+    audioDescriptionTextControlObserved: true
+    godotAudioStreamPlayer3DObserved: true
+    heroFrameObserved: true
+    humanListenHandoffObserved: true
+    humanListenCompleted: false
+    humanMixApproved: false
+    audibleOutputHumanVerified: false
+    researchLiveBlindedAllowed: false
+    audioGraphConstructedForResearch: false
+    canonicalHashNoninterferenceObserved: true
+    researchAppearanceHashNoninterferenceObserved: true
+    externalNetworkFetchesObserved: 0
+    externalAudioAssetsObserved: 0
+    modelCallsObserved: 0
+    browserWritesObserved: 0
+  }
+}

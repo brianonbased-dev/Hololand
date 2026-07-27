@@ -1,0 +1,461 @@
+// Stormglass Commons spatial soundscape and weather bed.
+//
+// HoloScript owns the sources, deterministic synthesis recipes, 52-second
+// score, spatial placement, mix buses, acoustics, accessibility, admission,
+// and no-feedback boundary. The browser bridge may materialize this contract
+// into PCM and Web Audio nodes, but it may not invent soundscape behavior.
+
+composition "Stormglass Spatial Soundscape" {
+  metadata {
+    schema: "hololand.model-village.spatial-soundscape.v1"
+    assetId: "mv-stormglass-spatial-soundscape-v1"
+    title: "Stormglass Commons: Weather in the Light"
+    version: "1.0.0"
+    milestone: "MV-S2"
+    source: "source/layers/vr/frontier/model-village/model-village-spatial-soundscape.holo"
+    manifestSource: "source/layers/vr/frontier/model-village/model-village-spatial-soundscape-manifest.holo"
+    parentShowSource: "source/layers/vr/frontier/model-village/model-village-cinematic-observer-show.holo"
+    parentShowManifestSource: "source/layers/vr/frontier/model-village/model-village-cinematic-observer-show-manifest.holo"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    audioStyle: "stormglass_after_rain_acoustic_miniature"
+    format: "fifty_two_second_six_beat_spatial_soundscape"
+    soundscapeProductionLock: "638827424736e4bebc088cea62aac7d6f9026b7a5f41088419ef63a5ef565e27"
+    parentProductionLock: "a1c8c9ad6142ba4795385dac6551a4131befa809"
+    independentProjectDisclosure: "HoloLand-authored visual and sonic interpretation; not affiliated with or endorsed by the named providers."
+    sourceSovereign: true
+    pcmMaterializationBridgeOnly: true
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    causalEffect: false
+    status: "public_story_and_postlock_read_only_spatial_soundscape"
+  }
+
+  environment {
+    mode: "verified_observer_spatial_soundscape_replay"
+    theme: "stormglass_commons_after_rain"
+    weather: "storm_receding_to_blue_hour_mist"
+    temperatureC: 12
+    relativeHumidityPercent: 86
+    windMetersPerSecond: 3.2
+    acousticMood: "rain_glass_water_hearth_ward_and_resolve"
+    audioRenderer: "sovereign_web_audio_graph_with_local_pcm"
+    targetEngineWitness: "godot_audio_stream_player_3d"
+    externalAudioAssets: false
+    externalNetworkAllowed: false
+  }
+
+  state {
+    defaultPresentationProfile: "research_live_blinded"
+    admittedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    deniedPresentationProfiles: ["research_live_blinded"]
+    sequenceDurationMs: 52000
+    beatCount: 6
+    sampleRateHz: 24000
+    channelCount: 2
+    bitDepth: 16
+    sourceCount: 6
+    deterministicSeedCount: 6
+    autoplayDefault: false
+    mutedDefault: true
+    userGestureRequired: true
+    masterGainDefault: 0.72
+    captionsAlwaysVisible: true
+    captionMuteParityRequired: true
+    audioDescriptionTextAvailable: true
+    audioDescriptionSpeechClaimed: false
+    screenReaderLiveRegionRequired: true
+    narrationTextControlRequired: true
+    liveAudioGraphAllowedForAdmittedProfiles: true
+    offlineDeterministicRenderRequired: true
+    playableMasterWavRequired: true
+    humanListenHandoffRequired: true
+    humanListenCompleted: false
+    humanMixApproved: false
+    crossLaneCausalityAllowed: false
+    researchResidentBinding: "none"
+    researchSeatBinding: "none"
+    researchPersonaBinding: "none"
+    researchRoleBinding: "none"
+    adapterAssignmentBinding: "none"
+    exactModelRevisionBinding: "none"
+    postlockResearchJoinExecuted: false
+    missingAdmissionBehavior: "fail_neutral_silent"
+    invalidAdmissionBehavior: "fail_neutral_silent"
+    researchProfileBehavior: "preserve_neutral_silent_observer"
+    canonicalWriteAuthority: false
+    residentObservationWriteAuthority: false
+    scheduleWriteAuthority: false
+    clockWriteAuthority: false
+    actionWriteAuthority: false
+    receiptWriteAuthority: false
+    causalEffect: false
+    residentCanObservePresentation: false
+    presentationCanAffectOutcome: false
+  }
+
+  object "SpatialSoundscapeAdmissionGate" {
+    profileSource: "url.profile"
+    soundscapeAdmissionSource: "url.soundscape"
+    admittedProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    deniedProfile: "research_live_blinded"
+    admissionMode: "exact_soundscape_contract_parent_show_assets_and_production_locks"
+    admissionBinds: [
+      "spatial_soundscape_source_sha256",
+      "soundscape_contract_sha256",
+      "parent_show_source_sha256",
+      "parent_show_contract_sha256",
+      "audio_asset_manifest_sha256",
+      "soundscape_production_lock",
+      "parent_production_lock",
+      "presentation_profile",
+      "independent_project_disclosure"
+    ]
+    failNeutral: true
+    failNeutralDestination: "unchanged_silent_observer"
+    deniedProfileMayConstructAudioGraph: false
+    invalidAdmissionMayConstructAudioGraph: false
+    mayWriteCanonicalWorld: false
+    mayWriteResidentObservation: false
+  }
+
+  object "StormglassAudioMixer" {
+    masterBusId: "master"
+    masterGainDefault: 0.72
+    limiterCeilingDb: -1.0
+    weatherBusId: "weather"
+    weatherBusGainDb: -15.0
+    waterBusId: "water"
+    waterBusGainDb: -13.0
+    hearthBusId: "hearth"
+    hearthBusGainDb: -16.0
+    wardBusId: "ward"
+    wardBusGainDb: -17.0
+    witnessBusId: "witness"
+    witnessBusGainDb: -12.0
+    resolveBusId: "resolve"
+    resolveBusGainDb: -11.0
+    narrationBusId: "narration_text_only"
+    narrationSpeechClaimed: false
+    dialogueHeadroomDb: 9.0
+    browserDynamicsCompressorRequired: true
+    clippingAllowed: false
+  }
+
+  audio "RainOnStormglass" {
+    source: "model-village/stormglass-rain-on-glass.wav"
+    synthesisRecipe: "seeded_band_limited_rain"
+    synthesisSeed: 281641
+    durationMs: 8000
+    sampleRateHz: 24000
+    channels: 1
+    spatial: true
+    loop: true
+    volume: 0.24
+    gainDb: -15.0
+    bus: "weather"
+    position: [0, 5.5, 10]
+    distance: 32
+    startMs: 0
+    endMs: 52000
+    lowCutHz: 180
+    highCutHz: 7200
+    caption: "Rain beads across the Stormglass canopy."
+    role: "continuous_weather_bed"
+  }
+
+  audio "CommonsCistern" {
+    source: "model-village/stormglass-cistern-water.wav"
+    synthesisRecipe: "seeded_water_drops_and_resonance"
+    synthesisSeed: 734211
+    durationMs: 6000
+    sampleRateHz: 24000
+    channels: 1
+    spatial: true
+    loop: true
+    volume: 0.29
+    gainDb: -13.0
+    bus: "water"
+    position: [-4.2, 1.1, 0.8]
+    distance: 18
+    startMs: 7000
+    endMs: 52000
+    fundamentalHz: 392
+    dropRateHz: 1.6
+    caption: "Cistern drops ring softly from the left side of the Commons."
+    role: "v4_water_receipt_acoustic_annotation"
+  }
+
+  audio "HearthResonance" {
+    source: "model-village/stormglass-hearth-resonance.wav"
+    synthesisRecipe: "additive_hearth_hum"
+    synthesisSeed: 552019
+    durationMs: 8000
+    sampleRateHz: 24000
+    channels: 1
+    spatial: true
+    loop: true
+    volume: 0.21
+    gainDb: -16.0
+    bus: "hearth"
+    position: [0, 2.2, 0]
+    distance: 16
+    startMs: 16000
+    endMs: 52000
+    fundamentalHz: 55
+    harmonicTwoHz: 110
+    harmonicThreeHz: 165
+    caption: "A low amber hearth resonance settles at the center."
+    role: "v4_accepted_action_acoustic_annotation"
+  }
+
+  audio "BoundaryWardAir" {
+    source: "model-village/stormglass-boundary-ward-air.wav"
+    synthesisRecipe: "seeded_violet_ward_air"
+    synthesisSeed: 918277
+    durationMs: 7000
+    sampleRateHz: 24000
+    channels: 1
+    spatial: true
+    loop: true
+    volume: 0.18
+    gainDb: -17.0
+    bus: "ward"
+    position: [4.8, 2.0, 0.6]
+    distance: 20
+    startMs: 25000
+    endMs: 52000
+    centerFrequencyHz: 880
+    pulseRateHz: 0.42
+    caption: "The violet boundary breathes from the right."
+    role: "v4_blocked_message_acoustic_annotation"
+  }
+
+  audio "GravityWitnessChimes" {
+    source: "model-village/stormglass-gravity-witness-chimes.wav"
+    synthesisRecipe: "sealed_gravity_token_chimes"
+    synthesisSeed: 410599
+    durationMs: 9000
+    sampleRateHz: 24000
+    channels: 1
+    spatial: true
+    loop: false
+    volume: 0.34
+    gainDb: -12.0
+    bus: "witness"
+    position: [0, 1.0, -1.8]
+    distance: 14
+    startMs: 34000
+    endMs: 43000
+    tokenStep: 599
+    toneAHz: 523.25
+    toneBHz: 659.25
+    toneCHz: 783.99
+    caption: "Three faceted chimes mark the separately sealed gravity witness."
+    role: "separate_mv_p10_fixture_acoustic_annotation"
+  }
+
+  audio "ProofResolve" {
+    source: "model-village/stormglass-proof-resolve.wav"
+    synthesisRecipe: "hearthlight_resolve_chord"
+    synthesisSeed: 520006
+    durationMs: 9000
+    sampleRateHz: 24000
+    channels: 1
+    spatial: false
+    loop: false
+    volume: 0.36
+    gainDb: -11.0
+    bus: "resolve"
+    position: [0, 2.0, 0]
+    distance: 999
+    startMs: 43000
+    endMs: 52000
+    toneAHz: 220
+    toneBHz: 329.63
+    toneCHz: 440
+    caption: "A restrained three-note resolve opens across the final tableau."
+    role: "exhibit_synthesis_acoustic_annotation"
+  }
+
+  object "ObserverAudioListener" {
+    @audio_listener {
+      hrtf: true
+      headTracked: false
+      output: "stereo"
+    }
+    presentationOnly: true
+    bindsToCanonicalResident: false
+    mayCreateObservation: false
+  }
+
+  object "RecedingStormAcoustics" {
+    @environmental_audio {
+      weather: "storm"
+      airAbsorption: {
+        enabled: true
+        temperature: 12
+        humidity: 86
+      }
+      doppler: {
+        enabled: false
+        speedOfSound: 340
+        maxPitchShift: 1.0
+      }
+    }
+    presentationOnly: true
+    weatherPhysicsClaimed: false
+    sonicWeatherBedClaimed: true
+  }
+
+  object "CommonsWetStoneAcoustics" {
+    @audio_material {
+      absorption_low: 0.05
+      absorption_mid: 0.10
+      absorption_high: 0.18
+      scattering: 0.42
+      transmission_loss: 28
+    }
+    surface: "wet_stone_and_stormglass"
+    geometryResponseMeasured: false
+    authoredAcousticResponse: true
+  }
+
+  object "CottageWallOcclusion" {
+    @audio_occlusion {
+      transmission_loss: 24
+      frequency_dependent: true
+      low_freq_bleed: 0.22
+      high_freq_bleed: 0.04
+    }
+    affectsSource: "RainOnStormglass"
+    presentationOnly: true
+  }
+
+  object "HearthArchPortal" {
+    @audio_portal {
+      source_zone: "StormglassCanopy"
+      target_zone: "CommonsHearth"
+      opening_factor: 0.58
+      frequency_filter: "low_pass"
+      cutoff_hz: 1800
+      falloff: "inverse_square"
+    }
+    presentationOnly: true
+  }
+
+  object "SoundscapeAccessibilityDeck" {
+    controls: [
+      "sound_on",
+      "mute",
+      "master_volume",
+      "replay_audio",
+      "show_audio_descriptions"
+    ]
+    keyboardControls: [
+      "KeyM",
+      "KeyR",
+      "BracketLeft",
+      "BracketRight"
+    ]
+    autoplayDefault: false
+    mutedDefault: true
+    userGestureRequired: true
+    captionsAlwaysVisible: true
+    captionsContinueWhenMuted: true
+    captionsUseColorAlone: false
+    audioDescriptionTextAvailable: true
+    audioDescriptionSpeechClaimed: false
+    screenReaderLiveRegionRequired: true
+    visibleSoundStateRequired: true
+  }
+
+  object "DeterministicAudioBoundary" {
+    exactFields: [
+      "source_id",
+      "source_asset_sha256",
+      "synthesis_recipe",
+      "synthesis_seed",
+      "duration_ms",
+      "sample_rate_hz",
+      "channel_count",
+      "spatial_position",
+      "gain",
+      "loop",
+      "start_ms",
+      "end_ms",
+      "caption",
+      "offline_master_pcm_sha256"
+    ]
+    offlineRenderCountRequired: 2
+    exactOfflinePcmEqualityRequired: true
+    browserLiveGraphByteEqualityClaimed: false
+    loudspeakerOutputEqualityClaimed: false
+    replayMayAdvanceCanonicalClock: false
+    replayMayScheduleVillageAction: false
+    replayMayCreateResidentObservation: false
+    replayMayCreateVillageReceipt: false
+  }
+
+  object "NoFeedbackBoundary" {
+    browserMayWriteCanonicalWorld: false
+    browserMayWriteResidentObservation: false
+    browserMayWriteSchedule: false
+    browserMayWriteClock: false
+    browserMayWritePrompt: false
+    browserMayWriteAction: false
+    browserMayWriteReceipt: false
+    browserMayCallModel: false
+    audioMayAffectResidentBehavior: false
+    residentCanHearPresentation: false
+    residentCanObservePresentation: false
+    presentationCanAffectOutcome: false
+    protectedHashes: [
+      "canonical_scene_hash",
+      "canonical_pose_hash",
+      "logical_clock_hash",
+      "public_state_hash",
+      "executed_schedule_hash",
+      "resident_observation_hash",
+      "action_receipt_root",
+      "research_appearance_hash"
+    ]
+  }
+
+  object "ClaimBoundary" {
+    provedWhenReceipted: [
+      "fifty_two_second_holoscript_owned_spatial_soundscape",
+      "six_local_deterministic_pcm_sources_and_stereo_master",
+      "real_admitted_browser_audio_context_graph",
+      "spatial_panner_gain_compressor_and_destination_nodes",
+      "default_muted_user_gesture_sound_on_and_replay_controls",
+      "caption_mute_parity_and_audio_description_text_control",
+      "exact_two_pass_offline_pcm_replay",
+      "godot_audio_stream_player_3d_lowering",
+      "research_live_blinded_fail_neutral_without_audio_graph",
+      "canonical_schedule_observation_and_appearance_noninterference",
+      "zero_external_fetches_model_calls_and_browser_writes",
+      "playable_local_human_listening_handoff"
+    ]
+    notProved: [
+      "human_completed_listen_pass",
+      "human_approved_mix",
+      "loudspeaker_or_headphone_frequency_response",
+      "room_calibrated_spl",
+      "binaural_hrtf_perceptual_accuracy",
+      "spoken_narration_voice_or_tts",
+      "live_weather_or_fluid_physics",
+      "resident_hearing_or_behavioral_response",
+      "adaptive_music_driven_by_village_state",
+      "provider_affiliation_or_endorsement",
+      "photorealism",
+      "webxr_or_headset_audio_performance"
+    ]
+  }
+}
