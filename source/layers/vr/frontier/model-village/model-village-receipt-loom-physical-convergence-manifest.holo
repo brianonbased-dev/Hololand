@@ -1,0 +1,209 @@
+// Immutable witness manifest for Receipt Loom Courtyard - Physical Convergence F.
+// Regenerate only when the authored .holo/.hsplus/.hs stack, exact HoloScript
+// runtime binding, immutable Resident E chain, checker, focused test, accepted
+// report, GPU images, or verified hardware receipt changes.
+
+composition "HoloLand Model Village Receipt Loom Physical Convergence Manifest" {
+  metadata {
+    title: "Receipt Loom Courtyard - Physical Convergence F Witness"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV_V1_PHYSICAL_CONVERGENCE_F"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-receipt-loom-physical-convergence.holo"
+      sha256: "d77a4833a01bbedbff50f992c81837a658c522987754b2f8083afef32ff4ef43"
+      sceneIrSha256: "29f717097161af96b92e65af8d09ca8899c6c8db58c4797f45db87f487974bb1"
+      physicalPlanSha256: "0b2a54f249e6de5af870120df6437ad3a5bc34b270beb4d1d009632f26f957a0"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-receipt-loom-physical-convergence-policy.hsplus"
+      sha256: "94cc92b2ce87281d5eb148178338a6e56f1cc2c8e898d873173d565cb3fbc548"
+      parser: "HoloScriptPlusParser"
+      role: "runtime_binding_fixed_step_collision_contact_replay_and_lane_firewall"
+      nativeActionExecutionClaimed: false
+    }
+    seed: {
+      path: "source/proofs/model-village-receipt-loom-physical-convergence-seed.hs"
+      sha256: "edbdeb5afdb91883e42bf3d6d0859fa8ed3c3f8c8e1c6e16cbf6417c4d23cc68"
+      parser: "HoloScriptCodeParser"
+      role: "flat_resident_mantle_terrain_wind_collision_and_phase_inputs"
+    }
+    inheritedResidentConvergenceE: {
+      sourcePath: "source/layers/vr/frontier/model-village/model-village-receipt-loom-resident-convergence.holo"
+      sourceSha256: "17c35e970bdbd763c75f2c30d7e6444c0926438581d58afd63ce424736af2630"
+      checkerPath: "scripts/check-hololand-model-village-resident-convergence.mjs"
+      checkerSha256: "1f83433d47bc29658a6ef3c61d2bf96723ff650f8de097756dbc40029f44cdc7"
+      browserApplicationSha256: "882a57180afa465df062381b1170221b378b4061a63521fa77325c831890c34a"
+      testPath: "scripts/__tests__/hololand-model-village-resident-convergence.test.mjs"
+      testSha256: "40557f5934f8096ce38bc8e4f8cd87e04842abd12cd3654572c4206f7b9a30d4"
+      reportPath: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_RESIDENT_CONVERGENCE_E_2026-07-27.md"
+      reportSha256: "545cc5f641d594bfd4e9a71a90e5328b5200d4abad5368e7f1abf7135e599c10"
+      heroPath: "docs/assets/model-village/model-village-receipt-loom-resident-convergence-e-2026-07-27.png"
+      heroSha256: "20d8b4655a2a89252b54cc810b13b40d3364b1ecde66bd89499dbd5c9d5d32af"
+      manifestPath: "source/layers/vr/frontier/model-village/model-village-receipt-loom-resident-convergence-manifest.holo"
+      manifestSha256: "f105b5ffa4a4b2d33099e1586cd10bcf8fa604dda3da3c157db80e2624ac2293"
+      inheritedArtMaterialGeometryAtmosphereWitnessesImmutable: true
+      immutable: true
+    }
+    holoScriptRuntime: {
+      engineDistPath: "packages/engine/dist/index.js"
+      engineDistSha256: "b8ff741a36c2fa1fc7cd4b713f18b1a41bbcc2b1e8ff68b29f910528ce193e1d"
+      extractedClothRuntimeSha256: "a3b2a56e7da13606995ed0b863694c2d9dc1a3cc6e3b4c554769e80dcf7a6516"
+      clothRuntimePath: "packages/engine/src/character-render/AgentAvatarCloth.ts"
+      clothRuntimeSha256: "e7356711cda32a369ab6fb3b6ed76cb4b8ef712b9f76693dde25b89eb2fc2d42"
+      runtimeClass: "DeterministicClothSimulation"
+      exactRuntimeSourceExtractedForBrowser: true
+      entireEngineEntryBundled: false
+      directPrivateSolverReimplementation: false
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-physical-convergence.mjs"
+      sha256: "aa41fb4c885d2f398f51f340e4b18b86df5634f70653d684e8883c9f61d2eaf1"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-physical-convergence.test.mjs"
+      sha256: "385fc7b66b27e5df543429e70170941f88513bbea10181772235679c74c63a9c"
+    }
+    report: {
+      path: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_PHYSICAL_CONVERGENCE_F_2026-07-27.md"
+      sha256: "feab356d75a1d0df7f38d8878e0d6c933cbaf27af8f102a2fbc76aa84823b8b3"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-receipt-loom-physical-convergence-f-2026-07-27.png"
+      sha256: "385253d56f33c685ba3b6d6bd41f65543956ffc77c8b2ad848a84783ab7d8ccc"
+      width: 1600
+      height: 900
+      bytes: 1347192
+      visuallyInspected: true
+      iterationAccepted: 4
+    }
+    contactSheet: {
+      path: "docs/assets/model-village/model-village-receipt-loom-physical-convergence-f-motion-2026-07-27.png"
+      sha256: "6b34ba7be0b392ae30fb3046e2bc08413d5247ecea0e6c01039bfd96ad4e80b0"
+      width: 2400
+      height: 450
+      bytes: 508023
+      visuallyInspected: true
+      frameCount: 3
+      sampleTimesSeconds: [0, 0.8, 1.6]
+      fixedSteps: [0, 96, 192]
+      iterationAccepted: 4
+    }
+    bridge: {
+      route: "HoloScript .holo/.hsplus/.hs physical stack -> exact HoloScript DeterministicClothSimulation CPU runtime -> collision/contact/shared-wind presentation bridge -> immutable Resident E -> immutable D/C/B/A -> Three/WebGL2 D3D11 presentation"
+      appSourceSha256: "ac9fa54efa06d06ba4e5e4ee109ad36d6c907e6f9a3bb80adaabf9a131e3373c"
+      bundleSha256: "91f1f0b017b7448097ca0d8dcc754d220346a7f66599380c11a51e7c7938f044"
+      htmlSha256: "b3ee82c057e51755b47c25a987bb8672336e095675a380aab37b4fb6e6919415"
+      esbuildSha256: "8331fe1d8b3a07381f33cc425fcfaa94776e263113653f80ec3ba433e9657e73"
+      inheritedSourcesImmutable: true
+      externalAssets: []
+    }
+    hardware: {
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      browser: "Chrome 150.0.7871.182"
+      browserBackend: "ANGLE Direct3D11 D3D11"
+      softwareRenderer: false
+      solverDevice: "cpu"
+      nativeGpuPhysicsClaimed: false
+    }
+    physics: {
+      solverClass: "DeterministicClothSimulation"
+      solverLabel: "xpbd"
+      solverDevice: "cpu"
+      fixedStepHz: 120
+      iterations: 5
+      continuousWitnessDurationSeconds: 1.6
+      continuousPresentedFrames: 49
+      residentCount: 6
+      mantleVerticesPerResident: 91
+      dynamicMantleVerticesPerResident: 78
+      totalDynamicMantleVertices: 468
+      maximumObservedDisplacementMeters: 0.03982917876475868
+      maximumObservedRmsDisplacementMeters: 0.019211011973988338
+      maximumObservedEdgeStrain: 1.0562781832526016
+      acceptedFrameCollisionCorrections: 12
+      maximumCollisionCorrectionMeters: 0.022064772042485414
+      residualMaximumPenetrationMeters: 0.00000001297094459618009
+      soleProbeCount: 12
+      maximumSoleProbeErrorMeters: 0
+      coupledSystemCount: 5
+      coupledSystems: [
+        "resident_mantles",
+        "rain_streaks",
+        "wind_foliage",
+        "chimney_smoke",
+        "cistern_ripples"
+      ]
+      wetClothMaterialResponse: true
+      absorptionSolverClaimed: false
+      replayRuns: 3
+      replayAccepted: true
+      replayCombinedSha256: "5b65d9d44350cbd1e9d6a3879c31f947fb2541d3b2204e36d1be93483403f315"
+      cpuWitnessP95Milliseconds: 121.90000000596046
+      timingExcludedFromStateDigest: true
+      measuredRealTimePerformanceClaimed: false
+    }
+    temporalFrames: {
+      rest: {
+        timeSeconds: 0
+        fixedSteps: 0
+        sha256: "d10fc79ee571c13e195758b1238c1828a506c596181e7b44902f2087847380ee"
+      }
+      response: {
+        timeSeconds: 0.8
+        fixedSteps: 96
+        sha256: "8504306c61ec66544d86f6cd3ad92af81fe15dfa79b954ee453138554076f9f1"
+      }
+      resolved: {
+        timeSeconds: 1.6
+        fixedSteps: 192
+        sha256: "337ca2c71937ae61eb50e0d6d29ca1d839ca911c00cf0538885d1e60308d3830"
+      }
+    }
+    metrics: {
+      drawCallsShadowInclusive: 741
+      triangles: 115940
+      geometries: 435
+      textures: 34
+      materials: 70
+      externalNetworkRequests: 0
+      pageErrors: 0
+    }
+    boundaries: {
+      presentationProfile: "village_story_unblinded"
+      separateFromLiveExperiment: true
+      researchLiveIdentityNeutralPreserved: true
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCalls: 0
+      networkFetches: 0
+      publicFamilyIdentityPresented: true
+      exactModelRevisionPresented: false
+      providerEndorsementClaimed: false
+      modelBehaviorSimulated: false
+      continuousMantleSimulationClaimed: true
+      bodyCollisionProjectionClaimed: true
+      footTerrainContactClaimed: true
+      sharedWindCouplingClaimed: true
+      wetClothResponseClaimed: true
+      nativeGpuPhysicsClaimed: false
+      clothSelfCollisionClaimed: false
+      twoWayFluidStructureInteractionClaimed: false
+      productionTailoringClaimed: false
+      photorealismClaimed: false
+      fullWorldConvergenceClaimed: false
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      sha256: "9fd7dfbdcbc157b8f2d584849230d0e88876a160c479184dcabc1fbd817b31a6"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/physical-convergence-f/physical-convergence-f-witness.json"
+    }
+  }
+}

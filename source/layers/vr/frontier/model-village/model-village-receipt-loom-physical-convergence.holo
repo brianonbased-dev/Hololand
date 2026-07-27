@@ -1,0 +1,294 @@
+// HoloLand Model Village - Receipt Loom Physical Convergence F.
+//
+// This composition extends the immutable Resident Convergence E witness with
+// deterministic, continuous presentation physics. HoloScript owns the fixed
+// step, mantle solver binding, body-collision profile, foot/terrain contacts,
+// wet-cloth response, shared wind field, coupled atmosphere systems, replay
+// gate, quality budget, camera, and claim boundary. The local bridge may
+// materialize and receipt these declarations; it may not call models, write
+// canonical village state, join live blinded research, or describe the CPU
+// solver as native GPU compute.
+
+composition "HoloLand Model Village Receipt Loom Physical Convergence" {
+  metadata {
+    title: "Receipt Loom Courtyard - Physical Convergence F"
+    version: "0.1.0"
+    date: "2026-07-27"
+    source: "source/layers/vr/frontier/model-village/model-village-receipt-loom-physical-convergence.holo"
+    policySource: "source/proofs/model-village-receipt-loom-physical-convergence-policy.hsplus"
+    seedSource: "source/proofs/model-village-receipt-loom-physical-convergence-seed.hs"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    milestone: "MV_V1_PHYSICAL_CONVERGENCE_F"
+    projectionRole: "public_postlock_physical_presentation"
+    residentSource: "source/layers/vr/frontier/model-village/model-village-receipt-loom-resident-convergence.holo"
+    residentSourceSha256: "17c35e970bdbd763c75f2c30d7e6444c0926438581d58afd63ce424736af2630"
+    residentBridge: "scripts/check-hololand-model-village-resident-convergence.mjs"
+    residentBridgeSha256: "1f83433d47bc29658a6ef3c61d2bf96723ff650f8de097756dbc40029f44cdc7"
+    residentBrowserApplicationSha256: "882a57180afa465df062381b1170221b378b4061a63521fa77325c831890c34a"
+    residentTest: "scripts/__tests__/hololand-model-village-resident-convergence.test.mjs"
+    residentTestSha256: "40557f5934f8096ce38bc8e4f8cd87e04842abd12cd3654572c4206f7b9a30d4"
+    residentReport: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_RESIDENT_CONVERGENCE_E_2026-07-27.md"
+    residentReportSha256: "545cc5f641d594bfd4e9a71a90e5328b5200d4abad5368e7f1abf7135e599c10"
+    residentHero: "docs/assets/model-village/model-village-receipt-loom-resident-convergence-e-2026-07-27.png"
+    residentHeroSha256: "20d8b4655a2a89252b54cc810b13b40d3364b1ecde66bd89499dbd5c9d5d32af"
+    residentManifest: "source/layers/vr/frontier/model-village/model-village-receipt-loom-resident-convergence-manifest.holo"
+    residentManifestSha256: "f105b5ffa4a4b2d33099e1586cd10bcf8fa604dda3da3c157db80e2624ac2293"
+    holoScriptClothRuntime: "packages/engine/src/character-render/AgentAvatarCloth.ts"
+    holoScriptClothRuntimeSha256: "e7356711cda32a369ab6fb3b6ed76cb4b8ef712b9f76693dde25b89eb2fc2d42"
+    holoScriptEngineDist: "packages/engine/dist/index.js"
+    holoScriptEngineDistSha256: "b8ff741a36c2fa1fc7cd4b713f18b1a41bbcc2b1e8ff68b29f910528ce193e1d"
+    inheritedWitnessesImmutable: true
+    bridgeMayOwnPresentationOnly: true
+    externalAssetsRequired: false
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+  }
+
+  environment {
+    mode: "public_story_projection"
+    theme: "stormglass_commons"
+    timeOfDay: "blue_hour_after_rain"
+    weather: "continuous_light_rain_shared_wind"
+    backgroundColor: "#020711"
+    ambient_light: 0.32
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    presentationProfile: "village_story_unblinded"
+    admittedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    deniedPresentationProfiles: ["research_live_blinded"]
+    separateFromLiveExperiment: true
+    researchLiveIdentityNeutralPreserved: true
+    researchLiveBlindedCompatible: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    providerEndorsementClaimed: false
+    exactModelRevisionPresented: false
+    modelBehaviorSimulated: false
+    inheritedArtConvergence: "A"
+    inheritedMaterialConvergence: "B"
+    inheritedGeometryConvergence: "C"
+    inheritedAtmosphereConvergence: "D"
+    inheritedResidentConvergence: "E"
+    physicalConvergenceClaimed: true
+    continuousMantleSimulationClaimed: true
+    bodyCollisionProjectionClaimed: true
+    footTerrainContactClaimed: true
+    sharedWindCouplingClaimed: true
+    wetClothResponseClaimed: true
+    deterministicReplayClaimed: true
+    realGpuRenderingClaimed: true
+    nativeGpuPhysicsClaimed: false
+    clothSelfCollisionClaimed: false
+    twoWayFluidStructureInteractionClaimed: false
+    productionTailoringClaimed: false
+    measuredRealTimePerformanceClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+    sourcePhysicsAuthority: "holoscript_three_format_stack"
+    physicsMaterializationBridge: "deterministic_local_cpu_solver_gpu_presentation"
+    namedResidentCount: 6
+    publicDisplayNames: ["Claude", "OpenAI", "Gemini", "Grok", "GLM", "Brittney"]
+    familyIds: ["anthropic", "openai", "google", "xai", "ollama", "sovereign"]
+    solver: {
+      runtimeClass: "DeterministicClothSimulation"
+      algorithm: "xpbd_like_distance_constraints"
+      executionDevice: "cpu"
+      fixedStepHz: 120
+      iterations: 5
+      damping: 0.985
+      gravity: [0, -0.42, 0]
+      wind: [0.34, 0.02, 0.20]
+      windFrequency: 1.35
+      tetherStiffness: 8.5
+      constraintStiffness: 0.72
+      maxDisplacementMeters: 0.18
+      mantleMaterialGroupIndex: 3
+      sampleTimesSeconds: [0, 0.8, 1.6]
+      continuousWitnessDurationSeconds: 1.6
+      replayRuns: 3
+      wallClockInSimulationInput: false
+    }
+    mantleBinding: {
+      uvPinAxis: "v"
+      pinnedUvValue: 0
+      dynamicUvRange: [0.000001, 1]
+      expectedVerticesPerResident: 91
+      expectedDynamicVerticesPerResident: 78
+      expectedTotalDynamicVertices: 468
+    }
+    bodyCollision: {
+      profile: "y_axis_capsule_profile"
+      baseRadiusMeters: 0.24
+      shoulderRadiusAddMeters: 0.045
+      shoulderCenterYMeters: 1.47
+      shoulderHalfWidthMeters: 0.34
+      surfaceOffsetMeters: 0.012
+      correctionMode: "radial_projection_after_xpbd_step"
+      maximumAllowedPenetrationMeters: 0.0001
+    }
+    terrainContact: {
+      groundYMeters: 0.42
+      soleProbesPerResident: 2
+      totalSoleProbes: 12
+      maximumAllowedPenetrationMeters: 0.0001
+      rootVerticalMotionAllowed: false
+      supportMode: "two_probe_ground_manifold"
+    }
+    sharedWind: {
+      fieldId: "stormglass_commons_shared_wind_f1"
+      baseMetersPerSecond: [0.34, 0.02, 0.20]
+      gustFloor: 0.65
+      gustAmplitude: 0.35
+      primaryFrequencyHz: 1.35
+      secondaryFrequencyScale: 0.47
+      secondaryPhaseRadians: 0.73
+      coupledSystems: [
+        "resident_mantles",
+        "rain_streaks",
+        "wind_foliage",
+        "chimney_smoke",
+        "cistern_ripples"
+      ]
+    }
+    wetClothResponse: {
+      source: "shared_rain_phase"
+      saturationRange: [0.38, 0.58]
+      mantleRoughnessRange: [0.54, 0.62]
+      mantleClearcoatRange: [0.12, 0.24]
+      materialOnlyResponse: true
+      absorptionSolverClaimed: false
+    }
+    simulationContract: {
+      units: "meters_seconds"
+      upAxis: "Y"
+      geometryIntegrityRequired: true
+      exactSourceHashesRequired: true
+      exactInputHashRequired: true
+      deterministicFixedStepRequired: true
+      interactionProvenance: "none_autonomous_presentation_witness"
+      replayRequired: true
+      sameInputSameStateRequired: true
+      gpuRenderingReceiptedSeparately: true
+    }
+    qualityBudget: {
+      maxDrawCalls: 790
+      maxTriangles: 145000
+      maxMaterials: 72
+      maxTextures: 42
+      maxResidentMeshes: 6
+      maxGeneratedResidentTextures: 12
+      maxPhysicsCpuP95Milliseconds: 180
+      renderWidth: 1600
+      renderHeight: 900
+      contactSheetWidth: 2400
+      contactSheetHeight: 450
+    }
+    inspectionCamera: {
+      position: [8.4, 5.7, 16.4]
+      target: [-0.9, 2.15, -1.0]
+      fov: 42
+      near: 0.1
+      far: 180
+      purpose: "six_resident_physical_tableau_with_wind_rain_smoke_water_and_receipt_loom"
+    }
+    motionInspectionCamera: {
+      position: [6.8, 3.9, 12.6]
+      target: [-0.65, 1.72, 0.15]
+      fov: 43
+      near: 0.1
+      far: 180
+      purpose: "closer_three_phase_readback_of_mantles_contacts_reeds_rain_smoke_and_water"
+    }
+  }
+
+  object "PhysicalConvergenceRuntime" {
+    geometry: "box"
+    visible: false
+    properties: {
+      authority: "holoscript"
+      runtimeClass: "DeterministicClothSimulation"
+      solver: "xpbd"
+      executionDevice: "cpu"
+      fixedStepHz: 120
+      gpuPhysicsClaimed: false
+    }
+  }
+
+  object "ResidentMantleCollisionProjector" {
+    geometry: "capsule"
+    visible: false
+    properties: {
+      authority: "holoscript"
+      residentCount: 6
+      collisionProfile: "y_axis_capsule_profile"
+      maximumAllowedPenetrationMeters: 0.0001
+    }
+  }
+
+  object "TerrainContactManifold" {
+    geometry: "plane"
+    visible: false
+    position: [0, 0.42, 0]
+    properties: {
+      authority: "holoscript"
+      groundYMeters: 0.42
+      soleProbeCount: 12
+      rootVerticalMotionAllowed: false
+    }
+  }
+
+  object "StormglassSharedWindCoupler" {
+    geometry: "arrow"
+    visible: false
+    properties: {
+      authority: "holoscript"
+      fieldId: "stormglass_commons_shared_wind_f1"
+      coupledSystemCount: 5
+      coupledSystems: [
+        "resident_mantles",
+        "rain_streaks",
+        "wind_foliage",
+        "chimney_smoke",
+        "cistern_ripples"
+      ]
+    }
+  }
+
+  object "WetMantleMaterialResponse" {
+    geometry: "plane"
+    visible: false
+    properties: {
+      authority: "holoscript"
+      residentCount: 6
+      source: "shared_rain_phase"
+      materialOnlyResponse: true
+      absorptionSolverClaimed: false
+    }
+  }
+
+  object "PhysicalConvergenceClaimBoundary" {
+    geometry: "box"
+    visible: false
+    properties: {
+      inheritedResidentConvergenceImmutable: true
+      modelCallsAllowed: false
+      canonicalWritesAllowed: false
+      researchLiveJoinAllowed: false
+      nativeGpuPhysicsClaimed: false
+      clothSelfCollisionClaimed: false
+      twoWayFluidStructureInteractionClaimed: false
+      productionTailoringClaimed: false
+      photorealismClaimed: false
+      fullWorldConvergenceClaimed: false
+    }
+  }
+}

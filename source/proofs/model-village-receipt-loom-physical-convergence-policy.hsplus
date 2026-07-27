@@ -1,0 +1,178 @@
+// Receipt Loom Physical Convergence F executable-shape policy.
+//
+// .hsplus owns scheduling, runtime binding, collision/contact projection,
+// shared-wind coupling, replay acceptance, and the claim firewall. The
+// receipted HoloLand bridge evaluates this structured policy. The action block
+// is parser-verified policy and is not claimed as native hsplus execution.
+
+composition "Model Village Receipt Loom Physical Convergence Policy" {
+  config {
+    schema: "hololand.model-village.physical-convergence-policy.v1"
+    milestone: "MV_V1_PHYSICAL_CONVERGENCE_F"
+    source: "source/proofs/model-village-receipt-loom-physical-convergence-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-receipt-loom-physical-convergence.holo"
+    seedSource: "source/proofs/model-village-receipt-loom-physical-convergence-seed.hs"
+    formatRole: "continuous_physics_behavior_policy_and_replay_acceptance"
+    executionStatus: "structured_contract_evaluated_by_receipted_hololand_bridge"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state PhysicalConvergenceState {
+    frame: 0
+    fixedTimestepSeconds: 0.008333333333333333
+    replayRunsCompleted: 0
+    replayAccepted: false
+    residentPhysicsLane: "mv_v1_physical_convergence_f"
+    liveResearchLane: "research_live_blinded"
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+  }
+
+  template "FixedStepExecutionContract" {
+    type: "model_village_physical_fixed_step_execution"
+    timestepNumerator: 1
+    timestepDenominator: 120
+    durationSeconds: 1.6
+    sampleTimesSeconds: [0, 0.8, 1.6]
+    runs: 3
+    domainOrder: [
+      "mantle_xpbd",
+      "body_collision_projection",
+      "foot_terrain_contact",
+      "shared_wind_atmosphere",
+      "wet_cloth_material"
+    ]
+    wallClockInSimulationInput: false
+    browserFrameDeltaInSimulationInput: false
+    variableDeltaAllowed: false
+    droppedStepBehavior: "fail_witness"
+  }
+
+  template "HoloScriptClothRuntimeBinding" {
+    type: "holoscript_character_cloth_runtime_binding"
+    package: "@holoscript/engine"
+    runtimeClass: "DeterministicClothSimulation"
+    sourceFile: "packages/engine/src/character-render/AgentAvatarCloth.ts"
+    algorithm: "cpu_xpbd_like_distance_constraints"
+    solverLabel: "xpbd"
+    iterations: 5
+    fixedStepHz: 120
+    mantleMaterialGroupIndex: 3
+    uvPinnedValue: 0
+    directPrivateSolverReimplementationAllowed: false
+    nativeGpuPhysicsClaimed: false
+  }
+
+  template "BodyCollisionProjectionContract" {
+    type: "resident_mantle_body_collision_projection"
+    profile: "y_axis_capsule_profile"
+    baseRadiusMeters: 0.24
+    shoulderRadiusAddMeters: 0.045
+    shoulderCenterYMeters: 1.47
+    shoulderHalfWidthMeters: 0.34
+    surfaceOffsetMeters: 0.012
+    maximumAllowedPenetrationMeters: 0.0001
+    projectionOrder: "after_xpbd_before_render"
+    clothSelfCollisionClaimed: false
+  }
+
+  template "TerrainContactContract" {
+    type: "resident_foot_terrain_contact"
+    groundYMeters: 0.42
+    residentCount: 6
+    soleProbesPerResident: 2
+    totalSoleProbes: 12
+    maximumAllowedPenetrationMeters: 0.0001
+    rootVerticalMotionAllowed: false
+    terrainDeformationClaimed: false
+  }
+
+  template "SharedWindCouplingContract" {
+    type: "stormglass_shared_wind_coupling"
+    fieldId: "stormglass_commons_shared_wind_f1"
+    baseMetersPerSecond: [0.34, 0.02, 0.20]
+    gustFloor: 0.65
+    gustAmplitude: 0.35
+    primaryFrequencyHz: 1.35
+    secondaryFrequencyScale: 0.47
+    secondaryPhaseRadians: 0.73
+    coupledSystems: [
+      "resident_mantles",
+      "rain_streaks",
+      "wind_foliage",
+      "chimney_smoke",
+      "cistern_ripples"
+    ]
+    exactFieldSharedAcrossSystems: true
+  }
+
+  template "WetClothResponseContract" {
+    type: "rain_driven_mantle_material_response"
+    saturationRange: [0.38, 0.58]
+    mantleRoughnessRange: [0.54, 0.62]
+    mantleClearcoatRange: [0.12, 0.24]
+    materialOnlyResponse: true
+    fluidAbsorptionSolverClaimed: false
+  }
+
+  template "ReplayAcceptanceGate" {
+    type: "model_village_physical_replay_gate"
+    exactSourceHashesRequired: true
+    exactInputHashRequired: true
+    exactFrameDigestRequired: true
+    exactCombinedDigestRequired: true
+    timingExcludedFromStateDigests: true
+    gpuRenderingExcludedFromStateDigests: true
+    finiteNumbersRequired: true
+    expectedRuns: 3
+    acceptedOnlyWhenAllRunsMatch: true
+  }
+
+  template "GpuWitnessContract" {
+    type: "model_village_webgl2_physical_presentation_witness"
+    requiredObjects: ["renderer", "scene", "camera", "resident_meshes", "atmosphere_batches"]
+    requiredTemporalFrames: 3
+    requiredCoupledSystems: 5
+    contactSheetRequired: true
+    hardwareRendererRequired: true
+    d3d11BackendRequired: true
+    nativeGpuPhysicsClaimed: false
+    softwareFallbackRejected: true
+  }
+
+  template "NoCausalMergeGate" {
+    type: "model_village_physical_lane_firewall"
+    presentationLane: "mv_v1_physical_convergence_f"
+    prohibitedLane: "research_live_blinded"
+    allowedInputs: ["physical_f_world_source", "physical_f_policy_source", "physical_f_seed_source", "immutable_resident_e_witness"]
+    prohibitedInputs: ["live_model_output", "resident_observation", "canonical_village_receipt", "adapter_assignment"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_schedule", "village_action", "village_receipt"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+  }
+
+  template "FormatRoleContract" {
+    type: "holoscript_three_format_system"
+    holoRole: "world_physics_semantics_visual_coupling_camera_and_claim_boundary"
+    hsplusRole: "runtime_binding_fixed_step_collision_contact_replay_and_lane_firewall"
+    hsRole: "flat_resident_ground_wind_collision_and_phase_inputs"
+    holoParser: "HoloCompositionParser"
+    hsplusParser: "HoloScriptPlusParser"
+    hsParser: "HoloScriptCodeParser"
+    interchangeableFormatsClaimed: false
+  }
+
+  action accept_replay(runDigests, expectedRunCount) {
+    if (runDigests.length != expectedRunCount) {
+      return { accepted: false, reason: "run_count_mismatch" }
+    }
+    if (
+      runDigests[0].combined != runDigests[1].combined ||
+      runDigests[1].combined != runDigests[2].combined
+    ) {
+      return { accepted: false, reason: "physical_state_digest_mismatch" }
+    }
+    return { accepted: true, reason: "same_input_same_physical_state" }
+  }
+}
