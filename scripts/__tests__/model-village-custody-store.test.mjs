@@ -38,6 +38,7 @@ import {
 } from '../model-village-custody-store.mjs';
 import {
   canonicalDigest,
+  canonicalJson,
 } from '../model-village-phase0b-runtime.mjs';
 
 const RETENTION_POLICY = Object.freeze({
@@ -471,6 +472,116 @@ test('a moved on-disk tail refuses the append instead of forking the chain', (t)
     readFileSync(logPath, 'utf8'),
     logAfterForeignAppend,
     'the refused append must not extend the log',
+  );
+});
+
+/**
+ * Reseal an access-log chain so every prevEntryHash links from genesis and every
+ * entryHash recomputes — WITHOUT renumbering `sequence`. This is what a
+ * competent tamperer does after removing a line: repair the hashes so the chain
+ * is internally consistent again. Only the monotonic-sequence check can see
+ * through it.
+ */
+function resealAccessLog(entries) {
+  let prevHash = CUSTODY_ACCESS_LOG_GENESIS;
+  return entries.map((entry) => {
+    const { entryHash, ...unsigned } = entry;
+    void entryHash;
+    const rechained = { ...unsigned, prevEntryHash: prevHash };
+    const resealedHash = canonicalDigest(rechained);
+    prevHash = resealedHash;
+    return { ...rechained, entryHash: resealedHash };
+  });
+}
+
+function writeAccessLogEntries(rootDir, entries) {
+  writeFileSync(
+    path.join(rootDir, 'access-log.jsonl'),
+    `${entries.map((entry) => canonicalJson(entry)).join('\n')}\n`,
+  );
+}
+
+/**
+ * The custody store's sequence-monotonicity guard is a SEPARATE defense from the
+ * hash chain, and it is the only one that survives a competent reseal. Without
+ * this test the guard could be deleted outright and the whole 15-suite Model
+ * Village chain would still exit 0 — a silently erased custody access record
+ * would pass every gate. (The twin guard in model-village-trust-registry.mjs has
+ * had its own test since day one; this module's copy did not.)
+ */
+test('access-log sequence monotonicity survives a fully resealed chain', (t) => {
+  const { rootDir, store } = makeStore(t);
+  const sealed = store.sealObject({
+    bytes: Buffer.from('monotonicity-target', 'utf8'),
+    kind: 'raw-model-response',
+    label: 'drill-monotonic-01',
+  });
+  // create, seal, read, list, read — a middle READ entry can be removed without
+  // disturbing the objects-vs-seal-log cross reference, which isolates this test
+  // to the sequence guard alone.
+  store.readObject(sealed.custodyId);
+  store.listObjects();
+  store.readObject(sealed.custodyId);
+
+  store.close();
+
+  const entries = readAccessLogEntries(rootDir);
+  assert.deepEqual(
+    entries.map((entry) => entry.operation),
+    ['create', 'seal', 'read', 'list', 'read'],
+  );
+
+  // Control: resealing WITHOUT dropping anything must leave a store that still
+  // opens and verifies. If this fails, the helper below is not a faithful
+  // reseal and the negative case would prove nothing.
+  writeAccessLogEntries(rootDir, resealAccessLog(entries));
+  const reopened = openSealedCustodyStore({ operator: 'operator-two', rootDir });
+  assert.equal(
+    reopened.verifyIntegrity().ok,
+    true,
+    'the reseal helper must reproduce a valid chain, or the tamper case is unsound',
+  );
+  reopened.close();
+
+  // Erase a middle read and reseal every remaining hash.
+  const live = readAccessLogEntries(rootDir);
+  const dropIndex = live.findIndex(
+    (entry, index) => index > 0 && index < live.length - 1 && entry.operation === 'read',
+  );
+  assert.ok(dropIndex > 0, 'expected a middle read entry to erase');
+  const dropped = resealAccessLog(live.filter((_, index) => index !== dropIndex));
+
+  // The tampered log is hash-perfect: genesis link, forward chain, and every
+  // entryHash recompute all hold. Sequence numbering is the ONLY residue.
+  assert.equal(dropped[0].prevEntryHash, CUSTODY_ACCESS_LOG_GENESIS);
+  for (let index = 1; index < dropped.length; index += 1) {
+    assert.equal(dropped[index].prevEntryHash, dropped[index - 1].entryHash);
+  }
+  for (const entry of dropped) {
+    const { entryHash, ...unsigned } = entry;
+    assert.equal(canonicalDigest(unsigned), entryHash);
+  }
+  const expectedSequences = live
+    .filter((_, index) => index !== dropIndex)
+    .map((entry) => entry.sequence);
+  assert.deepEqual(
+    dropped.map((entry) => entry.sequence),
+    expectedSequences,
+    'the removed entry must leave a hole in the sequence and nothing else',
+  );
+  assert.equal(
+    dropped[dropIndex].sequence - dropped[dropIndex - 1].sequence,
+    2,
+    'the hole must be exactly one erased entry',
+  );
+
+  writeAccessLogEntries(rootDir, dropped);
+  assert.throws(
+    () => openSealedCustodyStore({ operator: 'operator-three', rootDir }),
+    (error) => error instanceof CustodyIntegrityError
+      && /breaks monotonic order/.test(error.message),
+    'an erased access-log entry must be rejected by the sequence guard — the '
+    + 'hash chain alone cannot see it',
   );
 });
 
