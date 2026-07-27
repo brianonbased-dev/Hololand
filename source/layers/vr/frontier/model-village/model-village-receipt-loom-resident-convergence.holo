@@ -1,0 +1,262 @@
+// HoloLand Model Village - Receipt Loom Resident Convergence E.
+//
+// This composition admits six named, presentation-only model-family
+// embodiments into the immutable Atmosphere Convergence D courtyard. It is
+// deliberately separate from live blinded research. HoloScript owns the
+// roster, bundle custody, placement, silhouette grammar, material treatment,
+// caption policy, camera, quality budget, and truth boundary. The JavaScript
+// bridge may only materialize these declarations into a local GPU witness.
+
+composition "HoloLand Model Village Receipt Loom Resident Convergence" {
+  metadata {
+    title: "Receipt Loom Courtyard - Resident Convergence E"
+    version: "0.1.0"
+    date: "2026-07-27"
+    source: "source/layers/vr/frontier/model-village/model-village-receipt-loom-resident-convergence.holo"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    milestone: "MV_V1_RESIDENT_CONVERGENCE_E"
+    projectionRole: "public_postlock_family_embodiment"
+    atmosphereSource: "source/layers/vr/frontier/model-village/model-village-receipt-loom-atmosphere-convergence.holo"
+    atmosphereSourceSha256: "51963bf2641f76b82c0ee05052124ab684546a4e78b7ba8c525ad8b45e7e940f"
+    atmosphereBridge: "scripts/check-hololand-model-village-atmosphere-convergence.mjs"
+    atmosphereBridgeSha256: "ed892e36d2ea8073b8ae6e468b34760ee4f0a9131f0face85757300a7295c367"
+    atmosphereBrowserApplicationSha256: "0959a3dedeca4432e6714b106ae1b269446d71bdde4054561c07eac1facb9e96"
+    atmosphereTest: "scripts/__tests__/hololand-model-village-atmosphere-convergence.test.mjs"
+    atmosphereTestSha256: "4749082f7c94b834899a2c4fefb4281504ddb506993726f66533719dc7f0c3a1"
+    atmosphereReport: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V1_ATMOSPHERE_CONVERGENCE_D_2026-07-27.md"
+    atmosphereReportSha256: "15f89ced35d0c2e7aa8784d28b358d2c1ea71efc15566a396e9bef4da6130e4e"
+    atmosphereHero: "docs/assets/model-village/model-village-receipt-loom-atmosphere-convergence-d-2026-07-27.png"
+    atmosphereHeroSha256: "c7ff9d38ff16014533f488019894a4f1c34fc56186c52ee4695c9f55b5760a0b"
+    atmosphereManifest: "source/layers/vr/frontier/model-village/model-village-receipt-loom-atmosphere-convergence-manifest.holo"
+    atmosphereManifestSha256: "1cb7af44483a8e8425b9d5222a87d3b2fcf6f451256ba6e2e767ce7807aa15f8"
+    familyCatalog: "source/layers/vr/frontier/model-village/model-village-family-mantle-catalog.holo"
+    familyCatalogSha256: "e366ee5cc51d4b0c3d9ba38643b683e688b7f902d315745acc76c00d6c06cfd2"
+    familyCatalogManifest: "source/layers/vr/frontier/model-village/model-village-family-mantle-catalog-manifest.holo"
+    familyCatalogManifestSha256: "9bbe1e0c8c4288151da6296d0934f948b97ffa32fe1851918ad64a754056d6c5"
+    publicEmbodimentsSource: "source/layers/vr/frontier/model-village/model-village-public-embodiments.holo"
+    publicEmbodimentsSourceSha256: "2d02f29cbbff1b4d5317b8fc3f5e3ad9de0c8ff9390a065849e459f22ab69767"
+    neutralProductionBodySource: "source/layers/vr/frontier/model-village/model-village-resident-production-body.holo"
+    neutralProductionBodySourceSha256: "62e719290da04d6bccf7be4e5cc56ff55192123329ed21cbe29b58feb837f7d5"
+    inheritedWitnessesImmutable: true
+    bridgeMayOwnPresentationOnly: true
+    externalAssetsRequired: false
+    independentProjectDisclosure: "HoloLand-authored visual interpretation; not affiliated with or endorsed by the named providers."
+  }
+
+  environment {
+    mode: "public_story_projection"
+    theme: "stormglass_commons"
+    timeOfDay: "blue_hour_after_rain"
+    weather: "sealed_light_rain_mist"
+    backgroundColor: "#020711"
+    ambient_light: 0.32
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    presentationProfile: "village_story_unblinded"
+    admittedPresentationProfiles: [
+      "village_story_unblinded",
+      "research_replay_postlock"
+    ]
+    deniedPresentationProfiles: ["research_live_blinded"]
+    separateFromLiveExperiment: true
+    researchLiveIdentityNeutralPreserved: true
+    researchLiveBlindedCompatible: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    publicFamilyIdentityPresented: true
+    exactModelRevisionPresented: false
+    providerEndorsementClaimed: false
+    modelBehaviorSimulated: false
+    residentConvergenceClaimed: true
+    productionResidentAssetsClaimed: true
+    productionTailoringClaimed: false
+    continuousClothSimulationClaimed: false
+    collisionResolvedGarmentsClaimed: false
+    gameplayPhysicsClaimed: false
+    measuredRealTimePerformanceClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+    sourceResidentAuthority: "holoscript"
+    residentMaterializationBridge: "deterministic_local_presentation_only"
+    inheritedArtConvergence: "A"
+    inheritedMaterialConvergence: "B"
+    inheritedGeometryConvergence: "C"
+    inheritedAtmosphereConvergence: "D"
+    neutralStagingFormsHidden: 2
+    namedResidentCount: 6
+    publicDisplayNames: ["Claude", "OpenAI", "Gemini", "Grok", "GLM", "Brittney"]
+    familyIds: ["anthropic", "openai", "google", "xai", "ollama", "sovereign"]
+    sharedBodyHeightMeters: 2.202286
+    sharedResidentScale: 1.03
+    sharedRigJointCount: 55
+    perResidentVertexCount: 2180
+    perResidentTriangleCount: 1668
+    residentMaterialGroupCount: 4
+    identityChannels: ["silhouette", "woven_mantle", "glyph", "caption"]
+    captionsAlwaysVisible: true
+    facelessEmbodiments: true
+    mantleDetachable: true
+    sealedClothPhase: 0.6
+    generatedCaptionTextureCount: 6
+    generatedMantleTextureCount: 6
+    qualityBudget: {
+      maxDrawCalls: 780
+      maxTriangles: 145000
+      maxMaterials: 72
+      maxTextures: 42
+      maxResidentMeshes: 6
+      maxGeneratedResidentTextures: 12
+      renderWidth: 1600
+      renderHeight: 900
+    }
+    inspectionCamera: {
+      position: [8.8, 6.4, 17.4]
+      target: [-1.0, 2.4, -1.2]
+      fov: 41
+      near: 0.1
+      far: 180
+      purpose: "six_family_courtyard_tableau_with_receipt_loom_and_cottage_context"
+    }
+  }
+
+  template "StormglassFamilyResidentProjection" {
+    geometry: "avatar"
+    scale: [1.03, 1.03, 1.03]
+    visible: false
+    properties: {
+      presentationKit: "resident_convergence_family"
+      authority: "holoscript"
+      presentationProfile: "village_story_unblinded"
+      researchResidentBinding: "none"
+      researchSeatBinding: "none"
+      researchPersonaBinding: "none"
+      researchRoleBinding: "none"
+      adapterAssignmentBinding: "none"
+      exactModelRevisionBinding: "none"
+      canonicalWriteAuthority: false
+      residentObservationWriteAuthority: false
+      causalEffect: false
+      excludedFromLiveResearch: true
+      providerEndorsementClaimed: false
+      captionVisible: true
+      faceless: true
+      mantleDetachable: true
+    }
+  }
+
+  object "ClaudeResident" using "StormglassFamilyResidentProjection" {
+    position: [-4.65, 0.42, 2.45]
+    rotation: [0, 0.32, 0]
+    properties: {
+      publicDisplayName: "Claude"
+      familyId: "anthropic"
+      slug: "claude"
+      characterBundle: "assets/model-village/residents/stormglass-claude-mantle-lod0.character.json"
+      characterBundleSha256: "d3703bd507910709f779d7c028850c96bf4eb64587e17782cbc04479258c0ebf"
+      patternId: "quiet_nested_open_arcs"
+      glyphId: "open_arc_weave"
+      silhouetteId: "broad_nested_arc_yoke"
+      accentColor: "#C16F45"
+      mantleTile: "assets/model-village/materials/claude-quiet-nested-open-arcs-albedo.texture.json"
+      captionOffset: [-0.10, 2.72, 0]
+    }
+  }
+
+  object "OpenAIResident" using "StormglassFamilyResidentProjection" {
+    position: [-2.60, 0.42, 1.30]
+    rotation: [0, 0.18, 0]
+    properties: {
+      publicDisplayName: "OpenAI"
+      embodimentTitle: "Codex"
+      familyId: "openai"
+      slug: "openai"
+      characterBundle: "assets/model-village/residents/stormglass-openai-cloth-mantle-lod0.character.json"
+      characterBundleSha256: "81da82a544bb7293ebfcad39a121c4d0b681516c76fa489606109638bbfaf5af"
+      patternId: "recursive_cell_interlock"
+      glyphId: "recursive_interlock_glyph"
+      silhouetteId: "long_recursive_point"
+      accentColor: "#D6D1C7"
+      mantleTile: "assets/model-village/materials/openai-recursive-interlock-albedo.texture.json"
+      captionOffset: [-0.24, 3.02, 0]
+    }
+  }
+
+  object "GeminiResident" using "StormglassFamilyResidentProjection" {
+    position: [-0.55, 0.42, 2.45]
+    rotation: [0, 0.04, 0]
+    properties: {
+      publicDisplayName: "Gemini"
+      familyId: "google"
+      slug: "gemini"
+      characterBundle: "assets/model-village/residents/stormglass-gemini-mantle-lod0.character.json"
+      characterBundleSha256: "8f8d06aa2327fbe1677811620df0bf4493a3d07480dffc6e9a16076df58aa1d6"
+      patternId: "paired_offset_prismatic_panels"
+      glyphId: "paired_prism_weave"
+      silhouetteId: "paired_prism_shoulders"
+      accentColor: "#3F6D7A"
+      mantleTile: "assets/model-village/materials/gemini-paired-prism-panels-albedo.texture.json"
+      captionOffset: [0, 2.68, 0]
+    }
+  }
+
+  object "GrokResident" using "StormglassFamilyResidentProjection" {
+    position: [1.70, 0.42, 2.05]
+    rotation: [0, -0.12, 0]
+    properties: {
+      publicDisplayName: "Grok"
+      familyId: "xai"
+      slug: "grok"
+      characterBundle: "assets/model-village/residents/stormglass-grok-mantle-lod0.character.json"
+      characterBundleSha256: "a626b29738f59c767544e99719b6470270a78ac1718a5bca6643d43e61a0685d"
+      patternId: "off_axis_signal_bands"
+      glyphId: "diagonal_signal_weave"
+      silhouetteId: "off_axis_signal_cape"
+      accentColor: "#A64B3C"
+      mantleTile: "assets/model-village/materials/grok-off-axis-signal-bands-albedo.texture.json"
+      captionOffset: [0.18, 2.98, 0]
+    }
+  }
+
+  object "GLMResident" using "StormglassFamilyResidentProjection" {
+    position: [3.55, 0.42, 0.15]
+    rotation: [0, -0.36, 0]
+    properties: {
+      publicDisplayName: "GLM"
+      familyId: "ollama"
+      slug: "glm"
+      characterBundle: "assets/model-village/residents/stormglass-glm-mantle-lod0.character.json"
+      characterBundleSha256: "9aebb2d4990565994caf1e2ddb32b8aa14c051554d9b2200ab3d6d1ed5c05ed2"
+      patternId: "modular_phase_lattice"
+      glyphId: "phase_lattice_glyph"
+      silhouetteId: "modular_lattice_tabard"
+      accentColor: "#C8A84E"
+      mantleTile: "assets/model-village/materials/glm-modular-phase-lattice-albedo.texture.json"
+      captionOffset: [0.16, 2.70, 0]
+    }
+  }
+
+  object "BrittneyResident" using "StormglassFamilyResidentProjection" {
+    position: [1.80, 0.42, -2.30]
+    rotation: [0, -0.28, 0]
+    properties: {
+      publicDisplayName: "Brittney"
+      familyId: "sovereign"
+      slug: "brittney"
+      characterBundle: "assets/model-village/residents/stormglass-brittney-mantle-lod0.character.json"
+      characterBundleSha256: "c016d91c9a172c3a375d43e27538529b5df0cd47d9644fbc7f390040bbd94ae1"
+      patternId: "sovereign_locality_mesh"
+      glyphId: "owned_mesh_glyph"
+      silhouetteId: "locality_mesh_shawl"
+      accentColor: "#6D5A8C"
+      mantleTile: "assets/model-village/materials/brittney-sovereign-locality-mesh-albedo.texture.json"
+      captionOffset: [-0.08, 3.08, 0]
+    }
+  }
+}
