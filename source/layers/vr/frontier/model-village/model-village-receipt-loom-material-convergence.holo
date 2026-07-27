@@ -1,0 +1,180 @@
+// HoloLand Model Village — Receipt Loom Material Convergence B.
+//
+// This composition is a provenance-bound, presentation-only material overlay
+// for the immutable Art Convergence A courtyard. HoloScript owns each surface
+// recipe, seed, palette, scale, channel hash, binding, and truth boundary. The
+// JavaScript bridge may synthesize the declared deterministic texture bytes and
+// bind them to the accepted A geometry; it may not invent scene state, resident
+// identity, experiment outcomes, canonical writes, or network dependencies.
+
+composition "HoloLand Model Village Receipt Loom Material Convergence" {
+  metadata {
+    title: "Receipt Loom Courtyard — Material Convergence B"
+    version: "0.1.0"
+    date: "2026-07-27"
+    source: "source/layers/vr/frontier/model-village/model-village-receipt-loom-material-convergence.holo"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    milestone: "MV_V1_MATERIAL_CONVERGENCE_B"
+    projectionRole: "read_only_material_development"
+    baseScene: "source/layers/vr/frontier/model-village/model-village-receipt-loom-courtyard.holo"
+    baseSceneSha256: "6396f15623bab2f910c081943e58f53dc4d121bedc52f5b050de58443706d4bd"
+    baseBridge: "scripts/check-hololand-model-village-receipt-loom-courtyard.mjs"
+    baseBridgeSha256: "261d01c8ad75ec2fb62d922ff29702ee0390377b97b08bb07204ce4ae0999a19"
+    referenceConcept: "docs/assets/model-village/model-village-stormglass-commons-concept-2026-07-25.png"
+    referenceConceptSha256: "2aa7deae838068e0caffa22d793abb85f76702c9d3e0a55f3169d81de9b611bf"
+    sourceSemanticsRewritten: false
+    bridgeMayOwnPresentationOnly: true
+    externalAssetsRequired: false
+  }
+
+  state {
+    authority: "read_only"
+    presentationProfile: "village_story_unblinded"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    researchLiveBlindedCompatible: true
+    publicFamilyIdentityPresented: false
+    exactModelIdentityPresented: false
+    residentFormStatus: "neutral_craftfolk_staging_form"
+    productionResidentClaimed: false
+    fullWorldConvergenceClaimed: false
+    gameplayPhysicsClaimed: false
+    sourceRecipeAuthority: "holoscript"
+    textureSynthesisBridge: "deterministic_local_presentation_only"
+    textureNetworkRequests: 0
+    surfaceCount: 4
+    channelCountPerSurface: 4
+    requiredChannels: ["albedo", "normal", "roughness", "clearcoat"]
+    qualityBudget: {
+      maxDrawCalls: 760
+      maxTriangles: 260000
+      maxMaterials: 28
+      maxTextures: 26
+      textureResolution: 128
+      renderWidth: 1600
+      renderHeight: 900
+    }
+    surfaceBindings: {
+      old_timber: "agedTimber"
+      timber_cut: "agedTimber"
+      lime_plaster: "limePlaster"
+      slate_roof: "handSplitSlate"
+      wet_basalt: "wetBasalt"
+      dry_basalt: "wetBasalt"
+    }
+    materialSurfaces: {
+      agedTimber: {
+        recipe: "weathered_timber_v1"
+        seed: 73471
+        resolution: 128
+        repeat: [3.5, 1.25]
+        normalStrength: 5.2
+        normalScale: 0.64
+        darkColor: "#24130b"
+        lightColor: "#7a4527"
+        hashes: {
+          albedo: "adbec582dc98188e688b9156f0b67b2ddb52126315f839558150ba6fde1753f9"
+          normal: "115449ec822d2c1330894bb27e4ccc0f2ee64c0fe55935e03bc01682e8f7b52c"
+          roughness: "f33b4dd0cabf65ff548d06e32f064037b6c1c0c0bea9c954ba9056cec26588b2"
+          clearcoat: "03c3b2a68d596b64d50471d027b8c758cb6e9752929d981a187dae09e597a9e9"
+        }
+      }
+      limePlaster: {
+        recipe: "lime_plaster_v1"
+        seed: 28657
+        resolution: 128
+        repeat: [3, 2]
+        normalStrength: 3.4
+        normalScale: 0.42
+        darkColor: "#4d493f"
+        lightColor: "#a99c84"
+        hashes: {
+          albedo: "3e9ee0da50adb9468af0f0051f771099a6851ef0d065358d51fafbf8065a4f5e"
+          normal: "87035dfd294689c3e239193886b9fcabb25f32ce3c7575bbc53f9eec50f44ac8"
+          roughness: "fd2cee126f01005bef393bb4a8670dcdaefe8c42b6b571132b34ba3f0c127482"
+          clearcoat: "49f6ff9b24c008dc281f9b5e78644c12d9398ed5af3a3160620a88edbb117b00"
+        }
+      }
+      handSplitSlate: {
+        recipe: "hand_split_slate_v1"
+        seed: 91843
+        resolution: 128
+        repeat: [2.5, 3]
+        normalStrength: 6.1
+        normalScale: 0.58
+        tileCount: 6
+        courseCount: 9
+        darkColor: "#101b29"
+        lightColor: "#34495c"
+        hashes: {
+          albedo: "71026d24669464705ab42d242ab94f3e9e2e10820a5c26fb3a2114ba309ddad4"
+          normal: "485725e1be283480ae889e7f42ba8951e633dc759a4e3d64c5cdc8ae6f87eaff"
+          roughness: "79fdc401d3e8ce3d93ce7a09103391a9aeee5d1a3d11c58a54762bbf68103be8"
+          clearcoat: "dfcc46fc2021c96127a1600715aa4bcdb3e26dbc3d97b0d3dc14bc02333783dc"
+        }
+      }
+      wetBasalt: {
+        recipe: "rain_darkened_basalt_v1"
+        seed: 82411
+        resolution: 128
+        repeat: [4, 4]
+        normalStrength: 3.2
+        normalScale: 0.34
+        darkColor: "#10191d"
+        lightColor: "#3c4a4f"
+        hashes: {
+          albedo: "01d990da439cbf491c484b6c57cd2945d35d1467da7055605ee019f2cca1bc96"
+          normal: "c767fc4253caf1ee0e2ff95aac82fcdbc1a6e3a7b44bedacd03613d219048d63"
+          roughness: "daa1537ceb8c629d6c240096056faec8d19b9b838f303abc237985f234f01ca0"
+          clearcoat: "275a0065472e000e85c860a4fe65b1f4319d2554a8f87d14c192df3b4a9058a8"
+        }
+      }
+    }
+  }
+
+  object "AgedTimberSurface" {
+    geometry: "plane"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_pbr_surface"
+      materialKey: "agedTimber"
+      recipe: "weathered_timber_v1"
+      physicalReading: "directional grain, worn fibers, knot compression, low clearcoat"
+    }
+  }
+
+  object "LimePlasterSurface" {
+    geometry: "plane"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_pbr_surface"
+      materialKey: "limePlaster"
+      recipe: "lime_plaster_v1"
+      physicalReading: "mineral mottling, trowel grain, sparse hairline cracks"
+    }
+  }
+
+  object "HandSplitSlateSurface" {
+    geometry: "plane"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_pbr_surface"
+      materialKey: "handSplitSlate"
+      recipe: "hand_split_slate_v1"
+      physicalReading: "offset courses, chipped edges, varied cleave, retained rain sheen"
+    }
+  }
+
+  object "WetBasaltSurface" {
+    geometry: "plane"
+    visible: false
+    properties: {
+      presentationKit: "deterministic_pbr_surface"
+      materialKey: "wetBasalt"
+      recipe: "rain_darkened_basalt_v1"
+      physicalReading: "multi-scale mineral grain, shallow pitting, pooled clearcoat, dark rain response"
+    }
+  }
+}
