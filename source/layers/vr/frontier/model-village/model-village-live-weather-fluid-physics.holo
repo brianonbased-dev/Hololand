@@ -1,0 +1,320 @@
+// Stormglass Commons live weather and bounded physics slice.
+//
+// HoloScript owns the weather, SPH, PBD cloth, rigid-body inputs, presentation
+// vocabulary, deterministic replay boundary, and claim boundary. The HoloLand
+// bridge materializes this authored contract through the shipped HoloScript
+// trait handlers and uploads the resulting state to a real WebGPU renderer.
+
+composition "Stormglass Live Weather and Fluid Physics" {
+  metadata {
+    schema: "hololand.model-village.live-weather-fluid-physics.v1"
+    assetId: "mv-stormglass-live-physics-v1"
+    title: "Stormglass Commons: The Rain Engine"
+    version: "1.0.0"
+    milestone: "MV-S3"
+    source: "source/layers/vr/frontier/model-village/model-village-live-weather-fluid-physics.holo"
+    manifestSource: "source/layers/vr/frontier/model-village/model-village-live-weather-fluid-physics-manifest.holo"
+    policySource: "source/proofs/model-village-live-physics-contract.hsplus"
+    seedSource: "source/proofs/model-village-live-physics-seed.hs"
+    worldName: "Stormglass Commons"
+    artStyle: "hearthlight_biorealism"
+    physicsStyle: "bounded_storm_cistern_cloth_and_collision_witness"
+    sourceSovereign: true
+    simulationBridgeOnly: true
+    browserPresentationBridgeOnly: true
+    independentProjectDisclosure: "HoloLand-authored interpretation; not affiliated with or endorsed by the named model providers."
+  }
+
+  environment {
+    mode: "deterministic_fixed_step_live_physics_witness"
+    theme: "stormglass_commons_rain_engine"
+    weather: "stormglass_squall"
+    sky: "cobalt_storm_break_with_hearthlight"
+    temperatureC: 11
+    relativeHumidityPercent: 91
+    windMetersPerSecond: 4.8
+    toneMapping: "aces"
+    targetDisplay: "srgb"
+    targetBackend: "webgpu"
+    externalNetworkAllowed: false
+    residentModelCallsAllowed: false
+  }
+
+  state {
+    fixedTimestepNumerator: 1
+    fixedTimestepDenominator: 120
+    fixedTimestepSeconds: 0.008333333333333333
+    replaySteps: 360
+    replayRuns: 3
+    replaySeed: 641031
+    fluidParticleCount: 96
+    clothParticleCount: 140
+    rigidDynamicBodyCount: 1
+    rigidStaticBodyCount: 1
+    simulationAuthority: "holo_source_and_shipped_holoscript_trait_handlers"
+    fluidBackend: "holo_fluid_simulation_handler_cpu_sph"
+    clothBackend: "holo_advanced_cloth_handler_cpu_pbd"
+    collisionBackend: "holoscript_runtime_physics_world_cpu"
+    presentationBackend: "browser_webgpu"
+    gpuSolverClaimed: false
+    fluidStructureInteractionClaimed: false
+    turbulenceModelClaimed: false
+    photorealismClaimed: false
+    crossHardwareDeterminismClaimed: false
+    canonicalVillageWriteAuthority: false
+    residentObservationWriteAuthority: false
+    villageReceiptWriteAuthority: false
+    presentationCanAffectOutcome: false
+  }
+
+  weather "StormglassSquall" {
+    type: "convective_rain_shower"
+    intensity: 0.78
+    rain_rate_mm_per_hour: 18
+    wind_speed: 4.8
+    wind_direction: [0.72, -0.08, 0.42]
+    gust_frequency_hz: 0.24
+    gust_strength: 1.35
+    fog_density: 0.026
+    lightning_enabled: false
+    deterministic_seed: 641031
+    drives: ["CisternSPH", "CommonsClothCanopy", "StormglassRainField"]
+  }
+
+  material "WetStormglass" @advanced_pbr {
+    base_color: "#7eb8c8"
+    roughness: 0.12
+    metallic: 0.08
+    transmission: 0.72
+    ior: 1.46
+    wetness: 0.94
+    procedural_normal: "seeded_rain_ripple_normals"
+  }
+
+  material "CisternWater" @advanced_pbr {
+    base_color: "#1b7897"
+    roughness: 0.05
+    metallic: 0.0
+    transmission: 0.68
+    ior: 1.333
+    thickness: 0.34
+    procedural_normal: "sph_particle_surface_normals"
+  }
+
+  material "CommonsCanopyTextile" @advanced_pbr {
+    base_color: "#c8653f"
+    roughness: 0.72
+    metallic: 0.02
+    sheen: 0.46
+    wetness: 0.38
+    procedural_normal: "woven_stormglass_fiber"
+  }
+
+  object "StormglassWindDriver" {
+    position: [0, 4.2, 0]
+    @wind {
+      direction: [0.72, -0.08, 0.42]
+      strength: 4.8
+      turbulence: 0.34
+      gust_frequency: 0.24
+      gust_strength: 1.35
+      radius: 32
+      deterministic_seed: 641031
+    }
+    consumerIds: ["CommonsClothCanopy", "StormglassRainField"]
+    presentationOnly: false
+  }
+
+  object "CisternSPH" {
+    geometry: "fluid_particle_volume"
+    position: [-2.4, 1.0, 0.4]
+    scale: [3.2, 1.4, 2.2]
+    material: "CisternWater"
+    @fluid_simulation {
+      restDensity: 1000
+      viscosity: 0.018
+      gravity: [0, -9.81, 0]
+      solverType: "sph"
+      timeStep: 0.008333333333333333
+      maxVelocity: 4.0
+      smoothingRadius: 0.34
+      gridCellSize: 0.34
+      particleRadius: 0.055
+      gasConstant: 0.08
+      surfaceTension: 0.072
+    }
+    seedObjectId: "CisternFluidSeed"
+    boundaryObjectId: "CisternFluidBoundary"
+    runtimePath: "fluidSimulationHandler.onAttach_onUpdate"
+    fixedStepOnly: true
+  }
+
+  object "CommonsClothCanopy" {
+    geometry: "cloth_grid"
+    position: [1.8, 4.4, -0.2]
+    scale: [3.8, 2.2, 1]
+    material: "CommonsCanopyTextile"
+    cast_shadows: true
+    @advanced_cloth {
+      width: 14
+      height: 10
+      size: { width: 3.8, height: 2.2 }
+      gravity: [0, -9.81, 0]
+      wind: [0.34, -0.04, 0.62]
+      structuralStiffness: 0.88
+      shearStiffness: 0.54
+      bendingStiffness: 0.30
+      damping: 0.018
+      iterations: 10
+      enableTearing: false
+      pinnedEdges: ["top"]
+    }
+    runtimePath: "advancedClothHandler.onAttach_onUpdate"
+    fixedStepOnly: true
+  }
+
+  object "StormglassCollisionPlinth" {
+    geometry: "box"
+    position: [2.35, 0.3, 0.8]
+    scale: [2.2, 0.6, 2.2]
+    material: "WetStormglass"
+    @physics {
+      type: "static"
+      mass: 0
+      restitution: 0.08
+    }
+    @collidable {
+      collider_type: "box"
+    }
+    seedObjectId: "StormglassCollisionPlinthSeed"
+  }
+
+  object "StormglassCollisionOrb" {
+    geometry: "sphere"
+    position: [2.35, 5.2, 0.8]
+    scale: [0.66, 0.66, 0.66]
+    material: "WetStormglass"
+    @physics {
+      type: "dynamic"
+      mass: 1
+      restitution: 0.18
+      linear_damping: 0.06
+      angular_damping: 0.06
+    }
+    @collidable {
+      collider_type: "sphere"
+      radius: 0.33
+    }
+    seedObjectId: "StormglassCollisionOrbSeed"
+  }
+
+  vfx "StormglassRainField" {
+    type: "rain"
+    rate: 720
+    lifetime: 2.4
+    velocity: [0.72, -8.4, 0.42]
+    color_start: [0.58, 0.86, 1.0, 0.72]
+    color_end: [0.24, 0.50, 0.72, 0.06]
+    deterministic_seed: 641031
+    presentation_particle_count: 320
+    simulation_coupling: "authored_weather_visualization_only"
+  }
+
+  object "HearthlightStormLamp" @emissive {
+    position: [0, 2.3, -0.4]
+    geometry: "faceted_lantern"
+    emission_color: "#ffb55f"
+    emission_intensity: 4.8
+    point_light {
+      color: "#ffb66a"
+      intensity: 3.6
+      range: 11
+      cast_shadows: true
+    }
+    presentationOnly: true
+  }
+
+  object "VisiblePhysicsLaneLabels" {
+    labels: [
+      "LIVE PHYSICS · MV-S3",
+      "CPU SPH + PBD + RIGID",
+      "WEBGPU PRESENTATION",
+      "SEPARATE FROM MV-P10 RECEIPTS",
+      "NO VILLAGE CAUSAL FEEDBACK"
+    ]
+    colorEncoding: {
+      live_physics: "#63e6be"
+      webgpu_presentation: "#76b7ff"
+      sealed_receipt_reference: "#b7a5d8"
+      no_feedback_boundary: "#ffcd70"
+    }
+    visibleInWitness: true
+    colorAloneRequired: false
+  }
+
+  object "SimulationPresentationBoundary" {
+    cpuSimulationDomains: ["sph_fluid", "pbd_cloth", "rigid_collision"]
+    gpuPresentationDomains: ["particle_rasterization", "cloth_rasterization", "rain_rasterization", "post_tone_map"]
+    gpuComputeSolverUsed: false
+    gpuTimestampQueryRequestedWhenSupported: true
+    cpuWallTimingSeparateFromGpuTiming: true
+    browserMayModifySimulationInputs: false
+    browserMayCallModel: false
+    browserMayFetchExternalAssets: false
+  }
+
+  object "NoCausalMergeBoundary" {
+    livePhysicsLane: "mv_s3_live_physics"
+    sealedFixtureLane: "mv_p10_sealed_fixture"
+    villageReceiptLane: "v4_run_receipts"
+    livePhysicsMayReadVillageReceipts: false
+    livePhysicsMayCreateVillageReceipts: false
+    livePhysicsMayMutateCanonicalWorld: false
+    livePhysicsMayCreateResidentObservation: false
+    sealedFixtureUsedAsPhysicsInput: false
+    villageReceiptUsedAsPhysicsInput: false
+    sharedClaimRootAllowed: false
+    causalEffect: false
+  }
+
+  object "LivePhysicsAccessibilityDeck" {
+    controls: ["pause", "resume", "replay", "reduced_motion", "show_lane_explanation"]
+    keyboardControls: ["Space", "KeyR", "KeyM", "KeyL"]
+    reducedMotionDefault: false
+    pausedStateAvailable: true
+    captionsAlwaysVisible: true
+    laneLabelsAlwaysVisible: true
+    screenReaderStatusRequired: true
+    colorAloneRequired: false
+  }
+
+  object "ClaimBoundary" {
+    provedWhenReceipted: [
+      "holoscript_first_class_weather_block",
+      "holoscript_fluid_simulation_trait_drives_cpu_sph",
+      "holoscript_advanced_cloth_trait_drives_cpu_pbd",
+      "holoscript_runtime_physics_world_drives_sphere_box_collision",
+      "three_run_same_input_deterministic_replay_on_named_local_build",
+      "separate_cpu_solver_and_browser_gpu_timing",
+      "real_browser_webgpu_adapter_device_pipeline_and_draw",
+      "visible_physics_gpu_and_receipt_lane_labels",
+      "zero_external_fetches_model_calls_and_village_writes",
+      "holo_hsplus_hs_format_roles_enforced_by_parsers"
+    ]
+    notProved: [
+      "gpu_fluid_solver",
+      "gpu_cloth_solver",
+      "gpu_rigid_body_solver",
+      "fluid_structure_interaction",
+      "navier_stokes_cfd_accuracy",
+      "turbulence_or_weather_forecasting",
+      "real_meteorological_input",
+      "photorealism",
+      "cross_hardware_determinism",
+      "webxr_or_headset_performance",
+      "resident_perception_or_behavioral_response",
+      "causal_merge_with_village_receipts",
+      "provider_affiliation_or_endorsement"
+    ]
+  }
+}

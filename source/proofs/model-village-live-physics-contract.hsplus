@@ -1,0 +1,127 @@
+// MV-S3 deterministic live-physics policy.
+//
+// .hsplus owns the executable-shape policy: fixed-step scheduling, replay
+// acceptance, runtime-handler bindings, lane separation, and GPU claim limits.
+// The current HoloLand bridge evaluates this structured policy and receipts the
+// result; it does not claim native execution of the action blocks.
+
+composition "Model Village Live Physics Contract" {
+  config {
+    schema: "hololand.model-village.live-physics-contract.v1"
+    milestone: "MV-S3"
+    source: "source/proofs/model-village-live-physics-contract.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-live-weather-fluid-physics.holo"
+    seedSource: "source/proofs/model-village-live-physics-seed.hs"
+    formatRole: "behavior_policy_and_replay_acceptance"
+    executionStatus: "structured_contract_evaluated_by_receipted_hololand_bridge"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state ModelVillageLivePhysicsState {
+    frame: 0
+    fixedTimestepSeconds: 0.008333333333333333
+    replayRunsCompleted: 0
+    replayAccepted: false
+    livePhysicsLane: "mv_s3_live_physics"
+    sealedFixtureLane: "mv_p10_sealed_fixture"
+    villageReceiptLane: "v4_run_receipts"
+    villageMutationCount: 0
+    residentObservationWriteCount: 0
+    villageReceiptWriteCount: 0
+  }
+
+  template "FixedStepExecutionContract" {
+    type: "model_village_fixed_step_execution"
+    timestepNumerator: 1
+    timestepDenominator: 120
+    steps: 360
+    runs: 3
+    deterministicSeed: 641031
+    domainOrder: ["fluid_sph", "cloth_pbd", "rigid_collision"]
+    wallClockInSimulationInput: false
+    randomSource: "seed_manifest_only"
+    droppedStepBehavior: "fail_witness"
+    variableDeltaAllowed: false
+  }
+
+  template "HoloScriptRuntimeBinding" {
+    type: "holoscript_trait_handler_runtime_binding"
+    fluidHandler: "fluidSimulationHandler"
+    fluidLifecycle: ["onAttach", "onUpdate", "onDetach"]
+    fluidSolver: "FluidSimulationSystem.step"
+    fluidAlgorithm: "cpu_sph"
+    clothHandler: "advancedClothHandler"
+    clothLifecycle: ["onAttach", "onUpdate", "onDetach"]
+    clothSolver: "AdvancedClothSystem.step"
+    clothAlgorithm: "cpu_pbd"
+    rigidWorld: "PhysicsWorld"
+    rigidRegistration: "PhysicsWorld.addBodyWithConfig"
+    rigidAlgorithm: "cpu_impulse_collision"
+    directPrivateSolverReimplementationAllowed: false
+  }
+
+  template "ReplayAcceptanceGate" {
+    type: "model_village_live_physics_replay_gate"
+    exactSourceHashesRequired: true
+    exactInputManifestHashRequired: true
+    exactFluidStateDigestRequired: true
+    exactClothStateDigestRequired: true
+    exactRigidStateDigestRequired: true
+    exactCombinedStateDigestRequired: true
+    exactEventDigestRequired: true
+    timingExcludedFromStateDigests: true
+    gpuRenderingExcludedFromStateDigests: true
+    finiteNumbersRequired: true
+    expectedRuns: 3
+    acceptedOnlyWhenAllRunsMatch: true
+  }
+
+  template "GpuWitnessContract" {
+    type: "model_village_webgpu_presentation_witness"
+    requiredObjects: ["adapter", "device", "canvas_context", "render_pipeline", "command_encoder"]
+    requiredDraws: ["fluid_particles", "cloth_mesh", "rigid_body", "rain_field"]
+    timestampQuery: "required_when_adapter_supports_timestamp_query"
+    cpuSubmitTimingRequired: true
+    gpuTimingReportedSeparately: true
+    gpuSolverClaimed: false
+    softwareFallbackRejected: true
+    webglFallbackAllowed: false
+  }
+
+  template "NoCausalMergeGate" {
+    type: "model_village_live_physics_lane_firewall"
+    livePhysicsLane: "mv_s3_live_physics"
+    sealedFixtureLane: "mv_p10_sealed_fixture"
+    villageReceiptLane: "v4_run_receipts"
+    allowedInputs: ["mv_s3_world_source", "mv_s3_policy_source", "mv_s3_seed_source"]
+    prohibitedInputs: ["mv_p10_receipt_fixture", "v4_resident_observation", "v4_action_receipt"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_schedule", "village_action", "village_receipt"]
+    protectedFields: ["canonical_scene_hash", "canonical_pose_hash", "logical_clock_hash", "public_state_hash", "executed_schedule_hash", "resident_observation_hash", "action_receipt_root"]
+    mutationDeltaRequired: 0
+    sharedClaimRootAllowed: false
+  }
+
+  template "FormatRoleContract" {
+    type: "holoscript_three_format_system"
+    holoRole: "world_weather_traits_visual_semantics_and_claim_boundary"
+    hsplusRole: "behavior_policy_runtime_binding_replay_gate_and_lane_firewall"
+    hsRole: "flat_seed_particles_boundaries_and_rigid_body_inputs"
+    holoParser: "HoloCompositionParser"
+    hsplusParser: "HoloScriptPlusParser"
+    hsParser: "HoloScriptCodeParser"
+    interchangeableFormatsClaimed: false
+  }
+
+  action accept_replay(runDigests, expectedRunCount) {
+    if (runDigests.length != expectedRunCount) {
+      return { accepted: false, reason: "run_count_mismatch" }
+    }
+    if (
+      runDigests[0].combined != runDigests[1].combined ||
+      runDigests[1].combined != runDigests[2].combined
+    ) {
+      return { accepted: false, reason: "state_digest_mismatch" }
+    }
+    return { accepted: true, reason: "same_input_same_state" }
+  }
+}

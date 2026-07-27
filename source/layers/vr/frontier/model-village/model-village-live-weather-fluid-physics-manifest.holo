@@ -1,0 +1,88 @@
+// MV-S3 immutable live-physics evidence anchors.
+//
+// This manifest binds the authored three-format input stack, deterministic
+// replay root, stable hero frame, and upstream HoloScript cloth lifecycle fix.
+// Variable CPU/GPU timings remain in the receipt and report, not this manifest.
+
+composition "Stormglass Live Weather and Fluid Physics Manifest" {
+  metadata {
+    schema: "hololand.model-village.live-weather-fluid-physics-manifest.v1"
+    version: "1.0.0"
+    milestone: "MV-S3"
+    status: "PASS_BOUNDED"
+    generatedDate: "2026-07-27"
+    source: "source/layers/vr/frontier/model-village/model-village-live-weather-fluid-physics-manifest.holo"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-live-weather-fluid-physics.holo"
+    worldSourceSha256: "2253b79d769754a93aa7bd34a5e0549f66b64f5cdddba0a2e8aafe4d546fe308"
+    policySource: "source/proofs/model-village-live-physics-contract.hsplus"
+    policySourceSha256: "fd7ea71cbf014d21f2c6aab4964f44e0fb81199c73da178ec2af8ad9a7932357"
+    seedSource: "source/proofs/model-village-live-physics-seed.hs"
+    seedSourceSha256: "a4c6c47e37eaf73811cbe5f4658d018b3551215cb78421cce010f99dcf0b6ae8"
+    heroFrame: "docs/assets/model-village/model-village-live-weather-fluid-physics-hero-2026-07-27.png"
+    heroFrameSha256: "daa37193dc206dacad8b31a7f4951528b83be89e289a3addf8d3625b71c6fd9f"
+    report: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_S3_LIVE_WEATHER_FLUID_PHYSICS_2026-07-27.md"
+    holoScriptEngineCommit: "adbc71e4ba693ba87ab448cedf1616c7c1421496"
+    holoScriptClothLifecycleFixCommit: "adbc71e4ba693ba87ab448cedf1616c7c1421496"
+    namedHardware: "NVIDIA GeForce RTX 3060 Laptop GPU"
+    independentProjectDisclosure: "HoloLand-authored interpretation; not affiliated with or endorsed by the named model providers."
+    providerEndorsementClaimed: false
+  }
+
+  state {
+    evidenceLane: "mv_s3_live_physics"
+    sealedFixtureLane: "mv_p10_sealed_fixture"
+    villageReceiptLane: "v4_run_receipts"
+    replayCombinedSha256: "08a840a7bf49d31354093f268e13d9f85819723a169311d526a6aa7f5d780b96"
+    replayRuns: 3
+    replaySteps: 360
+    fixedStepHz: 120
+    deterministicSeed: 641031
+    fluidParticleCount: 96
+    clothParticleCount: 140
+    rigidBodyCount: 2
+    rainInstanceCount: 320
+    browserGpuPipelineCount: 3
+    browserGpuTimestampSamples: 24
+    exactReplayObserved: true
+    realWebGpuPresentationObserved: true
+    gpuTimestampQueryObserved: true
+    cpuAndGpuTimingsSeparated: true
+    gpuPhysicsSolverClaimed: false
+    fluidStructureInteractionClaimed: false
+    crossHardwareDeterminismClaimed: false
+    externalNetworkFetchCount: 0
+    canonicalVillageWriteCount: 0
+    residentObservationWriteCount: 0
+    villageReceiptWriteCount: 0
+    sealedFixtureUsedAsPhysicsInput: false
+    villageReceiptUsedAsPhysicsInput: false
+    sharedCausalRootClaimed: false
+  }
+
+  object "EvidenceBoundary" {
+    type: "model_village_live_physics_evidence_boundary"
+    proved: [
+      "parser_verified_three_format_roles",
+      "shipped_cpu_sph_trait_lifecycle",
+      "shipped_cpu_pbd_trait_lifecycle",
+      "shipped_cpu_rigid_collision_world",
+      "three_run_exact_same_hardware_replay",
+      "real_browser_webgpu_presentation",
+      "named_hardware_cpu_and_gpu_timings",
+      "zero_village_causal_writes"
+    ]
+    notProved: [
+      "gpu_fluid_cloth_or_rigid_solver",
+      "fluid_structure_interaction",
+      "cfd_accuracy",
+      "turbulence_or_weather_forecasting",
+      "real_meteorological_input",
+      "photorealism",
+      "cross_hardware_determinism",
+      "webxr_or_headset_performance",
+      "resident_perception_or_response",
+      "causal_merge_with_village_receipts",
+      "provider_affiliation_or_endorsement"
+    ]
+  }
+}
