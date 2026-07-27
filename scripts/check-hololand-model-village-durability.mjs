@@ -207,25 +207,41 @@ const GAP_CATALOG = Object.freeze({
   },
   'G-LOCKBREAK': {
     severity: 'LOW',
-    file: 'scripts/model-village-phase0b-runtime.mjs:1591-1700',
+    file: 'scripts/model-village-phase0b-runtime.mjs:1631-2093',
     summary:
-      'Residual (not executed, not reproduced): breakStaleLockFile re-reads the '
-      + 'lock immediately before renaming it aside, but those are two separate '
-      + 'syscalls, so a preemption between them can still move a FRESH lock '
-      + 'aside. The case is DETECTED by the post-rename identity check and '
-      + 'undone with a non-clobbering link, degrading to a refusal; it only '
-      + 'reaches shared access if a brand-new contender takes the momentarily '
-      + 'free path inside that same two-syscall gap AND the restore therefore '
-      + "fails, which returns 'stolen' and fails closed loudly. Measured after "
-      + 'the fix: 8 real processes racing one genuinely stale lock produced '
-      + 'exactly ONE winner in 12/12 trials (before: 2-8 winners in 12/12), and '
-      + 'the deterministic live-holder interleaving now refuses instead of '
-      + 'stealing.',
+      'Residual, NARROWED TWICE. This entry previously called the window '
+      + '"not executed, not reproduced" and cited 12/12 clean trials. Both '
+      + 'claims were wrong, and how they were wrong is the lesson: the '
+      + 'measurement was under-powered (6 trials/run against a ~6.7% per-trial '
+      + 'defect = 34% detection), so a green run meant almost nothing. The race '
+      + 'WAS then reproduced — two simultaneous live holders on the 70th 8-way '
+      + 'trial, with the winner rows showing the exact predicted fingerprint (a '
+      + "winner whose recordedPid is a DIFFERENT winner's pid). Cause: the "
+      + 'read-then-rename pair is two syscalls, so a preempted contender moved a '
+      + "WINNER's fresh lock aside and a third contender's ordinary exclusive "
+      + 'create then succeeded on the momentarily free path. The break is now '
+      + 'SERIALIZED behind an exclusive break token, with the identity-bound '
+      + 'move-aside kept as the inner detector — and BOTH layers are '
+      + "load-bearing: the token cannot close the window (its own reclaim can't "
+      + 'be tokenized without infinite regress), so what actually holds under a '
+      + 'stalled or pid-recycled token holder is the post-rename byte check '
+      + 'failing the displaced breaker closed. Measured after the fix: 0 '
+      + 'double-acquires in 160 racing trials plus 65 trials engineered to force '
+      + 'two processes into the break section simultaneously. The racing test is '
+      + 'now 40 trials/run (94% detection) precisely because the old 6 were not '
+      + 'a guard.',
     minimalFix:
-      'An OS-backed advisory lock (flock / LockFileEx) would remove the window '
-      + "entirely; node's builtin fs exposes neither, so it would need a native "
-      + 'addon or an out-of-process lock service — out of scope for a '
-      + 'node-builtins-only lane.',
+      'Three residuals remain and are documented at the function: (1) a process '
+      + 'that dies or STALLS mid-break blocks breaking until its token floor '
+      + 'expires (2s proven-dead / 30s unidentified / 60s live-pid) — a bounded '
+      + 'delay, never an outage, because the token gates breaking and never '
+      + 'acquiring; (2) the token reclaim is the one unserialized sequence left, '
+      + 'and is what the inner identity check exists to catch; (3) a '
+      + 'future-stamped token under backwards clock skew never ages out, repaired '
+      + 'by removing the named file. An OS-backed advisory lock (flock / '
+      + "LockFileEx) would remove the window entirely; node's builtin fs exposes "
+      + 'neither, so it would need a native addon or an out-of-process lock '
+      + 'service — out of scope for a node-builtins-only lane.',
     owner: 'phase0b-runtime + custody-store lanes',
   },
 });

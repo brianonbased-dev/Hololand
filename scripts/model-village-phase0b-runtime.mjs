@@ -18,6 +18,7 @@ import {
   openSync,
   readFileSync,
   renameSync,
+  statSync,
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
@@ -1590,50 +1591,108 @@ function pidIsAlive(pid) {
 }
 
 /**
- * IDENTITY-BOUND stale-lock break — the single shared implementation used by
- * BOTH the phase0b persistence lock and the sealed custody store lock
- * (model-village-custody-store.mjs), so the two can never drift.
+ * The break token that serializes stale-lock breaking, and the ages at which an
+ * abandoned token may be reclaimed. THREE floors, because the three reclaim
+ * cases carry very different amounts of proof:
  *
- * WHY IT IS NOT `unlinkSync(lockPath)`. An unlink is bound to a PATH, not to
- * the file the caller inspected. Every contender that read the same stale
- * holder independently concluded "dead, break it", and each one then removed
- * whatever happened to be at that path — including a lock a winner had already
+ *   DEAD (2s) — the token names a plausible pid and that pid is PROVEN gone.
+ *     Crash residue. The sequence a token guards is a handful of syscalls, so
+ *     two seconds is already orders of magnitude of headroom.
+ *
+ *   UNIDENTIFIED (30s) — the token names no readable pid. On the primary create
+ *     path this CANNOT happen: publishBreakToken writes the payload to a
+ *     private path, fsyncs it, and link()s it into place, so the token carries
+ *     its holder's pid from the instant it exists. An unidentified token is
+ *     therefore residue from the no-hard-link fallback, an operator, or a torn
+ *     write. It stays reclaimable (never reclaiming it would turn one mid-break
+ *     SIGKILL into a permanent unbreakable-lock wedge) but behind a long floor,
+ *     because on the fallback path an empty token CAN belong to a process that
+ *     is merely SLOW between its create and its write — reclaiming that token
+ *     puts two processes in the break section at once. MEASURED: with the old
+ *     single 2s floor, a live (not killed) contender stalled in that window had
+ *     its token reclaimed by a peer, and both were admitted to the break
+ *     sequence. The primary path removes the window; this floor is what bounds
+ *     it on the fallback.
+ *
+ *   ABSOLUTE (60s) — the token names a LIVE pid but is older than any real
+ *     break sequence could be. Without this, PID REUSE (aggressive on win32) is
+ *     a permanent wedge: a token leaked by a crash whose pid is later recycled
+ *     onto an unrelated live process is never reclaimable at any age, so a
+ *     stale lock beside it can never be broken again. CONFIRMED before this
+ *     floor existed: a live-pid token with an hour-old stamp still refused at
+ *     t=0 and at t=3000ms. Note the asymmetry with the LOCK, which is
+ *     deliberate and must stay: a live holder's LOCK is never broken at any
+ *     age, because a lock is held for the length of a transaction. A token is
+ *     held for microseconds, so "live and 60s old" is overwhelmingly a recycled
+ *     pid — and if it is genuinely a catastrophically stalled breaker, the
+ *     identity-bound move-aside inside the break section is still there to fail
+ *     it closed.
+ */
+const BREAK_TOKEN_SUFFIX = '.break';
+const BREAK_TOKEN_MIN_RECLAIM_AGE_MS = 2000;
+const BREAK_TOKEN_UNIDENTIFIED_RECLAIM_AGE_MS = 30000;
+const BREAK_TOKEN_ABSOLUTE_RECLAIM_AGE_MS = 60000;
+
+/**
+ * The pid a lock or token record names, or null when the record does not
+ * identify its holder at all.
+ *
+ * A missing, non-integer, or non-positive pid is an UNIDENTIFIABLE holder, not
+ * a dead one. pidIsAlive() answers "not alive" for pid <= 0 and for `'4242'`
+ * and for undefined, so any code that feeds a raw record straight to it breaks
+ * locks on the strength of garbage. This is that gate, factored out so BOTH
+ * locks get it from one place.
+ */
+function readHolderPid(bytes) {
+  let record = null;
+  try {
+    record = JSON.parse(
+      (Buffer.isBuffer(bytes) ? bytes.toString('utf8') : String(bytes)),
+    );
+  } catch {
+    return null;
+  }
+  if (!record || typeof record !== 'object') return null;
+  return Number.isInteger(record.pid) && record.pid > 0 ? record.pid : null;
+}
+
+/**
+ * Identity-bound move-aside: removes EXACTLY the file instance whose bytes the
+ * caller inspected, or refuses.
+ *
+ * WHY IT IS NOT `unlinkSync(path)`. An unlink is bound to a PATH, not to the
+ * file the caller inspected. Every contender that read the same stale holder
+ * independently concluded "dead, break it", and each one then removed whatever
+ * happened to be at that path — including a lock a winner had already
  * re-created microseconds earlier. Measured with 8 real OS processes racing one
  * genuinely stale lock, that produced 2-8 simultaneous "winners" in 12/12
- * trials and could delete a LIVE holder's lock. Bounding the retry loop does
- * not help: one unlink each is enough to destroy mutual exclusion.
+ * trials and could delete a LIVE holder's lock.
  *
- * The break is therefore made identity-bound and globally once-only:
- *   1. re-read the lock immediately before acting; if the bytes changed since
+ *   1. re-read the file immediately before acting; if the bytes changed since
  *      the staleness decision, that decision is VOID -> 'changed' (refuse),
- *   2. rename the file aside to a per-caller unique name. rename removes the
- *      SOURCE atomically, so exactly ONE contender in a field of N can move any
- *      given file instance; every other contender gets ENOENT -> 'gone',
+ *   2. rename it aside to a per-caller unique name. rename removes the SOURCE
+ *      atomically, so exactly ONE contender in a field of N can move any given
+ *      file instance; every other contender gets ENOENT -> 'gone',
  *   3. verify the bytes we actually moved are the bytes we inspected. If they
- *      are not, we moved somebody else's — possibly LIVE — lock in the gap
+ *      are not, we moved somebody else's — possibly LIVE — file in the gap
  *      between step 1 and step 2, so put it back with a NON-CLOBBERING link
  *      (never a rename that could overwrite a newer holder) and refuse.
- * ONLY 'broke' lets a caller retry the exclusive create. Every other outcome —
- * including 'gone' — FAILS CLOSED, and that is load-bearing, not conservatism:
- * if the losers of the rename race retried, they would be sitting on openSync
- * 'wx' precisely while the winner's path is momentarily free, and a lock
- * transiently moved aside would let several of them in at once (measured: 1-3
- * simultaneous winners per trial even with the identity check, until the losers
- * were made to fail closed; 1/1 every trial afterwards). A refusal is already a
- * first-class, retried outcome for both callers, so failing closed costs
- * nothing and removes the whole class.
  *
- * RESIDUAL WINDOW, stated honestly: steps 1 and 2 are separate syscalls, so a
- * preemption between them can still move a fresh lock aside. That case is
- * DETECTED (step 3) and undone; it degrades to a refusal rather than to shared
- * access, unless a brand-new contender acquires the free path inside that same
- * two-syscall gap AND the restore link therefore fails — which returns
- * 'stolen' and fails closed loudly. Perfect exclusion would need an OS-backed
- * lock (flock/LockFileEx), which node's builtin fs does not expose.
+ * Steps 1 and 2 are separate syscalls, so on its own this sequence can still
+ * move a FRESH file aside when it is preempted in that gap — that is the defect
+ * breakStaleLockFile's break token exists to NARROW.
+ *
+ * STEP 3 IS NOT BELT-AND-BRACES; DO NOT DELETE IT. The token narrows the window
+ * but cannot close it (see breakStaleLockFile's "TWO LAYERS" note): the token's
+ * own reclaim is unserializable, so a stalled or pid-recycled holder can be
+ * displaced and TWO processes can be inside the break section. Step 3 is what
+ * fails the displaced one closed — measured as the reason 65 trials engineered
+ * to force exactly that produced 0 double-acquires. It is also the only guard
+ * the one untokenizable caller (break-token reclamation) has at all.
  *
  * @returns {'broke'|'gone'|'changed'|'contended'|'stolen'}
  */
-export function breakStaleLockFile(lockFilePath, observedBytes) {
+function moveFileAsideIdentityBound(lockFilePath, observedBytes) {
   // Everything that is not a syscall is done BEFORE the re-read, so the
   // read -> rename window is as close to adjacent as JS allows.
   const aside = `${lockFilePath}.stale-${process.pid}-${randomUUID()}`;
@@ -1706,6 +1765,316 @@ export function breakStaleLockFile(lockFilePath, observedBytes) {
 }
 
 /**
+ * Reclaims a break token whose holder is PROVEN DEAD and which has gone
+ * unrefreshed for at least BREAK_TOKEN_MIN_RECLAIM_AGE_MS. This is the depth-1
+ * floor of the scheme: the token cannot be guarded by another token, so it is
+ * guarded by (a) a liveness proof, (b) an age floor, and (c) the identity-bound
+ * move-aside. Reclaiming does NOT confer the token: it only frees the path, and
+ * the reclaimer then has to win the ordinary exclusive create like every other
+ * contender. That is what keeps a reclaim race harmless — the rename can be won
+ * by at most one reclaimer, and HOLDING is still decided by the atomic exclusive
+ * create (linkSync, or openSync 'wx' on the no-hard-link fallback).
+ *
+ * WHICH FLOOR APPLIES IS DECIDED BY HOW MUCH THE TOKEN PROVES ABOUT ITS HOLDER
+ * (see the three constants above): proven-dead pid -> the short floor; live pid
+ * -> only the absolute floor, which exists purely so a RECYCLED pid cannot wedge
+ * breaking forever; no readable pid -> the long floor, because on the fallback
+ * create path an empty token can still belong to a live-but-slow breaker.
+ *
+ * A previous version used ONE 2s floor for all three, and skipped the liveness
+ * check entirely whenever the token did not parse — so a live contender stalled
+ * in the old create-then-write window lost its token to a peer. That is fixed on
+ * two fronts: the token is now published atomically WITH its payload (so the
+ * empty state is unobservable), and the unidentified floor is 15x longer.
+ *
+ * @returns {'broke'|'gone'|'changed'|'contended'|'stolen'}
+ */
+function reclaimStaleBreakToken(tokenPath) {
+  let observed;
+  try {
+    observed = readFileSync(tokenPath);
+  } catch (error) {
+    if (error?.code === 'ENOENT') return 'gone';
+    return 'contended';
+  }
+  const holderPid = readHolderPid(observed);
+  let stampedAt = Number.NaN;
+  try {
+    const record = JSON.parse(observed.toString('utf8'));
+    if (record && typeof record.at === 'string') stampedAt = Date.parse(record.at);
+  } catch {
+    // Unparseable token: fall back to the filesystem's own timestamp below.
+  }
+  if (!Number.isFinite(stampedAt)) {
+    try {
+      stampedAt = statSync(tokenPath).mtimeMs;
+    } catch {
+      return 'contended';
+    }
+  }
+  if (!Number.isFinite(stampedAt)) return 'contended';
+
+  let floorMs;
+  if (holderPid === null) {
+    // Unidentifiable holder. Reclaimable (never doing so would be a wedge), but
+    // only after the long floor — this is the one shape that can still be a
+    // LIVE process mid-create on the no-hard-link fallback path.
+    floorMs = BREAK_TOKEN_UNIDENTIFIED_RECLAIM_AGE_MS;
+  } else if (pidIsAlive(holderPid)) {
+    // A live breaker is mid-sequence: never reclaimed at any ordinary age. Only
+    // the absolute floor applies, and only to defeat pid reuse.
+    floorMs = BREAK_TOKEN_ABSOLUTE_RECLAIM_AGE_MS;
+  } else {
+    floorMs = BREAK_TOKEN_MIN_RECLAIM_AGE_MS;
+  }
+  if (Date.now() - stampedAt < floorMs) return 'contended';
+  return moveFileAsideIdentityBound(tokenPath, observed);
+}
+
+/**
+ * Publishes the break token ATOMICALLY WITH ITS PAYLOAD, so the token never
+ * exists in a state that fails to name its holder.
+ *
+ * WHY NOT `openSync(tokenPath, 'wx')` FOLLOWED BY A WRITE. Those are two
+ * syscalls, and between them the token is 0 bytes. An empty token names no pid,
+ * so a peer's reclaim check cannot run a liveness probe on it and falls through
+ * to the age floor alone — which means a contender that is merely SLOW in that
+ * window (not killed) loses its token to a peer, and TWO processes end up inside
+ * the break section. REPRODUCED with real processes: P1 alive and stalled with
+ * the genuine 0-byte token, P2 reclaimed it, took its own, broke the stale lock,
+ * and acquired the store while P1 was still running.
+ *
+ * `linkSync` closes that: it is atomic, it fails EEXIST instead of clobbering,
+ * and the file it publishes was already written and fsynced under a private
+ * name. So the token carries `{at, pid}` from the instant any peer can observe
+ * it, and reclaimStaleBreakToken's liveness rule always has something to check.
+ *
+ * @returns {'created'|'exists'|'failed'}
+ */
+function publishBreakToken(tokenPath, payload) {
+  // A path only THIS call can name (uuid), and one that does NOT end in
+  // BREAK_TOKEN_SUFFIX, so a residue scan can never mistake staging for a token.
+  const pending = `${tokenPath}-pending-${process.pid}-${randomUUID()}`;
+  let pendingExists = false;
+  let staged = false;
+  try {
+    const descriptor = openSync(pending, 'wx');
+    pendingExists = true;
+    try {
+      writeFileSync(descriptor, payload);
+      fsyncSync(descriptor);
+    } finally {
+      closeSync(descriptor);
+    }
+    staged = true;
+    linkSync(pending, tokenPath);
+    return 'created';
+  } catch (error) {
+    if (!staged) return 'failed';
+    if (error?.code === 'EEXIST') return 'exists';
+    // Hard links unavailable on this volume (non-NTFS / exotic FS). Refusing
+    // here instead would make stale locks unbreakable forever on such a volume
+    // — a permanent outage, strictly worse than the narrowed race. Fall back to
+    // the exclusive-create path, which is exactly the previously shipped
+    // behaviour, still bounded by the 15x-longer unidentified reclaim floor.
+    return publishBreakTokenWithoutHardLinks(tokenPath, payload);
+  } finally {
+    // Cleaned up on EVERY exit, including a write that failed after the create —
+    // tying this to `staged` would leak the staging file on exactly that path.
+    // `pending` carries a uuid this call minted, so no other process can ever
+    // name it: this is the one path-bound removal in this file that is
+    // identity-bound by construction rather than by a byte comparison.
+    if (pendingExists) {
+      try {
+        unlinkSync(pending);
+      } catch {
+        // Inert residue; nothing ever consults this path.
+      }
+    }
+  }
+}
+
+/**
+ * Fallback for filesystems without hard links. Same contract, weaker guarantee:
+ * the create and the write are separate syscalls, so the token IS briefly
+ * observable empty. That residual is the reason
+ * BREAK_TOKEN_UNIDENTIFIED_RECLAIM_AGE_MS exists and is long.
+ *
+ * @returns {'created'|'exists'|'failed'}
+ */
+function publishBreakTokenWithoutHardLinks(tokenPath, payload) {
+  let descriptor;
+  try {
+    descriptor = openSync(tokenPath, 'wx');
+  } catch (error) {
+    // EEXIST: somebody holds it. Anything else (EACCES/EBUSY/EPERM on win32, a
+    // missing parent) is a refusal too — never a licence to break blind.
+    return error?.code === 'EEXIST' ? 'exists' : 'failed';
+  }
+  try {
+    writeFileSync(descriptor, payload);
+    fsyncSync(descriptor);
+    closeSync(descriptor);
+    return 'created';
+  } catch {
+    try {
+      closeSync(descriptor);
+    } catch {
+      // Already closed by the successful path above.
+    }
+    // DELIBERATELY NO `unlinkSync(tokenPath)` HERE. That would be a PATH-bound
+    // removal of a SHARED path — the exact pattern this whole fix exists to
+    // eliminate — and the old justification for it ("we created it microseconds
+    // ago, nobody can have taken it") is false: the token we just created is
+    // EMPTY, an empty token is reclaimable once past its floor, and a slow
+    // process reaching this catch late would delete a PEER's live token and
+    // leave the break section unguarded. Leaving the residue is strictly safer:
+    // the unidentified age floor clears it, and while it sits there it only
+    // delays breaking — it never blocks acquiring.
+    return 'failed';
+  }
+}
+
+/**
+ * Takes the exclusive break token, or reports that someone else holds it.
+ * Exclusive create (link / openSync 'wx') is the only primitive node's builtin
+ * fs exposes that is atomic across processes on both win32 and POSIX, so it —
+ * not a compare — is what decides who may break.
+ *
+ * @returns {boolean} true only when this process now holds the token.
+ */
+function acquireBreakToken(tokenPath) {
+  // Built BEFORE any syscall: the payload has to exist before the token does,
+  // or the token is observable without a holder identity.
+  const payload = Buffer.from(
+    `${canonicalJson({ at: new Date().toISOString(), pid: process.pid })}\n`,
+    'utf8',
+  );
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const published = publishBreakToken(tokenPath, payload);
+    if (published === 'created') {
+      rememberOwnedLockFile(tokenPath, payload);
+      return true;
+    }
+    // Bounded, depth-1: one reclaim attempt, then one more create attempt.
+    if (published !== 'exists' || attempt === 1) return false;
+    if (reclaimStaleBreakToken(tokenPath) !== 'broke') return false;
+  }
+  return false;
+}
+
+/**
+ * SERIALIZED, IDENTITY-BOUND stale-lock break — the single shared
+ * implementation used by BOTH the phase0b persistence lock and the sealed
+ * custody store lock (model-village-custody-store.mjs), so the two can never
+ * drift. Both reach the defect through this one function, so both are fixed
+ * here — though be precise about the evidence: the race was REPRODUCED on the
+ * phase0b path (below), while on the custody path it is structural. 85 pre-fix
+ * 8-way trials against openSealedCustodyStore did not surface it, presumably
+ * because the surrounding crypto/chain work spreads the contenders out; the
+ * defective window is the same code either way.
+ *
+ * WHY A TOKEN AND NOT A TIGHTER COMPARE. The previous version re-read the lock
+ * and compared it to the observed bytes immediately before renaming it aside.
+ * A compare cannot bind identity, because the decision and the action are
+ * separate syscalls and rename addresses a PATH: contender B, preempted between
+ * them, would move the winner A's brand-new lock aside, and contender C's
+ * ordinary `openSync(target, 'wx')` would then succeed on the momentarily free
+ * path. A and C both hold "the" lock; B's restore link fails EEXIST and B
+ * refuses, so nothing is even left pointing at what happened. Measured: 8 real
+ * processes racing one genuinely stale lock, 6 trials per run — two winners
+ * appeared on the 70th trial, with the winner rows showing exactly that
+ * fingerprint (a winner whose recordedPid is a DIFFERENT winner's pid).
+ *
+ * The break section therefore needs MUTUAL EXCLUSION, which is provided by an
+ * exclusive break token at a fixed path next to the lock:
+ *   - exactly one contender may run inspect -> move-aside -> verify,
+ *   - every other contender returns 'contended' and REFUSES rather than racing.
+ * While the stale lock exists nobody can create a lock (their `wx` create gets
+ * EEXIST), and the only way it can stop existing is a break — which requires the
+ * token. So in the ordinary case the token holder's own read -> rename gap
+ * cannot see the stale file replaced by a fresh one.
+ *
+ * TWO LAYERS, AND BOTH ARE LOAD-BEARING. Read this before deleting either.
+ * The token NARROWS the window; it does not prove it shut. The token's own
+ * reclaim path cannot itself be tokenized (nothing can guard the guard without
+ * infinite regress), so under a stall or a pid reuse two processes can still
+ * enter the break section. What stops that from becoming a double-acquire is
+ * the SECOND layer: moveFileAsideIdentityBound's post-rename byte check, which
+ * fails a displaced breaker closed. MEASURED: 65 trials engineered specifically
+ * to force a second process into the break section (a contender deliberately
+ * stalled 2400ms in the token window, plus 4 and then 10 late contenders spread
+ * across its wake) produced exactly ONE winner every time — 0 double-acquires,
+ * 0 overlapping holds — because the displaced holder was caught by that check.
+ * An earlier revision of this comment claimed the token "closes the window
+ * rather than narrowing it". It does not, and believing it would make the inner
+ * check look redundant. It is not redundant; it is the thing that holds.
+ *
+ * FAIL CLOSED ON AN UNIDENTIFIABLE HOLDER — enforced HERE, in the shared
+ * primitive, not in each caller. A missing / null / negative / zero / float /
+ * string pid is an UNKNOWN holder, never a dead one, and a break on the strength
+ * of garbage is exactly the "fail-open on pid:-1" defect this lane has already
+ * shipped once. The phase0b caller had its own plausibility gate; the custody
+ * caller did NOT (it passed a raw `holder.pid` to a liveness probe that answers
+ * "not alive" for all six of those shapes), so the two locks had already drifted
+ * — MEASURED at 6/8 payload shapes opening a SECOND concurrent custody handle
+ * against a store whose entire lock rationale is that a second handle forks the
+ * append-only chain. Putting the gate in the primitive is what makes "one fix
+ * serves both locks" true instead of aspirational.
+ *
+ * ONLY 'broke' lets a caller retry the exclusive create. Every other outcome —
+ * including 'gone' — FAILS CLOSED, and that is load-bearing, not conservatism:
+ * a loser that retried would be sitting on `openSync 'wx'` precisely while the
+ * winner's path is momentarily free. Refusal is already a first-class, retried
+ * outcome for both callers.
+ *
+ * Mutual exclusion over the STORE is still decided only by
+ * `openSync(target, 'wx')`; the token governs breaking, never acquiring. A
+ * leaked token can therefore never block an acquire — only a break — which is
+ * what keeps every token residual a bounded DELAY rather than an outage.
+ *
+ * RESIDUALS, stated honestly — this is narrowed, not proven impossible:
+ *   1. A process that dies or STALLS inside the break sequence leaves a token
+ *      that blocks breaking until its floor expires (2s proven-dead, 30s
+ *      unidentified, 60s live-pid). Note "stalls", not just "is SIGKILLed": an
+ *      un-killed but slow holder is displaced by the same rules, it is only the
+ *      floor that differs. During that window acquires against a stale lock fail
+ *      closed with the usual holder message: a bounded delay, the deliberate
+ *      trade.
+ *   2. The token reclaim is the one unserialized sequence left. Two contenders
+ *      racing to reclaim the SAME token can, if one is preempted inside its own
+ *      read -> rename gap, end up with two live token holders. This does NOT
+ *      require "a holder proven dead": the unidentified path reaches it with no
+ *      liveness proof at all (a torn/empty token on the no-hard-link fallback),
+ *      and the absolute floor reaches it against a live pid. In every such case
+ *      the inner identity check above is what fails the loser closed — see the
+ *      65-trial measurement. Perfect exclusion would need an OS-backed lock
+ *      (flock/LockFileEx), which node's builtin fs does not expose.
+ *   3. A token stamped with a FUTURE time (clock set backwards after it was
+ *      written) reads as negative age and is never old enough to reclaim. The
+ *      operator repair is the documented one: remove the named file.
+ *
+ * @returns {'broke'|'gone'|'changed'|'contended'|'stolen'|'unidentified'|'live'}
+ */
+export function breakStaleLockFile(lockFilePath, observedBytes) {
+  // The gate that must not drift between the two locks (see above). Refuse
+  // BEFORE taking the token: an unidentifiable or live holder is not a break
+  // that is contended, it is a break that must never be attempted.
+  const holderPid = readHolderPid(observedBytes);
+  if (holderPid === null) return 'unidentified';
+  if (pidIsAlive(holderPid)) return 'live';
+
+  const tokenPath = `${lockFilePath}${BREAK_TOKEN_SUFFIX}`;
+  if (!acquireBreakToken(tokenPath)) return 'contended';
+  try {
+    return moveFileAsideIdentityBound(lockFilePath, observedBytes);
+  } finally {
+    // Ownership-verified: releases only the token bytes THIS process wrote.
+    releaseOwnedLockFile(tokenPath);
+  }
+}
+
+/**
  * Lock files this process currently owns: absolute lock path -> the exact bytes
  * we wrote. Release verifies ownership against this map so a handle can never
  * unlink a SUCCESSOR's lock (which would hand two writers the same store).
@@ -1752,11 +2121,15 @@ export function releaseOwnedLockFile(lockFilePath) {
  * records {acquiredAt, pid}; on EEXIST the recorded pid decides:
  *   - alive  -> refuse (a live holder's lock is NEVER stolen),
  *   - dead   -> crash residue, broken through breakStaleLockFile: the break is
- *               IDENTITY-bound (it proves it moved the exact bytes it
- *               inspected) and globally once-only per file instance, so N
+ *               SERIALIZED behind an exclusive break token and IDENTITY-bound
+ *               (it proves it moved the exact bytes it inspected), so N
  *               contenders that all read one stale lock still produce exactly
- *               ONE winner. The unconditional `unlinkSync(target)` this
- *               replaces destroyed mutual exclusion outright,
+ *               ONE winner. Neither guard is sufficient alone: an unconditional
+ *               `unlinkSync(target)` destroyed mutual exclusion outright, and
+ *               the identity check on its own still let a contender move a
+ *               WINNER's fresh lock aside in the gap between its re-read and its
+ *               rename (measured: two simultaneous live holders on the 70th
+ *               8-way racing trial, and 3 in 60 trials of a direct probe),
  *   - unreadable / unparseable / missing pid -> FAIL CLOSED. An unknown holder
  *               is not a dead holder; deliberate operator unlink is the repair.
  * Mutual exclusion itself is always decided by the atomic openSync(target,

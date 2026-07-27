@@ -1,4 +1,4 @@
-/* global process */
+/* global Buffer, process */
 
 /**
  * Offline node --test suite for the MV-B5 durability checker
@@ -468,6 +468,25 @@ test('G2: a dead-pid lock is broken exactly once and the store becomes writable'
   assert.equal(existsSync(lockFile), false);
 });
 
+/**
+ * Every lock-record shape that names no usable holder. pidIsAlive() answers
+ * "not alive" for ALL of them, so any lock that feeds a raw record to a liveness
+ * probe treats each one as a DEAD holder and breaks the lock on the strength of
+ * garbage. An unknown holder is not a dead holder.
+ */
+const UNIDENTIFIABLE_HOLDERS = Object.freeze([
+  ['empty file (the pre-fix lock shape)', ''],
+  ['non-JSON garbage', 'held-by-adversarial-test\n'],
+  ['JSON without a pid', '{"acquiredAt":"2026-07-27T00:00:00.000Z"}\n'],
+  ['null pid', '{"acquiredAt":"2026-07-27T00:00:00.000Z","pid":null}\n'],
+  ['non-integer pid', '{"pid":"not-a-pid"}\n'],
+  ['string pid', '{"acquiredAt":"2026-07-27T00:00:00.000Z","pid":"4242"}\n'],
+  ['float pid', '{"acquiredAt":"2026-07-27T00:00:00.000Z","pid":12.5}\n'],
+  ['zero pid', '{"acquiredAt":"2026-07-27T00:00:00.000Z","pid":0}\n'],
+  ['nonsense pid value', '{"pid":-1}\n'],
+  ['truncated JSON', '{"acquiredAt":"2026-07-2'],
+]);
+
 test('G2: a lock with garbage or missing pid FAILS CLOSED and is left untouched', {
   timeout: SUITE_TIMEOUT_MS,
 }, async () => {
@@ -477,15 +496,7 @@ test('G2: a lock with garbage or missing pid FAILS CLOSED and is left untouched'
   const lockFile = path.join(storeDir, 'state.lock');
 
   // An unknown holder is NOT a dead holder: none of these may be broken.
-  const unknownHolders = [
-    ['empty file (the pre-fix lock shape)', ''],
-    ['non-JSON garbage', 'held-by-adversarial-test\n'],
-    ['JSON without a pid', '{"acquiredAt":"2026-07-27T00:00:00.000Z"}\n'],
-    ['non-integer pid', '{"pid":"not-a-pid"}\n'],
-    ['nonsense pid value', '{"pid":-1}\n'],
-    ['truncated JSON', '{"acquiredAt":"2026-07-2'],
-  ];
-  for (const [label, content] of unknownHolders) {
+  for (const [label, content] of UNIDENTIFIABLE_HOLDERS) {
     writeFileSync(lockFile, content, 'utf8');
     assert.throws(
       () => acquirePersistentStoreLock(storeDir),
@@ -502,6 +513,71 @@ test('G2: a lock with garbage or missing pid FAILS CLOSED and is left untouched'
   rmSync(lockFile, { force: true });
 });
 
+test('G2: the CUSTODY lock fails closed on the same table (shared-primitive parity)', {
+  timeout: SUITE_TIMEOUT_MS,
+}, async () => {
+  // The phase0b assertion above proved only ONE of the two locks that share
+  // breakStaleLockFile. The custody lock had no pid-plausibility gate of its own
+  // and passed a raw `holder.pid` straight to a liveness probe, so 6 of these 10
+  // shapes opened a SECOND concurrent handle against the store whose entire lock
+  // rationale is that a second handle forks the append-only chain and
+  // permanently fails validateAccessLogChain. The gate now lives in the shared
+  // primitive, which is what makes "one fix serves both locks" a fact rather
+  // than an aspiration — and this test is what stops the two drifting again.
+  const custody = await import(
+    pathToFileURL(path.join(
+      path.dirname(fileURLToPath(import.meta.url)), '..', 'model-village-custody-store.mjs',
+    )).href
+  );
+
+  for (const [label, content] of UNIDENTIFIABLE_HOLDERS) {
+    const rootDir = path.join(g2Scratch(), 'custody');
+    const seeded = custody.createSealedCustodyStore({
+      operator: 'operator-durability-suite',
+      retentionPolicy: {
+        description: 'durability suite retention policy, frozen before the run',
+        frozenAt: '2026-07-27T00:00:00.000Z',
+        policyId: 'durability-suite-retention-v1',
+      },
+      rootDir,
+      runLabel: 'durability-suite',
+    });
+    seeded.sealObject({
+      bytes: Buffer.from('parity-probe'),
+      kind: 'raw-model-response',
+      label: 'parity-probe',
+    });
+    seeded.close();
+
+    const lockFile = path.join(rootDir, 'store.lock');
+    writeFileSync(lockFile, content, 'utf8');
+    let opened = null;
+    assert.throws(
+      () => {
+        opened = custody.openSealedCustodyStore({
+          operator: 'operator-durability-suite',
+          rootDir,
+        });
+      },
+      custody.CustodyLockError,
+      `${label}: an unidentifiable custody holder must fail closed, never be broken`,
+    );
+    if (opened) {
+      try {
+        opened.close();
+      } catch {
+        /* the assertion above already failed; just do not leak a handle */
+      }
+    }
+    assert.equal(existsSync(lockFile), true, `${label}: the custody lock must survive the refusal`);
+    assert.equal(
+      readFileSync(lockFile, 'utf8'),
+      content,
+      `${label}: the custody lock must be left byte-identical`,
+    );
+  }
+});
+
 // ---------------------------------------------------------------------------
 // MV-B5 gap G2, review round 2: MUTUAL EXCLUSION under a stale lock.
 //
@@ -513,21 +589,80 @@ test('G2: a lock with garbage or missing pid FAILS CLOSED and is left untouched'
 // processes — a unit assertion cannot see this class of defect.
 // ---------------------------------------------------------------------------
 
-/** Source for a child that waits on a barrier, then races for the REAL lock. */
+/** Contenders per racing trial, and the ceiling on how long a winner holds. */
+const RACE_CONTENDERS = 8;
+const RACE_HOLD_CEILING_MS = 5000;
+
+/**
+ * Trials per run. This number is the DETECTION POWER of the only test that can
+ * see this defect class, so it is derived, not picked.
+ *
+ * MEASURED against the pre-fix module with this exact race shape (8 contenders,
+ * winner holds until every peer reports): 4 double-acquires in 60 trials = 6.7%
+ * per trial. Detection probability per run is 1-(1-0.067)^n, so:
+ *     6 trials  -> 34%   (the value this test shipped with: it would MISS a
+ *                         reintroduced double-acquire about two runs in three)
+ *    40 trials  -> 94%
+ *    60 trials  -> 98%
+ * 40 is the knee. A guard against a fourth wrong cut that passes on a broken
+ * lock two runs in three is not a guard.
+ *
+ * RACE_TIMEOUT_MS is separate from SUITE_TIMEOUT_MS because this one test now
+ * spawns 40 x 8 = 320 real processes. Measured locally at 37.8s; the ceiling is
+ * set ~8x above that so a loaded CI box fails on the ASSERTION, never on the
+ * clock (a timeout here would read as a lock hang and send the next agent
+ * hunting a defect that is not there).
+ */
+const RACE_TRIALS = 40;
+const RACE_TIMEOUT_MS = 300000;
+
+/**
+ * Source for a child that waits on a barrier, then races for the REAL lock.
+ *
+ * The winner holds until EVERY other contender has recorded a result (bounded
+ * by RACE_HOLD_CEILING_MS). That is load-bearing, not padding. A contender that
+ * acquires the lock here never releases it — it just exits — so with a fixed
+ * short hold a straggler whose process started late would find a lock whose
+ * recorded pid is now genuinely dead, break it correctly, and be counted as a
+ * second "winner" even though the two never coexisted. Measured on this host:
+ * that sequential-reclaim case fired in 6/60 trials against the PRE-FIX module
+ * and 1/60 against the fixed one, i.e. it tracks process-start jitter and not
+ * the defect at all. Holding until everyone has reported removes it: while the
+ * winner is alive and holding, a second winner can only mean two LIVE holders.
+ * The recorded acquire/release stamps let the assertion say which case it saw
+ * instead of guessing.
+ */
 function contenderSource(storeDir, barrier, resultFile) {
   return [
     `const m = await import(${JSON.stringify(PHASE0B_URL)});`,
     "const fs = await import('node:fs');",
     `const barrier = ${JSON.stringify(barrier)};`,
-    'const deadline = Date.now() + 20000;',
-    'while (!fs.existsSync(barrier) && Date.now() < deadline) { /* spin */ }',
+    `const resultFile = ${JSON.stringify(resultFile)};`,
+    'const nap = (ms) => {',
+    '  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);',
+    '};',
+    // A busy `while (!existsSync(barrier))` spin here is CPU-bound and starves
+    // its own peers: at higher contender counts it delayed contenders badly
+    // enough to look like a lock hang. Napping 1ms between polls keeps the
+    // release just as tight while leaving the scheduler room to start everyone.
+    'const barrierDeadline = Date.now() + 20000;',
+    'while (!fs.existsSync(barrier) && Date.now() < barrierDeadline) { nap(1); }',
+    'const reported = () => {',
+    '  try {',
+    "    return fs.readFileSync(resultFile, 'utf8')",
+    '      .split(String.fromCharCode(10)).filter((line) => line.length > 0).length;',
+    '  } catch { return 0; }',
+    '};',
     'let row;',
     'try {',
     `  m.acquirePersistentStoreLock(${JSON.stringify(storeDir)});`,
-    '  const until = Date.now() + 40; while (Date.now() < until) { /* hold */ }',
+    '  const acquiredAt = Date.now();',
+    `  const holdUntil = acquiredAt + ${RACE_HOLD_CEILING_MS};`,
+    `  while (reported() < ${RACE_CONTENDERS - 1} && Date.now() < holdUntil) { nap(2); }`,
     `  const raw = fs.readFileSync(${JSON.stringify(path.join(storeDir, 'state.lock'))}, 'utf8');`,
-    '  row = { pid: process.pid, won: true, recordedPid: JSON.parse(raw).pid };',
-    '} catch (error) { row = { pid: process.pid, won: false }; }',
+    '  row = { pid: process.pid, won: true, recordedPid: JSON.parse(raw).pid,',
+    '    acquiredAt, releasedAt: Date.now() };',
+    '} catch { row = { pid: process.pid, won: false, at: Date.now() }; }',
     `fs.appendFileSync(${JSON.stringify(resultFile)}, JSON.stringify(row) + String.fromCharCode(10));`,
   ].join('\n');
 }
@@ -539,19 +674,35 @@ async function deadPid() {
   return pid;
 }
 
+/** Same liveness test the production lock uses, for fixture validation only. */
+function pidIsAliveForFixture(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error?.code === 'EPERM';
+  }
+}
+
 test('G2: N real processes racing ONE stale lock produce exactly one winner', {
-  timeout: SUITE_TIMEOUT_MS,
+  timeout: RACE_TIMEOUT_MS,
 }, async () => {
   const storeDir = path.join(g2Scratch(), 'phase0b');
   mkdirSync(storeDir, { recursive: true });
   const lockFile = path.join(storeDir, 'state.lock');
   const barrier = path.join(storeDir, '..', 'barrier');
   const resultFile = path.join(storeDir, '..', 'results.jsonl');
-  const stalePid = await deadPid();
   const source = contenderSource(storeDir, barrier, resultFile);
 
   const winCounts = [];
-  for (let trial = 0; trial < 6; trial += 1) {
+  for (let trial = 0; trial < RACE_TRIALS; trial += 1) {
+    // A FRESH corpse pid per trial. Reusing one pid across every trial made the
+    // fixture rot: Windows recycles pids, and over a long run the "stale" pid
+    // was handed to one of the racing children — every contender then read a
+    // genuinely LIVE holder and correctly refused, producing a zero-winner
+    // trial that looked like a lock defect and was a fixture defect (measured:
+    // 1 in 90 trials with a shared pid; 0 in 120 with a per-trial pid).
+    const stalePid = await deadPid();
     writeFileSync(resultFile, '', 'utf8');
     rmSync(barrier, { force: true });
     writeFileSync(
@@ -560,7 +711,7 @@ test('G2: N real processes racing ONE stale lock produce exactly one winner', {
       'utf8',
     );
     const kids = [];
-    for (let index = 0; index < 8; index += 1) {
+    for (let index = 0; index < RACE_CONTENDERS; index += 1) {
       kids.push(spawn(process.execPath, ['--input-type=module', '-e', source], { stdio: 'ignore' }));
     }
     await new Promise((resolve) => { setTimeout(resolve, 250); });
@@ -570,22 +721,61 @@ test('G2: N real processes racing ONE stale lock produce exactly one winner', {
       .split('\n')
       .filter((line) => line.length > 0)
       .map((line) => JSON.parse(line));
-    const winners = rows.filter((row) => row.won);
+    // Every contender must have reported, or the trial proved nothing.
+    assert.equal(
+      rows.length,
+      RACE_CONTENDERS,
+      `trial ${trial}: all ${RACE_CONTENDERS} contenders must report a result, `
+      + `got ${rows.length}`,
+    );
+    // The fixture must still be a DEAD holder. If the pid was recycled onto a
+    // live process mid-trial the lock was right to refuse, and this assertion
+    // says so instead of letting a fixture artifact masquerade as a defect.
+    assert.equal(
+      pidIsAliveForFixture(stalePid),
+      false,
+      `trial ${trial}: the stale-holder pid ${stalePid} was recycled onto a live `
+      + 'process, so this trial could not test breaking at all',
+    );
+    // The break token must never outlive the break that took it: a leaked token
+    // would block all future breaking until its age floor expires, which is the
+    // one new wedge the serialization could introduce. The staging file the
+    // token is link()ed from must not survive either — it is unique per call, so
+    // a leaked one is inert, but a persistent leak would still be a bug.
+    const residue = readdirSync(storeDir);
+    const tokenResidue = residue.filter((name) => name.endsWith('.break'));
+    assert.deepEqual(
+      tokenResidue,
+      [],
+      `trial ${trial}: the break token must be released, found: ${tokenResidue.join(',')}`,
+    );
+    const stagingResidue = residue.filter((name) => name.includes('.break-pending-'));
+    assert.deepEqual(
+      stagingResidue,
+      [],
+      `trial ${trial}: token staging files must be cleaned up, found: ${stagingResidue.join(',')}`,
+    );
+    const winners = rows.filter((row) => row.won).sort((a, b) => a.acquiredAt - b.acquiredAt);
+    const overlapping = winners.some(
+      (row, index) => index > 0 && row.acquiredAt < winners[index - 1].releasedAt,
+    );
     assert.equal(
       winners.length,
       1,
       `trial ${trial}: a stale lock must admit exactly ONE writer, got `
-      + `${winners.length}: ${JSON.stringify(winners)}`,
+      + `${winners.length} (holds overlapped: ${overlapping}): `
+      + `${JSON.stringify(winners)}`,
     );
     assert.equal(
       winners[0].recordedPid,
       winners[0].pid,
-      'the single winner is the pid recorded in the lock it holds',
+      'the single winner is the pid recorded in the lock it holds — a foreign '
+      + 'pid means the winner\'s own lock was moved out from under it',
     );
     winCounts.push(winners.length);
     rmSync(lockFile, { force: true });
   }
-  assert.deepEqual(winCounts, [1, 1, 1, 1, 1, 1]);
+  assert.deepEqual(winCounts, Array.from({ length: RACE_TRIALS }, () => 1));
 });
 
 test('G2: a contender holding a STALE decision refuses rather than stealing a live lock', {
