@@ -1,0 +1,176 @@
+// Immutable witness manifest for Stormglass Character Appearance H0/H1.
+// Regenerate only when the authored format triad, checker, focused test,
+// accepted report, deterministic atlases, GPU images, or bounded claims change.
+
+composition "HoloLand Model Village Character Appearance H0 H1 Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H0/H1 Witness"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV_CHARACTER_APPEARANCE_H0_H1"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h1.holo"
+      sha256: "49b8433c1265c7cc21423bc34b2f4f2d4f20e1e00af74d52b4d1c9d622c93663"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h1-policy.hsplus"
+      sha256: "7c6a78dbd9e1f025c2e7e650e79ce575f1a2f1c40c7867ee224bec9f3473c74c"
+      parser: "HoloScriptPlusParser"
+      nativeActionExecutionClaimed: false
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h1-seed.hs"
+      sha256: "e960ddf367cddeabd6a42709bcaa17493c3499d35d4ba8016fc3faddbf62a0fc"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h1.mjs"
+      sha256: "173c2e3468b50d880eb39299f85c8cb3c1798b2e6dfd116dd47b7b3e95cb8313"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h1.test.mjs"
+      sha256: "fdbbf408c02e8f6ae00533f6082affcb1e8581db3b0b6b2209ec249b8b3979e4"
+    }
+    report: {
+      path: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H1_2026-07-27.md"
+      sha256: "8530e60c911e97b3b14ce0b173e9f813da224c9797b18362e18f91a377c7f39f"
+    }
+    albedoAtlas: {
+      path: "assets/model-village/materials/stormglass-character-body-cloth-albedo-2k.png"
+      sha256: "c4f73ef9b52e70e7de3d34af0b761b3f6e940a6e7e8191951c13c4b3d27e32fb"
+      width: 2048
+      height: 2048
+      bytes: 3859010
+      deterministicGeneration: true
+    }
+    normalAtlas: {
+      path: "assets/model-village/materials/stormglass-character-body-cloth-normal-2k.png"
+      sha256: "e414ad09c5a2af1063d32c209bdf0215a8c4a8944b9c4aab8431e1819f329109"
+      width: 2048
+      height: 2048
+      bytes: 5651205
+      deterministicGeneration: true
+    }
+    surfaceMaskAtlas: {
+      path: "assets/model-village/materials/stormglass-character-body-cloth-surface-mask-1k.png"
+      sha256: "883b522d57239921770bff72cf3c8f33f9d206411fbd7b312d707154f6ca76fe"
+      width: 1024
+      height: 1024
+      bytes: 2137048
+      channels: ["ambient_occlusion", "roughness", "metalness"]
+      deterministicGeneration: true
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h1-hero-2026-07-27.png"
+      sha256: "272735b98b1f989799bcab89b0425531bc90bd0ba9e183018d74578143a72b2e"
+      width: 1600
+      height: 900
+      bytes: 255828
+      visuallyInspected: true
+      iterationAccepted: 3
+    }
+    comparison: {
+      path: "docs/assets/model-village/model-village-character-appearance-h1-lods-2026-07-27.png"
+      sha256: "3707ab073995a494c48ddfa60021220a80fc5fb7dbc94924ac6d17275b7f32b3"
+      width: 2400
+      height: 600
+      bytes: 318117
+      visuallyInspected: true
+      panels: ["LOD0", "LOD1", "LOD2"]
+      iterationAccepted: 3
+    }
+    appearance: {
+      presentationProfile: "village_story_unblinded"
+      body: "shared_faceless_craftfolk"
+      layers: ["dermal_profile", "outfit_skin", "presentation_appearance"]
+      atlasRegions: ["woven_teal", "woven_charcoal", "weathered_leather", "aged_bronze"]
+      authoredSurfaceParts: 25
+      materialGroups: 2
+      familyMantleLoaded: false
+      familyIdentityVisible: false
+      researchSeatBinding: "absent"
+    }
+    profile: {
+      id: "character_surface_desktop_h1"
+      renderWidth: 1600
+      renderHeight: 900
+      devicePixelRatio: 1
+      warmupFrames: 300
+      measuredFrames: 600
+      continuousCharacterAnimationDuringBenchmark: false
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+    }
+    performance: {
+      rafP50Milliseconds: 16.69999998807907
+      rafP95Milliseconds: 16.80000001192093
+      rafP99Milliseconds: 16.900000005960464
+      rafMaximumMilliseconds: 18.099999994039536
+      renderSubmitP50Milliseconds: 0.5
+      renderSubmitP95Milliseconds: 0.7000000178813934
+      renderSubmitP99Milliseconds: 0.9000000059604645
+      renderSubmitMaximumMilliseconds: 3.5
+      droppedFramesAbove25Milliseconds: 0
+      droppedFrameRatio: 0
+    }
+    lod: {
+      levels: [0, 1, 2]
+      distancesMeters: [0, 12, 28]
+      maximumTriangles: [15000, 6000, 2000]
+      measuredTriangles: [14340, 4696, 1452]
+      measuredVertices: [43020, 14088, 4356]
+      sourceAuthoredPartCounts: [25, 21, 15]
+      materialGroups: [2, 2, 2]
+      monotonicTopologyReduction: true
+      sourceAuthoredVisibility: true
+    }
+    inherited: {
+      bodySourceSha256: "62e719290da04d6bccf7be4e5cc56ff55192123329ed21cbe29b58feb837f7d5"
+      bodyManifestSha256: "d758eb7da25f8f5e5266147f314f2eb09e0b48b176907b56ff0d880575008f4c"
+      bodyReportSha256: "77e12ed84cd43a00083278bbbfe5752effdab18d7efd0a43ecb3f19a6556271f"
+      performanceManifestSha256: "45cb4b7d97f6fbe84e1671543cc6bd725bc7ee989e8384e599fe1eca6f52b353"
+      inheritedArtifactsImmutable: true
+      liveJointCount: 55
+      semanticClips: ["idle", "listen", "propose", "settle"]
+    }
+    boundaries: {
+      familyIdentityVisible: false
+      biometricPersistenceAllowed: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCalls: 0
+      networkFetches: 0
+      providerEndorsementClaimed: false
+      completeProductionBodyClaimed: false
+      productionBodyCompleteClaimed: false
+      clothSimulationClaimed: false
+      motionRetargetingClaimed: false
+      hairStyleGeometryClaimed: false
+      facsMorphTargetsClaimed: false
+      observerPromotionClaimed: false
+      photorealismClaimed: false
+      fullWorldConvergenceClaimed: false
+    }
+    bridge: {
+      route: "HoloScript H0/H1 .holo/.hsplus/.hs -> deterministic atlas generator -> source-authored surface materializer -> Three/WebGL2 D3D11 read-only shadow witness"
+      appSourceSha256: "04b749a208cf10c7062976a2d4bf1f125d81e1a3f8dfd65896fedcb223fcfac8"
+      bundleSha256: "5d6febeb6844f2f6dd1aa371611a987d4cefa5ee80b312025cd05187080aaa7e"
+      htmlSha256: "76ea9cb63751f9c686bccfbec72bfc86eecdc7aead035d72630d2041667b771b"
+      externalAssets: []
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedBootstrapSha256: "f578073ce9adce757ab544c57694661644e8805ce2ca8db49d48404b36e79385"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h1/sealed-bootstrap/character-appearance-h1-witness.json"
+    }
+  }
+}

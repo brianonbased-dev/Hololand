@@ -1,0 +1,492 @@
+// Stormglass Commons character appearance H0/H1.
+//
+// H0 separates dermal profile, outfit skin, and presentation appearance.
+// H1 promotes one identity-neutral faceless Craftfolk surface shell over the
+// immutable MV-V3 rig/body witness. Every visible surface part, atlas region,
+// LOD visibility rule, camera, benchmark, and claim boundary is authored here.
+// The browser bridge may materialize and measure these declarations; it may
+// not invent family identity, join a research seat, or rewrite MV-V3 through G.
+
+composition "Stormglass Character Appearance H0 H1" {
+  metadata {
+    title: "Stormglass Character Appearance - H0 Contract + H1 Surface Slice"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV_CHARACTER_APPEARANCE_H0_H1"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h1.holo"
+    policySource: "source/proofs/model-village-character-appearance-h1-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h1-seed.hs"
+    appearancePlan: "docs/specs/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_PLAN.md"
+    appearancePlanSha256: "ac3535ce75aac5b45feef6ea11f9e9e09e3e001fc23defb5119e71ad1fa930c8"
+    artDirectionSource: "source/domains/agents/model-village-art-direction.hsplus"
+    artDirectionSourceSha256: "361b81049aefa0f651356132eda6ab0f5d81608dd525f810bca2b9f0d4f57ec3"
+    inheritedBodySource: "source/layers/vr/frontier/model-village/model-village-resident-production-body.holo"
+    inheritedBodySourceSha256: "62e719290da04d6bccf7be4e5cc56ff55192123329ed21cbe29b58feb837f7d5"
+    inheritedBodyManifest: "source/layers/vr/frontier/model-village/model-village-resident-production-body-manifest.holo"
+    inheritedBodyManifestSha256: "d758eb7da25f8f5e5266147f314f2eb09e0b48b176907b56ff0d880575008f4c"
+    inheritedBodyReport: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V3_PRODUCTION_BODY_2026-07-26.md"
+    inheritedBodyReportSha256: "77e12ed84cd43a00083278bbbfe5752effdab18d7efd0a43ecb3f19a6556271f"
+    inheritedPerformanceManifest: "source/layers/vr/frontier/model-village/model-village-receipt-loom-performance-convergence-manifest.holo"
+    inheritedPerformanceManifestSha256: "45cb4b7d97f6fbe84e1671543cc6bd725bc7ee989e8384e599fe1eca6f52b353"
+    projectionRole: "read_only_identity_neutral_surface_promotion"
+    artStyle: "hearthlight_biorealism"
+    characterStyle: "stormglass_craftfolk_faceless_hooded"
+    independentProjectDisclosure: "HoloLand-authored fictional Craftfolk; no provider endorsement or real-person likeness."
+  }
+
+  environment {
+    mode: "character_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#06101D"
+    ambient_light: 0.22
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    appearanceContractVersion: "h0.1"
+    surfaceSliceVersion: "h1.1"
+    presentationProfile: "village_story_unblinded"
+    familyIdentityVisible: false
+    familyMantleLoaded: false
+    providerIdentity: "absent"
+    modelIdentity: "absent"
+    researchSeatBinding: "absent"
+    liveResearchJoinAllowed: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    externalAssetsRequired: false
+    inheritedBodyImmutable: true
+    inheritedPerformanceImmutable: true
+    nativeRigPreserved: true
+    inheritedLiveJointCount: 55
+    inheritedSemanticClips: ["idle", "listen", "propose", "settle"]
+    mantleSocketPreserved: true
+    clothSimulationClaimed: false
+    motionRetargetingClaimed: false
+    hairStyleGeometryClaimed: false
+    facsMorphTargetsClaimed: false
+    productionBodyCompleteClaimed: false
+    observerPromotionClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    appearanceLayers: [
+      {
+        id: "dermal_profile",
+        owns: ["surface_tone", "undertone", "subsurface_response", "pore_normal", "eyes", "optional_hair"],
+        mayEncodeFamilyIdentity: false
+      },
+      {
+        id: "outfit_skin",
+        owns: ["woven_cloth", "leather", "bronze", "weathering", "wear", "trim", "stitching", "mantle_maps"],
+        mayEncodeFamilyIdentity: false
+      },
+      {
+        id: "presentation_appearance",
+        owns: ["body", "civic_persona", "outfit", "detachable_mantle", "prop", "caption", "accessibility_mode"],
+        mayEncodeFamilyIdentity: true,
+        familyIdentityChannels: ["detachable_mantle", "glyph", "caption"]
+      }
+    ]
+
+    profiles: [
+      {
+        id: "village_story_unblinded",
+        body: "shared_faceless_craftfolk",
+        familyIdentityAdmission: "detachable_mantle_glyph_caption_only",
+        liveResearchAllowed: false
+      },
+      {
+        id: "research_live_blinded",
+        body: "resident_01_06_neutral_persona",
+        familyIdentityAdmission: "absent",
+        assignmentInvariantRequired: true
+      },
+      {
+        id: "research_replay_postlock",
+        body: "same_neutral_terminal_replay_body",
+        familyIdentityAdmission: "verified_binding_after_terminal_commitment_only",
+        readOnlyReplayRequired: true
+      },
+      {
+        id: "visitor_player",
+        body: "later_separate_player_authored_avatar",
+        familyIdentityAdmission: "never_research_seat_identity",
+        status: "deferred"
+      }
+    ]
+
+    identityFirewall: {
+      prohibitedFamilyChannels: ["face", "dermal_tone", "body_proportion", "demographic_cue", "voice", "motion_quality", "capability", "tool_access"],
+      allowedPublicFamilyChannels: ["detachable_mantle", "glyph", "caption"],
+      assignmentInvariantProfiles: ["research_live_blinded"],
+      faceTrackingDefault: "off",
+      eyeTrackingDefault: "off",
+      biometricPersistenceAllowed: false
+    }
+
+    atlas: {
+      algorithm: "stormglass_shared_surface_atlas_v1"
+      seed: 271828
+      albedoPath: "assets/model-village/materials/stormglass-character-body-cloth-albedo-2k.png"
+      albedoSize: [2048, 2048]
+      normalPath: "assets/model-village/materials/stormglass-character-body-cloth-normal-2k.png"
+      normalSize: [2048, 2048]
+      surfaceMaskPath: "assets/model-village/materials/stormglass-character-body-cloth-surface-mask-1k.png"
+      surfaceMaskSize: [1024, 1024]
+      regions: ["woven_teal", "woven_charcoal", "weathered_leather", "aged_bronze"]
+      externalUris: []
+      deterministicGenerationRequired: true
+    }
+
+    lod: {
+      levels: [0, 1, 2]
+      distancesMeters: [0, 12, 28]
+      radialSegments: [24, 14, 8]
+      capSegments: [8, 5, 3]
+      roundedBoxSegments: [4, 2, 1]
+      maximumTriangles: [15000, 6000, 2000]
+      maximumMaterialGroups: 2
+      monotonicTopologyReductionRequired: true
+      sourceAuthoredVisibilityRequired: true
+    }
+
+    benchmark: {
+      profileId: "character_surface_desktop_h1"
+      renderWidth: 1600
+      renderHeight: 900
+      devicePixelRatio: 1
+      targetFramesPerSecond: 60
+      warmupFrames: 300
+      measuredFrames: 600
+      maximumRafP95Milliseconds: 25
+      maximumRenderSubmitP95Milliseconds: 8
+      maximumDroppedFrameRatio: 0.02
+      droppedFrameThresholdMilliseconds: 25
+      exactHardwareRendererRequired: true
+      continuousCharacterAnimationDuringBenchmark: false
+    }
+
+    heroCamera: {
+      position: [3.45, 2.25, 5.65]
+      target: [0, 1.22, 0]
+      fov: 34
+      near: 0.1
+      far: 80
+    }
+
+    lodCamera: {
+      position: [2.9, 2.05, 5.35]
+      target: [0, 1.18, 0]
+      fov: 36
+      near: 0.1
+      far: 80
+    }
+  }
+
+  object "AppearanceProfileGate" {
+    type: "character_appearance_profile_gate"
+    visible: false
+    admittedProfile: "village_story_unblinded"
+    failNeutralProfile: "research_live_blinded"
+    familyIdentityVisible: false
+    researchSeatBinding: "absent"
+  }
+
+  object "TorsoShell" {
+    type: "stormglass_character_surface_part"
+    partId: "torso_shell"
+    geometryProfile: "rounded_box"
+    position: [0, 1.34, 0]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.58, 0.72, 0.30]
+    materialRegion: "woven_teal"
+    visibleThroughLod: 2
+  }
+
+  object "TunicSkirt" {
+    type: "stormglass_character_surface_part"
+    partId: "tunic_skirt"
+    geometryProfile: "tailored_skirt"
+    position: [0, 0.75, 0]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.40, 0.31, 0.88]
+    materialRegion: "woven_teal"
+    visibleThroughLod: 2
+  }
+
+  object "FrontPlacket" {
+    type: "stormglass_character_surface_part"
+    partId: "front_placket"
+    geometryProfile: "rounded_box"
+    position: [0, 1.15, 0.17]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.07, 0.72, 0.025]
+    materialRegion: "woven_charcoal"
+    visibleThroughLod: 1
+  }
+
+  object "HoodShell" {
+    type: "stormglass_character_surface_part"
+    partId: "hood_shell"
+    geometryProfile: "hood_shell"
+    position: [0, 1.98, 0]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.36, 0.44, 0.34]
+    materialRegion: "woven_charcoal"
+    visibleThroughLod: 2
+  }
+
+  object "FacelessStormglassVisor" {
+    type: "stormglass_character_surface_part"
+    partId: "faceless_stormglass_visor"
+    geometryProfile: "stormglass_visor"
+    position: [0, 1.98, 0.315]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.245, 0.285, 0.055]
+    materialRegion: "stormglass_visor"
+    visibleThroughLod: 2
+  }
+
+  object "HoodBrow" {
+    type: "stormglass_character_surface_part"
+    partId: "hood_brow"
+    geometryProfile: "hood_brow"
+    position: [0, 2.24, 0.33]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.28, 0.025, 0.035]
+    materialRegion: "weathered_leather"
+    visibleThroughLod: 1
+  }
+
+  object "LeftShoulderCowl" {
+    type: "stormglass_character_surface_part"
+    partId: "left_shoulder_cowl"
+    geometryProfile: "shoulder_panel"
+    position: [-0.38, 1.61, 0]
+    rotationDegrees: [0, 0, 9]
+    dimensions: [0.28, 0.12, 0.24]
+    materialRegion: "woven_charcoal"
+    visibleThroughLod: 2
+  }
+
+  object "RightShoulderCowl" {
+    type: "stormglass_character_surface_part"
+    partId: "right_shoulder_cowl"
+    geometryProfile: "shoulder_panel"
+    position: [0.38, 1.61, 0]
+    rotationDegrees: [0, 0, -9]
+    dimensions: [0.28, 0.12, 0.24]
+    materialRegion: "woven_charcoal"
+    visibleThroughLod: 2
+  }
+
+  object "LeftUpperSleeve" {
+    type: "stormglass_character_surface_part"
+    partId: "left_upper_sleeve"
+    geometryProfile: "tapered_capsule"
+    position: [-0.47, 1.36, 0]
+    rotationDegrees: [0, 0, 7]
+    dimensions: [0.13, 0.31, 0.13]
+    materialRegion: "woven_teal"
+    visibleThroughLod: 2
+  }
+
+  object "RightUpperSleeve" {
+    type: "stormglass_character_surface_part"
+    partId: "right_upper_sleeve"
+    geometryProfile: "tapered_capsule"
+    position: [0.47, 1.36, 0]
+    rotationDegrees: [0, 0, -7]
+    dimensions: [0.13, 0.31, 0.13]
+    materialRegion: "woven_teal"
+    visibleThroughLod: 2
+  }
+
+  object "LeftForearmSleeve" {
+    type: "stormglass_character_surface_part"
+    partId: "left_forearm_sleeve"
+    geometryProfile: "tapered_capsule"
+    position: [-0.54, 1.03, 0.03]
+    rotationDegrees: [0, 0, 9]
+    dimensions: [0.115, 0.29, 0.115]
+    materialRegion: "woven_teal"
+    visibleThroughLod: 2
+  }
+
+  object "RightForearmSleeve" {
+    type: "stormglass_character_surface_part"
+    partId: "right_forearm_sleeve"
+    geometryProfile: "tapered_capsule"
+    position: [0.54, 1.03, 0.03]
+    rotationDegrees: [0, 0, -9]
+    dimensions: [0.115, 0.29, 0.115]
+    materialRegion: "woven_teal"
+    visibleThroughLod: 2
+  }
+
+  object "LeftLeatherCuff" {
+    type: "stormglass_character_surface_part"
+    partId: "left_leather_cuff"
+    geometryProfile: "cuff"
+    position: [-0.575, 0.82, 0.04]
+    rotationDegrees: [0, 0, 9]
+    dimensions: [0.14, 0.10, 0.14]
+    materialRegion: "weathered_leather"
+    visibleThroughLod: 1
+  }
+
+  object "RightLeatherCuff" {
+    type: "stormglass_character_surface_part"
+    partId: "right_leather_cuff"
+    geometryProfile: "cuff"
+    position: [0.575, 0.82, 0.04]
+    rotationDegrees: [0, 0, -9]
+    dimensions: [0.14, 0.10, 0.14]
+    materialRegion: "weathered_leather"
+    visibleThroughLod: 1
+  }
+
+  object "LeftGlovedHand" {
+    type: "stormglass_character_surface_part"
+    partId: "left_gloved_hand"
+    geometryProfile: "gloved_hand"
+    position: [-0.60, 0.66, 0.07]
+    rotationDegrees: [4, 0, 7]
+    dimensions: [0.13, 0.21, 0.10]
+    materialRegion: "weathered_leather"
+    visibleThroughLod: 2
+  }
+
+  object "RightGlovedHand" {
+    type: "stormglass_character_surface_part"
+    partId: "right_gloved_hand"
+    geometryProfile: "gloved_hand"
+    position: [0.60, 0.66, 0.07]
+    rotationDegrees: [4, 0, -7]
+    dimensions: [0.13, 0.21, 0.10]
+    materialRegion: "weathered_leather"
+    visibleThroughLod: 2
+  }
+
+  object "WaistBelt" {
+    type: "stormglass_character_surface_part"
+    partId: "waist_belt"
+    geometryProfile: "belt"
+    position: [0, 1.03, 0]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.36, 0.075, 0.24]
+    materialRegion: "weathered_leather"
+    visibleThroughLod: 2
+  }
+
+  object "CentralBuckle" {
+    type: "stormglass_character_surface_part"
+    partId: "central_buckle"
+    geometryProfile: "buckle"
+    position: [0, 1.03, 0.255]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.09, 0.024, 0.09]
+    materialRegion: "aged_bronze"
+    visibleThroughLod: 1
+  }
+
+  object "LeftShoulderClasp" {
+    type: "stormglass_character_surface_part"
+    partId: "left_shoulder_clasp"
+    geometryProfile: "clasp"
+    position: [-0.26, 1.62, 0.23]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.045, 0.018, 0.045]
+    materialRegion: "aged_bronze"
+    visibleThroughLod: 0
+  }
+
+  object "RightShoulderClasp" {
+    type: "stormglass_character_surface_part"
+    partId: "right_shoulder_clasp"
+    geometryProfile: "clasp"
+    position: [0.26, 1.62, 0.23]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.045, 0.018, 0.045]
+    materialRegion: "aged_bronze"
+    visibleThroughLod: 0
+  }
+
+  object "LeftTunicSeam" {
+    type: "stormglass_character_surface_part"
+    partId: "left_tunic_seam"
+    geometryProfile: "vertical_seam"
+    position: [-0.20, 1.13, 0.17]
+    rotationDegrees: [0, 0, -5]
+    dimensions: [0.009, 0.78, 0.009]
+    materialRegion: "aged_bronze"
+    visibleThroughLod: 0
+  }
+
+  object "RightTunicSeam" {
+    type: "stormglass_character_surface_part"
+    partId: "right_tunic_seam"
+    geometryProfile: "vertical_seam"
+    position: [0.20, 1.13, 0.17]
+    rotationDegrees: [0, 0, 5]
+    dimensions: [0.009, 0.78, 0.009]
+    materialRegion: "aged_bronze"
+    visibleThroughLod: 0
+  }
+
+  object "TunicHem" {
+    type: "stormglass_character_surface_part"
+    partId: "tunic_hem"
+    geometryProfile: "hem_ring"
+    position: [0, 0.31, 0]
+    rotationDegrees: [90, 0, 0]
+    dimensions: [0.35, 0.020, 0.27]
+    materialRegion: "weathered_leather"
+    visibleThroughLod: 1
+  }
+
+  object "LeftBoot" {
+    type: "stormglass_character_surface_part"
+    partId: "left_boot"
+    geometryProfile: "boot"
+    position: [-0.17, 0.15, 0.06]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.18, 0.24, 0.30]
+    materialRegion: "weathered_leather"
+    visibleThroughLod: 2
+  }
+
+  object "RightBoot" {
+    type: "stormglass_character_surface_part"
+    partId: "right_boot"
+    geometryProfile: "boot"
+    position: [0.17, 0.15, 0.06]
+    rotationDegrees: [0, 0, 0]
+    dimensions: [0.18, 0.24, 0.30]
+    materialRegion: "weathered_leather"
+    visibleThroughLod: 2
+  }
+
+  object "AppearanceClaimBoundary" {
+    type: "character_appearance_claim_boundary"
+    visible: false
+    h0ContractClaimed: true
+    h1SurfaceSliceClaimed: true
+    completeProductionBodyClaimed: false
+    clothSimulationClaimed: false
+    observerPromotionClaimed: false
+    hairStyleGeometryClaimed: false
+    facsMorphTargetsClaimed: false
+    familyIdentityVisible: false
+    researchSeatBinding: "absent"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    externalNetworkAllowed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+  }
+}

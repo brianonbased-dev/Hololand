@@ -1,0 +1,128 @@
+// Stormglass Character Appearance H0/H1 typed admission policy.
+//
+// This policy makes the appearance taxonomy, profile firewall, deterministic
+// material custody, LOD budgets, and promotion criteria explicit. Native
+// action execution is not claimed; the checker parses and receipts this policy.
+
+composition CharacterAppearanceH0H1Policy {
+  metadata {
+    version: "0.1.0"
+    milestone: "MV_CHARACTER_APPEARANCE_H0_H1"
+    source: "source/proofs/model-village-character-appearance-h1-policy.hsplus"
+    nativeActionExecutionClaimed: false
+  }
+
+  template AppearanceLayer {
+    type: "appearance_layer"
+    requiredFields: ["id", "owns", "mayEncodeFamilyIdentity"]
+    allowedIds: ["dermal_profile", "outfit_skin", "presentation_appearance"]
+  }
+
+  template PresentationProfile {
+    type: "presentation_profile"
+    requiredFields: ["id", "body", "familyIdentityAdmission"]
+    allowedIds: [
+      "village_story_unblinded",
+      "research_live_blinded",
+      "research_replay_postlock",
+      "visitor_player"
+    ]
+  }
+
+  template AppearanceIdentityFirewall {
+    type: "appearance_identity_firewall"
+    prohibitedFamilyChannels: [
+      "face",
+      "dermal_tone",
+      "body_proportion",
+      "demographic_cue",
+      "voice",
+      "motion_quality",
+      "capability",
+      "tool_access"
+    ]
+    allowedPublicFamilyChannels: ["detachable_mantle", "glyph", "caption"]
+    liveResearchFamilyIdentity: "absent"
+    assignmentInvariantProfile: "research_live_blinded"
+    biometricPersistenceAllowed: false
+    faceTrackingDefault: "off"
+    eyeTrackingDefault: "off"
+    failNeutral: true
+  }
+
+  template DeterministicSurfaceAtlas {
+    type: "deterministic_surface_atlas"
+    algorithm: "stormglass_shared_surface_atlas_v1"
+    seed: 271828
+    requiredRegions: [
+      "woven_teal",
+      "woven_charcoal",
+      "weathered_leather",
+      "aged_bronze"
+    ]
+    albedoSize: [2048, 2048]
+    normalSize: [2048, 2048]
+    surfaceMaskSize: [1024, 1024]
+    externalUrisAllowed: false
+    repeatedGenerationByteIdentityRequired: true
+  }
+
+  template SurfaceLodAdmission {
+    type: "surface_lod_admission"
+    levels: [0, 1, 2]
+    distancesMeters: [0, 12, 28]
+    maximumTriangles: [15000, 6000, 2000]
+    maximumMaterialGroups: 2
+    monotonicTopologyReductionRequired: true
+    sourceAuthoredVisibilityRequired: true
+    secondLodAuthorityAllowed: false
+  }
+
+  template SurfacePromotionGate {
+    type: "surface_promotion_gate"
+    requiredInputs: [
+      "appearance_h1_world_source",
+      "appearance_h1_policy_source",
+      "appearance_h1_seed_source",
+      "immutable_mv_v3_body",
+      "immutable_performance_g",
+      "local_atlas_assets",
+      "gpu_visual_receipt"
+    ]
+    requiredChecks: [
+      "three_format_parse",
+      "identity_firewall",
+      "assignment_invariance",
+      "repeated_atlas_byte_identity",
+      "lod_budget",
+      "two_material_groups",
+      "offline_load",
+      "hardware_renderer",
+      "near_mid_far_visual_receipt",
+      "performance_budget",
+      "inherited_body_immutable",
+      "inherited_performance_immutable"
+    ]
+    promotionTarget: "read_only_shadow_character_consumer"
+    canonicalObserverReplacementAllowed: false
+    productionBodyCompleteClaimed: false
+  }
+
+  template AppearanceLaneFirewall {
+    type: "appearance_lane_firewall"
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    liveResearchJoinAllowed: false
+    familySeatJoinAllowed: false
+    walletIdentityMutationAllowed: false
+    publicFamilyIdentityVisible: false
+    clothSimulationClaimed: false
+    motionRetargetingClaimed: false
+    hairStyleGeometryClaimed: false
+    facsMorphTargetsClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+  }
+}
