@@ -54,14 +54,25 @@ composition "ModelVillagePhase0BBehavior" {
     }
 
     action contribute_water(capturedResponseHash, challengeManifestHash, metricSpecHash, parsedProposal, residentId) {
-      state.acceptedActionCount = state.acceptedActionCount + 1
-      state.publicWaterUnits = state.publicWaterUnits + 1
+      if (state.emergencyStopState == "armed") {
+        state.acceptedActionCount = state.acceptedActionCount + 1
+        state.publicWaterUnits = state.publicWaterUnits + 1
+        return {
+          allowed: true,
+          capturedResponseHash: capturedResponseHash,
+          challengeManifestHash: challengeManifestHash,
+          metricSpecHash: metricSpecHash,
+          outcome: "public_water_units_increased_by_1",
+          parsedProposal: parsedProposal,
+          residentId: residentId
+        }
+      }
       return {
-        allowed: true,
+        allowed: false,
         capturedResponseHash: capturedResponseHash,
         challengeManifestHash: challengeManifestHash,
         metricSpecHash: metricSpecHash,
-        outcome: "public_water_units_increased_by_1",
+        outcome: "blocked_emergency_stop_triggered",
         parsedProposal: parsedProposal,
         residentId: residentId
       }
