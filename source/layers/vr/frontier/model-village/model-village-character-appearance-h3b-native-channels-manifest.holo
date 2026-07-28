@@ -1,0 +1,143 @@
+// Immutable witness manifest for Stormglass Character Appearance H3B.
+// H3B admits native channels and their measured browser materialization. It
+// does not promote the procedural-head-v1 substrate to a production face.
+
+composition "HoloLand Model Village Character Appearance H3B Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3B Native Channel Witness"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV_CHARACTER_APPEARANCE_H3B_NATIVE_CHANNEL_ADMISSION"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3b-native-channels.holo"
+      sha256: "be9c335799a4369b1fdbe0ec85a0733b6f3635865584a8a0931d891974ff6f26"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3b-native-channels-policy.hsplus"
+      sha256: "39a7bc9d196b2ea879e0fb89534892ab82f8783f3f1cb517f72fd6d10dfb3796"
+      parser: "HoloScriptPlusParser"
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3b-native-channels-seed.hs"
+      sha256: "3c3cd0cf0cedda4db36aca2ab1d904f2c80435b2e45f38201434d5de86eaa58d"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3b.mjs"
+      sha256: "a961534ef07c9e89965ce18d491b457c56686d5ea90f313a9065c98bfbe558c0"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3b.test.mjs"
+      sha256: "1924fff02d04927b0f9d85673b4dfe5c663a785a4bd033a852a5b239b755859a"
+    }
+    report: {
+      path: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H3B_2026-07-27.md"
+      sha256: "98cff573ff152a1f26cc9e909c2138d4060d00193bb282262185854c6bf19ce1"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3b-native-personas-2026-07-27.png"
+      sha256: "86f36ce53be95f1f56f5f2ff98048acb344b0bbb2eaf88f8f1250cfbb941cc69"
+      width: 2400
+      height: 900
+      bytes: 863228
+      visuallyInspected: true
+      iterationAccepted: 3
+    }
+    expressions: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3b-native-expressions-2026-07-27.png"
+      sha256: "d0ab957c11f6faede0492c7c962d6c70caa6a998068277404dc2a0baa9445270"
+      width: 2400
+      height: 900
+      bytes: 510611
+      visuallyInspected: true
+      panels: ["neutral", "soft_smile", "blink", "viseme_aa", "viseme_ee", "viseme_oh"]
+      diagnosticNotProductionFace: true
+    }
+    lods: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3b-native-lods-2026-07-27.png"
+      sha256: "b19aaf6a6728843d07ae8b77d1fc4c7db652c30e933b7cc6051a86db8073829d"
+      width: 2400
+      height: 600
+      bytes: 426140
+      visuallyInspected: true
+      panels: ["LOD0", "LOD1", "LOD2"]
+    }
+    taaConvergence: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3b-taa-convergence-2026-07-27.png"
+      sha256: "c92ac6977eceeea521a4aac4c6e5c2f6d132a031840cb94047f74eb06806fe6a"
+      width: 2400
+      height: 600
+      bytes: 905326
+      visuallyInspected: true
+      panels: [1, 8, 16, 32]
+      staticAccumulationOnly: true
+    }
+    nativeAdmission: {
+      holoScriptCommit: "a57c065e4c4315fc305b2a053d8f0889e024d14e"
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      nativeBundleCount: 9
+      nativeExpressionProbeCount: 6
+      sourceAuthoredHairLod: true
+      jointPaletteMaterialized: true
+      fallbackUsed: false
+      stubCount: 0
+    }
+    profile: {
+      id: "native_neutral_persona_desktop_h3b"
+      renderWidth: 1600
+      renderHeight: 900
+      devicePixelRatio: 1
+      warmupFrames: 300
+      measuredFrames: 600
+      simultaneousPersonaCount: 3
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+    }
+    performance: {
+      rafP95Milliseconds: 16.799999999999272
+      renderSubmitP95Milliseconds: 0.40000003576278687
+      droppedFrameRatio: 0
+      budgetPass: true
+    }
+    temporal: {
+      implementation: "three_taa_render_pass"
+      mode: "static_jittered_accumulation"
+      historySamples: 32
+      firstWindowMeanPixelDelta: 0.0664333767361111
+      finalWindowMeanPixelDelta: 0.06759982638888888
+      stableBelowThreshold: true
+      motionReprojection: false
+      productionTaaClaimed: false
+    }
+    boundaries: {
+      nativeChannelH3BAdmitted: true
+      fullH3Claimed: false
+      productionFaceCompleteClaimed: false
+      productionHairCompleteClaimed: false
+      nativeWardrobeClaimed: false
+      normalsRecomputedAfterMorphClaimed: false
+      motionReprojectionClaimed: false
+      productionTaaClaimed: false
+      photorealismClaimed: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      modelCallsAllowed: false
+      biometricPersistenceAllowed: false
+      fullWorldConvergenceClaimed: false
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedBootstrapSha256: "61856439df4c466d8318f2bf18fb8a9f80f3f53c6f1509f6e75e5762df720756"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h3b/character-appearance-h3b-witness.json"
+    }
+  }
+}

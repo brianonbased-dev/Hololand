@@ -1,0 +1,137 @@
+// Stormglass Character Appearance H3B executable-shape policy.
+//
+// .hsplus owns native-channel admission, compiler fallback refusal, hair-LOD
+// monotonicity, expression receipt requirements, temporal history invalidation,
+// visual performance budgets, and the research/canonical-write firewall.
+
+composition "Stormglass Character Appearance H3B Native Channels Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3b-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3B_NATIVE_CHANNEL_ADMISSION"
+    source: "source/proofs/model-village-character-appearance-h3b-native-channels-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3b-native-channels.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3b-native-channels-seed.hs"
+    formatRole: "native_character_admission_lod_temporal_performance_and_firewall_policy"
+    executionStatus: "structured_contract_evaluated_by_receipted_hololand_bridge"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3BNativeAppearanceState {
+    profile: "native_neutral_persona_desktop_h3b"
+    compiledPersonaCount: 0
+    compiledLodBundleCount: 0
+    nativeExpressionReceiptCount: 0
+    historyResetCount: 0
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "NativeCharacterCompilerAdmission" {
+    type: "native_character_compiler_admission"
+    target: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    expectedPersonaCount: 3
+    expectedLodBundleCount: 9
+    expectedExpressionProbeCount: 6
+    repeatedCompileByteIdentityRequired: true
+    compilerFallbackAllowed: false
+    exactSourceCommitRequired: true
+    exactSourceHashesRequired: true
+    mappedHairStyleReceiptRequired: true
+    mappedMorphReceiptRequired: true
+    mappedHairLodReceiptRequired: true
+  }
+
+  template "NativeHairLodAdmission" {
+    type: "native_character_hair_lod_admission"
+    runtimeClass: "LODManager"
+    levels: [0, 1, 2]
+    distancesMeters: [0, 8, 20]
+    sourceFields: ["hair_guides", "hair_cards_per_guide", "hair_segments"]
+    monotonicVertexReductionRequired: true
+    monotonicTriangleReductionRequired: true
+    exactSelectionReceiptRequired: true
+    privateSelectorReimplementationAllowed: false
+    bridgeDecimationAllowed: false
+  }
+
+  template "NativeMorphAdmission" {
+    type: "native_procedural_head_morph_admission"
+    topology: "procedural-head-v1"
+    admittedTargets: ["blink_left", "blink_right", "smile", "jaw_open", "viseme_aa", "viseme_ee", "viseme_oh"]
+    expressionProbeIds: ["neutral", "soft_smile", "blink", "viseme_aa", "viseme_ee", "viseme_oh"]
+    changedVertexReceiptRequiredForNonNeutral: true
+    deterministicPositionDigestRequired: true
+    ignoredTargetsAllowed: false
+    normalsRecomputedAfterMorphClaimed: false
+    productionFacialTopologyClaimed: false
+  }
+
+  template "StaticTemporalConvergence" {
+    type: "static_jittered_temporal_accumulation"
+    implementation: "three_taa_render_pass"
+    historySamples: 32
+    resetEvents: ["camera_cut", "lod_change", "expression_change", "persona_change", "profile_change", "resize"]
+    convergenceMetric: "center_patch_mean_absolute_pixel_delta"
+    motionReprojectionClaimed: false
+    velocityBufferClaimed: false
+    disocclusionRejectionClaimed: false
+    reactiveMaskClaimed: false
+    neighborhoodClampClaimed: false
+    productionTaaClaimed: false
+  }
+
+  template "H3BDesktopBudget" {
+    type: "model_village_character_desktop_budget"
+    profile: "native_neutral_persona_desktop_h3b"
+    renderWidth: 1600
+    renderHeight: 900
+    devicePixelRatio: 1
+    warmupFrames: 300
+    measuredFrames: 600
+    simultaneousPersonaCount: 3
+    maximumRafP95Milliseconds: 25
+    maximumRenderSubmitP95Milliseconds: 12
+    maximumDroppedFrameRatio: 0.02
+    hardwareRendererRequired: true
+    d3d11BackendRequired: true
+    crossDevicePerformanceClaimed: false
+    headsetPerformanceClaimed: false
+  }
+
+  template "H3BNoCausalMergeGate" {
+    type: "model_village_character_appearance_firewall"
+    presentationLane: "mv_character_appearance_h3b"
+    prohibitedLane: "research_live_blinded"
+    prohibitedInputs: ["live_model_output", "resident_observation", "adapter_assignment", "research_seat", "seat_wallet", "biometric_sample"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_action", "village_receipt", "wallet_identity", "biometric_store"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+    networkFetchCountRequired: 0
+  }
+
+  action admit_native_bundle(bundle, expected) {
+    if (bundle.format != expected.outputFormat) {
+      return { admitted: false, reason: "wrong_output_format" }
+    }
+    if (bundle.usedFallback == true) {
+      return { admitted: false, reason: "compiler_fallback_used" }
+    }
+    if (bundle.nativeHairStyleMapped != true) {
+      return { admitted: false, reason: "native_hair_style_unmapped" }
+    }
+    if (bundle.nativeHairLodMapped != true) {
+      return { admitted: false, reason: "native_hair_lod_unmapped" }
+    }
+    return { admitted: true, reason: "native_character_bundle_admitted" }
+  }
+
+  action reset_history(event, acceptedEvents) {
+    if (!acceptedEvents.includes(event)) {
+      return { reset: false, reason: "event_not_admitted" }
+    }
+    return { reset: true, reason: "static_temporal_history_invalidated" }
+  }
+}
