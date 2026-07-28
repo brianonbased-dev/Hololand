@@ -180,6 +180,7 @@ import {
   createHash,
   createPrivateKey,
   createPublicKey,
+  randomBytes,
   randomInt,
   sign,
   verify,
@@ -206,6 +207,7 @@ import {
   verifyUnblindingReceipt,
 } from './model-village-alias-vault.mjs';
 import { provisionIsolatedRun } from './model-village-admission-bridge.mjs';
+import { captureResponseUnderCustody } from './model-village-captured-response-custody.mjs';
 import { createSealedCustodyStore } from './model-village-custody-store.mjs';
 import {
   canonicalDigest,
@@ -331,6 +333,18 @@ const MV_B1_HIDDEN_PROMPT_ENHANCEMENT = 'none-request-bytes-hashed';
 const MV_B1_CACHE_STATE_EVIDENCE = Object.freeze({
   providerCacheControlProbed: false,
   state: 'unknown_contamination_receipted',
+});
+
+/**
+ * MV-B3's captureResponseUnderCustody requires a `drill` object, but that
+ * argument is only ever read by its DEFAULT turnExecutor
+ * (executeCertifiedModelTurn) — the rehearsal always supplies
+ * buildSyntheticCaptureTurnExecutor instead, which never reads it. A tiny
+ * named placeholder documents that rather than passing an unrelated bundle
+ * (e.g. studyBundle) in its place.
+ */
+const SYNTHETIC_CAPTURE_DRILL = Object.freeze({
+  note: 'unused: buildSyntheticCaptureTurnExecutor never reads the drill argument',
 });
 
 const STUDY_POLICY_OBJECT_NAMES = Object.freeze([
@@ -1181,6 +1195,104 @@ export function buildRunCaptures({ runId, residentIds, turnsPerRun, blockId, con
 }
 
 // ---------------------------------------------------------------------------
+// The synthetic capture turn executor (MV-B3 write phase, network-free)
+// ---------------------------------------------------------------------------
+
+/**
+ * Builds the turnExecutor MV-B3's captureResponseUnderCustody calls to seal
+ * ONE of buildRunCaptures's synthetic responses. This is the CAPTURE (write)
+ * half of the seam the module header describes; it is a distinct function
+ * from createReplayTurnExecutor (the READ half) and is never substituted for
+ * it. It is handed to captureResponseUnderCustody's `turnExecutor` slot,
+ * which defaults to MV-B1's real executeCertifiedModelTurn (a live fetch) —
+ * supplying this instead is what keeps the rehearsal's measured
+ * provider-call count at zero while still exercising captureResponseUnderCustody's
+ * real blinding and no-route-leak guarantees on the run's own execution path,
+ * not only in the standalone alias-custody checker.
+ *
+ * It NEVER calls fetchImpl (or any network primitive): the bytes to seal are
+ * already decided by buildRunCaptures, so there is nothing to fetch, and
+ * calling the fence at all would trip the provider-call refusal this
+ * rehearsal must keep at zero.
+ *
+ * The returned receipt is MV-B1-shaped and self-verified through the SAME
+ * shipped verifyModelTurnReceipt createReplayTurnExecutor's receipts satisfy
+ * — captureResponseUnderCustody re-verifies it again on the way in, so a
+ * drift here fails loud twice over.
+ */
+function buildSyntheticCaptureTurnExecutor({
+  capture,
+  promptHash,
+  requestCustodyId,
+  vocabulary,
+}) {
+  return async function syntheticCaptureTurnExecutor({
+    route,
+    certification,
+    custodyStore,
+    priorReceiptHash,
+  }) {
+    const startedAt = Date.now();
+    const responseCustodyId = custodyStore.sealObject({
+      bytes: capture.bytes,
+      kind: 'model-turn-response',
+      label: `${capture.responseId}:raw`,
+    }).custodyId;
+    const responseHash = sha256Hex(capture.bytes);
+
+    const envelope = JSON.parse(capture.bytes.toString('utf8'));
+    const content = envelope.choices[0].message.content;
+    const parsed = parseProposal(content, vocabulary);
+    const parsedProposal = parsed.decision === 'valid_proposal'
+      ? {
+        action: parsed.parsed.action,
+        amount: parsed.parsed.amount,
+        reasonLength: parsed.parsed.reason.length,
+        reasonSha256: sha256Hex(Buffer.from(parsed.parsed.reason, 'utf8')),
+        target: parsed.parsed.target,
+      }
+      : null;
+
+    const receipt = sealHashed({
+      at: new Date().toISOString(),
+      cacheStateEvidence: { ...MV_B1_CACHE_STATE_EVIDENCE },
+      custodyRefs: { requestCustodyId, responseCustodyId },
+      endpoint: route.endpoint,
+      engine: ADAPTER_RUNTIME_ENGINE,
+      errorClass: null,
+      fallbackEvidence: MV_B1_FALLBACK_EVIDENCE,
+      generationParameters: {
+        maxOutputTokens: route.ceilings.maxOutputTokens,
+        seedAcceptedEvidence: 'unverified',
+        seedRequested: route.ceilings.seedRequested,
+        temperature: route.ceilings.temperature,
+      },
+      latencyMs: Math.max(0, Date.now() - startedAt),
+      parsedProposal,
+      priorReceiptHash,
+      promptHash,
+      proposalDecision: parsed.decision,
+      proposalReason: parsed.decision === 'valid_proposal' ? null : parsed.reason,
+      responseHash,
+      retries: 0,
+      revisionEvidence: structuredClone(certification.revisionEvidence),
+      routeId: route.routeId,
+      schema: MODEL_TURN_RECEIPT_SCHEMA,
+      turnCompleted: true,
+      usageReported: null,
+    }, 'receiptHash');
+
+    // Self-verify through MV-B1's SHIPPED verifier, the same discipline
+    // createReplayTurnExecutor applies to its own receipts.
+    const check = verifyModelTurnReceipt(receipt);
+    if (!check.ok) {
+      fail(`synthetic captured model-turn receipt does not verify: ${check.failureReason}`);
+    }
+    return receipt;
+  };
+}
+
+// ---------------------------------------------------------------------------
 // The replay turn executor (layer 1 shape + layer 2 bytes)
 // ---------------------------------------------------------------------------
 
@@ -1834,14 +1946,53 @@ export async function runRehearsal({
         crossRunStateFindings.push('run directory collides with an earlier run');
       }
 
-      // (9) Seal this run's captured responses into ITS OWN store. Replay then
-      // reads them back out of custody, one read per turn.
+      // (6) Stage six unique resident and seat IDs. The route object carries a
+      // `studySeat` extension so the replay executor can identify which seat a
+      // dispatch belongs to — the scheduler passes a structuredClone, so object
+      // identity is not preserved and the seat must travel in the value. The
+      // extension carries the residentId and seatId (public) and never the
+      // alias -> route map (sealed). Staged BEFORE (9) capture-sealing —
+      // moved up from its production-plan position — because MV-B3's
+      // captureResponseUnderCustody needs a real route + certification per
+      // resident to seal a capture under, and this is the only place in the
+      // run where those are resolved. Nothing below depends on the validator
+      // provisioning or run-manifest signing that used to sit between the two
+      // steps, so the reorder does not touch the hash-chain start (still
+      // runManifestHash, computed after this block as before).
       const seatBindings = buildSeatAliasBindings({
         blockId,
         condition,
         matrix: matrixBundle.matrix,
       });
       const residentIds = seatBindings.map((binding) => binding.residentId);
+      const aliasRouteMap = aliasRouteMaps.get(blockId);
+      const residents = seatBindings.map((binding) => {
+        const routeId = aliasRouteMap[binding.adapterAlias];
+        const route = routes.find((candidate) => candidate.routeId === routeId);
+        if (!route) fail('sealed alias assignment names an undeclared route');
+        return {
+          certification: certificationByRoute.get(routeId),
+          residentId: binding.residentId,
+          route: {
+            ...structuredClone(route),
+            studySeat: { residentId: binding.residentId, seatId: binding.seatId },
+          },
+        };
+      });
+      const residentContextById = new Map(
+        residents.map((resident) => [resident.residentId, resident]),
+      );
+
+      // (9) Seal this run's captured responses into ITS OWN store, through
+      // MV-B3's real captureResponseUnderCustody — the same blinding and
+      // no-route-leak guarantees the alias-custody checker proves in
+      // isolation (scripts/check-hololand-model-village-alias-custody.mjs),
+      // now exercised on the path an actual village-run takes. The
+      // turnExecutor is buildSyntheticCaptureTurnExecutor (network-free); the
+      // real live-provider default (executeCertifiedModelTurn) is never
+      // reached. Replay then reads these back out of custody, one read per
+      // turn, via createReplayTurnExecutor — untouched, and never wrapped in
+      // captureResponseUnderCustody, per the module header's seam.
       const promptBytes = Buffer.from(
         JSON.stringify({
           messages: [{ content: studyBundle.promptTemplate, role: 'user' }],
@@ -1864,16 +2015,47 @@ export async function runRehearsal({
         runId,
         turnsPerRun: studyBundle.policy.turnsPerRun,
       })) {
-        const sealed = context.custodyStore.sealObject({
-          bytes: capture.bytes,
-          kind: 'model-turn-response',
-          label: `${capture.responseId}:raw`,
+        const resident = residentContextById.get(capture.residentId);
+        if (!resident) fail(`capture ${capture.responseId} names an unstaged resident`);
+        // MV-B3's blinding law refuses any responseId/residentId containing
+        // the adapter_a/adapter_b/adapter_c ALIAS namespace pattern
+        // (assertNoSealedIdentityLeak) — and the STUDY's own PUBLIC condition
+        // vocabulary reuses those exact names for its four run conditions
+        // ('adapter_a_only' etc, plan lines 735-739), so capture.responseId
+        // (which embeds runId, which embeds the condition slug) trips it even
+        // though a condition name is intentionally public, not the sealed
+        // route alias. The record identity passed to captureResponseUnderCustody
+        // is therefore built from (dayIndex, conditionIndex) instead — still
+        // unique across all twelve runs and every turn/resident, never the
+        // condition string.
+        const captureRecordResponseId =
+          `mv-b3-capture-d${dayIndex}-c${conditionIndex}-t${capture.turnIndex}-${capture.residentId}`;
+        const { record, turnReceipt } = await captureResponseUnderCustody({
+          aliasCommitmentRef: null,
+          blinded: true,
+          certification: resident.certification,
+          custodyStore: context.custodyStore,
+          drill: SYNTHETIC_CAPTURE_DRILL,
+          operator,
+          residentId: capture.residentId,
+          responseId: captureRecordResponseId,
+          route: resident.route,
+          routeCommitmentSalt: randomBytes(32).toString('hex'),
+          turnExecutor: buildSyntheticCaptureTurnExecutor({
+            capture,
+            promptHash,
+            requestCustodyId,
+            vocabulary: studyBundle.vocabulary,
+          }),
         });
+        if (!turnReceipt || turnReceipt.turnCompleted !== true || !record) {
+          fail(`synthetic capture ${captureRecordResponseId} did not seal under custody`);
+        }
         captureIndex.set(`t${capture.turnIndex}|${capture.residentId}`, Object.freeze({
           promptHash,
-          requestCustodyId,
-          responseCustodyId: sealed.custodyId,
-          responseHash: sha256Hex(capture.bytes),
+          requestCustodyId: turnReceipt.custodyRefs.requestCustodyId,
+          responseCustodyId: turnReceipt.custodyRefs.responseCustodyId,
+          responseHash: turnReceipt.responseHash,
         }));
       }
 
@@ -1936,27 +2118,6 @@ export async function runRehearsal({
         signedAt: new Date().toISOString(),
         validatorId,
         verifySignature: fleetVerifier.verifySignature,
-      });
-
-      // (6) Stage six unique resident and seat IDs. The route object carries a
-      // `studySeat` extension so the replay executor can identify which seat a
-      // dispatch belongs to — the scheduler passes a structuredClone, so object
-      // identity is not preserved and the seat must travel in the value. The
-      // extension carries the residentId and seatId (public) and never the
-      // alias -> route map (sealed).
-      const aliasRouteMap = aliasRouteMaps.get(blockId);
-      const residents = seatBindings.map((binding) => {
-        const routeId = aliasRouteMap[binding.adapterAlias];
-        const route = routes.find((candidate) => candidate.routeId === routeId);
-        if (!route) fail('sealed alias assignment names an undeclared route');
-        return {
-          certification: certificationByRoute.get(routeId),
-          residentId: binding.residentId,
-          route: {
-            ...structuredClone(route),
-            studySeat: { residentId: binding.residentId, seatId: binding.seatId },
-          },
-        };
       });
 
       const turnCursor = { index: 1 };
