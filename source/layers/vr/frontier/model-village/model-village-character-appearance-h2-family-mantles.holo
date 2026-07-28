@@ -1,0 +1,322 @@
+// Stormglass Commons Character Appearance H2.
+//
+// Six public family mantles are promoted from compiler/native-GPU proof tiles
+// to tailored local material kits over the immutable H1 shared body. Family
+// identity is carried only by detachable silhouette, weave, glyph, fastening,
+// edge treatment, and captions in the village_story_unblinded profile. These
+// kits cannot join live blinded research or mutate any resident observation.
+
+composition "Stormglass Character Appearance H2 Family Mantles" {
+  metadata {
+    title: "Stormglass Character Appearance H2 - Six Production Mantle Kits"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV_CHARACTER_APPEARANCE_H2"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h2-family-mantles.holo"
+    policySource: "source/proofs/model-village-character-appearance-h2-family-mantles-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h2-family-mantles-seed.hs"
+    appearancePlan: "docs/specs/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_PLAN.md"
+    appearancePlanSha256: "ac3535ce75aac5b45feef6ea11f9e9e09e3e001fc23defb5119e71ad1fa930c8"
+    inheritedH1Source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h1.holo"
+    inheritedH1SourceSha256: "49b8433c1265c7cc21423bc34b2f4f2d4f20e1e00af74d52b4d1c9d622c93663"
+    inheritedH1Manifest: "source/layers/vr/frontier/model-village/model-village-character-appearance-h1-manifest.holo"
+    inheritedH1ManifestSha256: "a68478610909b37c9d21c3638e7c3b54e9a6caf5d8205636e1629c4eea91f8d8"
+    inheritedH1Report: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H1_2026-07-27.md"
+    inheritedH1ReportSha256: "8530e60c911e97b3b14ce0b173e9f813da224c9797b18362e18f91a377c7f39f"
+    inheritedCompilerCatalog: "source/layers/vr/frontier/model-village/model-village-family-mantle-catalog.holo"
+    inheritedCompilerCatalogSha256: "e366ee5cc51d4b0c3d9ba38643b683e688b7f902d315745acc76c00d6c06cfd2"
+    inheritedCompilerManifest: "source/layers/vr/frontier/model-village/model-village-family-mantle-catalog-manifest.holo"
+    inheritedCompilerManifestSha256: "9bbe1e0c8c4288151da6296d0934f948b97ffa32fe1851918ad64a754056d6c5"
+    inheritedCompilerReport: "docs/reports/HOLOLAND_MODEL_VILLAGE_MV_V5_SIX_FAMILY_MANTLES_2026-07-26.md"
+    inheritedCompilerReportSha256: "17db23f8c87200927e67d8cf7b4e2b39d22d3dd4c959ad85597788a4c2c76777"
+    projectionRole: "read_only_public_family_mantle_promotion"
+    artStyle: "hearthlight_biorealism"
+    characterStyle: "stormglass_craftfolk_faceless_hooded"
+    identityChannel: "detachable_family_mantle_glyph_caption_only"
+    independentProjectDisclosure: "HoloLand-authored fictional Craftfolk visual interpretations; no provider endorsement or real-person likeness."
+  }
+
+  environment {
+    mode: "family_mantle_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#06101D"
+    ambient_light: 0.22
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    appearanceContractVersion: "h2.1"
+    presentationProfile: "village_story_unblinded"
+    prohibitedPresentationProfiles: ["research_live_blinded"]
+    publicDisplayNames: ["Claude", "OpenAI", "Gemini", "Grok", "GLM", "Brittney"]
+    familyIds: ["anthropic", "openai", "google", "xai", "ollama", "sovereign"]
+    namedFamilyMantleKits: 6
+    familyIdentityVisible: true
+    familyIdentityChannel: "detachable_mantle"
+    sharedBodyIdentityNeutral: true
+    sharedBodyImmutable: true
+    sharedBodyMaterialGroups: 2
+    maximumMantleMaterialGroupsPerResident: 1
+    totalMaterialGroupsPerResident: 3
+    h5TwoGroupsPerResidentConsolidationComplete: false
+    researchSeatBinding: "absent"
+    liveResearchJoinAllowed: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    providerEndorsementClaimed: false
+    exactModelRevisionPresented: false
+    clothSimulationClaimed: false
+    productionMantleTopologyClaimed: true
+    productionBodyCompleteClaimed: false
+    observerPromotionClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    identityFirewall: {
+      allowedFamilyChannels: ["detachable_mantle", "glyph", "caption"]
+      prohibitedFamilyChannels: ["face", "dermal_tone", "body_proportion", "demographic_cue", "voice", "motion_quality", "capability", "tool_access"]
+      liveResearchFamilyIdentity: "absent"
+      bodyAndMotionQualityInvariant: true
+      biometricPersistenceAllowed: false
+    }
+
+    atlas: {
+      algorithm: "stormglass_six_mantle_atlas_v1"
+      seed: 314159
+      columns: 3
+      rows: 2
+      albedoPath: "assets/model-village/materials/stormglass-six-family-mantles-albedo-2k.png"
+      albedoSize: [2048, 2048]
+      normalPath: "assets/model-village/materials/stormglass-six-family-mantles-normal-2k.png"
+      normalSize: [2048, 2048]
+      surfaceMaskPath: "assets/model-village/materials/stormglass-six-family-mantles-surface-mask-1k.png"
+      surfaceMaskSize: [1024, 1024]
+      externalUris: []
+      repeatedGenerationByteIdentityRequired: true
+    }
+
+    lod: {
+      levels: [0, 1, 2]
+      distancesMeters: [0, 12, 28]
+      mantleRadialSegments: [20, 12, 6]
+      meshNodeRadialSegments: [12, 8, 6]
+      mantleRoundedSegments: [3, 2, 1]
+      maximumMantleTriangles: [2200, 900, 320]
+      maximumResidentTriangles: [17500, 7000, 2500]
+      maximumMantleMaterialGroups: 1
+      monotonicTopologyReductionRequired: true
+      sourceAuthoredVisibilityRequired: true
+      secondLodAuthorityAllowed: false
+    }
+
+    benchmark: {
+      profileId: "six_mantle_desktop_h2"
+      renderWidth: 1800
+      renderHeight: 1000
+      devicePixelRatio: 1
+      warmupFrames: 300
+      measuredFrames: 600
+      maximumRafP95Milliseconds: 25
+      maximumRenderSubmitP95Milliseconds: 8
+      maximumDroppedFrameRatio: 0.02
+      droppedFrameThresholdMilliseconds: 25
+      exactHardwareRendererRequired: true
+      simultaneousResidentCount: 6
+      continuousCharacterAnimationDuringBenchmark: false
+    }
+
+    goldenTargets: {
+      requiredCaptures: ["lineup_dry", "lineup_wet", "individual_lod0", "grayscale", "deuteranopia"]
+      nonColorDistinctnessRequired: true
+      wetDryResponseRequired: true
+      nearMidFarRequired: true
+    }
+  }
+
+  object "ClaudeMantleKit" {
+    type: "production_family_mantle_kit"
+    publicDisplayName: "Claude"
+    familyId: "anthropic"
+    mantleId: "stormglass-mantle-anthropic-h2"
+    primaryNonColorCue: "quiet_nested_open_arcs"
+    silhouetteProfile: "layered_arc_cowl"
+    glyphId: "open_arc_weave"
+    atlasCell: [0, 0]
+    baseColor: "#6E4437"
+    accentColor: "#D98A61"
+    fastening: "paired_quiet_bronze_clasps"
+    edgeTreatment: "soft_double_turned_edge"
+    wearMaskSeed: 3101
+    dryRoughness: 0.76
+    wetRoughness: 0.28
+    detachedState: "local_stowed_noncausal"
+    surfaceParts: [
+      { id: "claude_cape", geometryProfile: "cape_panel", position: [0, 1.34, 0.25], rotationDegrees: [0, 0, 0], dimensions: [0.72, 0.48, 0.60], visibleThroughLod: 2 },
+      { id: "claude_left_cowl", geometryProfile: "rounded_panel", position: [-0.33, 1.64, 0.16], rotationDegrees: [0, 0, 8], dimensions: [0.40, 0.13, 0.23], visibleThroughLod: 2 },
+      { id: "claude_right_cowl", geometryProfile: "rounded_panel", position: [0.33, 1.64, 0.16], rotationDegrees: [0, 0, -8], dimensions: [0.40, 0.13, 0.23], visibleThroughLod: 2 },
+      { id: "claude_outer_arc", geometryProfile: "open_arc", position: [0, 1.47, 0.292], rotationDegrees: [0, 0, 0], dimensions: [0.26, 0.024, 0.028], visibleThroughLod: 1 },
+      { id: "claude_middle_arc", geometryProfile: "open_arc", position: [0, 1.34, 0.294], rotationDegrees: [0, 0, 0], dimensions: [0.19, 0.022, 0.026], visibleThroughLod: 1 },
+      { id: "claude_inner_arc", geometryProfile: "open_arc", position: [0, 1.23, 0.296], rotationDegrees: [0, 0, 0], dimensions: [0.12, 0.019, 0.024], visibleThroughLod: 0 }
+    ]
+  }
+
+  object "OpenAIMantleKit" {
+    type: "production_family_mantle_kit"
+    publicDisplayName: "OpenAI"
+    familyId: "openai"
+    mantleId: "stormglass-mantle-openai-h2"
+    primaryNonColorCue: "recursive_interlock"
+    silhouetteProfile: "pointed_interlock_tabard"
+    glyphId: "recursive_interlock_glyph"
+    atlasCell: [1, 0]
+    baseColor: "#7B7974"
+    accentColor: "#E5E0D7"
+    fastening: "central_recursive_clasp"
+    edgeTreatment: "bound_geometric_edge"
+    wearMaskSeed: 3203
+    dryRoughness: 0.72
+    wetRoughness: 0.24
+    detachedState: "local_stowed_noncausal"
+    surfaceParts: [
+      { id: "openai_tabard", geometryProfile: "cape_panel", position: [0, 1.34, 0.25], rotationDegrees: [0, 0, 0], dimensions: [0.70, 0.12, 0.72], visibleThroughLod: 2 },
+      { id: "openai_upper_left_loop", geometryProfile: "closed_loop", position: [-0.11, 1.47, 0.294], rotationDegrees: [0, 0, 0], dimensions: [0.11, 0.021, 0.025], visibleThroughLod: 1 },
+      { id: "openai_upper_right_loop", geometryProfile: "closed_loop", position: [0.11, 1.47, 0.294], rotationDegrees: [0, 0, 0], dimensions: [0.11, 0.021, 0.025], visibleThroughLod: 1 },
+      { id: "openai_lower_left_loop", geometryProfile: "closed_loop", position: [-0.11, 1.27, 0.296], rotationDegrees: [0, 0, 0], dimensions: [0.11, 0.021, 0.025], visibleThroughLod: 0 },
+      { id: "openai_lower_right_loop", geometryProfile: "closed_loop", position: [0.11, 1.27, 0.296], rotationDegrees: [0, 0, 0], dimensions: [0.11, 0.021, 0.025], visibleThroughLod: 0 },
+      { id: "openai_center_clasp", geometryProfile: "clasp", position: [0, 1.62, 0.265], rotationDegrees: [0, 0, 0], dimensions: [0.055, 0.018, 0.024], visibleThroughLod: 2 }
+    ]
+  }
+
+  object "GeminiMantleKit" {
+    type: "production_family_mantle_kit"
+    publicDisplayName: "Gemini"
+    familyId: "google"
+    mantleId: "stormglass-mantle-google-h2"
+    primaryNonColorCue: "paired_prism_panels"
+    silhouetteProfile: "split_prismatic_lapels"
+    glyphId: "paired_prism_weave"
+    atlasCell: [2, 0]
+    baseColor: "#315967"
+    accentColor: "#73B9CA"
+    fastening: "paired_offset_prism_clasps"
+    edgeTreatment: "faceted_bias_edge"
+    wearMaskSeed: 3307
+    dryRoughness: 0.70
+    wetRoughness: 0.22
+    detachedState: "local_stowed_noncausal"
+    surfaceParts: [
+      { id: "gemini_left_prism", geometryProfile: "prism_panel", position: [-0.19, 1.34, 0.25], rotationDegrees: [0, 0, 5], dimensions: [0.36, 0.66, 0.055], visibleThroughLod: 2 },
+      { id: "gemini_right_prism", geometryProfile: "prism_panel", position: [0.19, 1.34, 0.25], rotationDegrees: [0, 0, -5], dimensions: [0.36, 0.66, 0.055], visibleThroughLod: 2 },
+      { id: "gemini_left_shoulder", geometryProfile: "rounded_panel", position: [-0.34, 1.64, 0.16], rotationDegrees: [0, 0, 9], dimensions: [0.38, 0.12, 0.22], visibleThroughLod: 2 },
+      { id: "gemini_right_shoulder", geometryProfile: "rounded_panel", position: [0.34, 1.64, 0.16], rotationDegrees: [0, 0, -9], dimensions: [0.38, 0.12, 0.22], visibleThroughLod: 2 },
+      { id: "gemini_left_clasp", geometryProfile: "clasp", position: [-0.20, 1.59, 0.275], rotationDegrees: [0, 0, 0], dimensions: [0.052, 0.018, 0.024], visibleThroughLod: 1 },
+      { id: "gemini_right_clasp", geometryProfile: "clasp", position: [0.20, 1.59, 0.275], rotationDegrees: [0, 0, 0], dimensions: [0.052, 0.018, 0.024], visibleThroughLod: 1 }
+    ]
+  }
+
+  object "GrokMantleKit" {
+    type: "production_family_mantle_kit"
+    publicDisplayName: "Grok"
+    familyId: "xai"
+    mantleId: "stormglass-mantle-xai-h2"
+    primaryNonColorCue: "off_axis_signal_bands"
+    silhouetteProfile: "asymmetric_signal_sash"
+    glyphId: "diagonal_signal_weave"
+    atlasCell: [0, 1]
+    baseColor: "#71372F"
+    accentColor: "#CE6B5C"
+    fastening: "single_off_axis_clasp"
+    edgeTreatment: "raw_signal_cut_edge"
+    wearMaskSeed: 3407
+    dryRoughness: 0.74
+    wetRoughness: 0.25
+    detachedState: "local_stowed_noncausal"
+    surfaceParts: [
+      { id: "grok_cape", geometryProfile: "cape_panel", position: [0, 1.35, 0.25], rotationDegrees: [0, 0, -4], dimensions: [0.76, 0.54, 0.56], visibleThroughLod: 2 },
+      { id: "grok_upper_band", geometryProfile: "signal_band", position: [0, 1.48, 0.294], rotationDegrees: [0, 0, -22], dimensions: [0.67, 0.045, 0.035], visibleThroughLod: 1 },
+      { id: "grok_middle_band", geometryProfile: "signal_band", position: [0, 1.34, 0.296], rotationDegrees: [0, 0, -22], dimensions: [0.62, 0.038, 0.033], visibleThroughLod: 1 },
+      { id: "grok_lower_band", geometryProfile: "signal_band", position: [0, 1.20, 0.298], rotationDegrees: [0, 0, -22], dimensions: [0.54, 0.032, 0.031], visibleThroughLod: 0 },
+      { id: "grok_clasp", geometryProfile: "clasp", position: [-0.24, 1.61, 0.275], rotationDegrees: [0, 0, 0], dimensions: [0.058, 0.020, 0.024], visibleThroughLod: 2 }
+    ]
+  }
+
+  object "GLMMantleKit" {
+    type: "production_family_mantle_kit"
+    publicDisplayName: "GLM"
+    familyId: "ollama"
+    mantleId: "stormglass-mantle-ollama-h2"
+    primaryNonColorCue: "modular_phase_lattice"
+    silhouetteProfile: "modular_lattice_tabard"
+    glyphId: "phase_lattice_glyph"
+    atlasCell: [1, 1]
+    baseColor: "#766128"
+    accentColor: "#D7B85D"
+    fastening: "phase_key_clasp"
+    edgeTreatment: "stepped_modular_edge"
+    wearMaskSeed: 3511
+    dryRoughness: 0.78
+    wetRoughness: 0.30
+    detachedState: "local_stowed_noncausal"
+    surfaceParts: [
+      { id: "glm_cape", geometryProfile: "cape_panel", position: [0, 1.34, 0.25], rotationDegrees: [0, 0, 0], dimensions: [0.70, 0.58, 0.60], visibleThroughLod: 2 },
+      { id: "glm_tile_00", geometryProfile: "lattice_tile", position: [-0.13, 1.49, 0.295], rotationDegrees: [0, 0, 0], dimensions: [0.19, 0.12, 0.035], visibleThroughLod: 1 },
+      { id: "glm_tile_10", geometryProfile: "lattice_tile", position: [0.13, 1.49, 0.295], rotationDegrees: [0, 0, 0], dimensions: [0.19, 0.12, 0.035], visibleThroughLod: 1 },
+      { id: "glm_tile_01", geometryProfile: "lattice_tile", position: [-0.13, 1.33, 0.297], rotationDegrees: [0, 0, 0], dimensions: [0.19, 0.12, 0.035], visibleThroughLod: 0 },
+      { id: "glm_tile_11", geometryProfile: "lattice_tile", position: [0.13, 1.33, 0.297], rotationDegrees: [0, 0, 0], dimensions: [0.19, 0.12, 0.035], visibleThroughLod: 0 },
+      { id: "glm_tile_02", geometryProfile: "lattice_tile", position: [-0.13, 1.17, 0.299], rotationDegrees: [0, 0, 0], dimensions: [0.19, 0.12, 0.035], visibleThroughLod: 0 },
+      { id: "glm_tile_12", geometryProfile: "lattice_tile", position: [0.13, 1.17, 0.299], rotationDegrees: [0, 0, 0], dimensions: [0.19, 0.12, 0.035], visibleThroughLod: 0 }
+    ]
+  }
+
+  object "BrittneyMantleKit" {
+    type: "production_family_mantle_kit"
+    publicDisplayName: "Brittney"
+    familyId: "sovereign"
+    mantleId: "stormglass-mantle-sovereign-h2"
+    primaryNonColorCue: "sovereign_locality_mesh"
+    silhouetteProfile: "owned_node_link_mesh"
+    glyphId: "owned_mesh_glyph"
+    atlasCell: [2, 1]
+    baseColor: "#51436A"
+    accentColor: "#9C88C0"
+    fastening: "local_anchor_clasp"
+    edgeTreatment: "knotted_owned_edge"
+    wearMaskSeed: 3607
+    dryRoughness: 0.75
+    wetRoughness: 0.27
+    detachedState: "local_stowed_noncausal"
+    surfaceParts: [
+      { id: "brittney_cape", geometryProfile: "cape_panel", position: [0, 1.34, 0.25], rotationDegrees: [0, 0, 0], dimensions: [0.70, 0.46, 0.62], visibleThroughLod: 2 },
+      { id: "brittney_node_nw", geometryProfile: "mesh_node", position: [-0.18, 1.47, 0.300], rotationDegrees: [0, 0, 0], dimensions: [0.046, 0.046, 0.025], visibleThroughLod: 1 },
+      { id: "brittney_node_ne", geometryProfile: "mesh_node", position: [0.18, 1.47, 0.300], rotationDegrees: [0, 0, 0], dimensions: [0.046, 0.046, 0.025], visibleThroughLod: 1 },
+      { id: "brittney_node_sw", geometryProfile: "mesh_node", position: [-0.12, 1.22, 0.302], rotationDegrees: [0, 0, 0], dimensions: [0.046, 0.046, 0.025], visibleThroughLod: 0 },
+      { id: "brittney_node_se", geometryProfile: "mesh_node", position: [0.12, 1.22, 0.302], rotationDegrees: [0, 0, 0], dimensions: [0.046, 0.046, 0.025], visibleThroughLod: 0 },
+      { id: "brittney_link_top", geometryProfile: "mesh_link", position: [0, 1.47, 0.299], rotationDegrees: [0, 0, 0], dimensions: [0.32, 0.024, 0.026], visibleThroughLod: 1 },
+      { id: "brittney_link_left", geometryProfile: "mesh_link", position: [-0.15, 1.345, 0.301], rotationDegrees: [0, 0, -14], dimensions: [0.23, 0.024, 0.026], visibleThroughLod: 0 },
+      { id: "brittney_link_right", geometryProfile: "mesh_link", position: [0.15, 1.345, 0.301], rotationDegrees: [0, 0, 14], dimensions: [0.23, 0.024, 0.026], visibleThroughLod: 0 },
+      { id: "brittney_link_bottom", geometryProfile: "mesh_link", position: [0, 1.22, 0.301], rotationDegrees: [0, 0, 0], dimensions: [0.20, 0.024, 0.026], visibleThroughLod: 0 }
+    ]
+  }
+
+  object "H2FamilyMantleClaimBoundary" {
+    type: "character_appearance_claim_boundary"
+    visible: false
+    h2ProductionMantleKitsClaimed: true
+    publicFamilyIdentityVisible: true
+    familyIdentityChannel: "detachable_mantle_glyph_caption_only"
+    researchLiveFamilyIdentityVisible: false
+    researchSeatBinding: "absent"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    externalNetworkAllowed: false
+    clothSimulationClaimed: false
+    productionBodyCompleteClaimed: false
+    h5DrawGroupConsolidationClaimed: false
+    observerPromotionClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+  }
+}

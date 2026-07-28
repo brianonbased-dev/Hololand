@@ -1,0 +1,147 @@
+// Typed admission policy for Character Appearance H2 production mantle kits.
+
+composition CharacterAppearanceH2FamilyMantlePolicy {
+  metadata {
+    version: "0.1.0"
+    milestone: "MV_CHARACTER_APPEARANCE_H2"
+    source: "source/proofs/model-village-character-appearance-h2-family-mantles-policy.hsplus"
+    nativeActionExecutionClaimed: false
+  }
+
+  template ProductionFamilyMantleKit {
+    type: "production_family_mantle_kit"
+    requiredFields: [
+      "publicDisplayName",
+      "familyId",
+      "mantleId",
+      "primaryNonColorCue",
+      "silhouetteProfile",
+      "glyphId",
+      "atlasCell",
+      "fastening",
+      "edgeTreatment",
+      "wearMaskSeed",
+      "dryRoughness",
+      "wetRoughness",
+      "detachedState",
+      "surfaceParts"
+    ]
+    allowedPublicDisplayNames: ["Claude", "OpenAI", "Gemini", "Grok", "GLM", "Brittney"]
+    identityChannel: "detachable_mantle"
+    sharedBodyMutationAllowed: false
+    bodyOrFaceFamilyEncodingAllowed: false
+    familyCapabilityEncodingAllowed: false
+  }
+
+  template MantleIdentityFirewall {
+    type: "mantle_identity_firewall"
+    allowedFamilyChannels: ["detachable_mantle", "glyph", "caption"]
+    prohibitedFamilyChannels: [
+      "face",
+      "dermal_tone",
+      "body_proportion",
+      "demographic_cue",
+      "voice",
+      "motion_quality",
+      "capability",
+      "tool_access"
+    ]
+    admittedProfile: "village_story_unblinded"
+    deniedProfile: "research_live_blinded"
+    liveResearchFamilyIdentity: "absent"
+    bodyAndMotionQualityInvariant: true
+    failNeutral: true
+  }
+
+  template DeterministicSixMantleAtlas {
+    type: "deterministic_six_mantle_atlas"
+    algorithm: "stormglass_six_mantle_atlas_v1"
+    seed: 314159
+    columns: 3
+    rows: 2
+    albedoSize: [2048, 2048]
+    normalSize: [2048, 2048]
+    surfaceMaskSize: [1024, 1024]
+    externalUrisAllowed: false
+    repeatedGenerationByteIdentityRequired: true
+  }
+
+  template MantleWetDryResponse {
+    type: "mantle_wet_dry_response"
+    requiredStates: ["dry", "wet"]
+    roughnessMustDecreaseWhenWet: true
+    colorDarkeningRange: [0.72, 0.88]
+    normalStrengthInvariant: true
+    topologyInvariant: true
+    identityCueInvariant: true
+  }
+
+  template MantleLodAdmission {
+    type: "mantle_lod_admission"
+    levels: [0, 1, 2]
+    distancesMeters: [0, 12, 28]
+    maximumMantleTriangles: [2200, 900, 320]
+    maximumResidentTriangles: [17500, 7000, 2500]
+    meshNodeRadialSegments: [12, 8, 6]
+    maximumMantleMaterialGroups: 1
+    monotonicTopologyReductionRequired: true
+    sourceAuthoredVisibilityRequired: true
+    secondLodAuthorityAllowed: false
+  }
+
+  template MantleAccessibilityGate {
+    type: "mantle_accessibility_gate"
+    colorLineupRequired: true
+    grayscaleLineupRequired: true
+    deuteranopiaLineupRequired: true
+    nonColorDistinctnessRequired: true
+    silhouetteAndGlyphMustCarryIdentity: true
+  }
+
+  template H2PromotionGate {
+    type: "h2_promotion_gate"
+    requiredInputs: [
+      "immutable_h1_body",
+      "immutable_native_compiler_mantle_proof",
+      "h2_world_source",
+      "h2_policy_source",
+      "h2_seed_source",
+      "local_mantle_atlases",
+      "gpu_browser_lineup"
+    ]
+    requiredChecks: [
+      "three_format_parse",
+      "six_exact_public_names",
+      "identity_firewall",
+      "shared_body_hash_identity",
+      "repeated_atlas_byte_identity",
+      "dry_wet_response",
+      "grayscale_distinctness",
+      "deuteranopia_distinctness",
+      "lod_budget",
+      "one_mantle_material_group",
+      "offline_load",
+      "hardware_renderer",
+      "performance_budget"
+    ]
+    promotionTarget: "read_only_public_family_mantle_consumer"
+    liveResearchAdmissionAllowed: false
+    observerReplacementAllowed: false
+    h5DrawGroupConsolidationClaimed: false
+  }
+
+  template H2LaneFirewall {
+    type: "h2_lane_firewall"
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    liveResearchJoinAllowed: false
+    researchSeatBindingAllowed: false
+    walletIdentityMutationAllowed: false
+    clothSimulationClaimed: false
+    productionBodyCompleteClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+  }
+}

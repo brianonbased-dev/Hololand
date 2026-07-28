@@ -1,0 +1,212 @@
+// Immutable witness manifest for Stormglass Character Appearance H2.
+// Regenerate only when the authored format triad, checker, focused test,
+// accepted report, deterministic atlases, GPU images, or bounded claims change.
+
+composition "HoloLand Model Village Character Appearance H2 Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H2 Family Mantle Witness"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV_CHARACTER_APPEARANCE_H2"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h2-family-mantles.holo"
+      sha256: "9ac3fc87acfecc1555e5de1a5c0445f1deab2f7ff9a141a76d25c3dbd2cfd5b2"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h2-family-mantles-policy.hsplus"
+      sha256: "b5ba8a3ab5323882f68e40a1b47ccf7b5f4479ce574224a4795c1e2e98acf512"
+      parser: "HoloScriptPlusParser"
+      nativeActionExecutionClaimed: false
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h2-family-mantles-seed.hs"
+      sha256: "ad75354c7efc725c69aac6c075a597134df9c36c637fa3faaa0f630218757da4"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h2.mjs"
+      sha256: "558812c67f2a9c3ece09748dd3b8b7206cd6fd8e6bb24003a08264bd9c6a9eb3"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h2.test.mjs"
+      sha256: "be774e99883c403ca8952c64e5b6245fad417490af32b117a6bdbb7f4a9ecb14"
+    }
+    report: {
+      path: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H2_2026-07-27.md"
+      sha256: "0594f003d0730677babf5984ae7f2c3e90e850e18e8cedfa9509e14e9b10cc27"
+    }
+    albedoAtlas: {
+      path: "assets/model-village/materials/stormglass-six-family-mantles-albedo-2k.png"
+      sha256: "b42e1e4f0009890141ed64b84edec1d2acc0560357111a91a57c090e2b97f841"
+      width: 2048
+      height: 2048
+      bytes: 5805313
+      grid: [3, 2]
+      deterministicGeneration: true
+    }
+    normalAtlas: {
+      path: "assets/model-village/materials/stormglass-six-family-mantles-normal-2k.png"
+      sha256: "459bdc92a12c6a3dd9a70e4239c68737ce74ad04fbb4cb30d30d76986402449f"
+      width: 2048
+      height: 2048
+      bytes: 3786899
+      grid: [3, 2]
+      deterministicGeneration: true
+    }
+    surfaceMaskAtlas: {
+      path: "assets/model-village/materials/stormglass-six-family-mantles-surface-mask-1k.png"
+      sha256: "6cfcb3a0997b6aee044e8a5d4d68e6ca984674e51ab9fd0884f2c7dd276c8f39"
+      width: 1024
+      height: 1024
+      bytes: 1972303
+      channels: ["ambient_occlusion", "roughness", "metalness"]
+      deterministicGeneration: true
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h2-family-lineup-2026-07-27.png"
+      sha256: "c6182603f5560c29f22be33cd06b7bdc44de0ae2b3982825811ccdb3d12d53c7"
+      width: 2400
+      height: 1200
+      bytes: 666648
+      visuallyInspected: true
+      iterationAccepted: 2
+    }
+    lodComparison: {
+      path: "docs/assets/model-village/model-village-character-appearance-h2-lods-2026-07-27.png"
+      sha256: "fe60d6df01a76dc5fd3bbb8917ebc186502660769b9f424697214771fe654a1d"
+      width: 2400
+      height: 600
+      bytes: 567348
+      visuallyInspected: true
+      panels: ["LOD0", "LOD1", "LOD2"]
+      iterationAccepted: 2
+    }
+    weatherComparison: {
+      path: "docs/assets/model-village/model-village-character-appearance-h2-wet-dry-2026-07-27.png"
+      sha256: "7202b543134a4647e46c4f635fdb7893d1d7ea0a6e7b3d774e3b589458b0707f"
+      width: 2400
+      height: 650
+      bytes: 515688
+      visuallyInspected: true
+      panels: ["dry", "wet"]
+      iterationAccepted: 2
+    }
+    accessibilityComparison: {
+      path: "docs/assets/model-village/model-village-character-appearance-h2-accessibility-2026-07-27.png"
+      sha256: "58c21163a910edde6ba30ad810ba9ab98ff75d0864c4eb28dc089f40c62de11a"
+      width: 2400
+      height: 600
+      bytes: 733316
+      visuallyInspected: true
+      panels: ["color", "grayscale", "deuteranopia"]
+      iterationAccepted: 2
+    }
+    appearance: {
+      presentationProfile: "village_story_unblinded"
+      sharedBody: "immutable_h1_shared_faceless_craftfolk"
+      publicDisplayNames: ["Claude", "OpenAI", "Gemini", "Grok", "GLM", "Brittney"]
+      familyIdentityChannel: "detachable_mantle_glyph_caption_only"
+      nonColorCues: [
+        "quiet_nested_open_arcs",
+        "recursive_interlock",
+        "paired_prism_panels",
+        "off_axis_signal_bands",
+        "modular_phase_lattice",
+        "sovereign_locality_mesh"
+      ]
+      productionMantleKits: 6
+      bodyMaterialGroups: 2
+      mantleMaterialGroups: 1
+      residentMaterialGroups: 3
+      detachedState: "local_stowed_noncausal"
+      researchSeatBinding: "absent"
+    }
+    profile: {
+      id: "six_mantle_desktop_h2"
+      renderWidth: 1800
+      renderHeight: 1000
+      devicePixelRatio: 1
+      warmupFrames: 300
+      measuredFrames: 600
+      simultaneousResidentCount: 6
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+    }
+    performance: {
+      rafP50Milliseconds: 16.69999999999891
+      rafP95Milliseconds: 16.799999999999272
+      rafP99Milliseconds: 16.900000000001455
+      rafMaximumMilliseconds: 17.19999999999891
+      renderSubmitP50Milliseconds: 2
+      renderSubmitP95Milliseconds: 3
+      renderSubmitP99Milliseconds: 5.4000000059604645
+      renderSubmitMaximumMilliseconds: 21.700000017881393
+      droppedFramesAbove25Milliseconds: 0
+      droppedFrameRatio: 0
+    }
+    lod: {
+      levels: [0, 1, 2]
+      distancesMeters: [0, 12, 28]
+      mantleRadialSegments: [20, 12, 6]
+      meshNodeRadialSegments: [12, 8, 6]
+      maximumMantleTriangles: [2200, 900, 320]
+      measuredLargestMantleTriangles: [1860, 856, 232]
+      measuredSixMantleTriangles: [9320, 3848, 580]
+      maximumResidentTriangles: [17500, 7000, 2500]
+      measuredSixResidentTriangles: [95360, 32024, 9292]
+      mantleMaterialGroups: [1, 1, 1]
+      residentMaterialGroups: [3, 3, 3]
+      monotonicTopologyReduction: true
+      sourceAuthoredVisibility: true
+    }
+    inherited: {
+      h1SourceSha256: "49b8433c1265c7cc21423bc34b2f4f2d4f20e1e00af74d52b4d1c9d622c93663"
+      h1ManifestSha256: "a68478610909b37c9d21c3638e7c3b54e9a6caf5d8205636e1629c4eea91f8d8"
+      h1ReportSha256: "8530e60c911e97b3b14ce0b173e9f813da224c9797b18362e18f91a377c7f39f"
+      compilerCatalogSha256: "e366ee5cc51d4b0c3d9ba38643b683e688b7f902d315745acc76c00d6c06cfd2"
+      compilerManifestSha256: "9bbe1e0c8c4288151da6296d0934f948b97ffa32fe1851918ad64a754056d6c5"
+      compilerReportSha256: "17db23f8c87200927e67d8cf7b4e2b39d22d3dd4c959ad85597788a4c2c76777"
+      inheritedArtifactsImmutable: true
+    }
+    boundaries: {
+      familyIdentityVisible: true
+      familyIdentityChannel: "detachable_mantle_glyph_caption_only"
+      liveResearchFamilyIdentityVisible: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCalls: 0
+      networkFetches: 0
+      providerEndorsementClaimed: false
+      productionBodyCompleteClaimed: false
+      clothSimulationClaimed: false
+      h5DrawGroupConsolidationClaimed: false
+      motionRetargetingClaimed: false
+      hairStyleGeometryClaimed: false
+      facsMorphTargetsClaimed: false
+      observerPromotionClaimed: false
+      photorealismClaimed: false
+      fullWorldConvergenceClaimed: false
+    }
+    bridge: {
+      route: "HoloScript H2 .holo/.hsplus/.hs + immutable H1 body + immutable native compiler mantle proof -> deterministic six-kit atlas -> source-authored Three/WebGL2 D3D11 public story witness"
+      appSourceSha256: "f45ec68579f66688901020243be59fac8f75ea26cd8cbc161d66d6a459620cc4"
+      bundleSha256: "d1a6c6c5440024a2a6a03684ba1b865d6877c22ee5904a2080b63cf00c773e03"
+      htmlSha256: "2e6be2d08de6b6ff2917fd63de9ffd52dd33a99fe9e5aa51087f14a940c6d537"
+      externalAssets: []
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedBootstrapSha256: "710b81c9379db93a9d1fe43530bd6c51bf63dc158f094b3ddbe83db77adcc193"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h2/pass2/character-appearance-h2-witness.json"
+    }
+  }
+}
