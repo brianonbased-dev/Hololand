@@ -1,0 +1,109 @@
+// H3I native anatomy, crown-flow, skin-response, and temporal admission policy.
+
+composition "Stormglass Character Appearance H3I Anatomy Surface Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3i-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3I_ANATOMY_SURFACE"
+    source: "source/proofs/model-village-character-appearance-h3i-anatomy-surface-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3i-anatomy-surface.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3i-anatomy-surface-seed.hs"
+    formatRole: "native_anatomy_surface_temporal_admission_and_firewall_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3IAnatomySurfaceState {
+    profile: "native_anatomy_surface_desktop_h3i"
+    compiledPersonaCount: 0
+    compiledLodBundleCount: 0
+    admittedAnatomyReceiptCount: 0
+    admittedSkinReceiptCount: 0
+    admittedCrownWhorlReceiptCount: 0
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "NativeAnatomySurfaceAdmission" {
+    type: "native_anatomy_surface_admission"
+    target: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    anatomyReceiptSchema: "holoscript.agent-avatar-anatomy.v1"
+    skinReceiptSchema: "holoscript.agent-avatar-skin-material.v1"
+    groomProfile: "scalp-flow-v1"
+    skinMicrodetailProfile: "analytic-pore-v1"
+    expectedPersonaCount: 3
+    expectedLodBundleCount: 9
+    expectedAnatomyReceiptCount: 9
+    expectedSkinReceiptCount: 9
+    expectedCrownWhorlReceiptCount: 9
+    faceWidthRange: [0.93, 0.96]
+    faceLengthRange: [1.05, 1.08]
+    jawTaperRange: [0.28, 0.32]
+    shoulderScaleRange: [1.08, 1.12]
+    torsoScaleRange: [0.94, 0.97]
+    crownWhorlRange: [-0.28, 0.42]
+    microdetailScaleRange: [88, 102]
+    microdetailStrengthRange: [0.065, 0.085]
+    sharedRendererCount: 1
+    sharedSceneCount: 1
+    temporalComposerCount: 1
+    temporalBridge: "three-taarenderpass-v1"
+    temporalAccumulationFrames: 32
+    temporalHistoryPolicy: "invalidate-on-motion-or-lod-change-v1"
+    motionReprojectionClaimed: false
+    nativeWebgpuTaaClaimed: false
+    repeatedCompileByteIdentityRequired: true
+    compilerFallbackAllowed: false
+    presentationShaderOverrideAllowed: false
+    presentationMaterialBridgeAllowed: true
+    presentationSkinMicrodetailBridgeAllowed: true
+    externalSkinTextureAllowed: false
+    externalHairTextureAllowed: false
+    biometricLikenessClaimed: false
+    productionGroomClaimed: false
+    photorealismClaimed: false
+  }
+
+  template "H3IAnatomySurfaceFirewall" {
+    type: "model_village_character_appearance_firewall"
+    presentationLane: "mv_character_appearance_h3i"
+    prohibitedLane: "research_live_blinded"
+    prohibitedInputs: ["live_model_output", "resident_observation", "adapter_assignment", "research_seat", "seat_wallet", "biometric_sample"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_action", "village_receipt", "wallet_identity", "biometric_store"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+    networkFetchCountRequired: 0
+  }
+
+  action admit_native_anatomy_surface_bundle(bundle, expected) {
+    if (bundle.format != expected.outputFormat) {
+      return { admitted: false, reason: "wrong_output_format" }
+    }
+    if (bundle.usedFallback == true) {
+      return { admitted: false, reason: "compiler_fallback_used" }
+    }
+    if (bundle.anatomy.schemaVersion != expected.anatomyReceiptSchema) {
+      return { admitted: false, reason: "anatomy_receipt_missing" }
+    }
+    if (bundle.skin.schemaVersion != expected.skinReceiptSchema) {
+      return { admitted: false, reason: "skin_receipt_missing" }
+    }
+    if (bundle.skin.microdetailProfile != expected.skinMicrodetailProfile) {
+      return { admitted: false, reason: "wrong_skin_microdetail_profile" }
+    }
+    if (bundle.groom.profile != expected.groomProfile) {
+      return { admitted: false, reason: "wrong_groom_profile" }
+    }
+    if (bundle.presentationShaderOverrideUsed == true) {
+      return { admitted: false, reason: "presentation_shader_override_used" }
+    }
+    if (bundle.externalSkinTextureUsed == true) {
+      return { admitted: false, reason: "external_skin_texture_used" }
+    }
+    if (bundle.externalHairTextureUsed == true) {
+      return { admitted: false, reason: "external_hair_texture_used" }
+    }
+    return { admitted: true, reason: "native_anatomy_surface_bundle_admitted" }
+  }
+}

@@ -1,0 +1,187 @@
+// Immutable witness manifest for Stormglass Character Appearance H3I.
+// H3I admits source-authored anatomy, crown-whorl, skin-material, and LOD receipts.
+// Its skin maps, tapered tunics, and native-torso crop are bounded presentation
+// bridges. This manifest does not claim photorealism, biometric likeness, native
+// open-garment parity, native WebGPU TAA, or Quest frame-pacing convergence.
+
+composition "HoloLand Model Village Character Appearance H3I Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3I Anatomy Surface Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3I_ANATOMY_SURFACE"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3i-anatomy-surface.holo"
+      sourceSha256: "921b20ada8843d047265cc591a4a9e94a036aaa9b034bb0c7c33a20ae8737f8a"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3i-anatomy-surface-policy.hsplus"
+      policySha256: "31e99f154a30c2bd25ff68243c52127838c9d5e3d89db0a37f27176e095ace00"
+      parser: "HoloScriptPlusParser"
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3i-anatomy-surface-seed.hs"
+      seedSha256: "727384632f7f9d3a5c2594a3a42dccb773c6cd304435ea7d1fcad4d1733b7891"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3i.mjs"
+      checkerSha256: "cba5b97ad43f8abef667d1f7102c4835a2fc6b6ccda0b485e88a876309b990d6"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3i.test.mjs"
+      testSha256: "5b52d5be179bac050a8b0d5e7e6d38bed73b727486d502e597978af0884e97a0"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3i-anatomy-surface-2026-07-28.md"
+      reportSha256: "e96cdfea1dc65cc6bdb8ab7681e71ace7fb237355eb81fa14a6f733fb1b728f9"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3i-anatomy-surface-portraits-2026-07-28.png"
+      heroSha256: "8aeff901e84517b5dc048379ebed575638c9d31924a8d0f02385356e198c4fab"
+      width: 1800
+      height: 720
+      bytes: 446431
+      visuallyInspected: true
+      iterationAccepted: 8
+    }
+    upstream: {
+      holoScriptCommit: "96b8f4afc811caff5438a74e7246c02eab3e7898"
+      inheritedH3HSourceSha256: "d9a24c28963668a388109330f7ad55ebb84d301d956058f935571abe101e22dc"
+      inheritedH3GSourceSha256: "1750a4aeae76c6c3d8ab317866a4b033fe7db1deb283b220d74ca919299aa1b7"
+      groomBuilderSha256: "526781cdbf8810ca7a5d47c48d2669f86b5be495c4fbfd00f39ede7167d68c8b"
+      anatomyBuilderSha256: "5f761149c6cba8f1fa017bf4dc5ac0e33b19d61dbe0938c2cc62768332c303fc"
+      characterHostSha256: "eace3666bed7b5b966119d66faab39125d96c15f27ed87fd89c2ba1ff0adb740"
+      compositionBridgeSha256: "833c6a90fab2ca67c820685ae895b2fdc77514930360a7381d5ef56b93fa9535"
+      lodTransitionSha256: "a0f08f8dc3dbe4742afdcb902003d0ca1db540f509ae78bc06c3c4bbad6aa744"
+      nativeRendererSha256: "4a7101a7b63660b948c117ded57bdbbcf1bd1955af6bef91661879e606fd6d5f"
+      skinShaderSha256: "68db4a8cc91c33c7807fe7857c315167a155fc4103ef6416d61b853bf113928a"
+      drawSpecSha256: "65c0dd26a77883b04b5f478ef6eb6dae9e088eeb50020d0375ecc542ab4949c8"
+      compilerSha256: "5d5a8d9747c68d6b4acc65a4ccc48ef4573d6f73cd041865a24a5677201d4a37"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      anatomyReceiptSchema: "holoscript.agent-avatar-anatomy.v1"
+      skinReceiptSchema: "holoscript.agent-avatar-skin-material.v1"
+      groomReceiptSchema: "holoscript.agent-avatar-groom-geometry.v1"
+      lodTransitionReceiptSchema: "holoscript.character-lod-transition.v1"
+      anatomyReceiptCount: 9
+      skinReceiptCount: 9
+      crownWhorlReceiptCount: 9
+      lodTransitionReceiptCount: 9
+      nativeBundleCount: 9
+      ocularGroupsPerBundle: 8
+      visualHairLod: 1
+      fallbackUsed: false
+      stubCount: 0
+      anatomyRemovalChangesGeometry: true
+      crownRemovalChangesGeometry: true
+      skinRemovalPreservesGeometry: true
+      skinRemovalRestoresLegacyMaterial: true
+    }
+    presentation: {
+      rendererCount: 1
+      sharedSceneCount: 1
+      temporalComposerCount: 1
+      taaBridge: "three-taarenderpass-v1"
+      taaSampleLevel: 0
+      stableAccumulationFrames: 32
+      finalAccumulationIndex: 32
+      historyPolicy: "invalidate-on-motion-or-lod-change-v1"
+      historyInvalidationFrameCount: 38
+      internalRenderWidth: 1360
+      internalRenderHeight: 448
+      presentationWidth: 1680
+      presentationHeight: 554
+      internalRenderScale: 0.81
+      skinBridge: "procedural-bump-roughness-cylindrical-uv-v1"
+      wardrobeBridge: "three-tapered-civic-tunic-v1"
+      nativeTorsoClipPolicy: "eye-height-minus-0.16-v1"
+      presentationShaderOverrideUsed: false
+      externalSkinTextureUsed: false
+      externalHairTextureUsed: false
+      externalWardrobeTextureUsed: false
+      stablePixelMeanAbsoluteChannelDelta: 0
+      stablePixelChangedChannelRatio: 0
+      stablePixelSampledChannelCount: 114240
+    }
+    profile: {
+      id: "native_anatomy_surface_desktop_h3i"
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+      hardwareSampleCount: 4
+      antialias: true
+      gpuTimerExtension: "EXT_disjoint_timer_query_webgl2"
+      acceptedRunCount: 4
+      timerSamplesPerRun: 132
+    }
+    performance: {
+      stableGpuP95MinimumMilliseconds: 2.537
+      stableGpuP95MaximumMilliseconds: 2.677
+      invalidatedGpuP95MinimumMilliseconds: 2.722
+      invalidatedGpuP95MaximumMilliseconds: 2.876
+      renderSubmitP95MinimumMilliseconds: 2.3
+      renderSubmitP95MaximumMilliseconds: 3.2
+      frameIntervalP95MinimumMilliseconds: 17.4
+      frameIntervalP95MaximumMilliseconds: 17.7
+      gpuRenderWorkBudgetMilliseconds: 11.1
+      gpuRenderWorkUnderBudget: true
+      headsetFramePacingMeasured: false
+      vrPerformanceConvergenceClaimed: false
+    }
+    boundaries: {
+      nativeAnatomyReceiptClaimed: true
+      nativeFaceProportionsClaimed: true
+      nativeUpperBodyProportionsClaimed: true
+      nativeCrownWhorlClaimed: true
+      nativeSkinMicrodetailClaimed: true
+      nativeLodTransitionReceiptClaimed: true
+      sharedRendererClaimed: true
+      sharedSceneClaimed: true
+      presentationSkinMicrodetailBridgeUsed: true
+      presentationWardrobeBridgeUsed: true
+      presentationNativeTorsoClipUsed: true
+      presentationTaaBridgeUsed: true
+      taaHistoryInvalidationClaimed: true
+      motionReprojectionClaimed: false
+      nativeWebgpuTaaClaimed: false
+      nativeOpenGarmentClaimed: false
+      productionSkinTexturingClaimed: false
+      productionGroomClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      fullWorldConvergenceClaimed: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCallsAllowed: false
+      externalNetworkRequests: 0
+    }
+    residuals: {
+      dominantVisualDefect: "low_density_face_round_ocular_globes_sparse_hair_cards_and_bridge_owned_clothing"
+      nextCharacterLane: "native_open_civic_garment_ocular_lid_brow_face_density_and_groom_cluster_h3j"
+      nextTextureLane: "licensed_skin_albedo_normal_roughness_mips_compression_and_distance_response"
+      nextPerformanceLane: "native_webgpu_velocity_reactive_disocclusion_and_quest_webxr_measurement"
+      conceptArtParityOpen: true
+      nativeOpenGarmentLaneOpen: true
+      ocularLandmarkLaneOpen: true
+      groomDensityLaneOpen: true
+      productionTextureLaneOpen: true
+      headsetPerformanceLaneOpen: true
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedWitnessSha256: "2ed9ef519ff210932c34df6bab17c03dfa173f55307d10989f295a0bd3b66363"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h3i/final/character-appearance-h3i-witness.json"
+    }
+  }
+}
