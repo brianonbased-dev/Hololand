@@ -1,0 +1,164 @@
+// Immutable witness manifest for Stormglass Character Appearance H3H.
+// H3H admits native LOD transition receipts, one shared presentation renderer,
+// stable-scene temporal accumulation, and desktop GPU timer measurements.
+// It does not promote this bounded bridge to motion-reprojected TAA, native
+// WebGPU TAA, headset frame pacing, or VR-converged status.
+
+composition "HoloLand Model Village Character Appearance H3H Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3H Temporal LOD Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3H_TEMPORAL_LOD"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3h-temporal-lod.holo"
+      sourceSha256: "d9a24c28963668a388109330f7ad55ebb84d301d956058f935571abe101e22dc"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3h-temporal-lod-policy.hsplus"
+      policySha256: "425a5685df7ceb0a8981213934afa8c17ae11fcc13bc83159e90f41dac95f8b6"
+      parser: "HoloScriptPlusParser"
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3h-temporal-lod-seed.hs"
+      seedSha256: "3adbef8ef1e485692431fcb47a42fe036a7da7d9b581f8133d875c08e9749cc4"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3h.mjs"
+      checkerSha256: "7762e838bf0361076b49791278ff1b6730c989d73ef73a6409bc362b683a9808"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3h.test.mjs"
+      testSha256: "3b8d01e67d36d4266bf64d810e2679bed4788fb55532a462f86884f88cbf1df6"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3h-temporal-lod-2026-07-28.md"
+      reportSha256: "37a5cc9a1891a9d875b0350fc58fcc5ec7afe09b01c90f5960ef9de311fe8680"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3h-temporal-lod-portraits-2026-07-28.png"
+      heroSha256: "516e875ded7d65bdb97247005579c6804f49c3b1f30073819ade97f577f249f8"
+      width: 1800
+      height: 720
+      bytes: 416096
+      visuallyInspected: true
+      iterationAccepted: 3
+    }
+    upstream: {
+      holoScriptCommit: "daf5993dc1c5372bfb79d2fa81b8dbcc6d32ebfb"
+      inheritedH3GSourceSha256: "1750a4aeae76c6c3d8ab317866a4b033fe7db1deb283b220d74ca919299aa1b7"
+      groomBuilderSha256: "a26c955e19fd8294c6b10fcdfa7e63e51c8e2e3e07b137f76bb9127513fdbf42"
+      characterHostSha256: "edbad40844f40e67614111797c6765849d620077e4b322bcd39eeed6ecfae10b"
+      compositionBridgeSha256: "e64d32edab929ba9e469ce7c0e39e7146758e1e1d3f506e74b1514b3ae46e34d"
+      lodTransitionSha256: "a0f08f8dc3dbe4742afdcb902003d0ca1db540f509ae78bc06c3c4bbad6aa744"
+      nativeRendererSha256: "746501775d4007c173f705ed3c41255e9d104783869d8024ab51ac103515f1fa"
+      hairShaderSha256: "c5d71aa86c6fe7d12a00c6f71e517fefc3e8dd4c9b98ddcf22377994edd10018"
+      drawSpecSha256: "d92c8792897d6bcca5c554c512deaa8a44ba7a1d7bf0ba3eb5c0ad22dc54be00"
+      compilerSha256: "b64f7d65cdd9f3989ffbf8ff3e7aa096bfcd556041e87acbb589cb65777914c6"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      lodTransitionReceiptSchema: "holoscript.character-lod-transition.v1"
+      lodTransitionReceiptCount: 9
+      selectionMode: "distance"
+      transitionMode: "dither"
+      transitionDurationSeconds: 0.26
+      hysteresisBand: 0.65
+      nativeBundleCount: 9
+      ocularGroupsPerBundle: 8
+      visualHairLod: 1
+      fallbackUsed: false
+      stubCount: 0
+    }
+    presentation: {
+      rendererCount: 1
+      sharedSceneCount: 1
+      temporalComposerCount: 1
+      bridge: "three-taarenderpass-v1"
+      taaSampleLevel: 0
+      stableAccumulationFrames: 32
+      finalAccumulationIndex: 32
+      historyPolicy: "invalidate-on-motion-or-lod-change-v1"
+      historyInvalidationFrameCount: 38
+      internalRenderWidth: 1360
+      internalRenderHeight: 448
+      presentationWidth: 1680
+      presentationHeight: 554
+      internalRenderScale: 0.81
+      stablePixelMeanAbsoluteChannelDelta: 0
+      stablePixelChangedChannelRatio: 0
+      stablePixelSampledChannelCount: 114240
+    }
+    profile: {
+      id: "native_lod_temporal_desktop_h3h"
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+      hardwareSampleCount: 4
+      antialias: true
+      gpuTimerExtension: "EXT_disjoint_timer_query_webgl2"
+      acceptedRunCount: 4
+      timerSamplesPerRun: 132
+    }
+    performance: {
+      stableGpuP95MinimumMilliseconds: 2.618
+      stableGpuP95MaximumMilliseconds: 2.831
+      invalidatedGpuP95MinimumMilliseconds: 3.867
+      invalidatedGpuP95MaximumMilliseconds: 4.285
+      renderSubmitP95MinimumMilliseconds: 1.8
+      renderSubmitP95MaximumMilliseconds: 2.2
+      frameIntervalP95MinimumMilliseconds: 17.3
+      frameIntervalP95MaximumMilliseconds: 17.5
+      gpuRenderWorkBudgetMilliseconds: 11.1
+      gpuRenderWorkUnderBudget: true
+      headsetFramePacingMeasured: false
+      vrPerformanceConvergenceClaimed: false
+    }
+    boundaries: {
+      nativeLodTransitionReceiptClaimed: true
+      sharedRendererClaimed: true
+      sharedSceneClaimed: true
+      presentationTaaBridgeUsed: true
+      taaHistoryInvalidationClaimed: true
+      motionReprojectionClaimed: false
+      nativeWebgpuTaaClaimed: false
+      presentationShaderOverrideUsed: false
+      presentationMaterialBridgeUsed: true
+      presentationAlphaMapUsed: true
+      externalHairTextureUsed: false
+      strandHairClaimed: false
+      productionGroomClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      fullWorldConvergenceClaimed: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCallsAllowed: false
+      externalNetworkRequests: 0
+    }
+    residuals: {
+      dominantVisualDefect: "low_poly_crown_clumping_face_proportion_and_skin_microdetail"
+      nextCharacterLane: "crown_topology_face_proportion_and_skin_microdetail"
+      nextPerformanceLane: "native_webgpu_velocity_reactive_disocclusion_and_quest_webxr_measurement"
+      crownTopologyLaneOpen: true
+      characterProportionLaneOpen: true
+      skinMicrodetailLaneOpen: true
+      headsetPerformanceLaneOpen: true
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedBootstrapSha256: "43a82099f32513591ef42f1a3d684a1d5c18b084401c80f9748df0a181710653"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h3h/character-appearance-h3h-witness.json"
+    }
+  }
+}

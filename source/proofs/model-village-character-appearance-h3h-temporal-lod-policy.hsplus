@@ -1,0 +1,127 @@
+// H3H native LOD transition and bounded temporal convergence admission policy.
+
+composition "Stormglass Character Appearance H3H Temporal LOD Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3h-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3H_TEMPORAL_LOD"
+    source: "source/proofs/model-village-character-appearance-h3h-temporal-lod-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3h-temporal-lod.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3h-temporal-lod-seed.hs"
+    formatRole: "native_lod_transition_temporal_admission_and_firewall_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3HTemporalLodState {
+    profile: "native_lod_temporal_desktop_h3h"
+    compiledPersonaCount: 0
+    compiledLodBundleCount: 0
+    admittedHairResponseBundleCount: 0
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "NativeTemporalLodAdmission" {
+    type: "native_temporal_lod_admission"
+    target: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    groomProfile: "scalp-flow-v1"
+    coverageProfile: "alpha-to-coverage-v1"
+    opaqueComparisonProfile: "opaque-v1"
+    tangentAttribute: "strand-flow"
+    cardUvAttribute: "card-width"
+    multisampleCount: 4
+    expectedPersonaCount: 3
+    expectedLodBundleCount: 9
+    expectedLodTransitionReceiptCount: 9
+    transitionSelectionMode: "distance"
+    transitionMode: "dither"
+    transitionDurationMilliseconds: 260
+    transitionHysteresisBand: 0.65
+    sharedRendererCount: 1
+    sharedSceneCount: 1
+    temporalComposerCount: 1
+    internalRenderWidth: 1360
+    internalRenderHeight: 448
+    presentationWidth: 1680
+    presentationHeight: 554
+    internalRenderScale: 0.81
+    temporalBridge: "three-taarenderpass-v1"
+    temporalSampleLevel: 0
+    temporalAccumulationFrames: 32
+    temporalHistoryPolicy: "invalidate-on-motion-or-lod-change-v1"
+    motionReprojectionClaimed: false
+    nativeWebgpuTaaClaimed: false
+    repeatedCompileByteIdentityRequired: true
+    compilerFallbackAllowed: false
+    mappedHairMaterialReceiptRequired: true
+    derivedHairMaterialReceiptRequired: true
+    alphaToCoverageRequestedRequired: true
+    cardWidthUvOperativeRequired: true
+    tangentAnisotropyOperativeRequired: true
+    presentationShaderOverrideAllowed: false
+    presentationMaterialBridgeAllowed: true
+    presentationAlphaMapAllowed: true
+    externalHairTextureAllowed: false
+    strandAlphaCoverageClaimed: false
+    hairCardAlphaCoverageClaimed: true
+    scanDerivedClaimed: false
+    productionGroomClaimed: false
+    photorealismClaimed: false
+  }
+
+  template "H3HHairResponseFirewall" {
+    type: "model_village_character_appearance_firewall"
+    presentationLane: "mv_character_appearance_h3h"
+    prohibitedLane: "research_live_blinded"
+    prohibitedInputs: ["live_model_output", "resident_observation", "adapter_assignment", "research_seat", "seat_wallet", "biometric_sample"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_action", "village_receipt", "wallet_identity", "biometric_store"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+    networkFetchCountRequired: 0
+  }
+
+  action admit_native_temporal_lod_bundle(bundle, expected) {
+    if (bundle.format != expected.outputFormat) {
+      return { admitted: false, reason: "wrong_output_format" }
+    }
+    if (bundle.usedFallback == true) {
+      return { admitted: false, reason: "compiler_fallback_used" }
+    }
+    if (bundle.groomProfile != expected.groomProfile) {
+      return { admitted: false, reason: "wrong_groom_profile" }
+    }
+    if (bundle.coverageProfile != expected.coverageProfile) {
+      return { admitted: false, reason: "wrong_coverage_profile" }
+    }
+    if (bundle.alphaToCoverageRequested != true) {
+      return { admitted: false, reason: "alpha_to_coverage_not_requested" }
+    }
+    if (bundle.cardUvAttribute != expected.cardUvAttribute) {
+      return { admitted: false, reason: "card_width_uv_missing" }
+    }
+    if (bundle.tangentAttribute != expected.tangentAttribute) {
+      return { admitted: false, reason: "strand_tangent_missing" }
+    }
+    if (bundle.lodTransition.selectionMode != expected.transitionSelectionMode) {
+      return { admitted: false, reason: "wrong_lod_selection_mode" }
+    }
+    if (bundle.lodTransition.mode != expected.transitionMode) {
+      return { admitted: false, reason: "wrong_lod_transition_mode" }
+    }
+    if (bundle.lodTransition.durationMilliseconds != expected.transitionDurationMilliseconds) {
+      return { admitted: false, reason: "wrong_lod_transition_duration" }
+    }
+    if (bundle.lodTransition.hysteresisBand != expected.transitionHysteresisBand) {
+      return { admitted: false, reason: "wrong_lod_hysteresis_band" }
+    }
+    if (bundle.presentationShaderOverrideUsed == true) {
+      return { admitted: false, reason: "presentation_shader_override_used" }
+    }
+    if (bundle.externalHairTextureUsed == true) {
+      return { admitted: false, reason: "external_hair_texture_used" }
+    }
+    return { admitted: true, reason: "native_temporal_lod_bundle_admitted" }
+  }
+}
