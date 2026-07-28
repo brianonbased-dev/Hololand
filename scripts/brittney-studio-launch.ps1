@@ -38,13 +38,19 @@ $ErrorActionPreference = 'SilentlyContinue'
 $Hololand    = Split-Path -Parent $PSScriptRoot           # repo root (this file is in scripts/)
 $OperatePort = 8747
 $HoloLlamaPackage = '@holoscript/holollama'
-$HoloLlamaEndpoint = 'http://holojetson.local:18080'
-$HoloLlamaHealth = 'http://holojetson.local:18080/health'
-$HoloLlamaModels = 'http://holojetson.local:18080/v1/models'
+# Windows has no built-in mDNS resolver, so 'holojetson.local' does NOT resolve here --
+# every call below would silently fail as a connection error indistinguishable from a
+# model/service failure (ai-ecosystem/scripts/lib/resolve-jetson-endpoint.mjs, W.733).
+# Use the LAN IP on this Windows launcher; it is DHCP-assigned and has flapped before
+# (.114 -> .119) -- the SSOT is ai-ecosystem/config/sovereign-devices/jetson-orin.json's
+# `ip` key, update here if it flaps again. mDNS stays fine for non-Windows callers.
+$HoloLlamaEndpoint = 'http://192.168.0.119:18080'
+$HoloLlamaHealth = 'http://192.168.0.119:18080/health'
+$HoloLlamaModels = 'http://192.168.0.119:18080/v1/models'
 $HoloLlamaProxyIdentity = 'holo-inference-proxy/v0'
 $ExpectedHoloLlamaModel = '/mnt/nvme/holo/models/qwen3-4b-instruct.gguf'
 $HoloLlamaMaxBodyBytes = 1048576
-$JetsonSurface = 'http://holojetson.local:8747'  # Jetson-HOSTED Brittney surface (systemd holoshell-surface)
+$JetsonSurface = 'http://192.168.0.119:8747'  # Jetson-HOSTED Brittney surface (systemd holoshell-surface)
 $HoloScript  = Join-Path (Split-Path -Parent $Hololand) 'HoloScript'  # sibling repo — Studio lives here
 $StudioPort  = 3101                                                   # Studio /create = BrittneyPlus (building)
 $LaptopDesktopBridgePort = 8751
