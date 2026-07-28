@@ -1,0 +1,75 @@
+// H3E native orbital-fit admission and truth-boundary policy.
+
+composition "Stormglass Character Appearance H3E Orbital Fit Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3e-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3E_ORBITAL_FIT"
+    source: "source/proofs/model-village-character-appearance-h3e-orbital-fit-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3e-orbital-fit.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3e-orbital-fit-seed.hs"
+    formatRole: "native_orbital_geometry_admission_and_firewall_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3EOrbitalState {
+    profile: "native_orbital_fit_desktop_h3e"
+    compiledPersonaCount: 0
+    compiledLodBundleCount: 0
+    admittedOrbitalBundleCount: 0
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "RecessedOrbitalAdmission" {
+    type: "native_orbital_fit_admission"
+    target: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    profile: "recessed-lids-v1"
+    inheritedOcularProfile: "layered-ocular-v1"
+    expectedOrbitalVerticesPerBundle: 152
+    expectedOrbitalIndicesPerBundle: 432
+    expectedPersonaCount: 3
+    expectedLodBundleCount: 9
+    repeatedCompileByteIdentityRequired: true
+    compilerFallbackAllowed: false
+    mappedOrbitalReceiptRequired: true
+    legacyTearlineComparisonRequired: true
+    presentationShaderOverrideAllowed: false
+    eyelidTextureMaskAllowed: false
+    anatomicalAccuracyClaimed: false
+    scanDerivedClaimed: false
+    photorealismClaimed: false
+  }
+
+  template "H3EOrbitalFirewall" {
+    type: "model_village_character_appearance_firewall"
+    presentationLane: "mv_character_appearance_h3e"
+    prohibitedLane: "research_live_blinded"
+    prohibitedInputs: ["live_model_output", "resident_observation", "adapter_assignment", "research_seat", "seat_wallet", "biometric_sample"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_action", "village_receipt", "wallet_identity", "biometric_store"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+    networkFetchCountRequired: 0
+  }
+
+  action admit_native_orbital_bundle(bundle, expected) {
+    if (bundle.format != expected.outputFormat) {
+      return { admitted: false, reason: "wrong_output_format" }
+    }
+    if (bundle.usedFallback == true) {
+      return { admitted: false, reason: "compiler_fallback_used" }
+    }
+    if (bundle.orbitalProfile != expected.profile) {
+      return { admitted: false, reason: "wrong_orbital_profile" }
+    }
+    if (bundle.presentationShaderOverrideUsed == true) {
+      return { admitted: false, reason: "presentation_shader_override_used" }
+    }
+    if (bundle.eyelidTextureMaskUsed == true) {
+      return { admitted: false, reason: "eyelid_texture_mask_used" }
+    }
+    return { admitted: true, reason: "native_orbital_fit_admitted" }
+  }
+}

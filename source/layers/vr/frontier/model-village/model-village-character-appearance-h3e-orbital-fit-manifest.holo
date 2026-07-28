@@ -1,0 +1,125 @@
+// Immutable witness manifest for Stormglass Character Appearance H3E.
+// H3E admits native recessed orbital fit. It does not promote this bounded
+// procedural foundation to anatomical, photoreal, or VR-converged status.
+
+composition "HoloLand Model Village Character Appearance H3E Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3E Native Orbital Fit Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3E_ORBITAL_FIT"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3e-orbital-fit.holo"
+      sourceSha256: "118011e35f76cbf3443846bb846c98a6b152aedb97b5f381c02051697c300921"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3e-orbital-fit-policy.hsplus"
+      policySha256: "da1a3d3453d170116194285feee640c7e60c87c19d021b60a5561cc879fb9a15"
+      parser: "HoloScriptPlusParser"
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3e-orbital-fit-seed.hs"
+      seedSha256: "b6fcee48cd68f51de0196becb0415f41cec8fbf7bb57d38e2c09a14c67fd62a0"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3e.mjs"
+      checkerSha256: "2e0678f8d573c4676d5636107dc2f9776d41deb3a9f656a0d554a709fc206374"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3e.test.mjs"
+      testSha256: "d24bf934a05ca3888ff1ea561dbb0b36ec1b58b196c699f3b255187ba78102ef"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3e-orbital-fit-2026-07-28.md"
+      reportSha256: "fdca43e25936e4802203f5cbc6f071098032b879a49e52ff061ff37e9676304e"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3e-orbital-fit-portraits-2026-07-28.png"
+      heroSha256: "7bd99aaf8e18de4f74527afb6dd85504efdf59730a61890dcb52b7f12c9adad5"
+      width: 1800
+      height: 720
+      bytes: 448343
+      visuallyInspected: true
+      iterationAccepted: 5
+    }
+    upstream: {
+      holoScriptCommit: "444d39491600856ac4cb305ad40680a212ed2a06"
+      faceBuilderSha256: "7d4a67990659f5f6816c78ec57812f5e6015634cbd83d4e5a86e6f68892434e9"
+      ocularBuilderSha256: "d6a9cb66d34485200c6a19bf8078a00e555c2e386cde6cbd2ecb4ee9b46129e8"
+      characterHostSha256: "0176e69547bfab748dee0b130723035606445fd46e27dd29cd4e7c698a8ec47e"
+      compositionBridgeSha256: "6d30bf242490fb64c89e2111027b1987fc46ccb97deade54c2924f2793e2bb17"
+      compilerSha256: "34cb6770008c6aa42f876bdaebf777999f18adf513e5280d0559312f91b71a66"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      topology: "neutral-anatomical-v2"
+      ocularProfile: "layered-ocular-v1"
+      orbitalProfile: "recessed-lids-v1"
+      nativeBundleCount: 9
+      ocularGroupsPerBundle: 8
+      dedicatedOrbitalVerticesPerBundle: 152
+      dedicatedOrbitalIndicesPerBundle: 432
+      orbitalVertexDeltaOverLegacyTearline: 76
+      orbitalTriangleDeltaOverLegacyTearline: 76
+      sourceAuthoredVisualHairLod: 2
+      fallbackUsed: false
+      stubCount: 0
+    }
+    profile: {
+      id: "native_orbital_fit_desktop_h3e"
+      renderWidth: 1800
+      renderHeight: 720
+      devicePixelRatio: 1
+      measuredPortraitRendererCount: 3
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+    }
+    performance: {
+      frameIntervalP95Milliseconds: 17.2
+      renderSubmitP95Milliseconds: 1.4
+      vrBudgetMilliseconds: 11.1
+      budgetClaimed: false
+    }
+    boundaries: {
+      nativeOrbitalProfileClaimed: true
+      nativeUpperLidShellClaimed: true
+      nativeLowerLidShellClaimed: true
+      nativeGlobeRecessionClaimed: true
+      nativeCanthalShapingClaimed: true
+      presentationShaderOverrideUsed: false
+      eyelidTextureMaskUsed: false
+      productionTearFilmClaimed: false
+      productionLashesClaimed: false
+      anatomicalEyeAccuracyClaimed: false
+      scanDerivedEyeClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      vrPerformanceConvergenceClaimed: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCallsAllowed: false
+      externalNetworkRequests: 0
+    }
+    residuals: {
+      dominantVisualDefect: "procedural_hair_card_orientation_width_and_coverage"
+      nextCharacterLane: "native_hair_card_orientation_taper_and_scalp_distribution"
+      performanceLaneOpen: true
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedBootstrapSha256: "5ec0ea1a6c3fb238ab2f49f635d4e2d9a0b1d4764ff4ea525a43db6912a95526"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h3e/character-appearance-h3e-witness.json"
+    }
+  }
+}
