@@ -1,0 +1,80 @@
+// H3F native scalp-flow groom admission and truth-boundary policy.
+
+composition "Stormglass Character Appearance H3F Native Groom Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3f-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3F_NATIVE_GROOM"
+    source: "source/proofs/model-village-character-appearance-h3f-native-groom-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3f-native-groom.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3f-native-groom-seed.hs"
+    formatRole: "native_groom_geometry_admission_and_firewall_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3FGroomState {
+    profile: "native_scalp_flow_groom_desktop_h3f"
+    compiledPersonaCount: 0
+    compiledLodBundleCount: 0
+    admittedGroomBundleCount: 0
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "ScalpFlowGroomAdmission" {
+    type: "native_groom_admission"
+    target: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    profile: "scalp-flow-v1"
+    legacyComparisonProfile: "radial-cards-v1"
+    scalpSurface: "neutral-anatomical-ellipsoid"
+    rootTangentRadialDotP95Maximum: 0.01
+    expectedPersonaCount: 3
+    expectedLodBundleCount: 9
+    repeatedCompileByteIdentityRequired: true
+    compilerFallbackAllowed: false
+    mappedGroomReceiptRequired: true
+    derivedGeometryReceiptRequired: true
+    lowerFrontalOcclusionThanLegacyRequired: true
+    presentationShaderOverrideAllowed: false
+    hairAlphaMaskAllowed: false
+    strandAlphaCoverageClaimed: false
+    scanDerivedClaimed: false
+    productionGroomClaimed: false
+    photorealismClaimed: false
+  }
+
+  template "H3FGroomFirewall" {
+    type: "model_village_character_appearance_firewall"
+    presentationLane: "mv_character_appearance_h3f"
+    prohibitedLane: "research_live_blinded"
+    prohibitedInputs: ["live_model_output", "resident_observation", "adapter_assignment", "research_seat", "seat_wallet", "biometric_sample"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_action", "village_receipt", "wallet_identity", "biometric_store"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+    networkFetchCountRequired: 0
+  }
+
+  action admit_native_groom_bundle(bundle, expected) {
+    if (bundle.format != expected.outputFormat) {
+      return { admitted: false, reason: "wrong_output_format" }
+    }
+    if (bundle.usedFallback == true) {
+      return { admitted: false, reason: "compiler_fallback_used" }
+    }
+    if (bundle.groomProfile != expected.profile) {
+      return { admitted: false, reason: "wrong_groom_profile" }
+    }
+    if (bundle.scalpSurface != expected.scalpSurface) {
+      return { admitted: false, reason: "wrong_scalp_surface" }
+    }
+    if (bundle.presentationShaderOverrideUsed == true) {
+      return { admitted: false, reason: "presentation_shader_override_used" }
+    }
+    if (bundle.hairAlphaMaskUsed == true) {
+      return { admitted: false, reason: "hair_alpha_mask_used" }
+    }
+    return { admitted: true, reason: "native_scalp_flow_groom_admitted" }
+  }
+}

@@ -1,0 +1,131 @@
+// Immutable witness manifest for Stormglass Character Appearance H3F.
+// H3F admits native scalp-flow geometry aligned to the neutral anatomical
+// scalp. It does not promote this bounded low-poly foundation to strand hair,
+// production grooming, photorealism, or VR-converged status.
+
+composition "HoloLand Model Village Character Appearance H3F Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3F Native Scalp-Flow Groom Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3F_NATIVE_GROOM"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3f-native-groom.holo"
+      sourceSha256: "1f35e8541e6b62ade27ffd25133f536fc3bc1927269efbb719c529331d6db957"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3f-native-groom-policy.hsplus"
+      policySha256: "b1801b3be2b5e5ea512400084a3187685bfaef3d0b9077aa8f9ace9728349b55"
+      parser: "HoloScriptPlusParser"
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3f-native-groom-seed.hs"
+      seedSha256: "b367efa9e4b31060f1c6c6a1e0bd2d8a997a5514648607dac62911ea16b1a11b"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3f.mjs"
+      checkerSha256: "a4b9b69cf57b31b927cfb7e2eda0972de93f3ecbde80f2fb207e696947f5d723"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3f.test.mjs"
+      testSha256: "71683339f463f0fdb9b6fb8ceb20cd486da161b5b974706f6ed79e5711251150"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3f-native-groom-2026-07-28.md"
+      reportSha256: "29698bdf9fc4d451917335c752afe5bf111d26976e44d512fcccd54448356f6c"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3f-native-groom-portraits-2026-07-28.png"
+      heroSha256: "651a2985a77661192ff65d3882e59d5c8f136df0c7656093e20c380953f20c3f"
+      width: 1800
+      height: 720
+      bytes: 432205
+      visuallyInspected: true
+      iterationAccepted: 5
+    }
+    upstream: {
+      holoScriptCommit: "1203b06bd0e857b26c874479ea9e6b6cdc521896"
+      groomBuilderSha256: "5859bb02c77ee41dc5dd0ce4cf496cf28d5ac8fa52d93e6227bd6576cee1c055"
+      characterHostSha256: "c3224d7f3cb9c7bd2a68038dd85b5982a9400a6c554c76c2582526d201f6f6f4"
+      compositionBridgeSha256: "51efb78897796e0a85d23cbb5d1600fd5bb3cbc182e7f53014167fdc0f1f46be"
+      compilerSha256: "ff9880f7a3b678ab2cf3e76c19e0b2273094f6e6de22bfc3de25ca6eca663932"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      topology: "neutral-anatomical-v2"
+      ocularProfile: "layered-ocular-v1"
+      orbitalProfile: "recessed-lids-v1"
+      groomProfile: "scalp-flow-v1"
+      scalpSurface: "neutral-anatomical-ellipsoid"
+      legacyComparisonProfile: "radial-cards-v1"
+      nativeBundleCount: 9
+      ocularGroupsPerBundle: 8
+      scalpCapVerticesPerBundle: 197
+      scalpCapTrianglesPerBundle: 364
+      visualFrontalOcclusionVertexCount: 0
+      legacyVisualFrontalOcclusionVertexRange: [17, 24]
+      sourceAuthoredVisualHairLod: 2
+      fallbackUsed: false
+      stubCount: 0
+    }
+    profile: {
+      id: "native_scalp_flow_groom_desktop_h3f"
+      renderWidth: 1800
+      renderHeight: 720
+      devicePixelRatio: 1
+      measuredPortraitRendererCount: 3
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+    }
+    performance: {
+      frameIntervalP95Milliseconds: 17.1
+      renderSubmitP95Milliseconds: 0.9
+      vrBudgetMilliseconds: 11.1
+      budgetClaimed: false
+    }
+    boundaries: {
+      nativeScalpFlowProfileClaimed: true
+      nativeNeutralScalpAlignmentClaimed: true
+      nativeScalpCapClaimed: true
+      nativeTipTaperClaimed: true
+      nativeHairlineRetractionClaimed: true
+      presentationShaderOverrideUsed: false
+      hairAlphaMaskUsed: false
+      strandAlphaCoverageClaimed: false
+      strandHairClaimed: false
+      productionGroomClaimed: false
+      anatomicalHairAccuracyClaimed: false
+      scanDerivedGroomClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      vrPerformanceConvergenceClaimed: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCallsAllowed: false
+      externalNetworkRequests: 0
+    }
+    residuals: {
+      dominantVisualDefect: "opaque_low_poly_cap_and_non_anisotropic_hair_material"
+      nextCharacterLane: "native_hair_coverage_alpha_to_coverage_and_tangent_anisotropy"
+      characterProportionLaneOpen: true
+      skinMicrodetailLaneOpen: true
+      performanceLaneOpen: true
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedBootstrapSha256: "4f400536484226ea972074da1c9e1f5c2827f75cf810d92117c3c040c28ac186"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h3f/character-appearance-h3f-witness.json"
+    }
+  }
+}
