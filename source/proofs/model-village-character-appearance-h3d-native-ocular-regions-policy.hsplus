@@ -1,0 +1,76 @@
+// H3D native ocular-region admission and truth-boundary policy.
+
+composition "Stormglass Character Appearance H3D Native Ocular Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3d-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3D_NATIVE_OCULAR_REGIONS"
+    source: "source/proofs/model-village-character-appearance-h3d-native-ocular-regions-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3d-native-ocular-regions.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3d-native-ocular-regions-seed.hs"
+    formatRole: "native_ocular_geometry_material_admission_and_firewall_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3DOcularState {
+    profile: "native_ocular_regions_desktop_h3d"
+    compiledPersonaCount: 0
+    compiledLodBundleCount: 0
+    admittedOcularGroupCount: 0
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "LayeredOcularAdmission" {
+    type: "native_ocular_region_admission"
+    target: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    profile: "layered-ocular-v1"
+    requiredRegions: ["sclera", "iris", "pupil", "cornea"]
+    expectedGroupsPerRegion: 2
+    expectedGroupsPerBundle: 8
+    expectedPersonaCount: 3
+    expectedLodBundleCount: 9
+    repeatedCompileByteIdentityRequired: true
+    compilerFallbackAllowed: false
+    mappedOcularReceiptRequired: true
+    corneaTransparentRequired: true
+    presentationShaderOverrideAllowed: false
+    legacyCompositeEyeGroupAllowed: false
+    wetTearFilmClaimed: false
+    vascularAtlasClaimed: false
+    scanDerivedClaimed: false
+    photorealismClaimed: false
+  }
+
+  template "H3DOcularFirewall" {
+    type: "model_village_character_appearance_firewall"
+    presentationLane: "mv_character_appearance_h3d"
+    prohibitedLane: "research_live_blinded"
+    prohibitedInputs: ["live_model_output", "resident_observation", "adapter_assignment", "research_seat", "seat_wallet", "biometric_sample"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_action", "village_receipt", "wallet_identity", "biometric_store"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+    networkFetchCountRequired: 0
+  }
+
+  action admit_native_ocular_bundle(bundle, expected) {
+    if (bundle.format != expected.outputFormat) {
+      return { admitted: false, reason: "wrong_output_format" }
+    }
+    if (bundle.usedFallback == true) {
+      return { admitted: false, reason: "compiler_fallback_used" }
+    }
+    if (bundle.ocularProfile != expected.profile) {
+      return { admitted: false, reason: "wrong_ocular_profile" }
+    }
+    if (bundle.ocularGroupCount != expected.expectedGroupsPerBundle) {
+      return { admitted: false, reason: "wrong_ocular_group_count" }
+    }
+    if (bundle.presentationShaderOverrideUsed == true) {
+      return { admitted: false, reason: "presentation_shader_override_used" }
+    }
+    return { admitted: true, reason: "native_ocular_regions_admitted" }
+  }
+}

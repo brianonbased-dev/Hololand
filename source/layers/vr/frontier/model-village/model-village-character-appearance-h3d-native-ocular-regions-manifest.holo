@@ -1,0 +1,128 @@
+// Immutable witness manifest for Stormglass Character Appearance H3D.
+// H3D admits native layered ocular regions. It does not promote this
+// bounded procedural eye foundation to anatomical or photoreal status.
+
+composition "HoloLand Model Village Character Appearance H3D Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3D Native Ocular Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3D_NATIVE_OCULAR_REGIONS"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3d-native-ocular-regions.holo"
+      sourceSha256: "bb61b92f9ef258e880169390d951d5e5d4c7618ead6fe58b72fae66db8e8c16b"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3d-native-ocular-regions-policy.hsplus"
+      policySha256: "f64ca9e6ccc463151677be391da1dbd3963725c4cc426d76c5c449a523d585eb"
+      parser: "HoloScriptPlusParser"
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3d-native-ocular-regions-seed.hs"
+      seedSha256: "576ab6f3e0ee8d167c66833ee447e6cb9233791603b41837a8613510c67f0ab5"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3d.mjs"
+      checkerSha256: "6a6b35a44a13a0d841460a81a809e732b1bc81466411b7dbf8fcef1920f9c33e"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3d.test.mjs"
+      testSha256: "8a4e07445a10b3be64eb63e954c7fc71ab1e61f33dd9a911cc098d363742fdfa"
+    }
+    report: {
+      path: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H3D_2026-07-28.md"
+      reportSha256: "44d97298e0b27e7147b254e746e60f3a744d585123684e281afda6be13f3c54e"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3d-native-ocular-portraits-2026-07-28.png"
+      heroSha256: "09d3b9a0f30203e3753a9a3d329e34ee3687b33466bec4d63b7fa2c229323a4e"
+      width: 1800
+      height: 720
+      bytes: 449737
+      visuallyInspected: true
+      iterationAccepted: 3
+    }
+    upstream: {
+      holoScriptCommit: "ac44ce5fbdb93c4a78e17a3c535138de49978bbd"
+      ocularBuilderSha256: "cd65660735791fa0051065f7ea9a97c3a3d9ec98037de07c27c7cbd9dbe95db4"
+      characterHostSha256: "4de3dfe87604c0de2e5ddfe6ed54cce19240ca78bd2256f198664acf54ae620f"
+      compositionBridgeSha256: "509535e60bdb3825d7251f6d1af46849e94d906edbcac4f9ca3f7dc40a725c35"
+      characterRendererSha256: "f16e06f448587d2a0a95cba5fc6416aec4d0f6a7033f8adefcb96aa092aac88a"
+      drawSpecSha256: "0d73e383f71fb8d32ca270b2e68a95c0b2f51c877e0593ecc6519057298ffcd4"
+      eyeShaderSha256: "0fd08806b96410a29f222becc0eec6448b5b7226957b659818f0759aa93e3d16"
+      compilerSha256: "34cb6770008c6aa42f876bdaebf777999f18adf513e5280d0559312f91b71a66"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      topology: "neutral-anatomical-v2"
+      ocularProfile: "layered-ocular-v1"
+      ocularRegions: ["sclera", "iris", "pupil", "cornea"]
+      nativeBundleCount: 9
+      nativeExpressionProbeCount: 3
+      ocularGroupsPerBundle: 8
+      groupsPerRegion: 2
+      ocularVertexDelta: 532
+      ocularTriangleDelta: 848
+      layeredOcularTriangleCount: 1168
+      legacyVertexCount: 6519
+      sourceAuthoredVisualHairLod: 2
+      fallbackUsed: false
+      stubCount: 0
+    }
+    profile: {
+      id: "native_ocular_regions_desktop_h3d"
+      renderWidth: 1800
+      renderHeight: 720
+      devicePixelRatio: 1
+      measuredPortraitRendererCount: 3
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+    }
+    performance: {
+      frameIntervalP95Milliseconds: 18.69999998807907
+      renderSubmitP95Milliseconds: 4.699999988079071
+      manifestVerificationFrameIntervalP95Milliseconds: 19
+      manifestVerificationRenderSubmitP95Milliseconds: 3.5
+      vrBudgetMilliseconds: 11.1
+      budgetClaimed: false
+    }
+    boundaries: {
+      nativeOcularProfileClaimed: true
+      nativeOcularMaterialRolesSerialized: true
+      nativeCorneaTransparentGroupSerialized: true
+      presentationShaderOverrideUsed: false
+      nativeIrisMaterialSerialized: true
+      productionEyeCompleteClaimed: false
+      productionTearFilmClaimed: false
+      scleraVascularAtlasClaimed: false
+      anatomicalEyeAccuracyClaimed: false
+      scanDerivedEyeClaimed: false
+      normalsRecomputedAfterMorphClaimed: false
+      motionReprojectionClaimed: false
+      productionTaaClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCallsAllowed: false
+      externalNetworkRequests: 0
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedBootstrapSha256: "1bba033ad4798f66a8d265c76a26c21807b0761f18b52d8b46dbd1cdba3e9268"
+      manifestVerificationSha256: "5b364702b63ab23f0c647c71a12951193350fce0239ba644c21f3aeaa22cb36d"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h3d/character-appearance-h3d-witness.json"
+    }
+  }
+}
