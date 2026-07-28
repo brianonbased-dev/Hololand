@@ -43,7 +43,7 @@ const { receipt } = await runModelVillageCheck({
   tickRate: 10,
 });
 
-assert.equal(receipt.schemaVersion, 'hololand.model-village-experiment.v0.6.0');
+assert.equal(receipt.schemaVersion, 'hololand.model-village-experiment.v0.7.0');
 assert.equal(receipt.studyPhase, 'phase0b_canonical_lifecycle_closure');
 assert.equal(receipt.status, 'pass');
 assert.equal(receipt.sourceContract.threeFormat, true);
@@ -93,8 +93,39 @@ assert.deepEqual(receipt.runtimeEvidence.boundedPhase0B, {
   emergencyStopBridgeExecuted: true,
   boundedHoloToHsplusStopDispatchExecuted: true,
   providerCallsMade: 0,
+  providerCallMeasurement: 'measured',
   transactionScope: 'verified_v4_per_action_single_host_file_atomic_bridge',
 });
+
+// PROVIDER-CALL MEASUREMENT. These used to be literals compared against
+// literals. They are now fence counters, and the assertions below are about the
+// MEASUREMENT being real — not just about the number being zero.
+assert.equal(receipt.assertions.providerCallsMeasuredAndZeroAcrossEveryLane, true);
+assert.deepEqual(receipt.runtimeEvidence.providerCallEvidence.failures, []);
+assert.equal(receipt.receipt.providerCallMeasurement, 'measured');
+assert.equal(receipt.engineeringTracer.runtime.providerFence.measured, true);
+assert.equal(
+  receipt.engineeringTracer.runtime.providerFence.providerFetchCallsObserved,
+  0,
+);
+assert.equal(receipt.canonicalLifecycle.providerFence.measured, true);
+assert.equal(
+  receipt.observerBoundaryFixture.claimBoundary.providerCallObservation.measured,
+  true,
+);
+// The fence is not a decoration: it observed real non-provider traffic (the
+// HoloScript core WASM initialization) during this run. If this ever reads 0
+// the counter is no longer known to be wired to anything.
+assert.ok(
+  receipt.runtimeEvidence.providerCallEvidence.checker.fetchCallsObserved > 0,
+  'the checker outer fence observed no traffic at all; it may not be installed',
+);
+// The nesting floor held for every inner fence, measured by an INDEPENDENT
+// counter this checker installed before them.
+for (const lane of receipt.runtimeEvidence.providerCallEvidence.nesting) {
+  assert.equal(lane.nestingFloorHeld, true, `nesting floor broke for ${lane.lane}`);
+  assert.equal(lane.outerProviderFetchCallsObserved, 0);
+}
 assert.deepEqual(receipt.runtimeEvidence.canonicalLifecycle, {
   adapterBlocksExecuted: 3,
   lifecycleActionsExecuted: 30,
@@ -151,7 +182,7 @@ assert.equal(receipt.capabilityStatus.targetObserved.productionValidatorTrust, f
 assert.equal(receipt.engineeringTracer.status, 'pass');
 assert.equal(
   receipt.engineeringTracer.schema,
-  'hololand.model-village-phase0b-runtime-bridge.v2',
+  'hololand.model-village-phase0b-runtime-bridge.v3',
 );
 assert.equal(
   receipt.sourceContract.boundedTwelveObjectRehearsalObserverProjectionToggleExecuted,

@@ -1809,11 +1809,71 @@ export const ATOMIC_REPLACEMENT_MIN_REPLACEMENTS = 8;
 const SEAM_EXPORT_LINE = 'export { writeAtomicState };';
 const WRITE_ATOMIC_ANCHOR =
   "function writeAtomicState(storeDir, state, faultInjection = 'none') {";
-const SEAM_TREE_FILES = Object.freeze([
-  'model-village-canonical-lifecycle.mjs',
-  'model-village-phase0b-runtime.mjs',
-]);
 const RUNTIME_FILE_NAME = 'model-village-phase0b-runtime.mjs';
+/**
+ * Covers `from './x.mjs'`, `from "./x.mjs"`, bare `import './x.mjs'`, and
+ * dynamic `import('./x.mjs')`. The previous single-quote/static-only form
+ * matched none of the other three; nothing on the lane uses them today, but the
+ * failure mode is a MODULE_NOT_FOUND inside the copied tree, which reads as a
+ * drill defect rather than as the missing-copy it actually is.
+ */
+const LOCAL_IMPORT_PATTERN =
+  /(?:from|import)\s*\(?\s*(['"])\.\/([A-Za-z0-9._-]+\.mjs)\1/g;
+
+/**
+ * Comments are stripped before the walk. Broadening the pattern made it match
+ * import forms written inside a COMMENT — including the comment above it — and a
+ * phantom sibling is a copy failure, not a missing module. The `[^:]` guard
+ * keeps `https://` out of the line-comment rule.
+ */
+function stripCommentsForImportScan(source) {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/.*$/gm, '$1');
+}
+
+/**
+ * DERIVED, not authored. A standalone copy of this tree needs every sibling
+ * module the entry files transitively import, and that list used to be
+ * hand-maintained — so adding one import to model-village-phase0b-runtime.mjs
+ * broke drills that have nothing to do with what they measure. It is computed by
+ * walking the entries' own relative imports, so the next dependency is picked up
+ * for free.
+ *
+ * EXPORTED because the drill's seam tree and the test suite's mutant tree both
+ * need it and used to carry SEPARATE copies of the pattern — which is exactly
+ * how one copy ends up wrong while the other looks fine.
+ *
+ * Fails CLOSED: a file that cannot be read is not copied, and the drill that
+ * needs it dies at the import instead of quietly passing.
+ */
+export function resolveLocalModuleClosure(scriptsDir, entryFiles) {
+  const seen = new Set();
+  const queue = [...entryFiles];
+  while (queue.length > 0) {
+    const file = queue.shift();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    let source;
+    try {
+      source = readFileSync(path.join(scriptsDir, file), 'utf8');
+    } catch {
+      continue;
+    }
+    const scannable = stripCommentsForImportScan(source);
+    for (const match of scannable.matchAll(LOCAL_IMPORT_PATTERN)) {
+      if (!seen.has(match[2])) queue.push(match[2]);
+    }
+  }
+  return [...seen].sort();
+}
+
+function resolveSeamTreeFiles(scriptsDir, entryFile) {
+  const closure = new Set(resolveLocalModuleClosure(scriptsDir, [entryFile]));
+  // The entry file is written separately (with the appended seam export).
+  closure.delete(entryFile);
+  return [...closure].sort();
+}
 
 /**
  * (dev, ino, birthtimeMs) — the OS's own answer to "is this the same file
@@ -1861,7 +1921,7 @@ function runIdentityComparatorControl(controlDir) {
 function buildWriteAtomicSeamTree(seamDir) {
   const scriptsDir = path.dirname(THIS_FILE);
   mkdirSync(seamDir, { recursive: true });
-  for (const file of SEAM_TREE_FILES) {
+  for (const file of resolveSeamTreeFiles(scriptsDir, RUNTIME_FILE_NAME)) {
     const source = readFileSync(path.join(scriptsDir, file), 'utf8');
     writeFileSync(path.join(seamDir, file), source, 'utf8');
   }

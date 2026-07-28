@@ -1,4 +1,4 @@
-/* global Buffer, URL, process, structuredClone */
+/* global Buffer, process, structuredClone */
 
 // Model Village RUN CONDUCTOR — the T-7 twelve-run dress rehearsal.
 //
@@ -214,6 +214,12 @@ import {
   canonicalJson,
 } from './model-village-phase0b-runtime.mjs';
 import {
+  FETCH_TARGET_LOG_LIMIT,
+  ProviderCallAttemptedError,
+  installProviderCallFence,
+  isProviderFetchTarget,
+} from './model-village-provider-call-fence.mjs';
+import {
   RUN_ID_PATTERN,
   createTurnScheduler,
   verifyRoundReceiptChain,
@@ -313,13 +319,16 @@ export const REHEARSAL_EXPECTATIONS = Object.freeze({
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const ISO_UTC_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
 
-/**
- * Bound on each recorded fetch-incident log. Shared by the fence (which writes
- * them) and evaluateRehearsal (which cross-binds against them) so the two can
- * never disagree about where saturation begins — a disagreement there is
- * exactly where a zeroed counter could hide.
- */
-const FETCH_TARGET_LOG_LIMIT = 32;
+// The fence, its incident-log bound, its classification rule and its refusal
+// error now live in ./model-village-provider-call-fence.mjs so that MV-B4's
+// Phase 0B tracer and the canonical-lifecycle lane measure through THIS code
+// rather than each growing a near-miss copy. They are re-exported below so
+// every existing consumer of this module is unchanged.
+export {
+  ProviderCallAttemptedError,
+  installProviderCallFence,
+  isProviderFetchTarget,
+};
 
 /**
  * Mirrors of MV-B1 module-private constants that its verifiers pin. They are
@@ -504,18 +513,6 @@ export class ModelVillageRunConductorError extends Error {
   constructor(message) {
     super(message);
     this.name = 'ModelVillageRunConductorError';
-  }
-}
-
-/** Raised by the provider-call fence. A rehearsal that sees one has failed. */
-export class ProviderCallAttemptedError extends Error {
-  constructor(target) {
-    super(
-      'a provider call was attempted during a zero-provider-call rehearsal; '
-      + 'the call was refused and counted',
-    );
-    this.name = 'ProviderCallAttemptedError';
-    this.target = target;
   }
 }
 
@@ -1205,67 +1202,11 @@ export function assertRunPlanSequence(runs) {
 }
 
 // ---------------------------------------------------------------------------
-// Provider-call fence — the ONLY honest way to publish a zero
+// Provider-call fence — the ONLY honest way to publish a zero.
+// Implementation lives in ./model-village-provider-call-fence.mjs (imported and
+// re-exported at the top of this file); the classification rule and the
+// nested-counter reasoning are documented in that module's header.
 // ---------------------------------------------------------------------------
-
-/** True only for a target that could actually reach a network provider. */
-export function isProviderFetchTarget(target) {
-  try {
-    const parsed = new URL(target);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Installs a counting fence over globalThis.fetch and returns the same function
- * for injection as `fetchImpl`. Every call increments a real counter and records
- * a bounded projection of its target. An absolute http/https target is counted
- * as a PROVIDER call and refused by throwing; anything else is counted,
- * published, and delegated to the original fetch so the measurement does not
- * perturb what it measures (see the classification rule in the module header).
- *
- * The counters are what the receipt publishes. There is no literal zero
- * anywhere on this path.
- */
-export function installProviderCallFence() {
-  const original = globalThis.fetch;
-  const state = {
-    calls: 0,
-    nonProviderTargets: [],
-    providerCalls: 0,
-    providerTargets: [],
-  };
-  const fence = async (...args) => {
-    state.calls += 1;
-    const target = String(
-      args?.[0]?.url ?? args?.[0] ?? 'unknown-target',
-    ).slice(0, 200);
-    if (isProviderFetchTarget(target)) {
-      state.providerCalls += 1;
-      if (state.providerTargets.length < FETCH_TARGET_LOG_LIMIT) {
-        state.providerTargets.push(target);
-      }
-      throw new ProviderCallAttemptedError(target);
-    }
-    if (state.nonProviderTargets.length < FETCH_TARGET_LOG_LIMIT) {
-      state.nonProviderTargets.push(target);
-    }
-    if (typeof original !== 'function') {
-      throw new TypeError('fetch is not available in this runtime');
-    }
-    return original(...args);
-  };
-  globalThis.fetch = fence;
-  return Object.freeze({
-    fetch: fence,
-    restore() {
-      if (globalThis.fetch === fence) globalThis.fetch = original;
-    },
-    state,
-  });
-}
 
 // ---------------------------------------------------------------------------
 // Rehearsal fixtures (T-7 has no certified adapters BY DESIGN)
@@ -2546,10 +2487,17 @@ export async function runRehearsal({
       aliasCommitmentVerificationFailures,
       aliasUnblindingsVerified,
       custodyResponseReadsObserved: readCounter.reads,
-      fetchCallsObserved: fence.state.calls,
-      nonProviderFetchCallTargets: [...fence.state.nonProviderTargets],
-      providerFetchCallTargets: [...fence.state.providerTargets],
-      providerFetchCallsObserved: fence.state.providerCalls,
+      // Baseline-relative, so these stay "traffic during the rehearsal". The
+      // fence drives one self-test call through the global binding at install
+      // time to prove the counter can move at all; that probe is before the
+      // baseline cursor and is not rehearsal traffic.
+      fetchCallsObserved: fence.state.calls - fence.baseline.calls,
+      nonProviderFetchCallTargets: fence.state.nonProviderTargets
+        .slice(fence.baseline.nonProviderTargets),
+      providerFetchCallTargets: fence.state.providerTargets
+        .slice(fence.baseline.providerTargets),
+      providerFetchCallsObserved:
+        fence.state.providerCalls - fence.baseline.providerCalls,
       rehearsalWallClockMs: Math.max(
         0,
         sampleClock('receipt.observed.rehearsalWallClockMs.end', nowFn()) - startedAtMs,

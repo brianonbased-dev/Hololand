@@ -6,8 +6,23 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import {
+  installProviderCallFence,
+  snapshotProviderFence,
+  summarizeProviderCallFence,
+  verifyProviderCallObservation,
+} from './model-village-provider-call-fence.mjs';
+
+// PROVIDER-CALL MEASUREMENT. `counts.providerCalls` used to be a hardcoded 0
+// per block, summed into an `assertions.providerCallsMade` that was then
+// asserted to be 0 — the same verify(emit()) shape the Phase 0B tracer had. It
+// is now a DELTA off the shared counting fence
+// (./model-village-provider-call-fence.mjs) measured around each executed
+// block, and the receipt publishes the fence's own observation so the number is
+// falsifiable. An unmeasured window FAILS rather than reading as a clean zero.
+
 export const MODEL_VILLAGE_CANONICAL_LIFECYCLE_SCHEMA =
-  'hololand.model-village-canonical-lifecycle.v1';
+  'hololand.model-village-canonical-lifecycle.v2';
 
 export const MODEL_VILLAGE_CANONICAL_LIFECYCLE_SOURCES = Object.freeze({
   kernel: 'source/proofs/model-village-trial-kernel.hs',
@@ -822,7 +837,14 @@ async function executeBlock(cli, artifacts, blockPlan, observer) {
   return { run, verification };
 }
 
-function validateExecutedBlock(blockPlan, primary, replay) {
+/**
+ * `providerCallsObserved` is a MEASUREMENT the caller took, never a default.
+ * The runner passes the fence delta for this block's execution window; the
+ * verifier passes the value stored in the receipt (already gated out-of-band
+ * against the receipt-level fence observation). There is no literal zero left
+ * on this path.
+ */
+function validateExecutedBlock(blockPlan, primary, replay, providerCallsObserved) {
   const execution = primary.run.execution;
   const finalSnapshot = execution.publicStateSnapshots.at(-1);
   const finalPublicState = finalSnapshot?.payload?.publicState;
@@ -876,11 +898,16 @@ function validateExecutedBlock(blockPlan, primary, replay) {
       && primary.run.observerProof?.observerIntroducedExperimentExecutionCount === 0,
     `${blockPlan.blockId} observer noninterference failed`,
   );
+  assert(
+    Number.isInteger(providerCallsObserved) && providerCallsObserved >= 0,
+    `${blockPlan.blockId} provider-call count is UNMEASURED; a block that was `
+    + 'not watched cannot report a zero',
+  );
   return {
     actions: execution.actionLedger.length,
     finalPublicState,
     observations: execution.observationLedger.length,
-    providerCalls: 0,
+    providerCalls: providerCallsObserved,
     publicStateSnapshots: execution.publicStateSnapshots.length,
     schedule: execution.scheduleLedger.length,
   };
@@ -943,6 +970,40 @@ export async function verifyCanonicalLifecycleReceipt(receipt, options = {}) {
       receipt.blocks.length === 3,
       'canonical lifecycle must contain three executed blocks',
     );
+    // PROVIDER-CALL GATE, out-of-band with respect to the values it checks: an
+    // UNMEASURED window, a counter below its own incident log, a misclassified
+    // target, or any nonzero provider count fails here.
+    const providerFenceFailures = verifyProviderCallObservation(
+      receipt.providerFence,
+      { label: 'canonical lifecycle receipt providerFence' },
+    );
+    assert(
+      providerFenceFailures.length === 0,
+      providerFenceFailures.join('; '),
+    );
+    assert(
+      receipt.receipt.providerCallMeasurement === 'measured'
+        && receipt.receipt.providerCallsMade
+          === receipt.providerFence.providerFetchCallsObserved,
+      'canonical lifecycle receipt provider-call summary does not equal the '
+      + 'fence counter it projects',
+    );
+    assert(
+      receipt.assertions.providerCallsMeasured === true,
+      'canonical lifecycle provider-call assertion is UNMEASURED',
+    );
+    const summedBlockProviderCalls = receipt.blocks.reduce(
+      (sum, block) => sum + (block?.counts?.providerCalls ?? Number.NaN),
+      0,
+    );
+    assert(
+      Number.isInteger(summedBlockProviderCalls)
+        && summedBlockProviderCalls === receipt.assertions.providerCallsMade
+        && summedBlockProviderCalls
+          <= receipt.providerFence.providerFetchCallsObserved,
+      'canonical lifecycle per-block provider-call deltas do not reconcile with '
+      + 'the sealed fence observation that contains them',
+    );
     const holoScript = await loadHoloScriptCli(root);
     for (let index = 0; index < artifacts.blockPlans.length; index += 1) {
       const blockPlan = artifacts.blockPlans[index];
@@ -997,6 +1058,10 @@ export async function verifyCanonicalLifecycleReceipt(receipt, options = {}) {
             sourceRunReceipt: block.replay.sourceRunReceipt,
           },
         },
+        // Carried from the receipt, not rebuilt from a constant. The value was
+        // already reconciled against the sealed fence observation above, which
+        // is where the provider-call claim is actually decided.
+        block.counts?.providerCalls,
       );
       assert(
         canonicalJson(block.counts) === canonicalJson(recomputedCounts),
@@ -1031,6 +1096,17 @@ export async function verifyCanonicalLifecycleReceipt(receipt, options = {}) {
 }
 
 export async function runCanonicalModelVillageLifecycle(options = {}) {
+  // Fence up before the HoloScript CLI is loaded, so the parser's own WASM
+  // initialization is inside the measured window rather than ahead of it.
+  const providerFence = installProviderCallFence();
+  try {
+    return await runCanonicalModelVillageLifecycleFenced(options, providerFence);
+  } finally {
+    providerFence.restore();
+  }
+}
+
+async function runCanonicalModelVillageLifecycleFenced(options, providerFence) {
   const moduleRoot = path.resolve(
     path.join(path.dirname(fileURLToPath(import.meta.url)), '..'),
   );
@@ -1046,6 +1122,7 @@ export async function runCanonicalModelVillageLifecycle(options = {}) {
   const blocks = [];
 
   for (const blockPlan of artifacts.blockPlans) {
+    const blockFenceCursor = snapshotProviderFence(providerFence);
     const primary = await executeBlock(
       holoScript.cli,
       artifacts,
@@ -1058,7 +1135,25 @@ export async function runCanonicalModelVillageLifecycle(options = {}) {
       blockPlan,
       'off',
     );
-    const counts = validateExecutedBlock(blockPlan, primary, replay);
+    const blockObservation = summarizeProviderCallFence(providerFence, {
+      since: blockFenceCursor,
+      window: `canonical-lifecycle-block:${blockPlan.blockId}`,
+    });
+    const blockObservationFailures = verifyProviderCallObservation(
+      blockObservation,
+      { label: `${blockPlan.blockId} provider-call window` },
+    );
+    assert(
+      blockObservationFailures.length === 0,
+      `canonical lifecycle provider-call measurement failed: `
+      + `${blockObservationFailures.join('; ')}`,
+    );
+    const counts = validateExecutedBlock(
+      blockPlan,
+      primary,
+      replay,
+      blockObservation.providerFetchCallsObserved,
+    );
     blocks.push({
       assignmentManifestHash: blockPlan.assignmentManifestHash,
       bindings: blockPlan.bindings,
@@ -1088,6 +1183,21 @@ export async function runCanonicalModelVillageLifecycle(options = {}) {
       sourceRunReceipt: structuredClone(primary.run.sourceRunReceipt),
     });
   }
+
+  // SEAL THE MEASUREMENT: every block has executed, so this is the window the
+  // receipt publishes.
+  const providerObservation = summarizeProviderCallFence(providerFence, {
+    window: 'canonical-lifecycle-execution-through-receipt-seal',
+  });
+  const providerObservationFailures = verifyProviderCallObservation(
+    providerObservation,
+    { label: 'canonical lifecycle provider-call fence' },
+  );
+  assert(
+    providerObservationFailures.length === 0,
+    `canonical lifecycle provider-call measurement failed: `
+    + `${providerObservationFailures.join('; ')}`,
+  );
 
   const assertions = {
     adapterMatrixExecutedAcrossThreeBlocks:
@@ -1123,6 +1233,7 @@ export async function runCanonicalModelVillageLifecycle(options = {}) {
       (sum, block) => sum + block.counts.providerCalls,
       0,
     ),
+    providerCallsMeasured: providerObservation.measured === true,
     replayVerified:
       blocks.every((block) => block.replay.match === true),
     productionLockIsAncestor:
@@ -1139,6 +1250,9 @@ export async function runCanonicalModelVillageLifecycle(options = {}) {
   const unsigned = {
     assertions,
     blocks,
+    // Hash-bound observation. The per-block deltas above are slices of it, and
+    // receipt.providerCallsMade below is a projection of it.
+    providerFence: providerObservation,
     claimBoundary: {
       adapterPermutationExecutionClaimed: true,
       canonicalLifecycleSourceProjectionExecuted: true,
@@ -1183,7 +1297,10 @@ export async function runCanonicalModelVillageLifecycle(options = {}) {
   const result = {
     ...unsigned,
     receipt: {
-      providerCallsMade: 0,
+      providerCallMeasurement: providerObservation.measured
+        ? 'measured'
+        : 'unmeasured',
+      providerCallsMade: providerObservation.providerFetchCallsObserved,
       rawProviderCredentialsIncluded: false,
       receiptHash: digest(unsigned),
     },

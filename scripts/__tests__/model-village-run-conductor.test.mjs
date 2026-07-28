@@ -230,7 +230,9 @@ describe('provider-call fence', () => {
         /provider call was attempted/,
       );
       assert.equal(fence.state.providerCalls, 1);
-      assert.equal(fence.state.calls, 1);
+      // Counted off the fence's own baseline cursor, which is taken after the
+      // install-time self-test probe that proves the counter can move at all.
+      assert.equal(fence.state.calls - fence.baseline.calls, 1);
       assert.deepEqual(fence.state.providerTargets, [PROBE_TARGET]);
     } finally {
       fence.restore();

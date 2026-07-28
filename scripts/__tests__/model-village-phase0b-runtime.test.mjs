@@ -407,6 +407,10 @@ try {
     /emergency-stop payload differs from the verified V4 stop run/,
   );
 
+  // A runtime-summary edit is now caught EARLIER and more specifically than it
+  // used to be: providerCalls is a projection of the fence counter, so editing
+  // one alone breaks the cross-binding before the canonical summary comparison
+  // is even reached.
   const runtimeSummaryTamper = structuredClone(baseline);
   runtimeSummaryTamper.runtime.providerCalls = 1;
   resealOuterReceipt(runtimeSummaryTamper);
@@ -421,8 +425,85 @@ try {
   assert.equal(runtimeSummaryVerification.valid, false);
   assert.match(
     runtimeSummaryVerification.errors.join('\n'),
+    /does not equal the fence counter it projects/,
+  );
+
+  // A non-provider field of the runtime summary still fails for the ORIGINAL
+  // reason, so the rule above did not swallow the summary comparison.
+  const runtimeCountTamper = structuredClone(baseline);
+  runtimeCountTamper.runtime.capturedResponsesConsumed = 3;
+  resealOuterReceipt(runtimeCountTamper);
+  assert.equal(verifyPhase0BReceiptHash(runtimeCountTamper), true);
+  const runtimeCountVerification = await verifyPhase0BReceipt(
+    runtimeCountTamper,
+    {
+      root: repoRoot,
+      trustedValidatorConfig: trustedValidator.config,
+    },
+  );
+  assert.equal(runtimeCountVerification.valid, false);
+  assert.match(
+    runtimeCountVerification.errors.join('\n'),
     /runtime summary differs from verified V4 run/,
   );
+
+  // The CONSISTENT forgery: move the projection AND the counter it projects, so
+  // the cross-binding holds. The gate must still refuse it, because a nonzero
+  // measured provider count is a violation whatever the rest of the receipt
+  // agrees on. (This is the shape the old literal-vs-literal check could not
+  // distinguish from a clean run at all.)
+  const consistentProviderTamper = structuredClone(baseline);
+  consistentProviderTamper.runtime.providerCalls = 1;
+  consistentProviderTamper.runtime.providerFence.providerFetchCallsObserved = 1;
+  consistentProviderTamper.runtime.providerFence.providerFetchCallTargets = [
+    'http://provider.invalid/never',
+  ];
+  consistentProviderTamper.runtime.providerFence.fetchCallsObserved += 1;
+  consistentProviderTamper.receipt.providerCallsMadeByTracer = 1;
+  resealOuterReceipt(consistentProviderTamper);
+  const consistentProviderVerification = await verifyPhase0BReceipt(
+    consistentProviderTamper,
+    {
+      root: repoRoot,
+      trustedValidatorConfig: trustedValidator.config,
+    },
+  );
+  assert.equal(consistentProviderVerification.valid, false);
+  assert.match(
+    consistentProviderVerification.errors.join('\n'),
+    /PROVIDER-CALL VIOLATION|self-integrity check failed/,
+  );
+
+  // ABSENT EVIDENCE BLOCKS: a receipt whose fence never ran must FAIL, not read
+  // as a clean zero.
+  const unmeasuredTamper = structuredClone(baseline);
+  unmeasuredTamper.runtime.providerFence.measured = false;
+  unmeasuredTamper.runtime.providerFence.unmeasuredReason =
+    'fence was not installed';
+  unmeasuredTamper.runtime.providerFence.providerFetchCallsObserved = null;
+  unmeasuredTamper.runtime.providerFence.fetchCallsObserved = null;
+  unmeasuredTamper.receipt.providerCallMeasurement = 'unmeasured';
+  unmeasuredTamper.receipt.providerCallsMadeByTracer = null;
+  resealOuterReceipt(unmeasuredTamper);
+  assert.equal(verifyPhase0BReceiptHash(unmeasuredTamper), false);
+  const unmeasuredVerification = await verifyPhase0BReceipt(
+    unmeasuredTamper,
+    {
+      root: repoRoot,
+      trustedValidatorConfig: trustedValidator.config,
+    },
+  );
+  assert.equal(unmeasuredVerification.valid, false);
+  assert.match(
+    unmeasuredVerification.errors.join('\n'),
+    /self-integrity check failed/,
+  );
+
+  // The measurement is REAL, not a shape.
+  assert.equal(baseline.runtime.providerFence.measured, true);
+  assert.equal(baseline.runtime.providerFence.providerFetchCallsObserved, 0);
+  assert.deepEqual(baseline.runtime.providerFence.providerFetchCallTargets, []);
+  assert.equal(baseline.receipt.providerCallMeasurement, 'measured');
 
   const observerProjectionTamper = structuredClone(baseline);
   observerProjectionTamper.runtime.observerProjection.on.canonicalFields

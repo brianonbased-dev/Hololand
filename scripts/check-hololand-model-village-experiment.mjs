@@ -2,11 +2,13 @@
 /* global console, process */
 
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import {
   existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
+  rmSync,
   writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
@@ -21,8 +23,41 @@ import {
   MODEL_VILLAGE_CANONICAL_LIFECYCLE_SOURCES,
   runCanonicalModelVillageLifecycle,
 } from './model-village-canonical-lifecycle.mjs';
+import {
+  PROVIDER_FENCE_CHILD_DIR_ENV,
+  PROVIDER_FENCE_CHILD_WINDOW_ENV,
+  installProviderCallFence,
+  snapshotProviderFence,
+  summarizeProviderCallFence,
+  unmeasuredProviderCallObservation,
+  verifyProviderCallObservation,
+} from './model-village-provider-call-fence.mjs';
 
-const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.6.0';
+// ---------------------------------------------------------------------------
+// PROVIDER-CALL MEASUREMENT — this checker's OUT-OF-BAND second counter.
+//
+// The Phase 0B tracer and the canonical-lifecycle lane each install their own
+// counting fence and publish their own counters. This checker installs a fence
+// FIRST, so those inner fences delegate through it. Two consequences, both
+// load-bearing:
+//
+//  (1) a provider call made through a reference to fetch captured BEFORE the
+//      inner fence was installed — the exact case those modules name as out of
+//      their own scope — bypasses the inner fence entirely and lands here,
+//      where it is counted and refused; and
+//  (2) the nesting FLOOR must hold: every non-provider call the inner fence
+//      delegated had to pass through this one, so the outer delta can never be
+//      smaller than (inner total - inner provider calls).
+//
+// Exact nesting EQUALITY is deliberately NOT asserted, and the reason is stated
+// rather than buried: the tracer's published window closes when its receipt is
+// sealed, but its fence stays up through its own self-verification, which
+// re-executes the source runs. The outer delta therefore legitimately exceeds
+// the inner published total. What is asserted is the floor plus an independent
+// zero — the outer count of provider calls, which no inner counter can affect.
+// ---------------------------------------------------------------------------
+
+const SCHEMA_VERSION = 'hololand.model-village-experiment.v0.7.0';
 const WORLD_SOURCE = 'source/layers/vr/frontier/model-village/model-village.holo';
 const OBSERVER_PROJECTION_SOURCE =
   'source/layers/vr/frontier/model-village/model-village-observer-projection.holo';
@@ -304,8 +339,94 @@ function commandResult(command, args, options = {}) {
     encoding: 'utf8',
     windowsHide: true,
     timeout: options.timeout ?? 120000,
-    env: process.env,
+    env: options.env ?? process.env,
   });
+}
+
+const CHILD_FENCE_PRELOAD = pathToFileURL(
+  path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    'model-village-provider-call-fence-child.mjs',
+  ),
+).href;
+
+/**
+ * Runs a child process WITH the provider-call fence installed inside it, and
+ * returns the child's own observation alongside the spawn result.
+ *
+ * THE HOLE THIS CLOSES: the in-process fence covers this process's
+ * `globalThis.fetch`. The HoloScript CLI runs in a child, with its own globals —
+ * so the component on this lane that would actually reach a provider was the one
+ * component no fence was watching, and the lane's zero was a statement about the
+ * parent only.
+ *
+ * `--import` is passed through NODE_OPTIONS rather than argv so that it is
+ * inherited by anything the CLI itself spawns; each process writes its own file,
+ * so a grandchild cannot overwrite its parent's observation. A child that leaves
+ * NO file is UNMEASURED, not clean — see the caller-side reconciliation.
+ */
+function commandResultUnderChildProviderFence(command, args, options = {}) {
+  const label = options.window ?? 'child-process';
+  const observationDir = path.join(
+    options.cwd ?? process.cwd(),
+    '.tmp',
+    'hololand',
+    'model-village',
+    'provider-fence-children',
+    `${process.pid}-${randomUUID()}`,
+  );
+  mkdirSync(observationDir, { recursive: true });
+  const existingNodeOptions = process.env.NODE_OPTIONS
+    ? `${process.env.NODE_OPTIONS} `
+    : '';
+  const result = commandResult(command, args, {
+    ...options,
+    env: {
+      ...process.env,
+      [PROVIDER_FENCE_CHILD_DIR_ENV]: observationDir,
+      [PROVIDER_FENCE_CHILD_WINDOW_ENV]: label,
+      NODE_OPTIONS: `${existingNodeOptions}--import="${CHILD_FENCE_PRELOAD}"`,
+    },
+  });
+  let observations = [];
+  try {
+    observations = readdirSync(observationDir)
+      .filter((entry) => entry.endsWith('.json'))
+      .map((entry) => {
+        try {
+          return JSON.parse(
+            readFileSync(path.join(observationDir, entry), 'utf8'),
+          );
+        } catch (error) {
+          return unmeasuredProviderCallObservation(
+            label,
+            `the child process wrote an unreadable provider-call observation: `
+            + `${error?.message || String(error)}`,
+          );
+        }
+      });
+  } catch (error) {
+    observations = [
+      unmeasuredProviderCallObservation(
+        label,
+        `the child provider-call observation directory could not be read: `
+        + `${error?.message || String(error)}`,
+      ),
+    ];
+  }
+  if (observations.length === 0) {
+    // ABSENT EVIDENCE BLOCKS: no file means the fence never ran in the child.
+    // Reporting 0 here would recreate the exact defect this lane is closing.
+    observations = [
+      unmeasuredProviderCallObservation(
+        label,
+        'the child process produced no provider-call observation at all, so its '
+        + 'window was never watched',
+      ),
+    ];
+  }
+  rmSync(observationDir, { force: true, recursive: true });
+  return { observations, result };
 }
 
 function tail(value, count = 8) {
@@ -429,10 +550,10 @@ export function validateHeadlessReceipt(receipt) {
 
 function parseSource(root, cli, relativePath) {
   const extension = path.extname(relativePath).toLowerCase();
-  const result = commandResult(
+  const { observations, result } = commandResultUnderChildProviderFence(
     process.execPath,
     [cli, 'parse', normalizePath(relativePath)],
-    { cwd: root },
+    { cwd: root, window: `holoscript-cli-parse:${normalizePath(relativePath)}` },
   );
 
   return {
@@ -440,6 +561,7 @@ function parseSource(root, cli, relativePath) {
     format: FORMAT_BY_EXTENSION[extension] || extension,
     passed: result.status === 0,
     kind: 'holoscript_cli_parse',
+    providerFences: observations,
     status: result.status,
     stdoutTail: result.status === 0 ? [] : tail(result.stdout, 4),
     stderrTail: tail(result.stderr || result.error?.message, 8),
@@ -457,7 +579,10 @@ function parseJsonOutput(value) {
 }
 
 function runHeadless(root, cli, options) {
-  const result = commandResult(
+  // THE lane's real execution path — the HoloScript CLI actually running the
+  // world — and until this call was fenced it was the one process on the lane
+  // that nothing was measuring.
+  const { observations, result } = commandResultUnderChildProviderFence(
     process.execPath,
     [
       cli,
@@ -469,12 +594,13 @@ function runHeadless(root, cli, options) {
       String(options.tickRate),
       '--json',
     ],
-    { cwd: root },
+    { cwd: root, window: 'holoscript-cli-headless' },
   );
 
   if (result.status !== 0) {
     return {
       passed: false,
+      providerFences: observations,
       status: result.status,
       stdoutTail: tail(result.stdout),
       stderrTail: tail(result.stderr || result.error?.message),
@@ -487,6 +613,7 @@ function runHeadless(root, cli, options) {
     const validation = validateHeadlessReceipt(receipt);
     return {
       passed: validation.passed,
+      providerFences: observations,
       status: result.status,
       stdoutTail: [],
       stderrTail: validation.errors,
@@ -496,6 +623,7 @@ function runHeadless(root, cli, options) {
   } catch (error) {
     return {
       passed: false,
+      providerFences: observations,
       status: result.status,
       stdoutTail: tail(result.stdout),
       stderrTail: [error.message],
@@ -604,6 +732,7 @@ function executeObserverBoundaryFixtureCore({
   kernelNodes,
   boundaryContract,
   headlessReceipt,
+  providerCallObservation = null,
 }) {
   if (
     !headlessReceipt
@@ -1231,7 +1360,18 @@ function executeObserverBoundaryFixtureCore({
       nativeHsPipelineExecutionClaimed: false,
       nativeHsplusActionExecutionClaimed: false,
       liveModelTurnsClaimed: false,
-      providerCallsMade: 0,
+      // MEASURED by the caller's fence, not asserted here. `null` when this
+      // fixture was executed outside a fenced window (a unit test calling it
+      // directly) — which reads as UNMEASURED and FAILS the gate rather than
+      // reading as a clean zero.
+      providerCallsMade: providerCallObservation?.measured === true
+        ? providerCallObservation.providerFetchCallsObserved
+        : null,
+      providerCallObservation: providerCallObservation
+        ?? unmeasuredProviderCallObservation(
+          'observer-boundary-fixture-replay',
+          'this fixture was executed outside a fenced window',
+        ),
       projectionToggleExecuted: false,
       adapterPermutationExecutionClaimed: false,
       referencedSafetyDecisionReceiptsValidated: false,
@@ -1253,6 +1393,7 @@ export function executeObserverBoundaryFixture({
   kernelSource,
   policySource,
   headlessReceipt,
+  providerCallObservation = null,
 }) {
   const parsed = parseObserverBoundarySources(core, kernelSource, policySource);
   const unsignedFixture = {
@@ -1260,8 +1401,33 @@ export function executeObserverBoundaryFixture({
       kernelNodes: parsed.kernelNodes,
       boundaryContract: parsed.boundaryContract,
       headlessReceipt,
+      providerCallObservation,
     }),
     parseSummary: parsed.parseSummary,
+  };
+  return {
+    ...unsignedFixture,
+    receipt: {
+      receiptHash: canonicalDigest(unsignedFixture),
+    },
+  };
+}
+
+/**
+ * Folds a measured provider-call window into an already-built fixture and
+ * re-seals its receipt hash. Separate from execution because the window can
+ * only be closed AFTER the call returns, and a measurement taken before the
+ * work it measures is not a measurement.
+ */
+function sealObserverBoundaryProviderObservation(fixture, observation) {
+  const unsignedFixture = { ...fixture };
+  delete unsignedFixture.receipt;
+  unsignedFixture.claimBoundary = {
+    ...unsignedFixture.claimBoundary,
+    providerCallObservation: observation,
+    providerCallsMade: observation?.measured === true
+      ? observation.providerFetchCallsObserved
+      : null,
   };
   return {
     ...unsignedFixture,
@@ -1296,7 +1462,14 @@ function failedObserverBoundaryFixture(error) {
       nativeHsPipelineExecutionClaimed: false,
       nativeHsplusActionExecutionClaimed: false,
       liveModelTurnsClaimed: false,
-      providerCallsMade: 0,
+      // A fixture that FAILED did not measure anything; it must not publish a
+      // zero. sealObserverBoundaryProviderObservation overwrites both fields
+      // with the caller's real window when there is one.
+      providerCallsMade: null,
+      providerCallObservation: unmeasuredProviderCallObservation(
+        'observer-boundary-fixture-replay',
+        'the observer-boundary fixture failed before it could be measured',
+      ),
       projectionToggleExecuted: false,
       adapterPermutationExecutionClaimed: false,
       referencedSafetyDecisionReceiptsValidated: false,
@@ -1400,7 +1573,156 @@ function buildExperimentDesign(kernel) {
   };
 }
 
+/**
+ * Reconciles every provider-call observation on this lane against every other
+ * one. This is the out-of-band half: none of these rules can be satisfied by a
+ * module agreeing with itself, because each compares a counter produced by one
+ * fence against a counter produced by a different fence, or against an incident
+ * log the same fence wrote independently of the counter.
+ */
+function buildProviderCallEvidence({
+  checkerObservation,
+  childProcessObservations,
+  engineeringTracer,
+  canonicalLifecycle,
+  observerBoundaryFixture,
+  tracerOuterObservation,
+  lifecycleOuterObservation,
+}) {
+  const failures = [
+    ...verifyProviderCallObservation(checkerObservation, {
+      label: 'checker outer fence',
+    }),
+    ...verifyProviderCallObservation(tracerOuterObservation, {
+      label: 'checker outer fence over the Phase 0B tracer',
+    }),
+    ...verifyProviderCallObservation(lifecycleOuterObservation, {
+      label: 'checker outer fence over the canonical lifecycle',
+    }),
+    ...verifyProviderCallObservation(engineeringTracer?.runtime?.providerFence, {
+      label: 'Phase 0B tracer inner fence',
+    }),
+    ...verifyProviderCallObservation(engineeringTracer?.replay?.providerFence, {
+      label: 'Phase 0B fresh-replay window',
+    }),
+    ...verifyProviderCallObservation(canonicalLifecycle?.providerFence, {
+      label: 'canonical lifecycle inner fence',
+    }),
+    ...verifyProviderCallObservation(
+      observerBoundaryFixture?.claimBoundary?.providerCallObservation,
+      { label: 'observer-boundary fixture window' },
+    ),
+  ];
+
+  // CHILD PROCESSES. Each child on this lane installed the SAME fence inside
+  // itself and published its own window; the parent's fence structurally cannot
+  // see any of them. A child that produced no observation arrives here as an
+  // UNMEASURED record and fails below — it is never absent and never a zero.
+  const childProcesses = Array.isArray(childProcessObservations)
+    ? childProcessObservations
+    : [];
+  if (childProcesses.length === 0) {
+    failures.push(
+      'no child-process provider-call observations were collected, but this '
+      + 'checker spawns the HoloScript CLI on its executed path; an unmeasured '
+      + 'child cannot be reported as a clean lane',
+    );
+  }
+  for (const observation of childProcesses) {
+    failures.push(
+      ...verifyProviderCallObservation(observation, {
+        label: `child process ${observation?.window ?? '(unnamed window)'}`,
+      }),
+    );
+  }
+
+  // NESTING FLOOR. Every non-provider call an inner fence delegated had to pass
+  // through the outer fence, so the outer delta can never be below
+  // (inner total - inner provider calls). A bypassed, reset, or faked inner
+  // counter breaks this.
+  const nesting = [
+    {
+      inner: engineeringTracer?.runtime?.providerFence,
+      label: 'Phase 0B tracer',
+      outer: tracerOuterObservation,
+    },
+    {
+      inner: canonicalLifecycle?.providerFence,
+      label: 'canonical lifecycle',
+      outer: lifecycleOuterObservation,
+    },
+  ].map(({ inner, label, outer }) => {
+    const delegated = inner?.measured === true
+      ? inner.fetchCallsObserved - inner.providerFetchCallsObserved
+      : null;
+    const held = Boolean(
+      outer?.measured === true
+      && Number.isInteger(delegated)
+      && outer.fetchCallsObserved >= delegated
+      && outer.providerFetchCallsObserved === 0,
+    );
+    if (!held) {
+      failures.push(
+        `${label}: the nesting floor does not hold — the outer fence observed `
+        + `${outer?.fetchCallsObserved ?? 'UNMEASURED'} call(s) and `
+        + `${outer?.providerFetchCallsObserved ?? 'UNMEASURED'} provider call(s) `
+        + `against ${delegated ?? 'UNMEASURED'} delegated by the inner fence`,
+      );
+    }
+    return {
+      innerDelegatedCalls: delegated,
+      innerFetchCallsObserved: inner?.fetchCallsObserved ?? null,
+      innerProviderFetchCallsObserved:
+        inner?.providerFetchCallsObserved ?? null,
+      lane: label,
+      nestingFloorHeld: held,
+      outerFetchCallsObserved: outer?.fetchCallsObserved ?? null,
+      outerProviderFetchCallsObserved:
+        outer?.providerFetchCallsObserved ?? null,
+    };
+  });
+
+  // The checker's own total must contain every sub-window it took.
+  const subWindowTotal =
+    (tracerOuterObservation?.fetchCallsObserved ?? 0)
+    + (lifecycleOuterObservation?.fetchCallsObserved ?? 0);
+  if (
+    checkerObservation?.measured === true
+    && checkerObservation.fetchCallsObserved < subWindowTotal
+  ) {
+    failures.push(
+      'the checker outer fence total is smaller than the sub-windows it '
+      + 'contains; the counter and its own deltas disagree',
+    );
+  }
+
+  return {
+    checker: checkerObservation,
+    childProcesses,
+    childProcessesMeasured: childProcesses.length > 0
+      && childProcesses.every((observation) => observation?.measured === true),
+    // Non-vacuity of the child lane, MEASURED: the HoloScript CLI child really
+    // does fetch its own WASM binary, so this number is observed moving on a
+    // clean run rather than being 0 for reasons nobody checked.
+    childProcessFetchCallsObserved: childProcesses.reduce(
+      (sum, observation) => sum + (observation?.fetchCallsObserved ?? 0),
+      0,
+    ),
+    failures,
+    lifecycleInner: canonicalLifecycle?.providerFence ?? null,
+    lifecycleOuterWindow: lifecycleOuterObservation,
+    measuredAndZero: failures.length === 0,
+    nesting,
+    observerBoundaryFixtureWindow:
+      observerBoundaryFixture?.claimBoundary?.providerCallObservation ?? null,
+    phase0BInner: engineeringTracer?.runtime?.providerFence ?? null,
+    phase0BReplayWindow: engineeringTracer?.replay?.providerFence ?? null,
+    tracerOuterWindow: tracerOuterObservation,
+  };
+}
+
 function buildAssertions({
+  providerCallEvidence,
   texts,
   semanticIr,
   parsers,
@@ -1490,7 +1812,29 @@ function buildAssertions({
     capturedObserverBoundaryFixturePasses:
       observerBoundaryFixture.status === 'pass'
       && observerBoundaryFixture.claimBoundary.capturedFixtureReplayExecuted === true
+      // MEASURED, then zero — in that order. An unmeasured window fails.
+      && observerBoundaryFixture.claimBoundary.providerCallObservation
+        ?.measured === true
       && observerBoundaryFixture.claimBoundary.providerCallsMade === 0,
+    // THE PROVIDER-CALL GATE for this whole lane. Every observation must be a
+    // real measurement, cross-bound to its own incident log, nested correctly
+    // inside this checker's independent outer fence, and zero. Failures are
+    // published verbatim in runtimeEvidence.providerCallEvidence.failures.
+    providerCallsMeasuredAndZeroAcrossEveryLane:
+      providerCallEvidence.measuredAndZero === true,
+    // NAMED SEPARATELY because it is the surface that was previously unwatched
+    // by construction: the HoloScript CLI runs in a child process with its own
+    // globals, so the parent's fence could never have seen a call it made. Each
+    // child now installs the same fence and publishes its own window.
+    providerCallsMeasuredInsideEverySpawnedChildProcess:
+      providerCallEvidence.childProcessesMeasured === true
+      && providerCallEvidence.childProcesses.every(
+        (observation) => observation.providerFetchCallsObserved === 0,
+      )
+      // NON-VACUITY: on a clean run the CLI child really does fetch its own
+      // WASM binary, so a child fence that never counted anything at all is a
+      // fence that was not doing its job.
+      && providerCallEvidence.childProcessFetchCallsObserved > 0,
     observerBoundaryFixtureReceiptBindsClaimBoundary:
       verifyObserverBoundaryFixtureReceipt(observerBoundaryFixture),
     observerBoundaryFieldsAreAvailable:
@@ -1513,7 +1857,7 @@ function buildAssertions({
       && observerBoundaryFixture.claimBoundary.liveModelTurnsClaimed === false,
     phase0BEngineeringTracerPasses:
       engineeringTracer.status === 'pass'
-      && engineeringTracer.schema === 'hololand.model-village-phase0b-runtime-bridge.v2'
+      && engineeringTracer.schema === 'hololand.model-village-phase0b-runtime-bridge.v3'
       && Object.values(engineeringTracer.assertions).every((passed) => passed === true),
     phase0BSourceRunV4CountsAreBounded:
       engineeringTracer.runtime.sourceRunSchema
@@ -1523,6 +1867,13 @@ function buildAssertions({
       && engineeringTracer.runtime.counts.actions === 2
       && engineeringTracer.runtime.counts.publicStateSnapshots === 9
       && engineeringTracer.runtime.capturedResponsesConsumed === 2
+      // The zero is now read off a fence counter that this checker also
+      // independently verified (see providerCallsMeasuredAndZeroAcrossEveryLane);
+      // requiring `measured` here means an absent fence blocks instead of
+      // quietly reporting a clean run.
+      && engineeringTracer.runtime.providerFence?.measured === true
+      && engineeringTracer.runtime.providerCalls
+        === engineeringTracer.runtime.providerFence.providerFetchCallsObserved
       && engineeringTracer.runtime.providerCalls === 0
       && engineeringTracer.runtime.worldProjection.objectCount === 12
       && engineeringTracer.runtime.worldProjection
@@ -1573,7 +1924,7 @@ function buildAssertions({
     canonicalTwelveObjectLifecycleAndAdapterMatrixClose:
       canonicalLifecycle.status === 'pass'
       && canonicalLifecycle.schema
-        === 'hololand.model-village-canonical-lifecycle.v1'
+        === 'hololand.model-village-canonical-lifecycle.v2'
       && Object.values(canonicalLifecycle.assertions)
         .every((value) => value === true || value === 0)
       && canonicalLifecycle.world.objectCount === 12
@@ -1842,6 +2193,17 @@ function gitProvenance(root) {
 }
 
 export async function runModelVillageCheck(options = {}) {
+  // The outer fence goes up before anything else this checker does, including
+  // loading the HoloScript CLI.
+  const checkerFence = installProviderCallFence();
+  try {
+    return await runModelVillageCheckFenced(options, checkerFence);
+  } finally {
+    checkerFence.restore();
+  }
+}
+
+async function runModelVillageCheckFenced(options, checkerFence) {
   const root = path.resolve(options.root ?? process.cwd());
   const output = options.output ?? DEFAULT_OUTPUT;
   const durationMs = options.durationMs ?? 200;
@@ -1907,26 +2269,78 @@ export async function runModelVillageCheck(options = {}) {
     orderedEventPayloadTraceAvailable: false,
   };
   let observerBoundaryFixture;
+  const fixtureFenceCursor = snapshotProviderFence(checkerFence);
   try {
     observerBoundaryFixture = executeObserverBoundaryFixture({
       core: holoScriptCore.core,
       kernelSource: texts.kernel,
       policySource: texts.policy,
       headlessReceipt: firstHeadlessReceipt,
+      providerCallObservation: null,
     });
   } catch (error) {
     observerBoundaryFixture = failedObserverBoundaryFixture(error);
   }
+  // The fixture's provider-call claim is a delta off THIS checker's fence,
+  // taken around the call that produced it, then folded into the fixture and
+  // re-sealed. It is not a constant the fixture wrote about itself.
+  observerBoundaryFixture = sealObserverBoundaryProviderObservation(
+    observerBoundaryFixture,
+    summarizeProviderCallFence(checkerFence, {
+      since: fixtureFenceCursor,
+      window: 'observer-boundary-fixture-replay',
+    }),
+  );
+
   const trustedValidator = createRuntimeInjectedValidatorFixture();
+  // OUT-OF-BAND SECOND COUNTER over the tracer: the tracer installs its own
+  // fence inside this window, so this delta sees everything the inner fence
+  // delegated PLUS anything that bypassed it via a pre-fence reference.
+  const tracerFenceCursor = snapshotProviderFence(checkerFence);
   const engineeringTracer = await runPhase0BEngineeringTracer({
     root,
     signRunManifest: trustedValidator.issue,
     trustedValidatorConfig: trustedValidator.config,
   });
+  const tracerOuterObservation = summarizeProviderCallFence(checkerFence, {
+    since: tracerFenceCursor,
+    window: 'checker-outer-fence-over-phase0b-tracer',
+  });
+  const lifecycleFenceCursor = snapshotProviderFence(checkerFence);
   const canonicalLifecycle = await runCanonicalModelVillageLifecycle({ root });
+  const lifecycleOuterObservation = summarizeProviderCallFence(checkerFence, {
+    since: lifecycleFenceCursor,
+    window: 'checker-outer-fence-over-canonical-lifecycle',
+  });
+  // Every I/O-capable phase of this checker has now run, so this is the window
+  // the receipt publishes. Nothing below opens a socket; the non-regression
+  // check at receipt-build time proves that rather than assuming it.
+  const checkerObservation = summarizeProviderCallFence(checkerFence, {
+    window: 'checker-execution-through-receipt-seal',
+  });
+  // Every child process this checker spawned published its own window from
+  // inside itself. They are collected here rather than inferred: a spawn site
+  // that stops fencing its child stops contributing an observation, and the
+  // "no child observations" rule in buildProviderCallEvidence fires.
+  const childProcessObservations = [
+    ...parsers,
+    observerProjectionParser,
+    ...headlessRuns,
+  ].flatMap((entry) => entry?.providerFences ?? []);
+  const providerCallEvidence = buildProviderCallEvidence({
+    checkerObservation,
+    childProcessObservations,
+    engineeringTracer,
+    canonicalLifecycle,
+    observerBoundaryFixture,
+    tracerOuterObservation,
+    lifecycleOuterObservation,
+  });
+
   const semanticIr = buildSemanticIr(texts);
   const experimentDesign = buildExperimentDesign(texts.kernelCode);
   const assertions = buildAssertions({
+    providerCallEvidence,
     texts,
     semanticIr,
     parsers,
@@ -2007,7 +2421,9 @@ export async function runModelVillageCheck(options = {}) {
     scientificOutcomeClaimed: extractBoolean(texts.kernelCode, 'scientificOutcomeClaimed') ?? false,
     worldObjectsMaterialized: headlessReplay.objectCount,
     baselineEventsCountedWithoutPayloadTrace: headlessReplay.baselineEventCount,
-    providerCallsMadeByChecker: 0,
+    providerCallsMadeByChecker:
+      checkerObservation.providerFetchCallsObserved,
+    providerCallEvidence,
     capturedFixtureScheduleEntriesExecuted:
       observerBoundaryFixture.executedSchedule.length,
     capturedFixtureResidentObservationsMaterialized:
@@ -2062,6 +2478,8 @@ export async function runModelVillageCheck(options = {}) {
       boundedHoloToHsplusStopDispatchExecuted:
         engineeringTracer.claimBoundary.boundedHoloToHsplusStopDispatchExecuted,
       providerCallsMade: engineeringTracer.runtime.providerCalls,
+      providerCallMeasurement:
+        engineeringTracer.receipt.providerCallMeasurement,
       transactionScope: engineeringTracer.claimBoundary.transactionScope,
     },
     canonicalLifecycle: {
@@ -2182,6 +2600,36 @@ export async function runModelVillageCheck(options = {}) {
     git,
     claimBoundary,
   };
+  // NON-REGRESSION ON THE SEALED WINDOW: prove that nothing between the seal
+  // and here opened a socket, instead of asserting it in a comment. If the
+  // fence moved after the receipt's number was taken, the receipt is stale and
+  // must not be written.
+  const postSealObservation = summarizeProviderCallFence(checkerFence, {
+    window: 'checker-post-seal-non-regression',
+  });
+  // Two DIFFERENT faults, reported separately. Folding them together sent an
+  // operator hunting a stale-count bug when the real cause was a fence that was
+  // never watching in the first place.
+  if (postSealObservation.measured !== true) {
+    throw new Error(
+      'Model Village check: the provider-call window is UNMEASURED at receipt-'
+      + `write time (${postSealObservation.unmeasuredReason
+        || 'no reason published'}); an unwatched window cannot be published as `
+      + 'a clean run',
+    );
+  }
+  if (
+    postSealObservation.fetchCallsObserved
+      !== checkerObservation.fetchCallsObserved
+    || postSealObservation.providerFetchCallsObserved
+      !== checkerObservation.providerFetchCallsObserved
+  ) {
+    throw new Error(
+      'Model Village check: the provider-call fence moved after the receipt '
+      + 'window was sealed; the published count is stale',
+    );
+  }
+
   const receipt = {
     ...unsignedModelVillageReceipt,
     receipt: {
@@ -2189,7 +2637,11 @@ export async function runModelVillageCheck(options = {}) {
       rawSourceIncluded: false,
       rawModelPromptsIncluded: false,
       rawModelResponsesIncluded: false,
-      providerCallsMadeByChecker: 0,
+      providerCallMeasurement: checkerObservation.measured
+        ? 'measured'
+        : 'unmeasured',
+      providerCallsMadeByChecker:
+        checkerObservation.providerFetchCallsObserved,
       output: normalizePath(output),
     },
   };

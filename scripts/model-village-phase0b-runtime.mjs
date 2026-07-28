@@ -26,9 +26,47 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { extractCanonicalWorldManifest } from './model-village-canonical-lifecycle.mjs';
+import {
+  installProviderCallFence,
+  snapshotProviderFence,
+  summarizeProviderCallFence,
+  unmeasuredProviderCallObservation,
+  verifyProviderCallObservation,
+} from './model-village-provider-call-fence.mjs';
+
+// ---------------------------------------------------------------------------
+// PROVIDER-CALL MEASUREMENT — the one number on this lane that must never be a
+// literal.
+//
+// This tracer used to publish `providerCalls: 0` as a hardcoded constant in
+// three places, and verifyPhase0BReceipt "verified" it by comparing against the
+// same constant. Nothing on the path intercepted fetch, so a REAL provider call
+// during the tracer would not have moved the number: the claim was
+// unfalsifiable by construction.
+//
+// It is now MEASURED. runPhase0BEngineeringTracer installs the shared counting
+// fence (./model-village-provider-call-fence.mjs — the same implementation
+// MV-B6's conductor is gated on) over globalThis.fetch for the whole run and
+// publishes the fence's OWN counters as `runtime.providerFence`, with a
+// sub-window delta for the fresh replay as `replay.providerFence`.
+// `runtime.providerCalls`, `replay.providerCalls` and
+// `receipt.providerCallsMadeByTracer` are now projections of those counters and
+// are cross-bound to them by the verifier.
+//
+// Two honest limits, stated rather than buried:
+//  - The window closes when the receipt is SEALED. verifyPhase0BReceipt then
+//    re-executes the source runs to check them; those fetches are outside the
+//    published window by construction (a receipt cannot contain a count taken
+//    after its own hash). The checker's out-of-band outer fence is what covers
+//    that span.
+//  - The fence covers globalThis.fetch only. A pre-fence captured reference, a
+//    raw node:http/https socket, or a child process is out of scope — which is
+//    exactly why check-hololand-model-village-experiment.mjs installs a SECOND,
+//    EARLIER fence around this one and gates on it independently.
+// ---------------------------------------------------------------------------
 
 export const PHASE0B_RECEIPT_SCHEMA =
-  'hololand.model-village-phase0b-runtime-bridge.v2';
+  'hololand.model-village-phase0b-runtime-bridge.v3';
 export const PHASE0B_STATE_SCHEMA =
   'hololand.model-village-phase0b-persistent-state.v1';
 export const PHASE0B_VALIDATOR_SCHEMA =
@@ -1028,6 +1066,13 @@ function validateSourceRun(run, runManifest, { observerRequired }) {
     || claimBoundary.worldSourceReexecutedDuringVerification !== true
     || claimBoundary.hsPlanSourceReexecutedDuringVerification !== true
     || claimBoundary.hsplusBehaviorSourceReexecutedDuringVerification !== true
+    // LEFT AS AN INHERITED-FIELD ASSERTION, deliberately. This claim boundary
+    // is emitted by the HoloScript CLI's source-run receipt, not by this
+    // module, so checking it here is verifying an out-of-band producer's field
+    // rather than a constant we just wrote. What actually backs it is the
+    // tracer's fence: the CLI runs IN-PROCESS inside that window, so a provider
+    // call made by the CLI increments runtime.providerFence and fails the gate
+    // regardless of what the CLI says about itself.
     || claimBoundary.providerCallsMade !== 0
     || claimBoundary.fullHoloWorldProjectionClaimed !== false
     || claimBoundary.fullHsLanguageExecutionClaimed !== false
@@ -1322,7 +1367,13 @@ export function buildPhase0BObserverProjectionWitness({
       observerIntroducedExperimentExecutionCount,
       projectionOwnsExperimentBehavior: false,
       projectionWorldWritePathExposed: false,
-      providerCallsMade: 0,
+      // This witness is a PURE projection of an already-sealed source run: it
+      // opens no socket and has no fence of its own, so it is not entitled to
+      // publish a provider-call count. It used to publish a literal 0, which
+      // was a claim it could not make. It now names the single measured place
+      // instead, so a consumer that wants the number has to read a counter.
+      providerCallMeasurementAuthority:
+        'receipt.runtime.providerFence (measured by the tracer fence)',
     },
   };
   if (
@@ -2819,6 +2870,13 @@ export function verifyPhase0BReceiptSelfIntegrity(value) {
     return (
       value?.receipt?.receiptHash === outerReceiptHash(value)
       && value.receipt.rawModelResponsesIncluded === false
+      // ABSENT EVIDENCE BLOCKS: an unmeasured window can never read as clean.
+      && value.receipt.providerCallMeasurement === 'measured'
+      && value.runtime?.providerFence?.measured === true
+      // The unhashed summary must equal the hash-bound observation it claims to
+      // summarize; editing one alone breaks the identity.
+      && value.receipt.providerCallsMadeByTracer
+        === value.runtime.providerFence.providerFetchCallsObserved
       && value.receipt.providerCallsMadeByTracer === 0
     );
   } catch {
@@ -2861,6 +2919,7 @@ export async function verifyPhase0BReceipt(
     assertExactKeys(
       value.receipt,
       [
+        'providerCallMeasurement',
         'providerCallsMadeByTracer',
         'rawModelPromptsIncluded',
         'rawModelResponsesIncluded',
@@ -2868,6 +2927,52 @@ export async function verifyPhase0BReceipt(
       ],
       'Phase 0B self-integrity receipt',
     );
+    // The provider-call gate. It runs against the OBSERVATION the fence
+    // produced, not against a constant this verifier also wrote: an unmeasured
+    // window, a counter below its own incident log, a misclassified target, or
+    // any nonzero provider count fails here.
+    const providerFenceFailures = [
+      ...verifyProviderCallObservation(value.runtime?.providerFence, {
+        label: 'Phase 0B receipt runtime.providerFence',
+      }),
+      ...verifyProviderCallObservation(value.replay?.providerFence, {
+        label: 'Phase 0B receipt replay.providerFence',
+      }),
+      // The separate PROCESS is not covered by any fence in this one, so its own
+      // window is verified here with the identical rule set. An absent or
+      // unmeasured child observation fails; it never reads as a clean zero.
+      ...verifyProviderCallObservation(
+        value.persistence?.separateProcessProviderFence,
+        {
+          label: 'Phase 0B receipt persistence.separateProcessProviderFence',
+        },
+      ),
+    ];
+    if (
+      value.replay?.providerFence?.measured === true
+      && value.runtime?.providerFence?.measured === true
+      && value.replay.providerFence.fetchCallsObserved
+        > value.runtime.providerFence.fetchCallsObserved
+    ) {
+      providerFenceFailures.push(
+        'the fresh-replay provider-call sub-window recorded more fetch calls '
+        + 'than the whole tracer window that contains it',
+      );
+    }
+    if (
+      value.runtime?.providerCalls
+      !== value.runtime?.providerFence?.providerFetchCallsObserved
+      || value.replay?.providerCalls
+        !== value.replay?.providerFence?.providerFetchCallsObserved
+    ) {
+      providerFenceFailures.push(
+        'a published providerCalls value does not equal the fence counter it '
+        + 'projects; the summary and the measurement disagree',
+      );
+    }
+    if (providerFenceFailures.length > 0) {
+      throw new Error(providerFenceFailures.join('; '));
+    }
     const assertionKeys = [
       'atomicActionAdmissionAndWorldMutation',
       'atomicCommitBoundToVerifiedV4SourceRun',
@@ -3082,7 +3187,12 @@ export async function verifyPhase0BReceipt(
       observationSubjects: executionSummary.observationSubjects,
       observerProof: structuredClone(mainRun.observerProof),
       observerProjection,
-      providerCalls: 0,
+      // Carried from the receipt, NOT rebuilt from a constant: the value was
+      // already gated above by verifyProviderCallObservation, which is where the
+      // provider-call claim is actually decided. Rebuilding a literal here is
+      // what made the original claim unfalsifiable.
+      providerCalls: value.runtime?.providerCalls,
+      providerFence: value.runtime?.providerFence,
       worldProjection: canonicalWorldProjection,
       sourceBundleHash: executionSummary.sourceBundleHash,
       sourceClaimBoundary: structuredClone(freshReplay.run.claimBoundary),
@@ -3106,7 +3216,8 @@ export async function verifyPhase0BReceipt(
       freshExecutionCount: 1,
       match: true,
       projectionHash: canonicalDigest(replayProjection(mainRun)),
-      providerCalls: 0,
+      providerCalls: value.replay?.providerCalls,
+      providerFence: value.replay?.providerFence,
     };
     if (
       canonicalJson(replayProjection(mainRun))
@@ -3144,6 +3255,12 @@ export async function verifyPhase0BReceipt(
       replayAfterRestartRejected: true,
       restartRecovered: true,
       sameProcessRereadRecovered: true,
+      // Carried, NOT rebuilt: this observation was taken inside the fresh child
+      // process and is gated above by verifyProviderCallObservation. Rebuilding
+      // a literal here is the pattern that made the original claim
+      // unfalsifiable.
+      separateProcessProviderFence:
+        value.persistence?.separateProcessProviderFence,
       separateProcessRereadRecovered: true,
       stateReceipt: expectedPersistentState,
       stateSchema: expectedPersistentState.schema,
@@ -3218,12 +3335,36 @@ function makeDefaultStoreDir(root, label) {
   );
 }
 
+/**
+ * Reads the persisted state hash in a FRESH PROCESS, with the provider-call
+ * fence installed inside that process.
+ *
+ * The child has its own globals, so the tracer's fence structurally cannot see
+ * anything it does — this spawn was a real hole in the lane's zero-provider-call
+ * claim, not a hypothetical one. The child therefore installs the same fence
+ * (resolved relative to the module URL it is already given, so a seam-tree copy
+ * fences against its own sibling) and prints its own observation back, which the
+ * caller verifies with the same rule set it applies to its own windows. A child
+ * that prints no observation is UNMEASURED and throws.
+ */
 function readPersistentStateHashInFreshProcess(storeDir) {
   const program = `
     const moduleUrl = process.argv[1];
     const storeDir = process.argv[2];
+    const fenceUrl = new URL(
+      './model-village-provider-call-fence.mjs',
+      moduleUrl,
+    ).href;
+    const fenceModule = await import(fenceUrl);
+    const fence = fenceModule.installProviderCallFence();
     const runtime = await import(moduleUrl);
-    process.stdout.write(runtime.readPersistentState(storeDir).stateHash);
+    const stateHash = runtime.readPersistentState(storeDir).stateHash;
+    process.stdout.write(JSON.stringify({
+      providerFence: fenceModule.summarizeProviderCallFence(fence, {
+        window: 'phase0b-fresh-process-persistent-state-read',
+      }),
+      stateHash,
+    }));
   `;
   const child = spawnSync(
     process.execPath,
@@ -3245,10 +3386,49 @@ function readPersistentStateHashInFreshProcess(storeDir) {
       + `${String(child.stderr || child.stdout).trim()}`,
     );
   }
-  return String(child.stdout).trim();
+  let reported;
+  try {
+    reported = JSON.parse(String(child.stdout).trim());
+  } catch (error) {
+    throw new Error(
+      `Fresh-process persistent-state recovery produced no provider-call `
+      + `observation (${error?.message || String(error)}); an unmeasured child `
+      + `process cannot be reported as a clean one`,
+    );
+  }
+  const observation = reported?.providerFence
+    ?? unmeasuredProviderCallObservation(
+      'phase0b-fresh-process-persistent-state-read',
+      'the fresh process published no provider-call observation',
+    );
+  const failures = verifyProviderCallObservation(observation, {
+    label: 'Phase 0B fresh-process persistent-state read',
+  });
+  if (failures.length > 0) {
+    throw new Error(
+      `Phase 0B fresh-process provider-call measurement failed: `
+      + `${failures.join('; ')}`,
+    );
+  }
+  return {
+    providerFence: observation,
+    stateHash: String(reported.stateHash ?? '').trim(),
+  };
 }
 
 export async function runPhase0BEngineeringTracer(options = {}) {
+  // The fence goes up BEFORE the HoloScript CLI/core are even imported, so the
+  // parser's own WASM initialization is inside the measured window rather than
+  // ahead of it. Restored in the finally at the end of this function.
+  const providerFence = installProviderCallFence();
+  try {
+    return await runPhase0BEngineeringTracerFenced(options, providerFence);
+  } finally {
+    providerFence.restore();
+  }
+}
+
+async function runPhase0BEngineeringTracerFenced(options, providerFence) {
   const root = path.resolve(
     options.root
       ?? path.join(path.dirname(fileURLToPath(import.meta.url)), '..'),
@@ -3323,6 +3503,9 @@ export async function runPhase0BEngineeringTracer(options = {}) {
     runManifest,
     { observerRequired: true },
   );
+  // Sub-window: the fresh replay only. `replay.providerCalls` is this delta, not
+  // a constant that happens to read zero.
+  const replayFenceCursor = snapshotProviderFence(providerFence);
   const freshReplay = await executeSourceRun(
     holoScript.cli,
     {
@@ -3333,6 +3516,10 @@ export async function runPhase0BEngineeringTracer(options = {}) {
     'off',
   );
   validateSourceRun(freshReplay.run, runManifest, { observerRequired: false });
+  const replayProviderObservation = summarizeProviderCallFence(providerFence, {
+    since: replayFenceCursor,
+    window: 'phase0b-fresh-captured-response-replay',
+  });
   const observerProjection = buildPhase0BObserverProjectionWitness({
     sealedSourceRun: first.run,
   });
@@ -3365,10 +3552,9 @@ export async function runPhase0BEngineeringTracer(options = {}) {
   const restartRecovered =
     recoveredState.stateHash === atomicCommit.state.stateHash
     && recoveredState.lastAuthorizationSequence === 1;
-  const freshProcessStateHash =
-    readPersistentStateHashInFreshProcess(storeDir);
+  const freshProcessRead = readPersistentStateHashInFreshProcess(storeDir);
   const separateProcessRecovery =
-    freshProcessStateHash === recoveredState.stateHash;
+    freshProcessRead.stateHash === recoveredState.stateHash;
   let replayRejected = false;
   const beforeReplayStateHash = recoveredState.stateHash;
   try {
@@ -3614,6 +3800,34 @@ export async function runPhase0BEngineeringTracer(options = {}) {
     );
   }
 
+  // SEAL THE MEASUREMENT. Everything the tracer claims to have executed has now
+  // run; this snapshot is the window the receipt publishes. It is taken BEFORE
+  // the receipt is built so the number in the receipt is an observation the
+  // tracer made, never one it asserted.
+  const providerObservation = summarizeProviderCallFence(providerFence, {
+    window: 'phase0b-tracer-execution-through-receipt-seal',
+  });
+  const providerObservationFailures = verifyProviderCallObservation(
+    providerObservation,
+    { label: 'Phase 0B tracer provider-call fence' },
+  );
+  if (providerObservationFailures.length > 0) {
+    throw new Error(
+      `Phase 0B provider-call measurement failed: `
+      + `${providerObservationFailures.join('; ')}`,
+    );
+  }
+  const replayObservationFailures = verifyProviderCallObservation(
+    replayProviderObservation,
+    { label: 'Phase 0B fresh-replay provider-call window' },
+  );
+  if (replayObservationFailures.length > 0) {
+    throw new Error(
+      `Phase 0B provider-call measurement failed: `
+      + `${replayObservationFailures.join('; ')}`,
+    );
+  }
+
   const unsigned = {
     assertions,
     claimBoundary: {
@@ -3675,6 +3889,10 @@ export async function runPhase0BEngineeringTracer(options = {}) {
       replayAfterRestartRejected: replayRejected,
       restartRecovered: separateProcessRecovery,
       sameProcessRereadRecovered: restartRecovered,
+      // The fresh process's OWN provider-call window, measured inside it. The
+      // tracer's fence cannot see another process, so without this the
+      // separate-process arm of this receipt was unwatched by construction.
+      separateProcessProviderFence: freshProcessRead.providerFence,
       separateProcessRereadRecovered: separateProcessRecovery,
       stateReceipt: structuredClone(atomicCommit.state),
       stateSchema: atomicCommit.state.schema,
@@ -3692,7 +3910,8 @@ export async function runPhase0BEngineeringTracer(options = {}) {
       freshExecutionCount: 1,
       match: replayMatch,
       projectionHash: canonicalDigest(firstProjection),
-      providerCalls: 0,
+      providerCalls: replayProviderObservation.providerFetchCallsObserved,
+      providerFence: replayProviderObservation,
     },
     runtime: {
       actionDecisions: executionSummary.actionDecisions,
@@ -3704,7 +3923,8 @@ export async function runPhase0BEngineeringTracer(options = {}) {
       observationSubjects: executionSummary.observationSubjects,
       observerProof: structuredClone(first.run.observerProof),
       observerProjection,
-      providerCalls: 0,
+      providerCalls: providerObservation.providerFetchCallsObserved,
+      providerFence: providerObservation,
       worldProjection: canonicalWorldProjection,
       sourceBundleHash: executionSummary.sourceBundleHash,
       sourceClaimBoundary: structuredClone(first.run.claimBoundary),
@@ -3737,7 +3957,13 @@ export async function runPhase0BEngineeringTracer(options = {}) {
   const result = {
     ...unsigned,
     receipt: {
-      providerCallsMadeByTracer: 0,
+      // Projections of the hash-bound observation in runtime.providerFence.
+      // The verifier cross-binds them to it, so this unhashed block cannot
+      // disagree with the measurement it summarizes.
+      providerCallMeasurement: providerObservation.measured
+        ? 'measured'
+        : 'unmeasured',
+      providerCallsMadeByTracer: providerObservation.providerFetchCallsObserved,
       rawModelPromptsIncluded: false,
       rawModelResponsesIncluded: false,
       receiptHash: canonicalDigest(unsigned),
