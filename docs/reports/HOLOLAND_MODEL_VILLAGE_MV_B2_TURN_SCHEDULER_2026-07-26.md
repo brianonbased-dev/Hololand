@@ -107,8 +107,29 @@ vocabularyHash: 16b26b3a48dad9483c88a1080c24eff45dc7aa2775cecd99c308e2e50bf77b4b
 
 Isolation: run r2 proved `priorRunUntouched=true` (r1's run directory
 byte-identical afterwards) and `crossRunCustodyReadRefused=true`. Receipt
-self-verified via `--verify`; `liveSovereignRouteExercised=true`;
-`canonicalLaneProviderCallsIntroduced: 0`.
+self-verified via `--verify`; `canonicalLaneProviderCallsIntroduced: 0`.
+
+> **CORRECTION 2026-07-27 — `liveSovereignRouteExercised=true` was withdrawn from
+> this row; it was never evidence of liveness.** That field was set from
+> `skipLive === false`, a CLI argument, and the check that appeared to verify it
+> (`scripts/check-hololand-model-village-turn-scheduler.mjs:1058-1060`) compares
+> it against `runs.some(run => run.live)` — where `run.live` is itself set from
+> the same `skipLive` input, so the cross-check scored its own input. An injected
+> fake `fetchImpl` was shown to produce `certified: true` with the live flag true
+> and **zero network calls**. The field has since been removed from the MV-B1
+> adapter-custody receipt in favour of a three-state transport verdict
+> (`MEASURED_LIVE_TRANSPORT` / `MEASURED_NOT_LIVE` / `UNMEASURED`) derived from
+> real `node:diagnostics_channel` undici events; the observation is **not yet
+> ported to this scheduler gate**.
+>
+> This withdraws the *proof*, not necessarily the *fact*. The r1 row's own
+> content is better evidence than the flag ever was — three HoloServe residents
+> default-denying on prose-wrapped JSON while three Jetson residents admitted
+> with catalog match is route-specific divergent behaviour that a stub would not
+> produce by accident. But that divergence was never machine-checked, so this run
+> should be cited as *engineering evidence consistent with a live route*, never
+> as a certified live-route receipt. See
+> `ai-ecosystem/research/2026-07-27_model-village-gate-truth-audit.md`.
 
 ## Claim boundary
 
