@@ -40,9 +40,16 @@ import {
   CONTENTION_DRILL_SCHEMA,
 } from '../model-village-contention-drill.mjs';
 import {
+  ATOMIC_REPLACEMENT_MIN_REPLACEMENTS,
+  ATOMIC_REPLACEMENT_PROBE_SCHEMA,
+  ATOMIC_REPLACEMENT_VERDICTS,
   CRASH_DRILL_SCENARIO_EXPECTATIONS,
   CRASH_DRILL_SCENARIOS,
   CRASH_DRILL_SCHEMA,
+  TORN_READ_MIN_PUBLICATIONS_WITNESSED,
+  TORN_READ_PROBE_SCHEMA,
+  TORN_READ_REQUIRED_ATTEMPTS,
+  TORN_READ_VERDICTS,
 } from '../model-village-crash-drill.mjs';
 import {
   canonicalDigest,
@@ -96,6 +103,7 @@ test('receipt has the exact top-level schema shape', { timeout: SUITE_TIMEOUT_MS
   const keys = Object.keys(RECEIPT).sort();
   assert.deepEqual(keys, [
     'allInvariantsHeld',
+    'atomicReplacementProbe',
     'auditOpenDrill',
     'claimBoundary',
     'contentionDrill',
@@ -104,6 +112,7 @@ test('receipt has the exact top-level schema shape', { timeout: SUITE_TIMEOUT_MS
     'generatedAt',
     'receiptHash',
     'schema',
+    'tornReadProbe',
   ]);
 });
 
@@ -151,6 +160,97 @@ test('contention drill and audit-open drill are both present and honest', {
   assert.ok(SHA256_PATTERN.test(RECEIPT.auditOpenDrill.accessLogTailHash));
   assert.ok(Array.isArray(RECEIPT.auditOpenDrill.checkNames));
   assert.ok(RECEIPT.auditOpenDrill.checkNames.includes('access-log-chain'));
+});
+
+test('the torn-read probe measured atomic replacement and is embedded honestly', {
+  timeout: SUITE_TIMEOUT_MS,
+}, () => {
+  // DEFECT A: before this probe existed, replacing writeAtomicState with a naive
+  // direct write left every other assertion in this file green — including the
+  // crash drills named ...-before-rename and ...-after-rename. This block is the
+  // only thing here that can tell the two implementations apart.
+  const probe = RECEIPT.tornReadProbe;
+  assert.equal(probe.schema, TORN_READ_PROBE_SCHEMA);
+  assert.equal(
+    probe.verdict,
+    TORN_READ_VERDICTS.HELD,
+    `atomic replacement must be MEASURED to hold — ${JSON.stringify(probe.observed)} `
+    + `${probe.unmeasuredReasons.join('; ')}`,
+  );
+  assert.equal(probe.hits, 0);
+  assert.equal(probe.observed.readsTorn, 0);
+  assert.deepEqual(probe.unmeasuredReasons, []);
+
+  // The measurement preconditions are asserted here too, so a probe that
+  // silently stopped racing cannot ride along on a HELD label.
+  assert.equal(probe.observed.writerSignalledFirstWrite, true);
+  assert.equal(probe.observed.writerExitedEarly, false);
+  assert.equal(probe.observed.readersReporting, probe.observed.readerCount);
+  assert.ok(
+    probe.observed.publicationsWitnessed >= TORN_READ_MIN_PUBLICATIONS_WITNESSED,
+    `readers witnessed ${probe.observed.publicationsWitnessed} completed replacements`,
+  );
+  assert.ok(
+    probe.observed.publicationWindowAttempts >= TORN_READ_REQUIRED_ATTEMPTS,
+    `${probe.observed.publicationWindowAttempts} in-window attempts >= the power floor `
+    + `${TORN_READ_REQUIRED_ATTEMPTS}`,
+  );
+  assert.ok(probe.power.detectionAtCalibratedRate >= 0.95);
+  assert.equal(probe.power.attemptsAchieved, probe.observed.publicationWindowAttempts);
+
+  // allInvariantsHeld must be gated on this probe, not merely accompanied by it.
+  assert.equal(RECEIPT.allInvariantsHeld, true);
+});
+
+test('a laundered torn-read probe is rejected by verifyDurabilityReceipt', {
+  timeout: SUITE_TIMEOUT_MS,
+}, () => {
+  const probe = RECEIPT.tornReadProbe;
+
+  // (a) A probe that SAW tears but is labelled HELD, re-signed at both levels.
+  const tornObserved = {
+    ...probe,
+    hits: 3,
+    observed: {
+      ...probe.observed,
+      readsTorn: 3,
+      readsTotal: probe.observed.readsTotal + 3,
+      publicationWindowAttempts: probe.observed.publicationWindowAttempts + 3,
+    },
+  };
+  delete tornObserved.receiptHash;
+  const signedTorn = { ...tornObserved, receiptHash: canonicalDigest(tornObserved) };
+  const launderedTorn = { ...RECEIPT, tornReadProbe: signedTorn };
+  delete launderedTorn.receiptHash;
+  const verificationTorn = verifyDurabilityReceipt({
+    ...launderedTorn,
+    receiptHash: canonicalDigest(launderedTorn),
+  });
+  assert.equal(verificationTorn.ok, false, 'an observed tear cannot be labelled HELD');
+  assert.match(verificationTorn.failureReason, /torn-read/i);
+
+  // (b) An UNMEASURED probe must fail the durability receipt outright — a probe
+  //     that could not measure must never be indistinguishable from one that did.
+  const unmeasured = {
+    ...probe,
+    unmeasuredReasons: ['synthetic: the probe could not measure'],
+    verdict: TORN_READ_VERDICTS.UNMEASURED,
+  };
+  delete unmeasured.receiptHash;
+  const signedUnmeasured = { ...unmeasured, receiptHash: canonicalDigest(unmeasured) };
+  const launderedUnmeasured = { ...RECEIPT, tornReadProbe: signedUnmeasured };
+  delete launderedUnmeasured.receiptHash;
+  const verificationUnmeasured = verifyDurabilityReceipt({
+    ...launderedUnmeasured,
+    receiptHash: canonicalDigest(launderedUnmeasured),
+  });
+  assert.equal(verificationUnmeasured.ok, false, 'UNMEASURED must fail closed');
+  assert.match(verificationUnmeasured.failureReason, /did not measure/i);
+
+  // (c) Dropping the probe entirely is rejected by the closed-key assertion.
+  const stripped = { ...RECEIPT };
+  delete stripped.tornReadProbe;
+  assert.equal(verifyDurabilityReceipt(stripped).ok, false, 'the probe cannot be removed');
 });
 
 test('gaps are surfaced honestly, and the two fixed HIGH gaps stay fixed', {
@@ -224,6 +324,139 @@ test('claim-boundary flags are pinned exactly (honest about what is NOT proven)'
   assert.match(cb.observed.join(' '), /process-crash/i);
   assert.match(cb.observed.join(' '), /multi-process/i);
   assert.match(cb.observed.join(' '), /audit-open/i);
+  // ...and it must say that atomic replacement is MEASURED, not inferred, and
+  // that the crash drills alone do not discriminate the write mechanism.
+  // CORRECTED 2026-07-27: this used to match "ATOMIC STATE REPLACEMENT ITSELF
+  // is measured", which was the overclaim a second adversarial review broke.
+  // The torn-read probe measures atomic PUBLICATION on the CREATE path; atomic
+  // REPLACEMENT is measured by a separate deterministic probe. Both rows must be
+  // present and must not be collapsed back into one.
+  assert.match(
+    cb.observed.join(' '),
+    /ATOMIC STATE PUBLICATION ON THE CREATE PATH is measured/,
+  );
+  assert.match(
+    cb.observed.join(' '),
+    /ATOMIC STATE REPLACEMENT ON THE PRODUCTION COMMIT PATH is measured/,
+  );
+  assert.doesNotMatch(
+    cb.observed.join(' '),
+    /ATOMIC STATE REPLACEMENT ITSELF is measured/,
+    'the create-path probe must never again be described as measuring replacement',
+  );
+  assert.match(cb.notObserved.join(' '), /do NOT discriminate atomic replacement/);
+  assert.match(cb.notObserved.join(' '), /torn-read probe is PROBABILISTIC/);
+  // The disappearing-state-file blind spot is disclosed, not silently carried.
+  assert.match(cb.notObserved.join(' '), /NO PROBE HERE SEES A DISAPPEARING STATE FILE/);
+});
+
+test('the atomic-replacement probe is a real gate row, not a decoration', {
+  timeout: SUITE_TIMEOUT_MS,
+}, () => {
+  const probe = RECEIPT.atomicReplacementProbe;
+  assert.ok(probe, 'the receipt carries an atomic-replacement probe');
+  assert.equal(probe.schema, ATOMIC_REPLACEMENT_PROBE_SCHEMA);
+  assert.equal(probe.verdict, ATOMIC_REPLACEMENT_VERDICTS.HELD);
+  assert.equal(probe.hits, 0);
+  assert.deepEqual(probe.unmeasuredReasons, []);
+  // Deterministic detector, so the floor is anti-vacuity rather than a sample
+  // size — but it must still have been MET, with the target actually present.
+  assert.ok(probe.observed.replacementsExecuted >= ATOMIC_REPLACEMENT_MIN_REPLACEMENTS);
+  assert.equal(
+    probe.observed.replacementsWithTargetPresent,
+    probe.observed.replacementsExecuted,
+  );
+  // The comparator that carries the whole claim is controlled in-run.
+  assert.equal(probe.observed.comparatorControl.inPlaceRewriteReadsAsSameFile, true);
+  assert.equal(probe.observed.comparatorControl.atomicReplaceReadsAsNewFile, true);
+  // The seam is recorded so a reader can check it is the shipping bytes.
+  assert.match(probe.observed.seamShippedRuntimeSha256, /^[a-f0-9]{64}$/);
+  assert.ok(probe.observed.seamAppendedBytes > 0);
+  // allInvariantsHeld must be a conjunction that INCLUDES this probe.
+  assert.equal(RECEIPT.allInvariantsHeld, true);
+});
+
+test('the torn-read probe reports its IN-RUN detector control in the receipt', {
+  timeout: SUITE_TIMEOUT_MS,
+}, () => {
+  assert.deepEqual(RECEIPT.tornReadProbe.observed.detectorControl, {
+    absentClassified: true,
+    completeClassified: true,
+    tornClassified: true,
+  });
+});
+
+test('the gap register records what the torn-read probe does NOT cover', {
+  timeout: SUITE_TIMEOUT_MS,
+}, () => {
+  const tornGap = RECEIPT.gapsObserved.find((gap) => gap.ref === 'G-TORNREAD');
+  assert.ok(tornGap, 'the probe carries its own residual-scope entry');
+  assert.equal(tornGap.executed, false);
+  assert.match(tornGap.summary, /PROBABILISTIC/);
+  assert.match(tornGap.summary, /custody/, 'names the store it does not cover');
+
+  // The two entries this audit disproved must carry their corrections.
+  const exportGap = RECEIPT.gapsObserved.find((gap) => gap.ref === 'G-EXPORT');
+  assert.ok(exportGap, 'G-EXPORT is still catalogued');
+  assert.match(
+    exportGap.summary,
+    /CORRECTED 2026-07-27/,
+    'G-EXPORT no longer lets the rename-named crash drills read as mechanism coverage',
+  );
+  const dirFsyncGap = RECEIPT.gapsObserved.find((gap) => gap.ref === 'G6');
+  assert.ok(dirFsyncGap, 'G6 is still catalogued');
+  assert.match(
+    dirFsyncGap.summary,
+    /CORRECTED 2026-07-27/,
+    'G6 no longer ASSERTS "never a torn read" as though something measured it',
+  );
+  assert.doesNotMatch(dirFsyncGap.summary, /consistency-safe: never a torn read/);
+
+  // G-TORNREAD must now own its BIGGEST residual: it races the CREATE path.
+  assert.match(
+    tornGap.summary,
+    /THE PROBE RACES THE CREATE PATH, NOT THE REPLACEMENT PATH/,
+    'the scope correction must ride on the gap entry, not only in a comment',
+  );
+
+  // G-VANISH: an OPEN gap, disclosed with its file:line, its executed evidence,
+  // and the feasibility data needed to close it — never silently carried.
+  const vanishGap = RECEIPT.gapsObserved.find((gap) => gap.ref === 'G-VANISH');
+  assert.ok(vanishGap, 'the disappearing-state-file blind spot is catalogued');
+  assert.equal(vanishGap.executed, false);
+  assert.equal(vanishGap.severity, 'MEDIUM');
+  assert.match(vanishGap.file, /model-village-phase0b-runtime\.mjs:\d+/);
+  assert.match(vanishGap.summary, /OPEN, NOT CLOSED/);
+  assert.match(
+    vanishGap.summary,
+    /invisible to BOTH probes/,
+    'it must say plainly that neither probe catches it',
+  );
+  assert.match(
+    vanishGap.minimalFix,
+    /false-positive/i,
+    'the reason it was recorded rather than shipped must be stated',
+  );
+});
+
+test('the two rename-named crash drills state their own non-coverage', {
+  timeout: SUITE_TIMEOUT_MS,
+}, () => {
+  // These are the drills DEFECT A walked straight through. Their descriptions
+  // now say so, so the next reader does not mistake them for mechanism coverage.
+  for (const scenario of [
+    'persistent-state-killed-after-rename',
+    'persistent-state-killed-before-rename',
+  ]) {
+    const drill = RECEIPT.crashDrills.find((entry) => entry.scenario === scenario);
+    assert.ok(drill, `${scenario} still runs`);
+    assert.match(
+      drill.invariantDescription,
+      /NON-COVERAGE/,
+      `${scenario} must state that it cannot discriminate the write mechanism`,
+    );
+    assert.match(drill.invariantDescription, /torn-read probe/);
+  }
 });
 
 test('emitted receipt file self-verifies via verifyDurabilityReceipt', {

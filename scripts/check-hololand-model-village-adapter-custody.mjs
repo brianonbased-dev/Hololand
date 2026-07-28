@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* global Buffer, console, process */
+/* global AbortSignal, Buffer, URL, console, process */
 
 // HoloLand Model Village MV-B1 adapter + custody integration checker.
 //
@@ -20,6 +20,7 @@
 // model text live exclusively in the sealed custody store.
 
 import { createHash } from 'node:crypto';
+import diagnosticsChannel from 'node:diagnostics_channel';
 import {
   existsSync,
   mkdirSync,
@@ -28,7 +29,7 @@ import {
 } from 'node:fs';
 import { createServer } from 'node:http';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 
 import {
   canonicalDigest,
@@ -98,7 +99,6 @@ const CUSTODY_DRILLS_KEYS = Object.freeze([
 const CLAIM_BOUNDARY_KEYS = Object.freeze([
   'blindedAliasAssignmentClaimed',
   'canonicalLaneProviderCallsIntroduced',
-  'liveSovereignRouteExercised',
   'liveStudyRunClaimed',
   'notObserved',
   'observed',
@@ -108,6 +108,7 @@ const CLAIM_BOUNDARY_KEYS = Object.freeze([
   'providerSamplingDeterminismClaimed',
   'sealedAdapterAliasRouteAssignmentIncluded',
   'sixResidentLiveTurnsClaimed',
+  'sovereignRouteTransport',
 ]);
 // Every flag this lane must NEVER claim, pinned to its only legal value.
 const PINNED_CLAIM_BOUNDARY_VALUES = Object.freeze({
@@ -121,6 +122,385 @@ const PINNED_CLAIM_BOUNDARY_VALUES = Object.freeze({
   sealedAdapterAliasRouteAssignmentIncluded: false,
   sixResidentLiveTurnsClaimed: false,
 });
+
+// ---------------------------------------------------------------------------
+// Sovereign-route transport observation (DEFECT B fix).
+//
+// WHAT WAS WRONG. `liveSovereignRouteExercised: skipLive === false` restated a
+// CLI flag. It was an assertion about INTENT, derived from the same input that
+// set it, so it could not be false while the flag was absent. An adversary who
+// passed a fabricated `fetchImpl` obtained certified:true,
+// liveSovereignRouteExercised:true, latencyMs 1, modelIdReported
+// "TOTALLY-NOT-A-REAL-MODEL", a self-verifying receipt and exit 0, with ZERO
+// network calls. Nothing in the receipt was derived from the transport.
+//
+// WHAT REPLACES IT. An out-of-band measurement. undici publishes
+// node:diagnostics_channel events from inside its own send path, carrying the
+// real net.Socket, so for a caller that merely *returns fabricated data* the
+// observation is out of reach: a fetch stub that answers from a canned object
+// publishes nothing, whatever it returns.
+//
+// CORRECTED 2026-07-27 — WHAT THIS SEAM DOES *NOT* DO. An earlier version of
+// this comment said the channel was "NOT reachable through the `fetchImpl` seam
+// the caller controls". That sentence was FALSE and it was the load-bearing
+// sentence of the design, so it is recorded here rather than quietly deleted.
+// node:diagnostics_channel does not authenticate publishers. A caller who is
+// already allowed to supply `fetchImpl` can, in ~12 more lines and with no new
+// capability, `diagnosticsChannel.channel('undici:client:sendHeaders').publish`
+// a message carrying a plain object with `remoteAddress`/`remotePort` set to
+// the declared authority, plus a matching `undici:request:headers` message, and
+// obtain verdict MEASURED_LIVE_TRANSPORT with all nine conjuncts true and ZERO
+// TCP connects. Both layers below fall to the same forgery — including
+// calibration, which the forger simply publishes for as well. Hardening that
+// inspects only the MESSAGE cannot fix this: `Object.create(net.Socket.prototype)`
+// with own `remoteAddress`/`remotePort` passes an `instanceof` check too.
+// No in-process observer can be sound against an in-process adversary; that is
+// a property of the seam, not a bug that a future patch here closes. It is
+// therefore stated in `claimScope` (this measurement assumes a NON-ADVERSARIAL
+// in-process caller) and carried as an OPEN residual, not as an out-of-scope
+// "larger attack". The layers below remain load-bearing against every
+// non-forging adversary, and each of those was executed as a test.
+//
+// Two independent layers, because either one alone is defeatable:
+//
+//   1. CALIBRATION (positive control, guards against a SILENT OBSERVER). One
+//      request through the SAME fetch function the drill will use, aimed at a
+//      throwaway in-process loopback listener. Loopback and in-process on
+//      purpose: the control must not depend on any external service being up,
+//      and must not put drill traffic on a real endpoint. If the observer does
+//      not record that request on a real socket, this process cannot observe
+//      its own transport, and the verdict is UNMEASURED — never "not live" and
+//      never "live". A blind observer must never read as a negative result, or
+//      a future Node/undici channel rename silently turns this gate green.
+//   2. PER-ROUTE OBSERVATION (carries the claim). Calibration proves only that
+//      the observer works, never that the route was contacted. An adversary
+//      who forwards the calibration URL to the real fetch and fabricates the
+//      routes still records ZERO drill-window requests, which CONTRADICTS a
+//      completed turn; a contradiction is not a measurement, so that is
+//      reported UNMEASURED too.
+//
+// DETERMINISTIC, NOT PROBABILISTIC. undici publishes sendHeaders exactly once
+// per request, synchronously on the send path — there is no sampling window to
+// miss and therefore no per-trial detection probability to derive. The
+// non-vacuity proof is the run-time calibration positive control plus the
+// adversarial tests in the test file, not a trial count.
+//
+// The verdict is DERIVED = min() over measured conjuncts and is re-derived at
+// verification time, so flipping a stored verdict does not survive --verify.
+// What this still does NOT prove is enumerated in `residuals` on every emitted
+// receipt; read that before quoting this field.
+// ---------------------------------------------------------------------------
+
+export const TRANSPORT_VERDICTS = Object.freeze({
+  live: 'MEASURED_LIVE_TRANSPORT',
+  notLive: 'MEASURED_NO_LIVE_TRANSPORT',
+  unmeasured: 'UNMEASURED',
+});
+const TRANSPORT_VERDICT_VALUES = Object.freeze(Object.values(TRANSPORT_VERDICTS));
+
+const TRANSPORT_OBSERVER_NAME =
+  'node:diagnostics_channel undici:client:sendHeaders+undici:request:headers';
+const TRANSPORT_CLAIM_SCOPE =
+  'MEASURED, ASSUMING A NON-ADVERSARIAL IN-PROCESS CALLER: real HTTP requests '
+  + 'left this process over real sockets to the manifest-declared route address, '
+  + 'and responses arrived on them. NOT CLAIMED: that the peer holding that '
+  + 'address is a genuine sovereign model server, nor anything about the content '
+  + 'it returned; and NOT claimed against a caller who forges the observation '
+  + 'itself — a caller that can supply fetchImpl can also publish the '
+  + 'diagnostics_channel messages this observation reads, so the assumption in '
+  + 'the first clause is load-bearing and is NOT closed (residual 3). Any '
+  + 'process holding that host:port satisfies this observation. See residuals.';
+const TRANSPORT_RESIDUALS = Object.freeze([
+  'address occupancy is not identity: any process holding the declared host:port satisfies this observation, so a squatter or a stand-in server is indistinguishable here',
+  'response CONTENT is unattested: modelIdReported, packageVersionReported, and processInstanceId stay revisionEvidence tier server-reported, never verified revision custody',
+  'OPEN, NOT CLOSED, and it is the REPORTED adversary rather than a larger one: node:diagnostics_channel does not authenticate publishers, so the same caller-supplied fetchImpl that motivated this fix can publish forged undici:client:sendHeaders + undici:request:headers messages naming the declared authority and obtain MEASURED_LIVE_TRANSPORT with all nine conjuncts true and zero TCP connects (executed). Calibration falls to the identical forgery, so neither layer holds against it, and message-shape hardening does not help (Object.create(net.Socket.prototype) with own remoteAddress/remotePort satisfies instanceof). No in-process observer can be sound against an in-process adversary; this receipt is evidence against a NON-forging caller only. Seam: scripts/check-hololand-model-village-adapter-custody.mjs:311 and :327 (the two subscribe handlers) and :393 (the calibration predicate)',
+  'the observed socket and the sealed custody bytes are not cryptographically bound to each other; this measures that transport happened, not that these exact bytes crossed it',
+  'concurrent drills share one process-wide observation window, so another drill contacting the same declared authority would be counted here',
+  'verification re-derives the verdict from the recorded conjuncts and cross-checks them against the routes region; it cannot re-run the observation, so a receipt proves internal consistency, not a replayed measurement',
+  'UNPORTED SITES, named because a sibling gate still publishes the field this one removed: scripts/check-hololand-model-village-turn-scheduler.mjs:1059 cross-checks receipt.claimBoundary.liveSovereignRouteExercised against runs.some(run => run.live), and run.live is itself set from that runner\'s skipLive input — the cross-check therefore scores its own input (W.890 self-scoring), and docs/reports/HOLOLAND_MODEL_VILLAGE_MV_B2_TURN_SCHEDULER_2026-07-26.md:110 publishes liveSovereignRouteExercised=true from it. That claim is NOT backed by any transport observation and must not be cited as one until this observation is ported there',
+]);
+
+const CALIBRATION_PATH = '/__mv-b1-transport-observer-calibration';
+const CALIBRATION_TIMEOUT_MS = 5000;
+// The positive control binds the loopback interface on an ephemeral port so it
+// is unreachable off-box and cannot collide with a declared route.
+export const OBSERVER_LOOPBACK_HOST = '127.0.0.1';
+
+const TRANSPORT_KEYS = Object.freeze([
+  'claimScope',
+  'conjuncts',
+  'declared',
+  'observed',
+  'residuals',
+  'verdict',
+]);
+// Every conjunct is a MEASURED boolean. `declared` below is explicitly
+// non-load-bearing: it exists so a reader can see what was aimed at, and no
+// verdict branch reads it.
+const TRANSPORT_CONJUNCT_KEYS = Object.freeze([
+  'chatPathSentToDeclaredAuthority',
+  'declaredAuthorityIsNotAnInProcessListener',
+  'endpointUsedMatchesDeclared',
+  'everySendToDeclaredOriginHitDeclaredSocket',
+  'observerAccountConsistentWithDrill',
+  'observerCalibrated',
+  'requestSentToDeclaredSocketAddress',
+  'requiredRouteTurnCompleted',
+  'responseObservedFromDeclaredOrigin',
+]);
+const TRANSPORT_DECLARED_KEYS = Object.freeze([
+  'requiredRouteAuthority',
+  'requiredRouteId',
+  'skipLiveRequested',
+]);
+const TRANSPORT_OBSERVED_KEYS = Object.freeze([
+  'calibrationDetail',
+  'chatPathRequestsToDeclaredAuthority',
+  'drillWindowRequestCount',
+  'inProcessListenerAuthorities',
+  'observerCalibrated',
+  'observerName',
+  'requestsToDeclaredOrigin',
+  'responseStatusesFromDeclaredOrigin',
+  'socketAuthoritiesObserved',
+]);
+
+/**
+ * DERIVED = min() over measured conjuncts; never declared, never stored as an
+ * independent fact. UNMEASURED dominates: when the observer cannot prove it
+ * sees this process's own transport, or its account contradicts the drill's,
+ * no NEGATIVE conclusion is available either — absent evidence blocks rather
+ * than resolving to the convenient answer.
+ */
+export function deriveTransportVerdict(conjuncts) {
+  if (conjuncts?.observerCalibrated !== true) return TRANSPORT_VERDICTS.unmeasured;
+  if (conjuncts.observerAccountConsistentWithDrill !== true) {
+    return TRANSPORT_VERDICTS.unmeasured;
+  }
+  const live =
+    conjuncts.endpointUsedMatchesDeclared === true
+    && conjuncts.requestSentToDeclaredSocketAddress === true
+    && conjuncts.everySendToDeclaredOriginHitDeclaredSocket === true
+    && conjuncts.responseObservedFromDeclaredOrigin === true
+    && conjuncts.chatPathSentToDeclaredAuthority === true
+    && conjuncts.declaredAuthorityIsNotAnInProcessListener === true
+    && conjuncts.requiredRouteTurnCompleted === true;
+  return live ? TRANSPORT_VERDICTS.live : TRANSPORT_VERDICTS.notLive;
+}
+
+function endpointAuthority(endpoint) {
+  const url = new URL(endpoint);
+  const port = url.port || (url.protocol === 'https:' ? '443' : '80');
+  return `${url.hostname}:${port}`;
+}
+
+/**
+ * Subscribes to undici's own send-path channels. `sendHeaders` carries the
+ * live net.Socket, so the recorded authority is where the bytes ACTUALLY went,
+ * not where the URL said to go — a hosts-file or DNS redirect shows up as a
+ * socket/origin mismatch rather than passing silently.
+ */
+export function createTransportObserver() {
+  const sent = [];
+  const responses = [];
+  const subscriptions = [];
+  const listen = (channel, handler) => {
+    diagnosticsChannel.subscribe(channel, handler);
+    subscriptions.push([channel, handler]);
+  };
+  listen('undici:client:sendHeaders', (message) => {
+    const socket = message?.socket ?? null;
+    const request = message?.request ?? null;
+    const address = typeof socket?.remoteAddress === 'string'
+      ? socket.remoteAddress
+      : null;
+    const port = Number.isInteger(socket?.remotePort) ? socket.remotePort : null;
+    sent.push({
+      method: typeof request?.method === 'string' ? request.method : null,
+      origin: request?.origin == null ? null : String(request.origin),
+      path: typeof request?.path === 'string' ? request.path : null,
+      socketAuthority: address !== null && port !== null
+        ? `${address}:${port}`
+        : null,
+    });
+  });
+  listen('undici:request:headers', (message) => {
+    const request = message?.request ?? null;
+    responses.push({
+      origin: request?.origin == null ? null : String(request.origin),
+      path: typeof request?.path === 'string' ? request.path : null,
+      statusCode: Number.isInteger(message?.response?.statusCode)
+        ? message.response.statusCode
+        : null,
+    });
+  });
+  return {
+    mark: () => ({ responses: responses.length, sent: sent.length }),
+    since: (mark) => ({
+      responses: responses.slice(mark.responses),
+      sent: sent.slice(mark.sent),
+    }),
+    stop: () => {
+      for (const [channel, handler] of subscriptions) {
+        diagnosticsChannel.unsubscribe(channel, handler);
+      }
+      subscriptions.length = 0;
+    },
+  };
+}
+
+/**
+ * Positive control. Proves the observer can see a request made through the
+ * EXACT fetch function the drill is about to use. A fabricated fetchImpl
+ * returns its canned payload without touching a socket, so nothing is
+ * recorded and calibration fails -> UNMEASURED -> the gate goes red instead of
+ * quietly reporting a negative it never measured.
+ */
+export async function calibrateTransportObserver(observer, fetchFn) {
+  let server = null;
+  try {
+    server = createServer((req, res) => {
+      const body = Buffer.from('{"calibration":true}', 'utf8');
+      res.writeHead(200, {
+        'content-type': 'application/json',
+        'content-length': body.length,
+      });
+      res.end(body);
+    });
+    await new Promise((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(0, OBSERVER_LOOPBACK_HOST, resolve);
+    });
+    const { port } = server.address();
+    const authority = `${OBSERVER_LOOPBACK_HOST}:${port}`;
+    const origin = `http://${authority}`;
+    const mark = observer.mark();
+    let response;
+    try {
+      response = await fetchFn(`${origin}${CALIBRATION_PATH}`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(CALIBRATION_TIMEOUT_MS),
+      });
+      if (typeof response?.arrayBuffer === 'function') await response.arrayBuffer();
+    } catch (error) {
+      return {
+        authority,
+        detail: `calibration request through the drill fetch function threw ${error?.name ?? 'Error'}`,
+        ok: false,
+      };
+    }
+    const seen = observer.since(mark);
+    const observedSend = seen.sent.some(
+      (entry) => entry.socketAuthority === authority
+        && entry.path === CALIBRATION_PATH,
+    );
+    if (!observedSend) {
+      return {
+        authority,
+        detail:
+          'the drill fetch function returned a response the transport observer '
+          + 'never saw on a socket: either it is not the platform fetch, or the '
+          + 'observer is blind in this process',
+        ok: false,
+      };
+    }
+    return {
+      authority,
+      detail: 'observer recorded the calibration request on a real socket',
+      ok: true,
+    };
+  } catch (error) {
+    return {
+      authority: null,
+      detail: `calibration listener failed: ${error?.name ?? 'Error'}`,
+      ok: false,
+    };
+  } finally {
+    if (server) await new Promise((resolve) => server.close(resolve));
+  }
+}
+
+export function buildTransportObservation({
+  calibration,
+  drillWindow,
+  inProcessListenerAuthorities,
+  requiredEntry,
+  requiredRoute,
+  skipLive,
+}) {
+  const declaredAuthority = endpointAuthority(requiredRoute.endpoint);
+  const declaredOrigin = new URL(requiredRoute.endpoint).origin;
+  const { chatPath } = requiredRoute;
+
+  const sentToDeclaredOrigin = drillWindow.sent.filter(
+    (entry) => entry.origin === declaredOrigin,
+  );
+  const responsesFromDeclaredOrigin = drillWindow.responses.filter(
+    (entry) => entry.origin === declaredOrigin,
+  );
+  const sentToDeclaredSocket = sentToDeclaredOrigin.filter(
+    (entry) => entry.socketAuthority === declaredAuthority,
+  );
+  const chatPathRequests = sentToDeclaredSocket.filter(
+    (entry) => entry.path === chatPath && entry.method === 'POST',
+  );
+  const turnCompleted = requiredEntry?.turn?.turnCompleted === true;
+
+  const observed = {
+    calibrationDetail: calibration.detail,
+    chatPathRequestsToDeclaredAuthority: chatPathRequests.length,
+    drillWindowRequestCount: drillWindow.sent.length,
+    inProcessListenerAuthorities: [...inProcessListenerAuthorities].sort(),
+    observerCalibrated: calibration.ok === true,
+    observerName: TRANSPORT_OBSERVER_NAME,
+    requestsToDeclaredOrigin: sentToDeclaredOrigin.length,
+    responseStatusesFromDeclaredOrigin: responsesFromDeclaredOrigin
+      .map((entry) => (entry.statusCode === null ? -1 : entry.statusCode))
+      .sort((a, b) => a - b),
+    socketAuthoritiesObserved: [...new Set(
+      drillWindow.sent
+        .map((entry) => entry.socketAuthority)
+        .filter((value) => typeof value === 'string'),
+    )].sort(),
+  };
+
+  const conjuncts = {
+    chatPathSentToDeclaredAuthority: chatPathRequests.length > 0,
+    // Closes the ephemeral-port collision hole by MEASUREMENT rather than by
+    // trusting the --skip-live flag: if the declared authority is a listener
+    // this process bound, reaching it proves nothing about a sovereign peer.
+    declaredAuthorityIsNotAnInProcessListener:
+      !inProcessListenerAuthorities.has(declaredAuthority),
+    endpointUsedMatchesDeclared:
+      requiredEntry?.endpointUsed === requiredEntry?.declaredEndpoint,
+    // A partial hit is not a hit: if ANY send to the declared origin landed on
+    // some other socket, the address the drill reached is not established.
+    everySendToDeclaredOriginHitDeclaredSocket:
+      sentToDeclaredOrigin.length > 0
+      && sentToDeclaredSocket.length === sentToDeclaredOrigin.length,
+    // A completed turn with zero observed sockets is a CONTRADICTION between
+    // two accounts of the same events, not a negative measurement.
+    observerAccountConsistentWithDrill:
+      !(turnCompleted && drillWindow.sent.length === 0),
+    observerCalibrated: calibration.ok === true,
+    requestSentToDeclaredSocketAddress: sentToDeclaredSocket.length > 0,
+    requiredRouteTurnCompleted: turnCompleted,
+    responseObservedFromDeclaredOrigin: responsesFromDeclaredOrigin.length > 0,
+  };
+
+  return {
+    claimScope: TRANSPORT_CLAIM_SCOPE,
+    conjuncts,
+    declared: {
+      requiredRouteAuthority: declaredAuthority,
+      requiredRouteId: requiredRoute.routeId,
+      skipLiveRequested: skipLive === true,
+    },
+    observed,
+    residuals: [...TRANSPORT_RESIDUALS],
+    verdict: deriveTransportVerdict(conjuncts),
+  };
+}
 
 export class AdapterCustodyCheckError extends Error {
   constructor(message) {
@@ -408,7 +788,22 @@ export async function runAdapterCustodyDrill({
   const stubs = [];
   const activeFetch = fetchImpl ?? globalThis.fetch;
 
+  // Every authority THIS process binds. Reaching one of these proves nothing
+  // about a sovereign peer, so the set is recorded and subtracted at verdict
+  // time — that is what makes --skip-live structurally unable to certify
+  // liveness even if an ephemeral port ever collided with a declared one.
+  const inProcessListenerAuthorities = new Set();
+  const observer = createTransportObserver();
+  let calibration;
+  let drillWindow = { responses: [], sent: [] };
+
   try {
+    calibration = await calibrateTransportObserver(observer, activeFetch);
+    if (calibration.authority !== null) {
+      inProcessListenerAuthorities.add(calibration.authority);
+    }
+    const drillMark = observer.mark();
+
     for (const route of bundle.routes) {
       let effectiveRoute = {
         ...route,
@@ -417,6 +812,7 @@ export async function runAdapterCustodyDrill({
       if (skipLive) {
         const stub = await startCertificationStub(route);
         stubs.push(stub);
+        inProcessListenerAuthorities.add(endpointAuthority(stub.endpoint));
         effectiveRoute = { ...effectiveRoute, endpoint: stub.endpoint };
       }
 
@@ -495,8 +891,10 @@ export async function runAdapterCustodyDrill({
       }
       // Optional route failures are receipted above, never fatal.
     }
+    drillWindow = observer.since(drillMark);
   } finally {
     for (const stub of stubs) await stub.close();
+    observer.stop();
   }
 
   // Custody drills on the primary store, then the disposable deletion store.
@@ -562,13 +960,46 @@ export async function runAdapterCustodyDrill({
   // later operator handle can open the store root for audit.
   store.close();
 
+  const transport = buildTransportObservation({
+    calibration,
+    drillWindow,
+    inProcessListenerAuthorities,
+    requiredEntry,
+    requiredRoute: bundle.routes.find((route) => route.required) ?? bundle.routes[0],
+    skipLive,
+  });
+  // Absent evidence blocks. UNMEASURED is never allowed to pass as either of
+  // the other two states, and the live lane must MEASURE liveness rather than
+  // inherit it from the absence of --skip-live.
+  if (transport.verdict === TRANSPORT_VERDICTS.unmeasured) {
+    failures.push(
+      'sovereign-route transport is UNMEASURED '
+      + `(${transport.observed.calibrationDetail}); the receipt cannot state `
+      + 'whether a live route was exercised, so this gate fails closed',
+    );
+  } else if (skipLive && transport.verdict !== TRANSPORT_VERDICTS.notLive) {
+    failures.push(
+      `--skip-live must measure ${TRANSPORT_VERDICTS.notLive}; `
+      + `measured ${transport.verdict}`,
+    );
+  } else if (!skipLive && transport.verdict !== TRANSPORT_VERDICTS.live) {
+    failures.push(
+      `the live lane requires ${TRANSPORT_VERDICTS.live}; measured `
+      + `${transport.verdict}. Failed conjuncts: ${Object.entries(transport.conjuncts)
+        .filter(([, value]) => value !== true)
+        .map(([name]) => name)
+        .join(', ') || 'none'}`,
+    );
+  }
+
   const claimBoundary = {
     observed: [
       'first executable adapter seam: manifest-pinned route certification and model-turn execution',
       `certified sovereign route(s): ${routeEntries
         .filter((entry) => entry.certification?.certified === true)
         .map((entry) => entry.routeId)
-        .join(', ') || 'none'}`,
+        .join(', ') || 'none'} (certification is this drill's own probe result; `
+      + `transport to the declared address is separately measured: ${transport.verdict})`,
       'one receipted model turn per certified route in the engineering certification lane',
       'sealed custody write, read-back replay, integrity verify, backup, backup verify, hash-chained access log, key destruction, and nonidentifying tombstone drills',
       'zero-retry by construction: retryCount pinned 0 in the manifest and verified in every receipt',
@@ -582,9 +1013,10 @@ export async function runAdapterCustodyDrill({
       'production validator custody',
       'process-crash durability',
       'provider sampling determinism (temperature zero is not a determinism receipt)',
+      'peer identity at the declared route address: transport reaching that host:port is measured, but nothing here proves WHICH server holds it',
     ],
-    liveSovereignRouteExercised: skipLive === false,
     ...PINNED_CLAIM_BOUNDARY_VALUES,
+    sovereignRouteTransport: transport,
   };
 
   const unsigned = {
@@ -626,6 +1058,148 @@ export async function runAdapterCustodyDrill({
 // but itself, so tampering ANY field fails).
 // ---------------------------------------------------------------------------
 
+/**
+ * The stored verdict is never trusted. It is RE-DERIVED from the recorded
+ * conjuncts, and the conjuncts that describe the drill are cross-checked
+ * against the independent `routes` region of the same receipt — so flipping a
+ * single flag to manufacture a live claim contradicts either the derivation,
+ * the routes array, or the counts that back it, and fails --verify.
+ */
+function verifyTransportObservation(transport, requiredEntry) {
+  assertExactKeys(
+    transport,
+    TRANSPORT_KEYS,
+    'receipt.claimBoundary.sovereignRouteTransport',
+  );
+  const label = 'sovereignRouteTransport';
+  if (transport.claimScope !== TRANSPORT_CLAIM_SCOPE) {
+    fail(`${label}.claimScope drifted from the pinned scope statement`);
+  }
+  if (canonicalJson(transport.residuals) !== canonicalJson([...TRANSPORT_RESIDUALS])) {
+    fail(`${label}.residuals drifted from the pinned residual list`);
+  }
+  assertExactKeys(transport.conjuncts, TRANSPORT_CONJUNCT_KEYS, `${label}.conjuncts`);
+  for (const key of TRANSPORT_CONJUNCT_KEYS) {
+    if (typeof transport.conjuncts[key] !== 'boolean') {
+      fail(`${label}.conjuncts.${key} must be boolean`);
+    }
+  }
+  assertExactKeys(transport.declared, TRANSPORT_DECLARED_KEYS, `${label}.declared`);
+  assertExactKeys(transport.observed, TRANSPORT_OBSERVED_KEYS, `${label}.observed`);
+
+  if (!TRANSPORT_VERDICT_VALUES.includes(transport.verdict)) {
+    fail(`${label}.verdict must be one of ${canonicalJson(TRANSPORT_VERDICT_VALUES)}`);
+  }
+  if (transport.verdict !== deriveTransportVerdict(transport.conjuncts)) {
+    fail(`${label}.verdict does not re-derive from its own conjuncts`);
+  }
+
+  const { conjuncts, declared, observed } = transport;
+  if (observed.observerName !== TRANSPORT_OBSERVER_NAME) {
+    fail(`${label}.observed.observerName drifted`);
+  }
+  assertNonEmptyString(observed.calibrationDetail, `${label}.observed.calibrationDetail`);
+  if (typeof observed.observerCalibrated !== 'boolean') {
+    fail(`${label}.observed.observerCalibrated must be boolean`);
+  }
+  if (observed.observerCalibrated !== conjuncts.observerCalibrated) {
+    fail(`${label}.observed.observerCalibrated disagrees with its conjunct`);
+  }
+  for (const key of [
+    'chatPathRequestsToDeclaredAuthority',
+    'drillWindowRequestCount',
+    'requestsToDeclaredOrigin',
+  ]) {
+    if (!Number.isInteger(observed[key]) || observed[key] < 0) {
+      fail(`${label}.observed.${key} must be a non-negative integer`);
+    }
+  }
+  for (const key of [
+    'inProcessListenerAuthorities',
+    'responseStatusesFromDeclaredOrigin',
+    'socketAuthoritiesObserved',
+  ]) {
+    if (!Array.isArray(observed[key])) {
+      fail(`${label}.observed.${key} must be an array`);
+    }
+  }
+
+  // Counts must back the booleans they are supposed to summarize.
+  if (conjuncts.requestSentToDeclaredSocketAddress
+    && observed.requestsToDeclaredOrigin < 1) {
+    fail(`${label} claims a send to the declared socket with zero observed requests`);
+  }
+  if (conjuncts.chatPathSentToDeclaredAuthority
+    && observed.chatPathRequestsToDeclaredAuthority < 1) {
+    fail(`${label} claims a chat-path send with zero observed chat-path requests`);
+  }
+  if (conjuncts.responseObservedFromDeclaredOrigin
+    && observed.responseStatusesFromDeclaredOrigin.length < 1) {
+    fail(`${label} claims a response with zero observed response statuses`);
+  }
+  if (conjuncts.everySendToDeclaredOriginHitDeclaredSocket
+    && observed.requestsToDeclaredOrigin < 1) {
+    fail(`${label} claims full socket agreement over zero observed requests`);
+  }
+  if (conjuncts.observerAccountConsistentWithDrill === false
+    && observed.drillWindowRequestCount !== 0) {
+    fail(`${label} reports an observer/drill contradiction that its counts do not show`);
+  }
+  if (conjuncts.declaredAuthorityIsNotAnInProcessListener
+    !== !observed.inProcessListenerAuthorities.includes(declared.requiredRouteAuthority)) {
+    fail(`${label} in-process-listener conjunct disagrees with the recorded authorities`);
+  }
+  // Emitter invariant: a calibrated run necessarily bound the calibration
+  // listener, so an empty set means the record was stripped. Without this the
+  // set could be emptied to make the declared authority look external.
+  if (observed.observerCalibrated
+    && observed.inProcessListenerAuthorities.length === 0) {
+    fail(
+      `${label}.observed.inProcessListenerAuthorities is empty on a calibrated `
+      + 'run, which is impossible: calibration itself binds a listener',
+    );
+  }
+
+  // Cross-region binding: these conjuncts describe the required route entry,
+  // so they must agree with it.
+  if (!requiredEntry) fail(`${label} has no required route entry to bind against`);
+  if (declared.requiredRouteId !== requiredEntry.routeId) {
+    fail(`${label}.declared.requiredRouteId does not bind the required route`);
+  }
+  if (declared.requiredRouteAuthority !== endpointAuthority(requiredEntry.declaredEndpoint)) {
+    fail(`${label}.declared.requiredRouteAuthority does not match the declared endpoint`);
+  }
+  if (typeof declared.skipLiveRequested !== 'boolean') {
+    fail(`${label}.declared.skipLiveRequested must be boolean`);
+  }
+  // `declared` never feeds the verdict, but it must not contradict measured
+  // evidence either: the live lane always aims at the declared endpoint, so a
+  // receipt relabelled as a live run while the required route demonstrably
+  // used a different endpoint is rejected. The converse is deliberately NOT
+  // enforced — a --skip-live run whose ephemeral stub port happened to collide
+  // with the declared one is legitimate, and the in-process-listener conjunct
+  // is what keeps that case off MEASURED_LIVE_TRANSPORT.
+  if (!declared.skipLiveRequested && !conjuncts.endpointUsedMatchesDeclared) {
+    fail(
+      `${label}.declared.skipLiveRequested claims a live lane while the `
+      + 'required route used an endpoint other than the declared one',
+    );
+  }
+  if (conjuncts.endpointUsedMatchesDeclared
+    !== (requiredEntry.endpointUsed === requiredEntry.declaredEndpoint)) {
+    fail(`${label} endpointUsedMatchesDeclared disagrees with the routes region`);
+  }
+  if (conjuncts.requiredRouteTurnCompleted
+    !== (requiredEntry.turn?.turnCompleted === true)) {
+    fail(`${label} requiredRouteTurnCompleted disagrees with the routes region`);
+  }
+  // --skip-live can never certify liveness, structurally: a stub run reaches
+  // an authority this process bound, which the conjuncts already exclude.
+  if (transport.verdict === TRANSPORT_VERDICTS.live && declared.skipLiveRequested) {
+    fail(`${label} certifies live transport on a --skip-live run`);
+  }
+}
+
 export function verifyAdapterCustodyReceipt(receipt) {
   try {
     assertExactKeys(receipt, RECEIPT_KEYS, 'adapter custody receipt');
@@ -655,9 +1229,6 @@ export function verifyAdapterCustodyReceipt(receipt) {
           + '(never-claim flag)',
         );
       }
-    }
-    if (typeof receipt.claimBoundary.liveSovereignRouteExercised !== 'boolean') {
-      fail('receipt.claimBoundary.liveSovereignRouteExercised must be boolean');
     }
     for (const listName of ['observed', 'notObserved']) {
       const list = receipt.claimBoundary[listName];
@@ -713,6 +1284,11 @@ export function verifyAdapterCustodyReceipt(receipt) {
       fail('receipt.routes must include at least one required route');
     }
 
+    verifyTransportObservation(
+      receipt.claimBoundary.sovereignRouteTransport,
+      receipt.routes.find((entry) => entry.required) ?? null,
+    );
+
     assertExactKeys(receipt.custodyDrills, CUSTODY_DRILLS_KEYS, 'receipt.custodyDrills');
     for (const drillKey of [
       'readBackReplay', 'integrity', 'backup', 'backupVerify', 'deletion',
@@ -731,9 +1307,22 @@ export function verifyAdapterCustodyReceipt(receipt) {
     if (canonicalDigest(unsigned) !== receiptHash) {
       fail('receipt.receiptHash does not recompute');
     }
-    return { ok: true, failureReason: null };
+    // Re-DERIVED from the receipt's own conjuncts, never read off the stored
+    // verdict field, so a caller of --verify sees what the observations imply
+    // rather than what the file says they imply.
+    return {
+      failureReason: null,
+      ok: true,
+      transportVerdict: deriveTransportVerdict(
+        receipt.claimBoundary.sovereignRouteTransport.conjuncts,
+      ),
+    };
   } catch (error) {
-    return { ok: false, failureReason: error?.message ?? String(error) };
+    return {
+      failureReason: error?.message ?? String(error),
+      ok: false,
+      transportVerdict: null,
+    };
   }
 }
 
@@ -769,8 +1358,10 @@ Options:
   --output <path>      Receipt output path
   --store-root <path>  Parent directory for the drill custody stores
   --skip-live          Certify against in-process stubs instead of the
-                       declared sovereign routes (marks
-                       claimBoundary.liveSovereignRouteExercised false)
+                       declared sovereign routes. Transport to the declared
+                       address is still MEASURED, and must come back
+                       MEASURED_NO_LIVE_TRANSPORT; --skip-live cannot certify
+                       liveness and is not what decides the verdict.
   --verify <path>      Verify an existing receipt file and exit
   --json               Print the bounded receipt as JSON
 `);
@@ -815,6 +1406,24 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         console.error(verification.failureReason);
         process.exit(1);
       }
+      // The verify lane must not be quieter than the drill lane about absent
+      // evidence. It used to print "verify ok" and exit 0 for a receipt whose
+      // transport verdict was UNMEASURED — and --verify is exactly the path a
+      // published report cites as "self-verified", so the published-evidence
+      // path was the one path that never mentioned the verdict at all.
+      console.log(
+        `sovereign-route transport: ${verification.transportVerdict}`,
+      );
+      if (verification.transportVerdict === TRANSPORT_VERDICTS.unmeasured) {
+        console.error('[hololand-model-village-adapter-custody] verify FAILED');
+        console.error(
+          'the receipt is internally consistent but its sovereign-route '
+          + 'transport verdict is UNMEASURED: it records that the observation '
+          + 'could not be made, so it must not be cited as evidence of either '
+          + 'a live or a non-live route',
+        );
+        process.exit(1);
+      }
       console.log('[hololand-model-village-adapter-custody] verify ok');
       console.log(`receiptHash: ${receipt.receiptHash}`);
     } else {
@@ -828,10 +1437,16 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         for (const entry of receipt.routes) console.log(describeRoute(entry));
         console.log(`custody drills allOk: ${receipt.custodyDrills.allOk}`);
         console.log(`access-log entries: ${receipt.accessLogEntryCount}`);
+        const transport = receipt.claimBoundary.sovereignRouteTransport;
         console.log(
-          `live sovereign route exercised: `
-          + `${receipt.claimBoundary.liveSovereignRouteExercised}`,
+          `sovereign-route transport: ${transport.verdict} `
+          + `(${transport.observed.requestsToDeclaredOrigin} request(s) observed `
+          + `to ${transport.declared.requiredRouteAuthority}, `
+          + `${transport.observed.drillWindowRequestCount} on real sockets in the `
+          + 'drill window)',
         );
+        console.log(`  observer: ${transport.observed.calibrationDetail}`);
+        console.log(`  scope: ${transport.claimScope}`);
         console.log('live study run: not claimed (engineering certification lane)');
       }
     }
