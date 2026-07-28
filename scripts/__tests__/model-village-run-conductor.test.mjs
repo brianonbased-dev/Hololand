@@ -27,17 +27,21 @@
 //      catches un-re-hashed edits is a ritual.
 
 import assert from 'node:assert/strict';
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, before, describe, test } from 'node:test';
 
 import {
   REHEARSAL_EXPECTATIONS,
+  assertRunPlanSequence,
   buildSeatAliasBindings,
   buildVillageRunPlan,
+  REHEARSAL_VARIANCE_ALLOWLIST,
+  compareRehearsalExecutions,
   createReplayTurnExecutor,
   deriveAggregate,
+  deriveRunPlacement,
   installProviderCallFence,
   isProviderFetchTarget,
   loadStudyPolicyManifest,
@@ -59,6 +63,25 @@ function reSign(receipt, mutate) {
   delete unsigned.receiptHash;
   const mutated = mutate(structuredClone(unsigned));
   return { ...mutated, receiptHash: canonicalDigest(mutated) };
+}
+
+/**
+ * The FULL forgery: rewrite every run entry, RESEAL each entryHash, RE-DERIVE
+ * the aggregate, and re-sign the receipt. A forgery that fails only because a
+ * hash went stale proves nothing about the field it rewrote, so per-run
+ * mutations in this file go through here rather than through reSign alone.
+ */
+function reSignRuns(receipt, mutateRun) {
+  return reSign(receipt, (body) => {
+    body.runs = body.runs.map((run, index) => {
+      const { entryHash, ...unsigned } = run;
+      void entryHash;
+      const mutated = mutateRun(unsigned, index);
+      return { ...mutated, entryHash: canonicalDigest(mutated) };
+    });
+    body.aggregate = deriveAggregate(body.runs);
+    return body;
+  });
 }
 
 after(() => {
@@ -416,6 +439,148 @@ describe('the twelve-run dress rehearsal', () => {
     );
   });
 
+  // -------------------------------------------------------------------------
+  // THE DAY SEQUENCE. Every forgery below is built the way a real forger would
+  // have to build it — rewrite the field, RESEAL each entryHash, RE-DERIVE the
+  // aggregate, RE-SIGN the receipt — so nothing here can be caught by a stale
+  // hash. Before the fix these all returned ok:true, failures:[].
+  // -------------------------------------------------------------------------
+
+  test('the resealing machinery itself is honest (identity re-seal still verifies)', () => {
+    // THE CONTROL. If this failed, every "forgery rejected" assertion below
+    // would be proving only that resealing breaks a receipt.
+    const resealed = reSignRuns(receipt, (run) => run);
+    const check = verifyRehearsalReceipt(resealed);
+    assert.equal(check.ok, true, check.failureReason);
+    assert.deepEqual(check.failures, []);
+    assert.notEqual(resealed.receiptHash, undefined);
+  });
+
+  test('the day sequence cannot be collapsed to a single day, even fully re-signed', () => {
+    const forged = reSignRuns(receipt, (run) => ({ ...run, dayIndex: 1 }));
+    assert.deepEqual(
+      forged.runs.map((run) => run.dayIndex),
+      Array.from({ length: 12 }, () => 1),
+      'the forgery did not actually collapse the day sequence',
+    );
+    const check = verifyRehearsalReceipt(forged);
+    assert.equal(check.ok, false, 'a twelve-run receipt claiming one single day verified');
+    assert.match(check.failureReason, /dayIndex is 1 but position 4 .* is day 2/);
+  });
+
+  test('a non-integer dayIndex cannot be laundered by re-signing', () => {
+    const forged = reSignRuns(receipt, (run) => ({ ...run, dayIndex: 'not-a-day' }));
+    const check = verifyRehearsalReceipt(forged);
+    assert.equal(check.ok, false, 'dayIndex "not-a-day" verified');
+    assert.match(check.failureReason, /dayIndex is "not-a-day"/);
+  });
+
+  test('the day sequence cannot be reordered, even fully re-signed', () => {
+    const forged = reSignRuns(receipt, (run) => ({ ...run, dayIndex: 4 - run.dayIndex }));
+    const check = verifyRehearsalReceipt(forged);
+    assert.equal(check.ok, false, 'a reversed day sequence verified');
+    assert.match(check.failureReason, /day sequence is RE-DERIVED/);
+  });
+
+  test('dayIndex cannot be rescued by relabelling the block it derives from', () => {
+    // The obvious next move for a forger: if dayIndex is derived from the
+    // block, rewrite the block too. That breaks the runId identity and the
+    // one-condition-per-block law instead.
+    const forged = reSignRuns(receipt, (run) => ({
+      ...run,
+      blockId: 'block1',
+      dayIndex: 1,
+    }));
+    const check = verifyRehearsalReceipt(forged);
+    assert.equal(check.ok, false, 'a rewritten block sequence verified');
+    assert.match(check.failureReason, /blockId is "block1" but position 4/);
+  });
+
+  test('a run cannot be relabelled and keep its runId', () => {
+    const forged = reSignRuns(receipt, (run, index) => (
+      index === 0 ? { ...run, condition: 'adapter_a_only' } : run
+    ));
+    const check = verifyRehearsalReceipt(forged);
+    assert.equal(check.ok, false, 'a run whose runId no longer derives verified');
+    assert.match(check.failureReason, /runId is .* but its own \(blockId, condition\) pair derives/);
+  });
+
+  test('the plan-sequence law is positional, not a re-statement of the receipt', async () => {
+    // Cross-check against the independently built plan: the law the verifier
+    // enforces must be the same one buildVillageRunPlan produces.
+    const plan = buildVillageRunPlan(await loadStudyPolicyManifest({ hololandRoot: repoRoot }));
+    for (const [index, planned] of plan.entries()) {
+      const placement = deriveRunPlacement(index);
+      assert.equal(placement.dayIndex, planned.dayIndex);
+      assert.equal(placement.blockId, planned.blockId);
+      assert.equal(placement.conditionIndex, planned.conditionIndex);
+    }
+    assert.throws(() => deriveRunPlacement(12), /outside the frozen plan/);
+    assert.throws(() => assertRunPlanSequence([]), /at least one village-run/);
+    assert.throws(
+      () => assertRunPlanSequence([...receipt.runs, receipt.runs[0]]),
+      /the frozen study plan has exactly 12/,
+    );
+    // A front-slice (the bounded smoke shape) is a LEGAL prefix and must not be
+    // rejected by the sequence law — that is what keeps `--runs N` usable.
+    assert.equal(assertRunPlanSequence(receipt.runs.slice(0, 6)), true);
+  });
+
+  test('an intra-block CONDITION PERMUTATION cannot keep its identity fields', () => {
+    // THE FORGERY THE PREVIOUS LAW MISSED, and the reason validatorId,
+    // runDirectory and roundRunId are now re-derived. Swapping the condition
+    // between two runs of the SAME block preserves the per-block condition set,
+    // so "repeats a study condition" and "runs all four conditions" never fire;
+    // recomputing each runId from its new condition satisfies "pair derives".
+    // Before this change the receipt verified CLEAN and the gate exited 0 while
+    // runs[0] read condition=adapter_a_only against a validatorId, a shard
+    // directory and six roundRunIds that all still named `mixed`.
+    assert.equal(receipt.runs[0].blockId, receipt.runs[1].blockId, 'same block');
+    const swapped = [receipt.runs[1].condition, receipt.runs[0].condition];
+    const forged = reSignRuns(receipt, (run, index) => {
+      if (index > 1) return run;
+      const condition = swapped[index];
+      const runId = `mv-b2-study-${run.blockId}-${condition.replace(/_/g, '-')}`;
+      return {
+        ...run,
+        condition,
+        runId,
+        receiptChainRoot: canonicalDigest({
+          roundTerminalHashes: run.turnRounds.map((round) => round.terminalReceiptHash),
+          runId,
+        }),
+      };
+    });
+    const check = verifyRehearsalReceipt(forged);
+    assert.equal(check.ok, false, 'a condition permutation must not verify clean');
+    assert.match(check.failureReason, /validatorId is \S+ but its own \(blockId, condition\) pair/);
+
+    // ...and each sibling law holds on its own, so none of them is carried by
+    // the other two.
+    for (const [mutate, pattern] of [
+      [(run) => ({ ...run, validatorId: 'mv-study-val-block3-mixed' }),
+        /validatorId is \S+ but its own/],
+      [(run) => ({ ...run, runDirectory: path.join('X', 'mv-b2-study-block2-mixed') }),
+        /runDirectory ends in/],
+      [(run) => ({
+        ...run,
+        turnRounds: run.turnRounds.map((round) => ({
+          ...round,
+          roundRunId: 'mv-b2-study-block9-nonsense-r0',
+        })),
+      }), /roundRunId is/],
+    ]) {
+      const single = reSignRuns(receipt, (run, index) => (index === 0 ? mutate(run) : run));
+      const singleCheck = verifyRehearsalReceipt(single);
+      assert.equal(singleCheck.ok, false);
+      assert.match(singleCheck.failureReason, pattern);
+    }
+
+    // NON-VACUITY: the reseal machinery itself is honest — an untouched pass
+    // through reSignRuns still verifies.
+    assert.equal(verifyRehearsalReceipt(reSignRuns(receipt, (run) => run)).ok, true);
+  });
+
   test('a pinned declared flag cannot be flipped, even with a recomputed hash', () => {
     for (const flag of [
       'liveStudyRunClaimed',
@@ -587,5 +752,217 @@ describe('expectation table', () => {
 
   test('Buffer-backed hashing is available offline', () => {
     assert.equal(canonicalDigest({ a: Buffer.from('x').toString('hex') }).length, 64);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+// REPEAT-EXECUTION EQUALITY — the gate row previously named "Seed and
+// deterministic clock", which nothing tested.
+//
+// These tests are deliberately PURE: they drive compareRehearsalExecutions with
+// synthetic receipt pairs rather than paying for four more rehearsals. The
+// EXECUTED end of the property lives in the checker
+// (scripts/check-hololand-model-village-rehearsal.mjs step 7), which runs the
+// conductor twice in two fresh processes. What is proven here is the part a
+// live run cannot prove about itself: that the exemption list has teeth.
+describe('repeat-execution equality', () => {
+  /** A minimal receipt with the exact leaf paths the allowlist names. */
+  function syntheticReceipt(suffix, extra = {}) {
+    return {
+      aggregate: {
+        blockChainRoots: { block1: `aa${suffix}`, block2: `bb${suffix}` },
+        rehearsalRoot: `cc${suffix}`,
+        villageRunsExecuted: 1,
+      },
+      generatedAt: '2026-07-27T00:00:00.000Z',
+      observed: { providerFetchCallsObserved: 0, rehearsalWallClockMs: 0 },
+      passed: true,
+      receiptHash: `dd${suffix}`,
+      runs: [{
+        aliasCommitmentReceiptHash: `ee${suffix}`,
+        blockId: 'block1',
+        condition: 'mixed',
+        entryHash: `ff${suffix}`,
+        receiptChainRoot: `01${suffix}`,
+        runDirectory: `/scratch-${suffix}/mv-b2-study-block1-mixed`,
+        runManifestHash: `02${suffix}`,
+        turnRounds: [{
+          barrierHash: `03${suffix}`,
+          priorReceiptHash: `04${suffix}`,
+          terminalReceiptHash: `05${suffix}`,
+          turnIndex: 1,
+        }],
+        ...extra,
+      }],
+    };
+  }
+
+  test('two executions that vary ONLY in allowlisted material compare equal', () => {
+    const result = compareRehearsalExecutions(syntheticReceipt('a'), syntheticReceipt('b'));
+    assert.equal(result.ok, true, result.failures.join(' | '));
+    assert.equal(result.unallowlistedDifferences.length, 0);
+    assert.equal(result.structuralDrift.length, 0);
+    assert.ok(result.comparedLeaves > 0, 'a comparison over zero leaves is vacuous');
+  });
+
+  // THE ACCEPTANCE PROPERTY. A new nondeterministic field must go RED rather
+  // than be absorbed by a nearby wildcard.
+  test('a NEW nondeterministic field in a run entry is caught', () => {
+    const result = compareRehearsalExecutions(
+      syntheticReceipt('a', { stampedAt: '2026-07-27T00:00:00.000Z' }),
+      syntheticReceipt('b', { stampedAt: '2026-07-27T00:00:07.311Z' }),
+    );
+    assert.equal(result.ok, false);
+    assert.deepEqual(result.unallowlistedDifferences, ['runs[0].stampedAt']);
+    assert.match(result.failures.join(' '), /NOT on the pinned variance allowlist/);
+  });
+
+  // A field that exists in one execution and not the other is nondeterministic
+  // STRUCTURE, and is not allowed to slip through as "equal where present".
+  test('a field present in only one execution is structural drift', () => {
+    const result = compareRehearsalExecutions(
+      syntheticReceipt('a', { sometimesPresent: 1 }),
+      syntheticReceipt('b'),
+    );
+    assert.equal(result.ok, false);
+    assert.deepEqual(result.structuralDrift, ['runs[0].sometimesPresent']);
+  });
+
+  // Rule (3): a stale exemption must fail LOUD. Without this, renaming a field
+  // leaves a permissive entry behind that silently widens the check.
+  test('an allowlist entry matching nothing fails as a dead exemption', () => {
+    const result = compareRehearsalExecutions(syntheticReceipt('a'), syntheticReceipt('b'), {
+      allowlist: [
+        ...REHEARSAL_VARIANCE_ALLOWLIST,
+        { path: 'runs[*].fieldThatNoLongerExists', reason: 'stale' },
+      ],
+    });
+    assert.equal(result.ok, false);
+    assert.deepEqual(result.deadAllowlistEntries, ['runs[*].fieldThatNoLongerExists']);
+  });
+
+  // Rule (4): the exemption list cannot be padded with stable fields. This is
+  // what stops a future agent from "fixing" a red by appending the offending
+  // path — appending a path that does NOT actually vary is itself a failure.
+  test('an allowlist entry over a field that did not vary fails', () => {
+    const result = compareRehearsalExecutions(syntheticReceipt('a'), syntheticReceipt('b'), {
+      allowlist: [
+        ...REHEARSAL_VARIANCE_ALLOWLIST,
+        { path: 'runs[*].condition', reason: 'padding' },
+      ],
+    });
+    assert.equal(result.ok, false);
+    assert.deepEqual(result.nonVaryingAllowlistEntries, ['runs[*].condition']);
+  });
+
+  // ABSENT EVIDENCE MUST BLOCK. Zero runs over zero executions certifies
+  // nothing, and must never report ok.
+  test('an empty or failing execution is UNMEASURED, never a pass', () => {
+    const empty = { ...syntheticReceipt('a'), runs: [] };
+    const emptyResult = compareRehearsalExecutions(empty, syntheticReceipt('b'));
+    assert.equal(emptyResult.ok, false);
+    assert.match(emptyResult.failures.join(' '), /UNMEASURED/);
+
+    const failing = { ...syntheticReceipt('a'), passed: false };
+    const failingResult = compareRehearsalExecutions(failing, syntheticReceipt('b'));
+    assert.equal(failingResult.ok, false);
+    assert.match(failingResult.failures.join(' '), /did not pass/);
+
+    assert.equal(compareRehearsalExecutions(null, null).ok, false);
+  });
+
+  // The `.*` wildcard must cover exactly one key, or `aggregate.*` would
+  // swallow the whole aggregate subtree including villageRunsExecuted.
+  test('the .* wildcard covers one key, not a subtree', () => {
+    const a = syntheticReceipt('a');
+    const b = syntheticReceipt('b');
+    a.aggregate.villageRunsExecuted = 1;
+    b.aggregate.villageRunsExecuted = 2;
+    const result = compareRehearsalExecutions(a, b);
+    assert.equal(result.ok, false);
+    assert.deepEqual(result.unallowlistedDifferences, ['aggregate.villageRunsExecuted']);
+  });
+
+  // The pinned list is a SHORT list of named paths, not a pattern soup. A
+  // future entry that exempts a whole subtree would defeat the check, so the
+  // shape is asserted.
+  test('every pinned allowlist entry is a concrete path with a stated reason', () => {
+    assert.ok(REHEARSAL_VARIANCE_ALLOWLIST.length <= 16, 'the exemption list must stay short');
+    for (const entry of REHEARSAL_VARIANCE_ALLOWLIST) {
+      assert.equal(typeof entry.path, 'string');
+      assert.ok(entry.reason.length > 10, `${entry.path} needs a stated reason`);
+      assert.ok(!entry.path.includes('**'), 'subtree wildcards are not permitted');
+    }
+  });
+
+  // The clock seam is the half of "seed and deterministic clock" that IS
+  // implementable. It must actually be injectable.
+  test('runRehearsal refuses a non-function nowFn', async () => {
+    await assert.rejects(
+      () => runRehearsal({ nowFn: 'not-a-function' }),
+      /nowFn must be a function/,
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('injected-clock containment', () => {
+  const FROZEN_MS = 1_700_000_000_000;
+  let receipt;
+
+  before(async () => {
+    const result = await runRehearsal({
+      hololandRoot: repoRoot,
+      nowFn: () => FROZEN_MS,
+      runLimit: 1,
+      scratchRoot: path.join(scratchBase, 'frozen-clock'),
+      writeReceipt: false,
+    });
+    receipt = result.receipt;
+  });
+
+  test('a frozen clock reaches every clock-derived value the receipt exposes', () => {
+    // WHY THIS EXISTS. The repeat-execution probe can only see a clock leak
+    // that reaches a COMPARED LEAF, and four of the six threaded sites reach
+    // the receipt only through hashes that are allowlisted for an unrelated
+    // reason (the alias draw). Deleting `nowFn` from the createTurnScheduler
+    // options -- the deepest of the six -- left that probe exit 0 while every
+    // round receipt carried real millisecond wall-clock stamps again. The
+    // containment law inside runRehearsal is what closes that, and this is its
+    // observable half.
+    assert.equal(receipt.generatedAt, new Date(FROZEN_MS).toISOString());
+    assert.equal(
+      receipt.observed.rehearsalWallClockMs,
+      0,
+      'under a frozen clock no wall time can elapse',
+    );
+  });
+
+  test('the containment law is measured, not configured', () => {
+    // `clockFrozen` is derived by observing that nowFn() has not advanced across
+    // the whole rehearsal -- something the real clock cannot do -- so the law
+    // arms itself from a measurement rather than from a caller-set flag, and it
+    // is inert on the real-clock acceptance path (which is why the twelve-run
+    // fixture above, run on Date.now, carries a real generatedAt).
+    const source = readFileSync(
+      path.join(repoRoot, 'scripts', 'model-village-run-conductor.mjs'),
+      'utf8',
+    );
+    assert.match(source, /if \(clockSamples\.length > 0 && nowFn\(\) === startedAtMs\) \{/);
+    assert.match(source, /INJECTED CLOCK NOT CONTAINED/);
+    // The law reads the SEALED RECEIPT, not the local variables that fed it, so
+    // replacing a receipt field's expression outright cannot route around it.
+    // Both leaf-level mutations that previously survived did exactly that.
+    assert.match(source, /receipt\.observed\.rehearsalWallClockMs !== 0/);
+    assert.match(source, /Date\.parse\(receipt\.generatedAt\) !== startedAtMs/);
+    // ...and the sample SET is fenced, because a value that stops registering a
+    // sample was measured to slip through the value check (the Math.max clamp).
+    assert.match(source, /Missing clock samples/);
+    // The cross-module sample is the one a mutation to the createTurnScheduler
+    // OPTIONS OBJECT can move, so it must be taken from the scheduler's own
+    // emitted timestamp and not from anything the conductor wrote.
+    assert.match(source, /barrierReceipt\?\.closedAt/);
   });
 });

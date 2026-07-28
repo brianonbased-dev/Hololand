@@ -99,14 +99,19 @@ import {
   ATOMIC_REPLACEMENT_VERDICTS,
   CRASH_DRILL_SCENARIO_EXPECTATIONS,
   CRASH_DRILL_SCENARIOS,
+  deriveRecoveredInFreshProcess,
   runAtomicReplacementProbe,
   runCrashDrill,
   runTornReadProbe,
+  runVanishProbe,
   TORN_READ_PROBE_SCHEMA,
   TORN_READ_VERDICTS,
+  VANISH_PROBE_SCHEMA,
+  VANISH_VERDICTS,
   verifyAtomicReplacementProbeReceipt,
   verifyCrashDrillReceipt,
   verifyTornReadProbeReceipt,
+  verifyVanishProbeReceipt,
 } from './model-village-crash-drill.mjs';
 import { createSealedCustodyStore } from './model-village-custody-store.mjs';
 import { canonicalDigest, canonicalJson } from './model-village-phase0b-runtime.mjs';
@@ -128,6 +133,7 @@ const RECEIPT_KEYS = Object.freeze([
   'receiptHash',
   'schema',
   'tornReadProbe',
+  'vanishProbe',
 ]);
 
 /**
@@ -296,51 +302,76 @@ const GAP_CATALOG = Object.freeze({
     owner: 'MV-B5 durability lane',
   },
   'G-VANISH': {
-    severity: 'MEDIUM',
+    severity: 'LOW',
     file: 'scripts/model-village-phase0b-runtime.mjs:1563',
     summary:
-      'OPEN, NOT CLOSED, and EXECUTED rather than argued. A writeAtomicState '
-      + 'that unlinks the target immediately before renaming over it — the '
-      + 'standard "Windows will not rename over an existing file" workaround, '
-      + 'inserted at the line above, AFTER the before_rename fault check — is '
-      + 'invisible to BOTH probes and to all nine crash drills. Measured on this '
-      + 'host: torn-read HELD hits=0 attempts=72000 detection=1, '
-      + 'atomic-replacement HELD hits=0 replacements=8/8, checker exit 0, both '
-      + 'node --test suites green. It is a genuine durability defect (a crash '
-      + 'between the unlink and the rename leaves NO state.json at all, which is '
-      + 'strictly worse than a torn read), and the torn-read probe is actively '
-      + 'INVERTED for it: classifyProbeRead maps ENOENT to an in-window attempt '
-      + '(model-village-crash-drill.mjs, classifyProbeRead), so a wider '
-      + 'disappearance window makes that probe MORE confident, not less. The '
-      + 'atomic-replacement probe misses it for a different reason: unlink+rename '
-      + 'still yields a NEW file object, so the identity comparator reads it as '
-      + 'atomic. Two probes, two different blind spots, same mutant. Both '
-      + 'blindnesses are pinned by executed tests in '
-      + 'scripts/__tests__/model-village-crash-drill.test.mjs so this entry '
-      + 'cannot silently drift; if either probe ever starts catching it, those '
-      + 'tests fail and this entry must be rewritten. NOTE: the variant that '
-      + 'unlinks BEFORE the fault check is already caught, by the '
-      + 'persistent-state-killed-before-rename crash drill.',
+      'NARROWED, NOT CLOSED (re-scoped 2026-07-28 after an adversarial re-run '
+      + 'found two same-class mutants the first "CLOSED" claim walked past). '
+      + 'WHAT IS MEASURED: an unlink-before-rename whose window opens on EVERY '
+      + 'write — unconditionally, or conditionally on the published content '
+      + 'changing. WHAT IS NOT: a window that opens only when the rename itself '
+      + 'FAILS (residual 6). WHAT IT WAS: a writeAtomicState that unlinks the target '
+      + 'immediately before renaming over it — the standard "Windows will not '
+      + 'rename over an existing file" workaround, inserted at the line above, '
+      + 'AFTER the before_rename fault check — was invisible to BOTH other '
+      + 'probes and to all nine crash drills, even though a crash in that window '
+      + 'leaves NO state.json at all (strictly worse than a torn read). The '
+      + 'torn-read probe was actively INVERTED for it (classifyProbeRead maps '
+      + 'ENOENT to an in-window attempt, so a WIDER disappearance window made it '
+      + 'MORE confident) and the atomic-replacement probe missed it because '
+      + 'unlink+rename still yields a NEW file object. WHAT CLOSED IT: '
+      + 'runVanishProbe races the REPLACEMENT path of an ESTABLISHED store the '
+      + 'harness never unlinks, and classifies each poll BY ERRNO — ENOENT is a '
+      + 'hit, EPERM/EACCES/EBUSY (win32 delete-pending) never is. Measured on '
+      + 'this host, not argued: 11/11 VIOLATED against that exact mutant '
+      + '(214-894 hits per run, per-poll rate 5.27e-3..5.36e-2) and 35/35 HELD '
+      + 'on the correct implementation with ZERO classified vanishes in '
+      + '6,306,137 polls and zero polls the classifier could not name. The '
+      + 'earlier attempt failed on exactly this number: polling with existsSync '
+      + 'gave 1 absent in 30,210 polls (~3e-5), and it was correctly NOT '
+      + 'shipped. RESIDUAL, which is why this entry survives at LOW rather than '
+      + 'being deleted: (1) the OTHER two probes are still blind to this mutant '
+      + 'and that blindness is still pinned by an executed test, so the vanish '
+      + 'probe is a single point of detection for this defect class; (2) the '
+      + 'per-poll rate varies ~7x with host load, so the pinned floor buys a 14x '
+      + 'collapse margin at n=8,000 rather than the torn-read probe\'s 58x; '
+      + '(3) the false-positive POINT ESTIMATE is 0, but the 95% upper bound is '
+      + '3/6,306,137 = 4.757e-7 per poll, which at the 20,000-57,000 polls a run '
+      + 'actually reaches bounds the per-run false-red at 1.0e-2..2.7e-2; '
+      + '(4) it covers the phase0b state file only — the sealed custody store is '
+      + 'not vanish-probed; (5) reader-visible absence is the same window a '
+      + 'crash exposes but is not itself a crash; '
+      + '(6) OPEN AND MEASURED — A RENAME-FAILURE-CONDITIONAL WINDOW IS OUT OF '
+      + 'REACH OF THIS PROBE. Wrapping the renameSync at '
+      + 'scripts/model-village-phase0b-runtime.mjs:1563 in '
+      + '`try { rename } catch { if (existsSync(target)) unlink(target); rename }` '
+      + '— the canonical win32 workaround, and a strictly more likely real-world '
+      + 'form of this defect than the unconditional unlink — leaves the whole '
+      + 'durability gate GREEN (exit 0, vanish HELD, 0 hits in 55,286 polls; '
+      + 'independently re-measured 2026-07-28). It is not bad luck, it is '
+      + 'structural: a sentinel written inside the catch branch fired 0 times in '
+      + '108,575 polls across 4 runs, i.e. the vulnerable branch NEVER EXECUTES '
+      + 'under this probe, because node fs opens with FILE_SHARE_DELETE so a node '
+      + 'reader can never make renameSync fail. The same fact is why the '
+      + 'transient (EPERM/EACCES/EBUSY) bucket has fired 0 times in 6,910,519 '
+      + 'honest polls. Closing it needs a writer mode that holds the target open '
+      + 'with a NON-node handle to actually provoke a rename failure. '
+      + 'A CONTENT-CONDITIONAL window (`if (bytesDiffer) unlink(target)`) was in '
+      + 'the same class and IS now closed: vanishWriterChild re-seals a valid '
+      + 'persistent state with a fresh runId on every iteration, so the published '
+      + 'bytes change on every write as they do in production.',
     minimalFix:
-      'Race the replacement path with an existence-polling reader and count '
-      + 'ENOENT-on-an-established-store as its OWN hit class, never as evidence '
-      + 'of power. Feasibility was measured on this host before this entry was '
-      + 'written, so the next lane does not start from zero: with the export '
-      + 'seam and 2 reader children over 2s, the mutant showed 6,009-9,031 '
-      + 'absent observations in 38,732-40,883 polls (p ~= 0.15-0.23 per poll, '
-      + 'so n for 95% detection is ~12 polls and ~1,300 even at a 100x collapse '
-      + 'margin), while the honest implementation showed 0 absent in 94,700 '
-      + 'polls across three runs — but ALSO 1 absent in 30,210 polls on a fourth '
-      + 'run using bare existsSync, i.e. a ~3e-5 FALSE-POSITIVE rate that would '
-      + 'make a naive "absent > 0 => VIOLATED" gate flaky. That single event is '
-      + 'why this was recorded instead of shipped: the detector must first '
-      + 'classify by errno (ENOENT = vanished, EPERM/EACCES/EBUSY = '
-      + 'delete-pending transient, exactly as the torn-read probe already does '
-      + 'for reads) and the false-positive rate of THAT classifier must be '
-      + 'measured before any threshold is chosen. Honest writer-side non-vacuity '
-      + 'is available too: the writer counts successful target-present '
-      + 'replacements (180-275 per 2s window, with 57-76 EPERM retries on the '
-      + 'honest implementation and 0 on the mutant).',
+      'The residuals, in the order they would be worth closing. (1) Give the '
+      + 'sealed custody store the same probe. (2) Re-measure the per-poll rate '
+      + 'in-run against an in-run mutant instead of pinning it, which would make '
+      + 'the collapse margin a per-run measurement rather than a constant — the '
+      + 'same fix G-TORNREAD item (5) needs. (3) Tighten the false-red bound by '
+      + 'accumulating more correct-implementation polls: the bound is rule-of-'
+      + 'three over ZERO events, so it shrinks as 3/N with no new mechanism '
+      + 'needed. (4) A poll ceiling would cap the false-red tail but was '
+      + 'deliberately NOT added: on a slow host it converts the run into a '
+      + 'stream of UNMEASURED verdicts, which is a red on correct code by '
+      + 'another name.',
     owner: 'MV-B5 durability lane',
   },
   'G-LOCKBREAK': {
@@ -455,6 +486,25 @@ const CLAIM_BOUNDARY_OBSERVED = Object.freeze([
   + 'path. Production is not edited: the seam is a byte-identical copy of the '
   + 'shipping runtime with one appended export line, and the shipping sha256 '
   + 'plus the appended byte count ride in the receipt',
+  'CONTINUOUS PUBLICATION ACROSS REPLACEMENT is measured, not inferred: on a '
+  + 'store the harness creates ONCE and never unlinks, real reader children poll '
+  + 'the published path while a real writer child loops production '
+  + 'writeAtomicState against the PRESENT target, and every poll is classified '
+  + 'BY ERRNO — ENOENT (the entry is gone) is a hit, EPERM/EACCES/EBUSY (win32 '
+  + 'delete-pending) never is. A single classified vanish fails the check. '
+  + 'Non-vacuity is reader-side: the readers must personally witness a floor of '
+  + 'DISTINCT file objects at the published path, so a wedged writer cannot '
+  + 'certify its own liveness, and any poll whose error code the classifier '
+  + 'cannot name makes the run UNMEASURED rather than green. The detector is '
+  + 'positive-controlled in-run against a real absent path, a real published '
+  + 'store and a real rename. MEASURED: 11/11 VIOLATED against the '
+  + 'unlink-before-rename mutant, 0 false positives in 6,910,519 polls of the '
+  + 'correct implementation across two independent campaigns. SCOPE, stated '
+  + 'rather than implied: the writer re-seals a VALID but DIFFERENT persistent '
+  + 'state on every iteration, so this covers a window that opens on every '
+  + 'write AND one that opens only when the content changes; it does NOT cover '
+  + 'a window that opens only when the rename FAILS, which this probe cannot '
+  + 'provoke at all (see G-VANISH residual 6)',
 ]);
 
 const CLAIM_BOUNDARY_NOT_OBSERVED = Object.freeze([
@@ -482,16 +532,23 @@ const CLAIM_BOUNDARY_NOT_OBSERVED = Object.freeze([
   + 'rather than a per-run measurement, the sealed custody store is not '
   + 'torn-read probed at all, and reader-visible tearing is not itself a crash '
   + '(G-TORNREAD)',
-  'NO PROBE HERE SEES A DISAPPEARING STATE FILE. A writeAtomicState that '
-  + 'unlinks the target immediately before renaming over it passes both probes '
-  + 'and all nine crash drills — measured, not assumed — even though a crash in '
-  + 'that window leaves no state.json at all, which is worse than a torn read. '
-  + 'The torn-read probe is actively inverted for it (it counts ENOENT as '
-  + 'evidence that the race happened), and the atomic-replacement probe misses '
-  + 'it because unlink+rename still yields a new file object. This is G-VANISH; '
-  + 'it is OPEN, its blindness is pinned by executed tests, and the feasibility '
-  + 'data for closing it — including a ~3e-5 false-positive rate that makes the '
-  + 'naive detector flaky — is recorded in that gap entry',
+  'the DISAPPEARING-STATE-FILE class is measured only for windows that OPEN ON '
+  + 'A WRITE — unconditionally, or conditionally on the content changing. A '
+  + 'window that opens only when the rename FAILS is NOT measured and the whole '
+  + 'gate stays green on it: the canonical win32 rename-retry workaround at '
+  + 'scripts/model-village-phase0b-runtime.mjs:1563 passed with 0 hits in '
+  + '55,286 polls, and a sentinel proved its branch executed 0 times in 108,575 '
+  + 'polls, because node fs opens with FILE_SHARE_DELETE so a node reader cannot '
+  + 'make renameSync fail. What IS measured is measured by only '
+  + 'ONE probe: the torn-read and atomic-replacement probes remain blind to '
+  + 'an unlink-before-rename publish — measured, not assumed, and pinned by an '
+  + 'executed test — so the vanish probe is a single point of detection for it. '
+  + 'Its collapse margin is 14x at the poll floor rather than the torn-read '
+  + "probe's 58x, its false-positive point estimate is 0 but its 95% upper "
+  + 'bound (rule of three over 6,306,137 clean polls) bounds the per-run '
+  + 'false-red at 1.0e-2..2.7e-2 at the poll counts a run actually reaches, and '
+  + 'it covers the phase0b state file only — the sealed custody store is not '
+  + 'vanish-probed. Residuals are enumerated in G-VANISH',
   'the atomic-replacement probe measures the WRITE boundary, not a whole '
   + 'committed action: the commit wrapper around writeAtomicState (validation, '
   + 'sealing, ledger append) is still module-private (G-EXPORT), and the probe '
@@ -676,6 +733,7 @@ export async function runDurabilityDrill({
   // still emit a receipt that verifies.
   tornReadOverrides = null,
   atomicReplacementOverrides = null,
+  vanishOverrides = null,
 } = {}) {
   const resolvedRoot = path.resolve(root);
   const scratchRoot = storeRoot
@@ -689,6 +747,7 @@ export async function runDurabilityDrill({
   let auditOpen = null;
   let tornReadProbe = null;
   let atomicReplacementProbe = null;
+  let vanishProbe = null;
   let receipt = null;
   let resolvedOutput = null;
 
@@ -712,10 +771,35 @@ export async function runDurabilityDrill({
           + `(observed: ${crashReceipt.observedOutcome})`,
         );
       }
-      // A fresh-process recovery is the load-bearing property; a pid collision
-      // would mean recovery ran in the same process it was proving crashed.
-      if (crashReceipt.recoveredInFreshProcess !== true) {
-        failures.push(`crash drill ${scenario} did not recover in a fresh process`);
+      // A fresh-process recovery is the load-bearing property. Do NOT trust the
+      // boolean: re-derive it here from the pids the receipt carries, so a
+      // receipt that asserts the property without observing it fails the gate
+      // even if some future emitter stops deriving it.
+      const freshFromPids = deriveRecoveredInFreshProcess({
+        workerPid: crashReceipt.workerPid,
+        recoveryPid: crashReceipt.recoveryPid,
+        harnessPid: crashReceipt.harnessPid,
+      });
+      if (freshFromPids !== true) {
+        failures.push(
+          `crash drill ${scenario} did not recover in a fresh process `
+          + `(observed pids: worker=${crashReceipt.workerPid}, `
+          + `recovery=${crashReceipt.recoveryPid}, harness=${crashReceipt.harnessPid})`,
+        );
+      }
+      if (crashReceipt.recoveredInFreshProcess !== freshFromPids) {
+        failures.push(
+          `crash drill ${scenario} claims recoveredInFreshProcess=`
+          + `${crashReceipt.recoveredInFreshProcess} but its own pids derive `
+          + `${freshFromPids}`,
+        );
+      }
+      if (crashReceipt.harnessPid !== process.pid) {
+        failures.push(
+          `crash drill ${scenario} recorded harnessPid=${crashReceipt.harnessPid} `
+          + `but this gate ran as pid ${process.pid}; the fresh-process claim was `
+          + 'not measured against the process that made it',
+        );
       }
       crashDrills.push(crashReceipt);
     }
@@ -816,6 +900,39 @@ export async function runDurabilityDrill({
       );
     }
 
+    // (6) VANISH PROBE — the defect class BOTH probes above are blind to, and
+    // which was carried as open gap G-VANISH until this probe existed. A
+    // writeAtomicState that unlinks the target before renaming over it reads as
+    // atomic to the identity comparator and makes the torn-read probe MORE
+    // confident (it counts ENOENT as evidence its race happened), while leaving
+    // a window in which state.json does not exist at all — strictly worse than a
+    // torn read. Measured, not argued: 11/11 VIOLATED against that mutant, 0
+    // false positives in 6,306,137 polls of the correct implementation.
+    const vanish = await runVanishProbe({
+      scratchRoot: path.join(scratchRoot, 'vanish'),
+      ...(vanishOverrides ?? {}),
+    });
+    vanishProbe = vanish.receipt;
+    try {
+      verifyVanishProbeReceipt(vanishProbe);
+    } catch (error) {
+      failures.push(`vanish probe produced an unverifiable receipt: ${error.message}`);
+    }
+    if (vanishProbe.verdict === VANISH_VERDICTS.VIOLATED) {
+      failures.push(
+        'vanish probe VIOLATED: a reader observed the persistent state file '
+        + `GONE (ENOENT) ${vanishProbe.hits} time(s) while it was being replaced `
+        + '— publication is not continuous, and a crash in that window leaves no '
+        + `state at all (samples: ${canonicalJson(vanishProbe.observed.vanishedSamples)})`,
+      );
+    } else if (vanishProbe.verdict !== VANISH_VERDICTS.HELD) {
+      failures.push(
+        'vanish probe UNMEASURED (fails closed; it did not observe enough of a '
+        + `real replacement race to certify anything): `
+        + `${vanishProbe.unmeasuredReasons.join('; ')}`,
+      );
+    }
+
     // Reality, not expectation: allInvariantsHeld is false while any executed
     // gap stands. It is NEVER forced true to keep the check green.
     const gapsObserved = assembleGaps(crashDrills);
@@ -833,8 +950,9 @@ export async function runDurabilityDrill({
     const tornReadOk = tornReadProbe.verdict === TORN_READ_VERDICTS.HELD;
     const atomicReplacementOk =
       atomicReplacementProbe.verdict === ATOMIC_REPLACEMENT_VERDICTS.HELD;
+    const vanishOk = vanishProbe.verdict === VANISH_VERDICTS.HELD;
     const allInvariantsHeld = happyPathsHeld && contentionOk && auditOk && tornReadOk
-      && atomicReplacementOk && !executedGapPresent;
+      && atomicReplacementOk && vanishOk && !executedGapPresent;
 
     const unsigned = {
       allInvariantsHeld,
@@ -851,6 +969,7 @@ export async function runDurabilityDrill({
       generatedAt: new Date().toISOString(),
       schema: DURABILITY_RECEIPT_SCHEMA,
       tornReadProbe,
+      vanishProbe,
     };
     receipt = { ...unsigned, receiptHash: canonicalDigest(unsigned) };
 
@@ -929,8 +1048,19 @@ export function verifyDurabilityReceipt(receipt) {
           + `${CRASH_DRILL_SCENARIO_EXPECTATIONS[drill.scenario]}`,
         );
       }
-      if (drill.recoveredInFreshProcess !== true) {
-        fail(`receipt.crashDrills[${index}] (${drill.scenario}) did not recover in a fresh process`);
+      // Re-derived from the pids, not read off the boolean (see the emit path).
+      const freshFromPids = deriveRecoveredInFreshProcess({
+        workerPid: drill.workerPid,
+        recoveryPid: drill.recoveryPid,
+        harnessPid: drill.harnessPid,
+      });
+      if (freshFromPids !== true || drill.recoveredInFreshProcess !== freshFromPids) {
+        fail(
+          `receipt.crashDrills[${index}] (${drill.scenario}) did not recover in a `
+          + `fresh process (claimed ${drill.recoveredInFreshProcess}, derived `
+          + `${freshFromPids} from worker=${drill.workerPid}, `
+          + `recovery=${drill.recoveryPid}, harness=${drill.harnessPid})`,
+        );
       }
     }
 
@@ -1020,6 +1150,31 @@ export function verifyDurabilityReceipt(receipt) {
       );
     }
 
+    // --- Vanish probe: continuous publication across replacement (G-VANISH). ---
+    const vanish = receipt.vanishProbe;
+    if (!vanish || typeof vanish !== 'object') fail('receipt.vanishProbe must be an object');
+    if (vanish.schema !== VANISH_PROBE_SCHEMA) fail('receipt.vanishProbe schema mismatch');
+    try {
+      // Same discipline again: hits, power and every HELD precondition are
+      // re-derived from the probe's OWN counters, so this receipt cannot inherit
+      // a verdict its observations do not support.
+      verifyVanishProbeReceipt(vanish);
+    } catch (error) {
+      fail(`receipt.vanishProbe failed vanish verification: ${error.message}`);
+    }
+    if (vanish.verdict === VANISH_VERDICTS.VIOLATED) {
+      fail(
+        `receipt.vanishProbe observed the state file GONE ${vanish.hits} time(s) `
+        + 'during replacement: publication is not continuous',
+      );
+    }
+    if (vanish.verdict !== VANISH_VERDICTS.HELD) {
+      fail(
+        'receipt.vanishProbe did not measure the continuous-publication property '
+        + `(${vanish.verdict}): ${vanish.unmeasuredReasons.join('; ')}`,
+      );
+    }
+
     // --- Gaps: every executed crash gap is surfaced honestly. ---
     if (!Array.isArray(receipt.gapsObserved)) fail('receipt.gapsObserved must be an array');
     const gapRefs = new Set();
@@ -1084,8 +1239,10 @@ export function verifyDurabilityReceipt(receipt) {
       && receipt.contentionDrill.persistenceStoreLock?.serialized === true;
     const auditOk = audit.ok === true && audit.appendedNothing === true && audit.createdNoLock === true;
     const tornReadOk = torn.verdict === TORN_READ_VERDICTS.HELD;
+    const atomicReplacementOk = replacement.verdict === ATOMIC_REPLACEMENT_VERDICTS.HELD;
+    const vanishOk = vanish.verdict === VANISH_VERDICTS.HELD;
     const expectedAll = happyPathsHeld && contentionOk && auditOk && tornReadOk
-      && !executedGapPresent;
+      && atomicReplacementOk && vanishOk && !executedGapPresent;
     if (receipt.allInvariantsHeld !== expectedAll) {
       fail(
         `receipt.allInvariantsHeld ${receipt.allInvariantsHeld} does not equal the reality `
@@ -1187,7 +1344,7 @@ if (invokedPath && import.meta.url === pathToFileURL(invokedPath).href) {
           console.log(
             `  CRASH ${drill.scenario}: ${verdict} `
             + `(worker pid=${drill.workerPid} exit=${drill.workerExitCode}/${drill.workerExitSignal}, `
-            + `recovery pid=${drill.recoveryPid})`,
+            + `recovery pid=${drill.recoveryPid}, harness pid=${drill.harnessPid})`,
           );
         }
         console.log(
@@ -1220,6 +1377,20 @@ if (invokedPath && import.meta.url === pathToFileURL(invokedPath).href) {
           + `seam=${receipt.atomicReplacementProbe.observed.seamShippedRuntimeSha256.slice(0, 12)}`
           + (receipt.atomicReplacementProbe.unmeasuredReasons.length > 0
             ? ` UNMEASURED: ${receipt.atomicReplacementProbe.unmeasuredReasons.join('; ')}`
+            : ''),
+        );
+        console.log(
+          `  VANISH: ${receipt.vanishProbe.verdict} `
+          + `hits=${receipt.vanishProbe.hits} `
+          + `polls=${receipt.vanishProbe.observed.pollsTotal}`
+          + `/${receipt.vanishProbe.power.requiredPolls} `
+          + `replacementsWitnessed=${receipt.vanishProbe.observed.replacementsWitnessed} `
+          + `transient=${receipt.vanishProbe.observed.pollsTransient} `
+          + `unclassified=${receipt.vanishProbe.observed.pollsOther} `
+          + `detection=${receipt.vanishProbe.power.detectionAtMeasuredRate} `
+          + `falseRedBound<=${receipt.vanishProbe.power.falseRedProbabilityUpperBound95}`
+          + (receipt.vanishProbe.unmeasuredReasons.length > 0
+            ? ` UNMEASURED: ${receipt.vanishProbe.unmeasuredReasons.join('; ')}`
             : ''),
         );
         console.log(

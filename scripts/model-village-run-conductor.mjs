@@ -185,7 +185,7 @@ import {
   sign,
   verify,
 } from 'node:crypto';
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -1024,6 +1024,186 @@ export function buildVillageRunPlan(studyBundle) {
   return deepFreeze(runs);
 }
 
+/**
+ * The study DESIGN restated as a POSITIONAL law.
+ *
+ * The plan above is three consecutive day-blocks of four conditions each, in
+ * STUDY_BLOCK_IDS order, and a bounded smoke is a front-slice of it. So the run
+ * sitting at position `index` of any honest receipt belongs to a KNOWN block, a
+ * KNOWN day, and a KNOWN within-block slot. The study policy source pins the
+ * same mapping independently (seedBlockCount 3, conditionsPerBlock 4,
+ * villageRunCount 12, dayOneBlockId block1 / dayTwo block2 / dayThree block3),
+ * and loadStudyPolicyManifest refuses a manifest that says anything else.
+ *
+ * This is what makes dayIndex verifiable at all. dayIndex is not an
+ * independently writable field — it is a function of position — so verification
+ * RE-DERIVES it rather than type-checking it. A type check ("dayIndex must be a
+ * positive integer") would still admit a receipt whose twelve runs all claim
+ * day 1, which is exactly the forgery this law exists to reject.
+ */
+export function deriveRunPlacement(index) {
+  const conditionsPerBlock = STUDY_CONDITIONS.length;
+  const maxRuns = STUDY_BLOCK_IDS.length * conditionsPerBlock;
+  if (!Number.isInteger(index) || index < 0 || index >= maxRuns) {
+    fail(`village-run position ${canonicalJson(index)} is outside the frozen plan (0..${maxRuns - 1})`);
+  }
+  const blockIndex = Math.floor(index / conditionsPerBlock);
+  return Object.freeze({
+    blockId: STUDY_BLOCK_IDS[blockIndex],
+    conditionIndex: index % conditionsPerBlock,
+    dayIndex: blockIndex + 1,
+  });
+}
+
+/**
+ * Re-derives the whole day/block/condition sequence of a receipt's run list
+ * from deriveRunPlacement and refuses any disagreement.
+ *
+ * Deliberately does NOT pin WHICH condition sits in a given slot: the
+ * within-block condition order is counterbalanced by the policy source (block2
+ * and block3 are permutations of block1), so pinning it here would be this
+ * file asserting a value it does not own. What IS owned by the design, and is
+ * enforced: every COMPLETE block runs each of the four study conditions exactly
+ * once, a partial trailing block (bounded smoke) may not repeat one, and every
+ * runId recomputes from its own (blockId, condition) pair — so a rewritten
+ * block or condition cannot keep its old identity.
+ *
+ * EVERY IDENTITY FIELD DERIVED FROM THE SAME PAIR IS RE-DERIVED (added
+ * 2026-07-28). Pinning `runId` alone left three siblings — `validatorId`,
+ * `runDirectory` and each round's `roundRunId` — carrying only an
+ * assertNonEmptyString, even though the conductor emits all three as pure
+ * functions of the same (blockId, condition) pair. That gap was not theoretical:
+ * a two-field intra-block condition PERMUTATION (swap `condition` between two
+ * runs of the same block and recompute `runId` + `receiptChainRoot`) preserved
+ * the per-block condition SET, so the "repeats a condition" rule never fired and
+ * the "pair derives" rule was satisfied by the recomputed runId — and the whole
+ * gate exited 0 while runs[0] read condition=adapter_a_only against a
+ * validatorId, runDirectory and roundRunIds all still naming `mixed`. Three
+ * independent contradictions sat in the artifact, uninspected. They are
+ * inspected now, with data the receipt already carried.
+ *
+ * WHAT THIS STILL DOES NOT PROVE, measured rather than guessed (probe run
+ * 2026-07-27 against the twelve-run artifact at
+ * .tmp/hololand/model-village/rehearsal-receipt.json). This law pins the day
+ * LABEL to a position; it does not bind an EXECUTION to a day. A forgery that
+ * leaves every identity field where the plan puts it but SWAPS the executed
+ * payloads between two runs — turnRounds, decisionCounts, runManifestHash,
+ * seatBindingHash, aliasCommitmentReceiptHash — and then rebuilds
+ * receiptChainRoot, every entryHash, the aggregate and the receiptHash still
+ * verifies clean today. (The identity fields named above can no longer travel
+ * with such a swap; the opaque per-run hashes still can.) The receipt cannot
+ * catch it because it carries the run manifest only as an opaque hash: there is
+ * no manifest body in the artifact to re-derive the runId from. Closing that
+ * needs the signed run manifest to commit to its own runId and the receipt to
+ * carry enough of it to check, which is a conductor emission change, not a
+ * verifier change, and is deliberately NOT claimed here.
+ */
+export function assertRunPlanSequence(runs) {
+  if (!Array.isArray(runs)) fail('runs must be an array');
+  const conditionsPerBlock = STUDY_CONDITIONS.length;
+  const maxRuns = STUDY_BLOCK_IDS.length * conditionsPerBlock;
+  if (runs.length < 1) {
+    fail('a rehearsal receipt must carry at least one village-run entry');
+  }
+  if (runs.length > maxRuns) {
+    fail(
+      `a rehearsal receipt carries ${runs.length} village-runs but the frozen `
+      + `study plan has exactly ${maxRuns}`,
+    );
+  }
+  const conditionsByBlock = new Map();
+  for (const [index, run] of runs.entries()) {
+    const label = `runs[${index}]`;
+    const placement = deriveRunPlacement(index);
+    if (run.blockId !== placement.blockId) {
+      fail(
+        `${label}.blockId is ${canonicalJson(run.blockId)} but position ${index} of the `
+        + `frozen study plan is ${placement.blockId}; the block sequence is derived from `
+        + 'the study design, never read from the receipt',
+      );
+    }
+    if (run.dayIndex !== placement.dayIndex) {
+      fail(
+        `${label}.dayIndex is ${canonicalJson(run.dayIndex)} but position ${index} of the `
+        + `frozen study plan is day ${placement.dayIndex}; the day sequence is RE-DERIVED `
+        + 'from the study design and is never an independently writable field',
+      );
+    }
+    if (run.conditionIndex !== placement.conditionIndex) {
+      fail(
+        `${label}.conditionIndex is ${canonicalJson(run.conditionIndex)} but position `
+        + `${index} of the frozen study plan is slot ${placement.conditionIndex}`,
+      );
+    }
+    if (typeof run.condition !== 'string' || !STUDY_CONDITIONS.includes(run.condition)) {
+      fail(`${label}.condition is not a study condition`);
+    }
+    const slug = conditionSlug(run.condition);
+    const expectedRunId = `mv-b2-study-${placement.blockId}-${slug}`;
+    if (run.runId !== expectedRunId) {
+      fail(
+        `${label}.runId is ${canonicalJson(run.runId)} but its own (blockId, condition) `
+        + `pair derives ${expectedRunId}; a run cannot be relabelled and keep its identity`,
+      );
+    }
+    // The three siblings of runId, re-derived from the SAME pair. Each is
+    // emitted by the conductor as a pure function of (blockId, condition) — see
+    // the `mv-study-val-...` validator id, `path.join(scratch, runId)` and
+    // `${runId}-r${turnIndex}` — so a relabelled run cannot keep them.
+    const expectedValidatorId = `mv-study-val-${placement.blockId}-${slug}`;
+    if (run.validatorId !== expectedValidatorId) {
+      fail(
+        `${label}.validatorId is ${canonicalJson(run.validatorId)} but its own `
+        + `(blockId, condition) pair derives ${expectedValidatorId}; the validator that `
+        + 'adjudicated a run cannot be swapped away from it',
+      );
+    }
+    const runDirectoryLeaf = String(run.runDirectory ?? '')
+      .split(/[\\/]/)
+      .filter((segment) => segment.length > 0)
+      .pop() ?? '';
+    if (runDirectoryLeaf !== expectedRunId) {
+      fail(
+        `${label}.runDirectory ends in ${canonicalJson(runDirectoryLeaf)} but this run's `
+        + `isolated shard is named ${expectedRunId}; the per-run directory is emitted as `
+        + 'path.join(scratch, runId) and cannot belong to a different run',
+      );
+    }
+    if (Array.isArray(run.turnRounds)) {
+      for (const [roundIndex, round] of run.turnRounds.entries()) {
+        const expectedRoundRunId = `${expectedRunId}-r${roundIndex + 1}`;
+        if (round?.roundRunId !== expectedRoundRunId) {
+          fail(
+            `${label}.turnRounds[${roundIndex}].roundRunId is `
+            + `${canonicalJson(round?.roundRunId)} but this run's round ${roundIndex + 1} `
+            + `derives ${expectedRoundRunId}; the rounds a run carries cannot come from `
+            + 'another run',
+          );
+        }
+      }
+    }
+    if (!conditionsByBlock.has(placement.blockId)) conditionsByBlock.set(placement.blockId, []);
+    conditionsByBlock.get(placement.blockId).push(run.condition);
+  }
+  for (const [blockId, conditions] of conditionsByBlock) {
+    const distinct = new Set(conditions);
+    if (distinct.size !== conditions.length) {
+      fail(
+        `block ${blockId} repeats a study condition (${canonicalJson(conditions)}); each `
+        + 'block runs every condition exactly once',
+      );
+    }
+    if (conditions.length === conditionsPerBlock
+      && canonicalJson([...distinct].sort()) !== canonicalJson([...STUDY_CONDITIONS].sort())) {
+      fail(
+        `block ${blockId} does not run all four study conditions `
+        + `(${canonicalJson(conditions)})`,
+      );
+    }
+  }
+  return true;
+}
+
 // ---------------------------------------------------------------------------
 // Provider-call fence — the ONLY honest way to publish a zero
 // ---------------------------------------------------------------------------
@@ -1797,16 +1977,79 @@ export async function runRehearsal({
   writeReceipt = true,
   runLimit = null,
   expectations = REHEARSAL_EXPECTATIONS,
+  nowFn = Date.now,
 } = {}) {
-  const startedAtMs = Date.now();
+  if (typeof nowFn !== 'function') fail('nowFn must be a function');
+  const startedAtMs = nowFn();
   const root = path.resolve(hololandRoot);
   // `ownsScratchRoot` decides who is responsible for destroying the tree. A
   // caller-supplied scratchRoot belongs to the caller (the test suite cleans up
   // its own base); a path this function invented belongs to this function.
   const ownsScratchRoot = !scratchRoot;
+  // DELIBERATELY the real wall clock, not nowFn: this names a directory on a
+  // real filesystem and must stay unique even when a caller injects a FROZEN
+  // clock (the repeat-execution probe does exactly that, twice in a row). The
+  // path reaches the receipt only through runs[].runDirectory, which is on the
+  // pinned variance allowlist for precisely this reason.
   const scratch = scratchRoot
     ? path.resolve(scratchRoot)
     : path.join(root, '.tmp', 'hololand', 'model-village', `rehearsal-${Date.now().toString(36)}`);
+
+  // ---------------------------------------------------------------------
+  // INJECTED-CLOCK CONTAINMENT.
+  //
+  // The repeat-execution probe compares two receipts, so it can only see a
+  // clock leak that reaches a COMPARED LEAF. Four of the six sites that were
+  // threaded onto `nowFn` reach the receipt only through hashes that are on
+  // the variance allowlist for unrelated reasons (the alias draw), and were
+  // therefore invisible to it: deleting `nowFn` from the createTurnScheduler
+  // options — the deepest and most load-bearing of the six — left the gate
+  // exit 0 while every round receipt carried real millisecond wall-clock
+  // stamps again.
+  //
+  // These samples close that. Every value this function derives from the clock
+  // is recorded here, and at emission time, IF the injected clock is measurably
+  // frozen (see `clockFrozen` below: nowFn() has not advanced across the whole
+  // ~37s rehearsal, which the real clock cannot do), every sample must equal
+  // it. A site that stops reading nowFn produces a different number and the
+  // rehearsal REFUSES TO EMIT, which the probe reports as UNMEASURED and the
+  // gate fails closed on.
+  //
+  // WHAT THIS IS AND IS NOT. For values this function both writes and reads
+  // back (the retention stamp, the validator validity window, the manifest
+  // signing time) it is a CONTAINMENT assertion over its own writes, not
+  // independent evidence: its worth is that it goes red when one of them stops
+  // reading the injected clock. For the scheduler round stamps it is genuine
+  // cross-module evidence — the timestamp is produced inside
+  // model-village-turn-scheduler.mjs and read back out of the barrier receipt.
+  // It is skipped entirely on the real-clock (acceptance) path, so it cannot
+  // false-red a correct production run.
+  const clockSamples = [];
+  const sampleClock = (label, milliseconds) => {
+    clockSamples.push({ label, milliseconds });
+    return milliseconds;
+  };
+  // COVERAGE FENCE over the samples themselves, in the same spirit as the
+  // "an allowlist entry that matched nothing is RED" rule: a containment law
+  // over a sample SET is only as strong as the set is complete, so a value
+  // that stops registering a sample must be as loud as one that registers a
+  // wrong sample. This is not a config read -- every label below is pushed at
+  // runtime by the code path that actually executed, so a bypassed expression
+  // simply has no label.
+  //
+  // MEASURED NECESSITY: without this fence, replacing
+  // `rehearsalWallClockMs: Math.max(0, sampleClock(...) - startedAtMs)` with an
+  // hour-floored `Date.now()` PASSED, because the hour floor lands BEFORE the
+  // injected clock and `Math.max(0, negative)` clamps the leak to exactly the
+  // 0 the containment law was checking for. The sample simply stopped existing.
+  const REQUIRED_CLOCK_SAMPLES = Object.freeze([
+    { exact: 'study-custody.retentionPolicy.frozenAt' },
+    { exact: 'validator.validityWindow.now' },
+    { exact: 'receipt.observed.rehearsalWallClockMs.end' },
+    { exact: 'receipt.generatedAt' },
+    { suffix: '.runManifest.signedAt' },
+    { suffix: '.barrierReceipt.closedAt' },
+  ]);
 
   const fence = installProviderCallFence();
   const readCounter = { reads: 0 };
@@ -1847,7 +2090,9 @@ export async function runRehearsal({
         description:
           'Model Village T-7 rehearsal study custody; sealed alias assignment '
           + 'only, deletable by content-key destruction at any time.',
-        frozenAt: new Date().toISOString(),
+        frozenAt: new Date(
+          sampleClock('study-custody.retentionPolicy.frozenAt', nowFn()),
+        ).toISOString(),
         policyId: 'mv-study-rehearsal-custody-retention-v1',
       },
       rootDir: path.join(scratch, 'study-custody'),
@@ -1912,7 +2157,7 @@ export async function runRehearsal({
     });
     const fleetVerifier = createStudyFleetVerifier({ studyConfigHash });
 
-    const nowMs = Date.now();
+    const nowMs = sampleClock('validator.validityWindow.now', nowFn());
     const notBefore = new Date(nowMs - 3_600_000).toISOString();
     const notAfter = new Date(nowMs + 86_400_000).toISOString();
 
@@ -2115,7 +2360,9 @@ export async function runRehearsal({
         manifest: runManifest,
         registrySnapshot: trustRegistryHandle.snapshot(),
         signature,
-        signedAt: new Date().toISOString(),
+        signedAt: new Date(
+          sampleClock(`${runId}.runManifest.signedAt`, nowFn()),
+        ).toISOString(),
         validatorId,
         verifySignature: fleetVerifier.verifySignature,
       });
@@ -2139,6 +2386,11 @@ export async function runRehearsal({
 
       const scheduler = createTurnScheduler({
         custodyStore: context.custodyStore,
+        // The scheduler has exposed a nowFn seam since it shipped and the
+        // conductor never used it, so every round receipt carried a real wall
+        // clock. It is threaded now so an injected clock reaches the deepest
+        // timestamp the rehearsal receipt depends on.
+        nowFn,
         operator,
         policyBundle: studyBundle.schedulerPolicyBundle,
         residents,
@@ -2167,6 +2419,17 @@ export async function runRehearsal({
         } catch (error) {
           fail(`turn round ${roundRunId} did not complete: ${error?.message ?? error}`);
         }
+        // CROSS-MODULE clock evidence: closedAt is stamped inside
+        // model-village-turn-scheduler.mjs from the nowFn the conductor handed
+        // it, and read back out of the barrier receipt here. If the conductor
+        // ever stops passing nowFn into createTurnScheduler, this sample stops
+        // matching the injected clock and the rehearsal refuses to emit. It is
+        // the only one of these samples that a mutation to the conductor's
+        // OPTIONS OBJECT (rather than to a timestamp expression) can move.
+        sampleClock(
+          `${roundRunId}.barrierReceipt.closedAt`,
+          Date.parse(round?.barrierReceipt?.closedAt ?? ''),
+        );
         const chainCheck = verifyRoundReceiptChain({
           actionDecisionReceipts: round.actionDecisionReceipts,
           barrierReceipt: round.barrierReceipt,
@@ -2287,19 +2550,24 @@ export async function runRehearsal({
       nonProviderFetchCallTargets: [...fence.state.nonProviderTargets],
       providerFetchCallTargets: [...fence.state.providerTargets],
       providerFetchCallsObserved: fence.state.providerCalls,
-      rehearsalWallClockMs: Math.max(0, Date.now() - startedAtMs),
+      rehearsalWallClockMs: Math.max(
+        0,
+        sampleClock('receipt.observed.rehearsalWallClockMs.end', nowFn()) - startedAtMs,
+      ),
       runDirectoryPreexistingRefusals,
       trustRegistryEntriesAppended,
       trustRegistryVerified,
     };
     assertExactKeys(observed, OBSERVED_KEYS, 'observed');
 
+    const generatedAtMs = sampleClock('receipt.generatedAt', nowFn());
+
     const failures = evaluateRehearsal({ aggregate, expectations, observed });
     const receipt = sealHashed({
       aggregate,
       declared: buildDeclaredBoundary(failures),
       engine: CONDUCTOR_ENGINE,
-      generatedAt: new Date().toISOString(),
+      generatedAt: new Date(generatedAtMs).toISOString(),
       observed,
       passed: failures.length === 0,
       runs: runEntries,
@@ -2307,6 +2575,64 @@ export async function runRehearsal({
       studyManifestHash: studyBundle.studyManifestHash,
       studyPolicyId: studyBundle.policy.policyId,
     }, 'receiptHash');
+
+    // INJECTED-CLOCK CONTAINMENT, enforced over the SEALED RECEIPT rather than
+    // over the local variables that fed it, so that replacing a receipt field's
+    // expression outright cannot route around the check.
+    //
+    // MEASURED, not configured: a frozen clock is one that has not advanced
+    // across the entire rehearsal. The real clock advances by tens of seconds
+    // here, so this can only be true when a caller injected a constant, which
+    // is why the check is inert on the real-clock acceptance path and cannot
+    // false-red a correct production run.
+    if (clockSamples.length > 0 && nowFn() === startedAtMs) {
+      const labels = clockSamples.map((sample) => sample.label);
+      const missing = REQUIRED_CLOCK_SAMPLES.filter((required) => (
+        required.exact
+          ? !labels.includes(required.exact)
+          : !labels.some((label) => label.endsWith(required.suffix))
+      )).map((required) => required.exact ?? `*${required.suffix}`);
+      if (missing.length > 0) {
+        fail(
+          'INJECTED CLOCK NOT CONTAINED: a clock-derived value stopped registering '
+          + 'its sample, so the containment law had nothing to check it against. '
+          + `Missing clock samples: ${missing.join(', ')}`,
+        );
+      }
+      const offInjectedClock = clockSamples.filter(
+        (sample) => sample.milliseconds !== startedAtMs,
+      );
+      if (offInjectedClock.length > 0) {
+        const shown = offInjectedClock.slice(0, 4).map((sample) => (
+          `${sample.label}=${canonicalJson(sample.milliseconds)}`
+        ));
+        fail(
+          'INJECTED CLOCK NOT CONTAINED: this rehearsal was given a frozen clock '
+          + `(${startedAtMs}) but ${offInjectedClock.length} of ${clockSamples.length} `
+          + 'clock-derived values did not come from it, so the receipt would carry '
+          + `real wall-clock time. Off the injected clock: ${shown.join(', ')}`
+          + `${offInjectedClock.length > shown.length ? ', ...' : ''}`,
+        );
+      }
+      // The two clock-derived values that ARE compared leaves, read back out of
+      // the sealed receipt. Both previously survived a real-clock mutation
+      // because an hour-floored Date.now() is equal across two executions five
+      // seconds apart, so leaf-equality alone could never catch them.
+      if (receipt.observed.rehearsalWallClockMs !== 0) {
+        fail(
+          'INJECTED CLOCK NOT CONTAINED: under a frozen clock the rehearsal wall '
+          + 'clock must be 0ms, but the receipt carries '
+          + `${canonicalJson(receipt.observed.rehearsalWallClockMs)}`,
+        );
+      }
+      if (Date.parse(receipt.generatedAt) !== startedAtMs) {
+        fail(
+          'INJECTED CLOCK NOT CONTAINED: under a frozen clock generatedAt must be '
+          + `${new Date(startedAtMs).toISOString()}, but the receipt carries `
+          + `${canonicalJson(receipt.generatedAt)}`,
+        );
+      }
+    }
 
     if (writeReceipt) {
       const outputPath = path.join(root, ...REHEARSAL_RECEIPT_OUTPUT_PATH.split('/'));
@@ -2414,6 +2740,10 @@ const DECLARED_KEYS = Object.freeze([
  * The load-bearing steps, in order:
  *  1. closed keys + schema/engine pins on the receipt, every run, every round;
  *  2. every run entryHash recomputes;
+ *  2b. the day/block/condition SEQUENCE is RE-DERIVED from the frozen study
+ *     design (three day-blocks of four conditions) and must match position for
+ *     position — dayIndex is never read, and a runId must recompute from its
+ *     own (blockId, condition) pair;
  *  3. the ENTIRE aggregate is RE-DERIVED from receipt.runs and must match —
  *     so no aggregate field is independently writable;
  *  4. observed{} + aggregate{} are checked against the INDEPENDENT
@@ -2537,6 +2867,11 @@ export function verifyRehearsalReceipt(receipt, { expectations = REHEARSAL_EXPEC
       }
     }
 
+    // (2b) the day/block/condition sequence is DERIVED from the frozen study
+    // design, never read. Runs the whole list at once because the law is
+    // positional: run i belongs to a known day, not to whatever day it says.
+    assertRunPlanSequence(receipt.runs);
+
     // (3) the aggregate is DERIVED, never read.
     assertExactKeys(receipt.aggregate, AGGREGATE_KEYS, 'aggregate');
     const derived = deriveAggregate(receipt.runs);
@@ -2625,10 +2960,321 @@ export function verifyRehearsalReceipt(receipt, { expectations = REHEARSAL_EXPEC
 }
 
 // ---------------------------------------------------------------------------
+// REPEAT-EXECUTION EQUALITY (the "seed and deterministic clock" gate)
+// ---------------------------------------------------------------------------
+
+/**
+ * WHAT WAS ACTUALLY WRONG, AND WHAT THIS DOES AND DOES NOT FIX.
+ *
+ * The runtime-closure gate row was named "Seed and deterministic clock" and
+ * NOTHING in this lane had ever compared two executions. Measured at HEAD
+ * (2026-07-27, two read-only two-run executions in one process): 53 of 271
+ * receipt leaves differed, including rehearsalRoot, every runManifestHash,
+ * every receiptChainRoot and every round terminal hash. The gate was named for
+ * a property no artifact tested.
+ *
+ * THE SEED HALF OF THAT NAME IS DISPROVEN AND IS NOT IMPLEMENTED. A seed
+ * parameter was NOT added, because there is nothing left for it to seed. The
+ * rehearsal draws randomness in exactly two places, and both are blinding
+ * material that MUST be fresh:
+ *   - the alias -> route draw (`routes[randomInt(routes.length)]`), which is a
+ *     CSPRNG draw precisely because an earlier finding in this lane established
+ *     that a deterministic assignment is a function of public source and
+ *     therefore not sealed at all; and
+ *   - `routeCommitmentSalt: randomBytes(32)`, the hiding salt of that same
+ *     commitment.
+ * Every other value in the rehearsal is already a pure function of frozen
+ * source. Adding a `seed` option that no genuinely-deterministic code path
+ * consumed would be decorative width — the exact failure this lane keeps
+ * shipping — so the name is corrected instead of satisfied.
+ *
+ * THE CLOCK HALF IS IMPLEMENTED: runRehearsal now takes `nowFn` and threads it
+ * through its own timestamps AND into createTurnScheduler, whose nowFn seam had
+ * existed unused since it shipped.
+ *
+ * WHAT REMAINS PERMITTED TO VARY is pinned below and is NOT a free-form escape
+ * hatch. Four rules make it teeth rather than decoration:
+ *   (1) the two receipts must have IDENTICAL leaf-path sets — a field that
+ *       exists in one execution and not the other is a failure, not a diff;
+ *   (2) any differing leaf whose path is not matched by a pinned pattern fails;
+ *   (3) a pinned pattern that matches NO path in the receipt fails — so a
+ *       rename cannot leave a silently permissive entry behind; and
+ *   (4) a pinned pattern whose matched paths did not actually DIFFER fails — so
+ *       the list cannot be padded with stable fields to widen the exemption.
+ * Rules (3) and (4) are what stop a new nondeterministic field from being
+ * absorbed: it lands on no pattern, so rule (2) reds.
+ *
+ * FALSE-POSITIVE RATE. Every pinned entry is either a 256-bit digest downstream
+ * of a fresh CSPRNG draw and a fresh 32-byte salt (probability of two
+ * executions agreeing is ~2^-256, i.e. it will not happen) or `runDirectory`,
+ * which differs whenever the two executions were given different scratch roots
+ * — asserted by this function rather than assumed. There is no probabilistic
+ * detector here and therefore no power calculation to pin: the comparison is
+ * exact equality over the whole artifact.
+ */
+export const REHEARSAL_VARIANCE_ALLOWLIST = Object.freeze([
+  Object.freeze({
+    path: 'aggregate.blockChainRoots.*',
+    reason: 'per-block digest over receiptChainRoots, which are alias-derived',
+  }),
+  Object.freeze({
+    path: 'aggregate.rehearsalRoot',
+    reason: 'digest over blockChainRoots, which are alias-derived',
+  }),
+  Object.freeze({
+    path: 'receiptHash',
+    reason: 'self-hash over an artifact containing alias-derived material',
+  }),
+  Object.freeze({
+    path: 'runs[*].aliasCommitmentReceiptHash',
+    reason: 'THE root cause: a fresh CSPRNG alias draw under a fresh 32-byte salt',
+  }),
+  Object.freeze({
+    path: 'runs[*].entryHash',
+    reason: 'self-hash over a run entry containing alias-derived material',
+  }),
+  Object.freeze({
+    path: 'runs[*].receiptChainRoot',
+    reason: 'chain anchored on runManifestHash, which is alias-derived',
+  }),
+  Object.freeze({
+    path: 'runs[*].runDirectory',
+    reason: 'absolute filesystem path; the two executions need distinct scratch roots',
+  }),
+  Object.freeze({
+    path: 'runs[*].runManifestHash',
+    reason: 'the manifest pins aliasCommitmentReceiptHash and assignmentManifestHash',
+  }),
+  Object.freeze({
+    path: 'runs[*].turnRounds[*].barrierHash',
+    reason: 'round receipt chained from the alias-derived runManifestHash',
+  }),
+  Object.freeze({
+    path: 'runs[*].turnRounds[*].priorReceiptHash',
+    reason: 'round 1 IS runManifestHash; later rounds chain from it',
+  }),
+  Object.freeze({
+    path: 'runs[*].turnRounds[*].terminalReceiptHash',
+    reason: 'terminal decision receipt of an alias-derived chain',
+  }),
+]);
+
+/**
+ * Flattens a receipt to `path -> canonical leaf string`. Array indices are kept
+ * concrete so a length change shows up as a structural difference.
+ */
+export function flattenReceiptLeaves(value, prefix = '', out = new Map()) {
+  if (value === null || typeof value !== 'object') {
+    out.set(prefix, canonicalJson(value));
+    return out;
+  }
+  if (Array.isArray(value)) {
+    if (value.length === 0) out.set(`${prefix}[]`, '[]');
+    value.forEach((item, index) => flattenReceiptLeaves(item, `${prefix}[${index}]`, out));
+    return out;
+  }
+  const keys = Object.keys(value);
+  if (keys.length === 0) out.set(`${prefix}{}`, '{}');
+  for (const key of keys.sort()) {
+    flattenReceiptLeaves(value[key], prefix ? `${prefix}.${key}` : key, out);
+  }
+  return out;
+}
+
+/** `runs[3].turnRounds[5].barrierHash` -> `runs[*].turnRounds[*].barrierHash`. */
+function normalizeLeafPath(leafPath) {
+  return leafPath.replace(/\[\d+\]/g, '[*]');
+}
+
+function allowlistPatternMatches(pattern, normalizedPath) {
+  if (pattern === normalizedPath) return true;
+  if (!pattern.endsWith('.*')) return false;
+  const prefix = `${pattern.slice(0, -2)}.`;
+  if (!normalizedPath.startsWith(prefix)) return false;
+  const tail = normalizedPath.slice(prefix.length);
+  // `.*` covers exactly one further key, never a whole subtree.
+  return tail.length > 0 && !tail.includes('.') && !tail.includes('[');
+}
+
+/**
+ * Compares two independent executions of runRehearsal.
+ *
+ * Both receipts must be real, passing rehearsals of the same shape; anything
+ * else is reported as UNMEASURED and fails, because a comparison of zero runs
+ * over zero executions certifies nothing.
+ */
+export function compareRehearsalExecutions(
+  receiptA,
+  receiptB,
+  { allowlist = REHEARSAL_VARIANCE_ALLOWLIST } = {},
+) {
+  const failures = [];
+  for (const [label, receipt] of [['A', receiptA], ['B', receiptB]]) {
+    if (!receipt || typeof receipt !== 'object' || !Array.isArray(receipt.runs)) {
+      failures.push(
+        `UNMEASURED: execution ${label} did not produce a rehearsal receipt, so `
+        + 'the repeat-execution comparison never ran',
+      );
+    } else if (receipt.runs.length === 0) {
+      failures.push(`UNMEASURED: execution ${label} produced zero village-runs`);
+    } else if (receipt.passed !== true) {
+      failures.push(
+        `execution ${label} did not pass, so comparing it proves nothing about a `
+        + 'passing rehearsal',
+      );
+    }
+  }
+  if (failures.length > 0) {
+    return {
+      comparedLeaves: 0,
+      deadAllowlistEntries: [],
+      differingLeaves: [],
+      failures,
+      nonVaryingAllowlistEntries: [],
+      ok: false,
+      structuralDrift: [],
+      unallowlistedDifferences: [],
+    };
+  }
+
+  const flatA = flattenReceiptLeaves(receiptA);
+  const flatB = flattenReceiptLeaves(receiptB);
+  const allPaths = [...new Set([...flatA.keys(), ...flatB.keys()])].sort();
+
+  const structuralDrift = allPaths.filter((p) => !flatA.has(p) || !flatB.has(p));
+  const differingLeaves = allPaths.filter(
+    (p) => flatA.has(p) && flatB.has(p) && flatA.get(p) !== flatB.get(p),
+  );
+
+  if (structuralDrift.length > 0) {
+    failures.push(
+      `${structuralDrift.length} receipt leaf path(s) exist in one execution and `
+      + `not the other (first: ${structuralDrift.slice(0, 5).join(', ')}); a field `
+      + 'that appears conditionally is nondeterministic structure',
+    );
+  }
+
+  const matchedByPattern = new Map(allowlist.map((entry) => [entry.path, []]));
+  const differedByPattern = new Map(allowlist.map((entry) => [entry.path, []]));
+  for (const leafPath of allPaths) {
+    const normalized = normalizeLeafPath(leafPath);
+    for (const entry of allowlist) {
+      if (allowlistPatternMatches(entry.path, normalized)) {
+        matchedByPattern.get(entry.path).push(leafPath);
+        if (differingLeaves.includes(leafPath)) differedByPattern.get(entry.path).push(leafPath);
+      }
+    }
+  }
+
+  const unallowlistedDifferences = differingLeaves.filter((leafPath) => {
+    const normalized = normalizeLeafPath(leafPath);
+    return !allowlist.some((entry) => allowlistPatternMatches(entry.path, normalized));
+  });
+  if (unallowlistedDifferences.length > 0) {
+    failures.push(
+      `${unallowlistedDifferences.length} receipt field(s) differed between two `
+      + 'executions and are NOT on the pinned variance allowlist: '
+      + `${unallowlistedDifferences.slice(0, 10).join(', ')}`,
+    );
+  }
+
+  const deadAllowlistEntries = allowlist
+    .filter((entry) => matchedByPattern.get(entry.path).length === 0)
+    .map((entry) => entry.path);
+  if (deadAllowlistEntries.length > 0) {
+    failures.push(
+      'the pinned variance allowlist contains entries that match no field in the '
+      + `receipt (${deadAllowlistEntries.join(', ')}); a stale exemption is a `
+      + 'silently widened check',
+    );
+  }
+
+  const nonVaryingAllowlistEntries = allowlist
+    .filter((entry) => matchedByPattern.get(entry.path).length > 0
+      && differedByPattern.get(entry.path).length === 0)
+    .map((entry) => entry.path);
+  if (nonVaryingAllowlistEntries.length > 0) {
+    failures.push(
+      'the pinned variance allowlist exempts fields that did NOT vary '
+      + `(${nonVaryingAllowlistEntries.join(', ')}); the exemption list must be `
+      + 'exactly the set that genuinely cannot be reproduced',
+    );
+  }
+
+  return {
+    comparedLeaves: allPaths.length,
+    deadAllowlistEntries,
+    differingLeaves,
+    failures,
+    nonVaryingAllowlistEntries,
+    ok: failures.length === 0,
+    structuralDrift,
+    unallowlistedDifferences,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------
 
+/**
+ * One execution of the rehearsal with an injected FROZEN clock, written raw to
+ * `--out`. This exists so the checker can run two executions in two FRESH
+ * PROCESSES: process warm state is itself a nondeterminism source (measured —
+ * the one-time `/holoscript_wasm_bg.wasm` module load makes
+ * observed.fetchCallsObserved 1 on the first in-process rehearsal and 0 on
+ * every later one), and two in-process executions would silently differ on the
+ * provider-call counter, which is the last field that should ever be exempted.
+ */
+async function runRepeatProbeExecution(argv) {
+  const readFlag = (name) => {
+    const index = argv.indexOf(name);
+    return index >= 0 && index + 1 < argv.length ? argv[index + 1] : null;
+  };
+  const out = readFlag('--out');
+  const scratch = readFlag('--scratch');
+  const clockRaw = readFlag('--clock');
+  const runsRaw = readFlag('--runs');
+  // The caller supplies the expectation table for the shape it asked for. A
+  // bounded probe evaluated against the twelve-run table would report
+  // passed:false and the comparison would (correctly) refuse to certify it.
+  const expectationsPath = readFlag('--expectations');
+  if (!out || !scratch || !clockRaw) {
+    process.stderr.write('--repeat-probe requires --out, --scratch and --clock\n');
+    process.exitCode = 2;
+    return;
+  }
+  const clock = Number(clockRaw);
+  if (!Number.isFinite(clock)) {
+    process.stderr.write('--clock must be a finite epoch-millisecond value\n');
+    process.exitCode = 2;
+    return;
+  }
+  const runLimit = runsRaw === null ? null : Number(runsRaw);
+  const expectations = expectationsPath
+    ? Object.freeze(JSON.parse(readFileSync(path.resolve(expectationsPath), 'utf8')))
+    : REHEARSAL_EXPECTATIONS;
+  const rootFlag = readFlag('--root');
+  const result = await runRehearsal({
+    expectations,
+    hololandRoot: rootFlag ? path.resolve(rootFlag) : defaultHololandRoot(),
+    // A FROZEN clock, not a monotonic fake: the validator validity window is
+    // enforced against the caller-supplied signing time (never against real
+    // time), so freezing keeps every window internally consistent.
+    nowFn: () => clock,
+    runLimit,
+    scratchRoot: scratch,
+    writeReceipt: false,
+  });
+  mkdirSync(path.dirname(path.resolve(out)), { recursive: true });
+  writeFileSync(path.resolve(out), `${canonicalJson(result.receipt)}\n`, 'utf8');
+}
+
 async function main() {
+  if (process.argv.includes('--repeat-probe')) {
+    await runRepeatProbeExecution(process.argv.slice(2));
+    return;
+  }
   const result = await runRehearsal({});
   const verification = verifyRehearsalReceipt(result.receipt);
   const summary = {

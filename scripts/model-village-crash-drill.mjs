@@ -78,7 +78,12 @@ import {
   readPersistentState,
 } from './model-village-phase0b-runtime.mjs';
 
-export const CRASH_DRILL_SCHEMA = 'hololand.model-village-crash-drill.v1';
+// v2 (2026-07-27): `recoveredInFreshProcess` stopped being a hardcoded literal
+// and became DERIVED from three observed pids, and the receipt now carries
+// `harnessPid` so the derivation can be re-run by any verifier. v1 receipts are
+// rejected on key-set mismatch, which is correct: a v1 receipt's fresh-process
+// claim was never backed by anything.
+export const CRASH_DRILL_SCHEMA = 'hololand.model-village-crash-drill.v2';
 export const CRASH_DRILL_ENGINE = 'hololand-model-village-crash-drill-v1';
 
 /** Typed error for all crash-drill harness failures (fail loud). */
@@ -94,6 +99,66 @@ const WORKER_PATH = path.join(
   'model-village-crash-worker.mjs',
 );
 
+/**
+ * A pid we actually observed from the OS: a positive integer. `null`, `-1`, and
+ * every other placeholder are ABSENT EVIDENCE, not a pid.
+ */
+export function isObservedPid(value) {
+  return Number.isInteger(value) && value > 0;
+}
+
+/**
+ * THE fresh-process property, in one place, computed ONLY from observed pids.
+ *
+ * Both the emitter (runCrashDrill) and the verifier (verifyCrashDrillReceipt)
+ * call this, and the verifier compares its own re-derivation against the value
+ * carried in the receipt — so the claim cannot be asserted, only earned:
+ *   - all three pids must be real (positive integers), so a `-1` placeholder
+ *     from a failed/absent spawn can never certify anything;
+ *   - the recovery pid must differ from the crashed worker's pid (otherwise
+ *     "recovery" ran in the process it was proving crashed);
+ *   - the recovery pid must differ from the harness's own pid (recovering
+ *     inside the drill/gate process is not a fresh process either);
+ *   - the WORKER pid must differ from the harness's own pid. This arm was
+ *     missing until 2026-07-28 and its absence was a live hole: the
+ *     `recoveryPid !== workerPid` arm is the one that proves "recovery did not
+ *     run in the process it proved crashed", and it is vacuous whenever
+ *     `workerPid` is not actually the crashed worker's pid. A one-token
+ *     mutation (`workerPid: crash.pid` -> `workerPid: harnessPid`) previously
+ *     derived TRUE while every drill line reported the gate's own pid as the
+ *     SIGKILLed worker. The harness can never legitimately SIGKILL itself, so
+ *     worker == harness is physically impossible, never a false red.
+ *
+ * FALSE-POSITIVE RATE ON CORRECT CODE: zero observed. A correct run spawns the
+ * recovery child AFTER the crash worker has exited, so a worker/recovery
+ * collision needs the OS to recycle a pid within milliseconds; the harness has
+ * never produced one (the collision guard predates this change and has never
+ * fired), and a child can never be handed its own parent's pid. This detector
+ * reds only on genuinely degraded evidence.
+ *
+ * WHAT THIS STILL DOES NOT PROVE (measured, not guessed). Three plausible
+ * distinct positive integers satisfy every arm. The pid triple is bound to a
+ * really-executed recovery only by the SELF-REPORTED pid law in
+ * runRecoveryProcess/runCrashDrill (the recovery child prints its own
+ * process.pid and the harness refuses any receipt whose recoveryPid does not
+ * equal it) — that law, not this function, is what defeats an emitter that
+ * recovers in-process while spawning a throwaway child for a plausible pid.
+ * A wholly FORGED receipt is still out of reach of both.
+ */
+export function deriveRecoveredInFreshProcess({
+  workerPid,
+  recoveryPid,
+  harnessPid,
+} = {}) {
+  if (!isObservedPid(workerPid)) return false;
+  if (!isObservedPid(recoveryPid)) return false;
+  if (!isObservedPid(harnessPid)) return false;
+  if (recoveryPid === workerPid) return false;
+  if (recoveryPid === harnessPid) return false;
+  if (workerPid === harnessPid) return false;
+  return true;
+}
+
 export const DRILL_OPERATOR = 'mv-b5-crash-drill-operator';
 export const DRILL_RUN_LABEL = 'mv-b5-crash-drill';
 /** Ciphertext large enough that a SIGKILL fired on `.enc` appearance lands
@@ -101,6 +166,7 @@ export const DRILL_RUN_LABEL = 'mv-b5-crash-drill';
 export const DRILL_LARGE_OBJECT_BYTES = 24 * 1024 * 1024;
 const READY_TOKEN = 'MV_CRASH_READY';
 const VERDICT_MARKER = 'MV_CRASH_VERDICT ';
+const SELF_PID_MARKER = 'MV_CRASH_PID ';
 const DEFAULT_KILL_TIMEOUT_MS = 20000;
 const RECOVERY_TIMEOUT_MS = 20000;
 const MAX_OBSERVED_OUTCOME_LENGTH = 600;
@@ -463,7 +529,11 @@ function spawnAndKillCrashWorker({
         ),
       );
     });
-    child.on('exit', (code, signal) => {
+    // 'close', not 'exit': 'exit' can fire while stdout chunks are still in
+    // flight, which would drop the worker's self-reported pid line and turn a
+    // correct run into a spurious UNMEASURED. 'close' fires only once every
+    // stdio stream has been drained and closed.
+    child.on('close', (code, signal) => {
       cleanup();
       resolve({
         pid: child.pid,
@@ -477,6 +547,24 @@ function spawnAndKillCrashWorker({
       });
     });
   });
+}
+
+/**
+ * The pid a child process reported ABOUT ITSELF on its own stdout, or null.
+ *
+ * This is deliberately parsed from raw stdout by the CALLER (runCrashDrill),
+ * not by the spawn helper, so that replacing the spawn helper wholesale — the
+ * "recover inline and spawn a throwaway child for a plausible pid"
+ * optimization — cannot also delete the check. A degraded emitter now has to
+ * fabricate a stdout stream, which is forging, not shortcutting.
+ */
+export function parseSelfReportedPid(stdout) {
+  const line = String(stdout ?? '')
+    .split(/\r?\n/)
+    .find((entry) => entry.startsWith(SELF_PID_MARKER));
+  if (!line) return null;
+  const parsed = Number.parseInt(line.slice(SELF_PID_MARKER.length).trim(), 10);
+  return isObservedPid(parsed) ? parsed : null;
 }
 
 function parseVerdict(stdout) {
@@ -513,6 +601,7 @@ function runRecoveryProcess({ scenario, caseDir, operator, seed, size }) {
   if (result.error && result.error.code === 'ETIMEDOUT') {
     return {
       pid: result.pid ?? null,
+      stdout: result.stdout ?? '',
       verdict: {
         invariantHeld: false,
         observedOutcome:
@@ -531,7 +620,13 @@ function runRecoveryProcess({ scenario, caseDir, operator, seed, size }) {
       + `stderr: ${boundString(result.stderr, 400)}`,
     );
   }
-  return { pid: result.pid ?? null, verdict, timedOut: false, raw: result };
+  return {
+    pid: result.pid ?? null,
+    stdout: result.stdout ?? '',
+    verdict,
+    timedOut: false,
+    raw: result,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -624,9 +719,84 @@ export async function runCrashDrill({
       seed,
       size,
     });
-    if (recovery.pid !== null && recovery.pid === crash.pid) {
+
+    // ABSENT EVIDENCE BLOCKS. The fresh-process property is the load-bearing
+    // claim of this whole drill, and it can only be made from OBSERVED pids. If
+    // either pid is missing (spawn produced no pid) the property is UNMEASURED,
+    // not "true by default" — refuse to emit a receipt at all.
+    const harnessPid = process.pid;
+    if (!isObservedPid(crash.pid)) {
       throw new ModelVillageCrashDrillError(
-        'recovery did not run in a fresh process (pid collision)',
+        `UNMEASURED: crash worker for ${scenario} produced no observable pid `
+        + `(got ${String(crash.pid)}); fresh-process recovery cannot be claimed`,
+      );
+    }
+    if (!isObservedPid(recovery.pid)) {
+      throw new ModelVillageCrashDrillError(
+        `UNMEASURED: recovery process for ${scenario} produced no observable pid `
+        + `(got ${String(recovery.pid)}); fresh-process recovery cannot be claimed`,
+      );
+    }
+    // A pid collision with the crashed worker would mean recovery ran in the
+    // process it was proving crashed; a collision with the harness would mean it
+    // ran INSIDE the gate, which is not a fresh process either.
+    if (recovery.pid === crash.pid) {
+      throw new ModelVillageCrashDrillError(
+        `recovery did not run in a fresh process (pid collision with the crashed `
+        + `worker: ${recovery.pid})`,
+      );
+    }
+    if (recovery.pid === harnessPid) {
+      throw new ModelVillageCrashDrillError(
+        `recovery did not run in a fresh process (it ran in the drill harness `
+        + `process: ${recovery.pid})`,
+      );
+    }
+    // The crash worker can never be this process: the harness does not SIGKILL
+    // itself. Without this, a `workerPid: harnessPid` degradation left the
+    // load-bearing `recoveryPid !== workerPid` arm comparing against the wrong
+    // process and derived TRUE anyway.
+    if (crash.pid === harnessPid) {
+      throw new ModelVillageCrashDrillError(
+        `crash worker pid equals the drill harness pid (${crash.pid}); the `
+        + 'harness does not kill itself, so this pid is not evidence',
+      );
+    }
+    // SELF-REPORTED PID LAW. Both children print their own process.pid as the
+    // first line of their own stdout. Binding the spawn-observed pid to the
+    // child-reported pid is what turns `recoveryPid` from an integer the
+    // emitter chose into a value the recovering process itself had to produce:
+    // an emitter that runs recovery in-process and spawns a throwaway child
+    // purely to source a plausible pid now fails here instead of certifying
+    // recoveredInFreshProcess:true with zero fresh recoveries.
+    const crashReportedPid = parseSelfReportedPid(crash.stdout);
+    const recoveryReportedPid = parseSelfReportedPid(recovery.stdout);
+    if (crashReportedPid === null) {
+      throw new ModelVillageCrashDrillError(
+        `UNMEASURED: crash worker for ${scenario} reported no pid about itself; `
+        + 'the spawn-observed pid cannot be bound to a process that ran the worker',
+      );
+    }
+    if (recoveryReportedPid === null) {
+      throw new ModelVillageCrashDrillError(
+        `UNMEASURED: recovery process for ${scenario} reported no pid about `
+        + 'itself; the spawn-observed pid cannot be bound to a process that ran '
+        + 'the recovery',
+      );
+    }
+    if (crashReportedPid !== crash.pid) {
+      throw new ModelVillageCrashDrillError(
+        `crash worker pid disagreement for ${scenario}: the harness observed `
+        + `${crash.pid} but the process that ran the worker reported `
+        + `${crashReportedPid}`,
+      );
+    }
+    if (recoveryReportedPid !== recovery.pid) {
+      throw new ModelVillageCrashDrillError(
+        `recovery pid disagreement for ${scenario}: the harness observed `
+        + `${recovery.pid} but the process that ran the recovery reported `
+        + `${recoveryReportedPid}; recovery did not run in the process whose `
+        + 'pid this receipt would carry',
       );
     }
 
@@ -635,13 +805,21 @@ export async function runCrashDrill({
       at: new Date().toISOString(),
       engine: CRASH_DRILL_ENGINE,
       gapReference: config.gapReference,
+      harnessPid,
       invariantDescription: config.invariantDescription,
       invariantHeld: Boolean(verdict.invariantHeld),
       killSignal: signal,
       killWindow: config.killWindow,
       observedOutcome: boundString(verdict.observedOutcome),
-      recoveredInFreshProcess: true,
-      recoveryPid: recovery.pid ?? -1,
+      // DERIVED from the three observed pids, never asserted. Every mutation
+      // that degrades a pid (to -1, to the harness pid, to the worker pid) flips
+      // this to false, and verifyCrashDrillReceipt re-derives it independently.
+      recoveredInFreshProcess: deriveRecoveredInFreshProcess({
+        workerPid: crash.pid,
+        recoveryPid: recovery.pid,
+        harnessPid,
+      }),
+      recoveryPid: recovery.pid,
       scenario,
       schema: CRASH_DRILL_SCHEMA,
       storeStateHashAfterRecovery:
@@ -1010,6 +1188,18 @@ function runProbeChild(argv) {
     });
   }
   if (args.role === 'torn-read-inspect') return probeInspectChild({ storeDir });
+  if (args.role === 'vanish-writer') {
+    return vanishWriterChild({ storeDir, seamUrl: args['seam-url'], deadline });
+  }
+  if (args.role === 'vanish-reader') {
+    return vanishReaderChild({
+      storeDir,
+      targetPolls: Number(args['target-polls']),
+      targetReplacements: Number(args['target-replacements']),
+      deadline,
+    });
+  }
+  if (args.role === 'vanish-inspect') return vanishInspectChild({ storeDir });
   writeSync(2, `crash drill: unknown probe role ${args.role}\n`);
   process.exitCode = 2;
   return undefined;
@@ -1584,9 +1774,10 @@ export function verifyTornReadProbeReceipt(receipt) {
 // which G-EXPORT recorded as undrivable.
 //
 // WHAT IT STILL DOES NOT COVER: an implementation that unlinks the target
-// before renaming still changes the file identity, so it reads as atomic here
+// before renaming still changes the file identity, so it reads as atomic HERE
 // while leaving a window in which state.json does not exist at all. That is
-// G-VANISH, it is executed as a test rather than argued, and it is NOT closed.
+// G-VANISH. This probe's blindness to it is unchanged and is pinned by an
+// executed test; the defect itself is now caught by the VANISH PROBE below.
 // ---------------------------------------------------------------------------
 
 export const ATOMIC_REPLACEMENT_PROBE_SCHEMA =
@@ -1884,10 +2075,12 @@ export async function runAtomicReplacementProbe({
       + 'size. MECHANISM: production is not edited; the seam is a byte-identical '
       + 'copy of the shipping runtime with exactly one appended line, '
       + `'${SEAM_EXPORT_LINE}', and the shipping file's sha256 and the appended `
-      + 'byte count are both recorded here. NOT COVERED: an implementation that '
-      + 'unlinks the target before renaming also acquires a new file object, so '
-      + 'it reads as atomic here while leaving a window in which state.json does '
-      + 'not exist at all (gap G-VANISH, executed as a test, NOT closed).',
+      + 'byte count are both recorded here. NOT COVERED BY THIS PROBE: an '
+      + 'implementation that unlinks the target before renaming also acquires a '
+      + 'new file object, so it reads as atomic here while leaving a window in '
+      + 'which state.json does not exist at all. That is G-VANISH; this probe is '
+      + 'still blind to it (pinned by an executed test) and it is the VANISH '
+      + 'PROBE, not this one, that catches it.',
     replacementFloor: replacements,
     schema: ATOMIC_REPLACEMENT_PROBE_SCHEMA,
     unmeasuredReasons: unmeasuredReasons.map((reason) => boundString(reason, 300)),
@@ -2087,6 +2280,962 @@ export function verifyAtomicReplacementProbeReceipt(receipt) {
 }
 
 // ---------------------------------------------------------------------------
+// VANISH PROBE (G-VANISH).
+//
+// The third probe, and the one the other two are structurally blind to. A
+// writeAtomicState that unlinks the target immediately before renaming over it
+// leaves a window in which state.json DOES NOT EXIST. That is strictly worse
+// than a torn read (a crash in it leaves no state at all), and:
+//
+//   - the torn-read probe is INVERTED for it: it counts ENOENT as an in-window
+//     attempt, so a WIDER disappearance window makes its HELD more confident;
+//   - the atomic-replacement probe misses it because unlink+rename still yields
+//     a NEW file object, so the identity comparator reads it as atomic.
+//
+// This probe measures the property directly: on an ESTABLISHED store that this
+// harness NEVER unlinks, a concurrent reader polling the published path must
+// never observe it genuinely absent. The whole design turns on one distinction
+// the previous attempt did not make — ENOENT (the entry is gone) is NOT the
+// same observation as EPERM/EACCES/EBUSY (win32 delete-pending / sharing
+// violation, which is exactly what a CORRECT rename-over-a-held-open-target
+// produces). Classifying by errno rather than by existsSync is what moves the
+// false-positive rate from "1 in 30,210 polls" to the number pinned below.
+// ---------------------------------------------------------------------------
+
+export const VANISH_PROBE_SCHEMA = 'hololand.model-village-vanish-probe.v1';
+export const VANISH_PROBE_ENGINE = 'hololand-model-village-vanish-probe-v1';
+
+/** Verdicts. Never declared — always derived from the counters below. */
+export const VANISH_VERDICTS = Object.freeze({
+  HELD: 'HELD',
+  UNMEASURED: 'UNMEASURED',
+  VIOLATED: 'VIOLATED',
+});
+
+/**
+ * win32 codes that mean "the entry is still there, the OS is refusing this open
+ * because the file is mid-replacement or delete-pending". A correct
+ * rename-over-existing can produce these when a reader holds the target open;
+ * they are NOT the defect and must never be counted as one. Classifying them
+ * apart from ENOENT is what the previous attempt at this gap did not do — it
+ * polled with existsSync, which collapses them onto "absent" and produced the
+ * ~3e-5 false-positive rate recorded in G-VANISH.
+ *
+ * MEASURED HONESTY, because a bucket that never fires must not be described as
+ * if it were doing work: across 6,306,137 correct-implementation polls on this
+ * host, this bucket fired ZERO times (statSync's open shares delete, so the
+ * delete-pending state was never observed) and the writer logged 2
+ * rename-retries in 13,925 replacements. On THIS host the false-positive
+ * collapse therefore comes from the poll primitive as much as from the errno
+ * split; the split is what keeps the result true on a host where the transient
+ * state IS observable, and its own correctness there is untested.
+ */
+const VANISH_TRANSIENT_CODES = new Set(['EACCES', 'EBUSY', 'EPERM']);
+
+/**
+ * MEASURED per-poll hit rate against the G-VANISH MUTANT (production
+ * writeAtomicState with `if (existsSync(target)) unlinkSync(target);` inserted
+ * immediately before renameSync, after the before_rename fault check). It is not
+ * a guess and not a target: the honest implementation produces zero hits by
+ * construction, so the mutant is the only source of a real p.
+ *
+ *   host: win32 / NTFS, node v24.15.0, 2 reader children, 1 writer child
+ *   mutant, 11 runs across two batches: 11/11 VIOLATED
+ *     batch A (5 runs): 3,365 vanishes / 70,134 polls, per-run 3.89e-2..5.36e-2
+ *     batch B (6 runs): 1,660 vanishes / 164,751 polls, per-run 5.27e-3..1.63e-2
+ *     per-run HIT COUNTS: 214 .. 894
+ *
+ * The PINNED value is the LOWEST per-run rate observed (batch B run 1), not the
+ * aggregate, so the floor is sized from the worst run rather than the best. The
+ * 7x spread between batches is real and is the reason the minimum is used: the
+ * per-POLL rate is a ratio of the writer's unlink window to the reader's poll
+ * period, and the writer's throughput varies with host load. The per-run HIT
+ * COUNT is the more stable quantity (it tracks witnessed replacements, which
+ * this probe fences directly), and its minimum of 214 is the real margin — but
+ * the power arithmetic below is stated in the conservative per-poll form.
+ */
+export const VANISH_MEASURED_HIT_RATE = 5.27e-3;
+
+/**
+ * FALSE-POSITIVE MEASUREMENT on the CORRECT implementation. This is the number
+ * that decides whether this detector may exist at all, and the previous attempt
+ * at this gap was correctly NOT shipped because its version of this number was
+ * bad: polling with bare existsSync produced 1 "absent" in 30,210 polls, a
+ * ~3e-5 per-poll false-positive rate that would make a red flaky. existsSync
+ * collapses EPERM/EACCES/EBUSY (win32 delete-pending, which a CORRECT
+ * rename-over-a-held-open-target produces) onto "absent"; classifying by errno
+ * does not.
+ *
+ *   host: win32 / NTFS, node v24.15.0, same 2-reader/1-writer configuration
+ *   correct implementation, 35 runs: 0 classified vanishes in 6,306,137 polls
+ *     (25 runs x 240,000 = 6,000,000, plus 10 shorter runs = 306,137)
+ *     0 polls returned a code the classifier could not name
+ *     35/35 HELD
+ *
+ * POINT ESTIMATE 0. With zero events the 95% upper bound on the per-poll
+ * false-positive rate is the rule of three, 3/6,306,137 = 4.757e-7, and the
+ * per-run false-red bound is 1-(1-4.757e-7)^n at the polls a run achieves:
+ * 3.8e-3 at the floor of 8,000 and ~1.0e-2 at the ~20,000 a typical run reaches.
+ * RESIDUAL, stated because it is the honest tail rather than the headline: n is
+ * not capped, so a host whose writer is slow relative to its readers stretches n
+ * (runs of 57,000 and 128,000 polls were observed during calibration) and the
+ * bound grows with it — 2.7e-2 and 6.0e-2 at those extremes. A poll ceiling was
+ * considered and rejected: it converts a slow host into a stream of UNMEASURED
+ * runs, which is a red on correct code by another name. Note also that the bound
+ * is a 95% confidence statement over ZERO observed events, not a rate anyone
+ * measured; the measured rate is 0. Both numbers are RE-DERIVED per receipt from
+ * the achieved n (deriveVanishPower), never copied from here.
+ */
+export const VANISH_FALSE_POSITIVE_POLLS_MEASURED = 6306137;
+export const VANISH_FALSE_POSITIVE_EVENTS_MEASURED = 0;
+
+/**
+ * Polls required before "no vanish seen" is allowed to mean anything.
+ *
+ *   n = 8,000 (the FLOOR; runs typically achieve 11,000-57,000 because the
+ *     reader-side replacement fence binds later than the poll fence)
+ *   detection at the pinned rate: 1-(1-5.27e-3)^8000 = 1 - e^-42.2, i.e.
+ *     indistinguishable from certainty.
+ *   collapse margin AT THE FLOOR: the SMALLEST per-poll rate this n still
+ *     detects at 95% is p* = 1-0.05^(1/8000) = 3.744e-4, which is 14x below the
+ *     pinned rate. At the 20,000+ a typical run reaches the margin is 35x+.
+ *     Smaller than the torn-read probe's 58x, deliberately: the false-red
+ *     exposure grows with n, so buying more margin past certain detection costs
+ *     flakiness. This is the residual, and it is stated rather than dressed up.
+ *
+ * A run that cannot reach this floor reports UNMEASURED, which is a FAILURE for
+ * the caller: "we saw nothing disappear" over a race that did not happen is not
+ * evidence of continuous publication.
+ */
+export const VANISH_REQUIRED_POLLS = 8000;
+
+/** Reader children. Two was the measured configuration. */
+export const VANISH_READER_COUNT = 2;
+
+/**
+ * Replacements the readers must PERSONALLY witness (distinct file identities
+ * observed at the published path) before their polls count as a real race. This
+ * is the non-vacuity fence, and it is reader-side on purpose: a writer-reported
+ * count would let a wedged writer certify its own liveness, and n polls of a
+ * store nobody is replacing must NEVER read as n chances to catch a vanish.
+ */
+export const VANISH_MIN_REPLACEMENTS_WITNESSED = 25;
+
+const VANISH_DEADLINE_MS = 20000;
+const VANISH_READY_TIMEOUT_MS = 20000;
+const VANISH_INSPECT_TIMEOUT_MS = 20000;
+const VANISH_MAX_SAMPLES = 4;
+const VANISH_PROGRESS_MARKER = 'MV_VANISH_PROGRESS ';
+const VANISH_PROGRESS_EVERY = 25;
+
+/**
+ * Classifies ONE existence poll of the published path. Returns
+ * { state, hit, detail, identity }.
+ *
+ *   present   — the entry resolved; `identity` is the OS's own file-object id,
+ *               so a reader can count replacements it personally witnessed.
+ *   vanished  — ENOENT. The directory entry is GONE. This is the defect.
+ *   transient — EPERM/EACCES/EBUSY: mid-replacement / delete-pending. NOT a hit.
+ *   other     — any code this classifier does not understand. NOT scored as a
+ *               hit, but any occurrence makes the run UNMEASURED: a classifier
+ *               that cannot name what it saw must not certify anything.
+ */
+function classifyVanishPoll(target) {
+  try {
+    const stats = statSync(target);
+    return {
+      state: 'present',
+      hit: false,
+      detail: '',
+      identity: `${stats.dev}:${stats.ino}:${stats.birthtimeMs}`,
+    };
+  } catch (error) {
+    const code = error?.code ?? 'UNKNOWN';
+    if (code === 'ENOENT') {
+      return { state: 'vanished', hit: true, detail: `${error?.name}:${code}`, identity: '' };
+    }
+    if (VANISH_TRANSIENT_CODES.has(code)) {
+      return { state: 'transient', hit: false, detail: `${error?.name}:${code}`, identity: '' };
+    }
+    return { state: 'other', hit: false, detail: `${error?.name}:${code}`, identity: '' };
+  }
+}
+
+/**
+ * IN-RUN POSITIVE CONTROL for the vanish classifier, run in the gate process on
+ * every probe run. Deterministic, p = 1, three cases against real files:
+ *
+ *   vanished  — a path in a real empty directory MUST classify as vanished. If
+ *               this ever stops holding (a classifier that swallowed ENOENT into
+ *               'transient', a stat that stopped throwing) the detector has gone
+ *               blind and the run must report UNMEASURED, not a confident HELD.
+ *   present   — a store published by production initializePersistentStore.
+ *   identity  — a known rename over a present target must read as a NEW file
+ *               object, or the reader-side replacement counter (the non-vacuity
+ *               fence) is measuring nothing on this host.
+ */
+function runVanishDetectorControl(scratchRoot) {
+  const controlDir = path.join(scratchRoot, `vanish-control-${randomUUID()}`);
+  const storeDir = path.join(controlDir, 'phase0b');
+  mkdirSync(storeDir, { recursive: true });
+  try {
+    const absent = classifyVanishPoll(probeStateFile(storeDir));
+    const fixture = buildValidatorFixture();
+    initializePersistentStore({
+      storeDir,
+      trustedValidatorConfig: fixture.trustedValidatorConfig,
+      validatorReceipt: fixture.validatorReceipt,
+      initialWorld: fixture.initialWorld,
+    });
+    const target = probeStateFile(storeDir);
+    const present = classifyVanishPoll(target);
+    const temporary = path.join(storeDir, 'identity-control.tmp');
+    writeFileSync(temporary, readFileSync(target, 'utf8'), 'utf8');
+    renameSync(temporary, target);
+    const afterRename = classifyVanishPoll(target);
+    return {
+      absentClassifiedAsVanished: absent.state === 'vanished' && absent.hit === true,
+      presentClassifiedAsPresent: present.state === 'present' && present.hit === false,
+      identityDiscriminatesReplacement:
+        afterRename.state === 'present'
+        && present.identity !== ''
+        && afterRename.identity !== ''
+        && afterRename.identity !== present.identity,
+    };
+  } catch {
+    return {
+      absentClassifiedAsVanished: false,
+      presentClassifiedAsPresent: false,
+      identityDiscriminatesReplacement: false,
+    };
+  } finally {
+    try {
+      rmSync(controlDir, { recursive: true, force: true });
+    } catch {
+      /* best-effort scratch cleanup */
+    }
+  }
+}
+
+// --- vanish probe child roles ----------------------------------------------
+
+/**
+ * Loops production writeAtomicState against a PRESENT target via the export
+ * seam. It NEVER unlinks: every window this probe observes therefore belongs to
+ * the write path under test and not to the harness, which is the flaw that made
+ * the torn-read probe a create-path probe.
+ *
+ * A racing reader that holds the target open makes a correct
+ * rename-over-existing fail with EPERM on win32; production does not retry, so
+ * the harness does, and counts it. Those retries are reported for context only
+ * — nothing in the verdict depends on a writer-reported number.
+ *
+ * EVERY WRITE PUBLISHES DIFFERENT BYTES (added 2026-07-28). The first version
+ * of this writer read the state once and re-published the byte-identical
+ * object forever, which made the probe structurally blind to any window that
+ * opens only when the content CHANGES — a measured hole: a production
+ * `if (contentDiffers) unlink(target)` before the rename passed the whole gate
+ * green, while in production every turn changes the state so that branch would
+ * fire on every write. The state is now re-sealed with a fresh `runId` on each
+ * iteration and is re-validated by production `validatePersistentState`, so the
+ * writer publishes a VALID but DIFFERENT state every time, as production does.
+ */
+async function vanishWriterChild({ storeDir, seamUrl, deadline }) {
+  const runtime = await import(seamUrl);
+  const target = probeStateFile(storeDir);
+  const base = runtime.readPersistentState(storeDir);
+  const baseRunId = String(base.runId ?? 'mv-vanish');
+  let sequence = 0;
+  const nextState = () => {
+    sequence += 1;
+    const { stateHash, ...unsigned } = base;
+    void stateHash;
+    unsigned.runId = `${baseRunId}-w${sequence}`;
+    const sealed = { ...unsigned, stateHash: runtime.canonicalDigest(unsigned) };
+    // Non-vacuity: prove with PRODUCTION validation that what this writer
+    // publishes is a real persistent state, not scribble that only happens to
+    // change length.
+    runtime.validatePersistentState(sealed);
+    return sealed;
+  };
+  const counters = { replacements: 0, renameRetries: 0, targetPresentAtCall: 0 };
+  let signalled = false;
+  while (Date.now() < deadline) {
+    if (existsSync(target)) counters.targetPresentAtCall += 1;
+    try {
+      runtime.writeAtomicState(storeDir, nextState());
+    } catch {
+      counters.renameRetries += 1;
+      continue;
+    }
+    counters.replacements += 1;
+    if (!signalled) {
+      // Only after a REAL production replacement of a PRESENT target.
+      writeSync(1, `${PROBE_READY_TOKEN}\n`);
+      signalled = true;
+    }
+    if (counters.replacements % VANISH_PROGRESS_EVERY === 0) {
+      writeSync(1, `${VANISH_PROGRESS_MARKER}${JSON.stringify(counters)}\n`);
+    }
+  }
+  writeSync(1, `${VANISH_PROGRESS_MARKER}${JSON.stringify(counters)}\n`);
+}
+
+/**
+ * Polls the published path of an established store and classifies every poll.
+ *
+ * It runs until BOTH fences are satisfied — the poll floor AND the number of
+ * distinct file objects it has personally witnessed — because they are bounded
+ * by different things: polls are cheap (microseconds) while a production
+ * replacement is fsync-bound (tens of milliseconds), so a reader that stopped at
+ * the poll floor alone would report thousands of polls of a store it had barely
+ * seen replaced twice. Stopping at the slower fence is what makes the polls
+ * observations OF a replacement loop rather than merely concurrent with one.
+ */
+function vanishReaderChild({ storeDir, targetPolls, targetReplacements, deadline }) {
+  const target = probeStateFile(storeDir);
+  const counters = {
+    polls: 0,
+    pollsPresent: 0,
+    pollsVanished: 0,
+    pollsTransient: 0,
+    pollsOther: 0,
+    replacementsWitnessed: 0,
+    established: false,
+  };
+  const vanishedSamples = [];
+  const otherSamples = [];
+
+  // Establishment latch. Nothing is counted until this reader has seen the
+  // store present with its own eyes, so a startup race can never be scored as a
+  // disappearance.
+  let lastIdentity = '';
+  while (Date.now() < deadline) {
+    const first = classifyVanishPoll(target);
+    if (first.state === 'present') {
+      counters.established = true;
+      lastIdentity = first.identity;
+      break;
+    }
+  }
+
+  while (
+    counters.established
+    && (counters.polls < targetPolls || counters.replacementsWitnessed < targetReplacements)
+    && Date.now() < deadline
+  ) {
+    const observation = classifyVanishPoll(target);
+    counters.polls += 1;
+    if (observation.state === 'present') {
+      counters.pollsPresent += 1;
+      if (observation.identity !== lastIdentity) {
+        counters.replacementsWitnessed += 1;
+        lastIdentity = observation.identity;
+      }
+    } else if (observation.state === 'vanished') {
+      counters.pollsVanished += 1;
+      if (vanishedSamples.length < VANISH_MAX_SAMPLES) vanishedSamples.push(observation.detail);
+    } else if (observation.state === 'transient') {
+      counters.pollsTransient += 1;
+    } else {
+      counters.pollsOther += 1;
+      if (otherSamples.length < VANISH_MAX_SAMPLES) otherSamples.push(observation.detail);
+    }
+  }
+  writeSync(
+    1,
+    `${PROBE_RESULT_MARKER}${JSON.stringify({ ...counters, vanishedSamples, otherSamples })}\n`,
+  );
+}
+
+/**
+ * Fresh-process look at whatever the SIGKILLed writer left behind. Recorded for
+ * context ONLY — it is deliberately not a hit class, because a kill landing
+ * inside a legitimate replacement window is not the property under test.
+ */
+function vanishInspectChild({ storeDir }) {
+  const observation = classifyVanishPoll(probeStateFile(storeDir));
+  writeSync(
+    1,
+    `${PROBE_RESULT_MARKER}${JSON.stringify({
+      state: observation.state,
+      detail: observation.detail,
+    })}\n`,
+  );
+}
+
+function parseLastProgress(stdout) {
+  const lines = String(stdout)
+    .split(/\r?\n/)
+    .filter((entry) => entry.startsWith(VANISH_PROGRESS_MARKER));
+  if (lines.length === 0) return null;
+  try {
+    return JSON.parse(lines[lines.length - 1].slice(VANISH_PROGRESS_MARKER.length));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Detection AND false-red arithmetic for the polls this run actually achieved.
+ * Both are computed from the achieved n — never copied from a constant — so an
+ * under-powered run cannot inherit the full-power number, and the false-red
+ * bound grows honestly with n instead of being asserted once.
+ */
+function deriveVanishPower(pollsAchieved, requiredPolls) {
+  const n = Math.max(0, pollsAchieved);
+  const p = VANISH_MEASURED_HIT_RATE;
+  // Rule of three: with `events` observed in `polls`, the 95% upper bound on the
+  // per-poll false-positive rate is 3/polls when events === 0.
+  const fpBound = Math.min(1, Math.max(
+    0,
+    (VANISH_FALSE_POSITIVE_EVENTS_MEASURED === 0
+      ? 3
+      : VANISH_FALSE_POSITIVE_EVENTS_MEASURED + 3) / VANISH_FALSE_POSITIVE_POLLS_MEASURED,
+  ));
+  return {
+    pollsAchieved: n,
+    measuredHitRatePerPoll: p,
+    detectionAtMeasuredRate: n === 0 ? 0 : round(1 - ((1 - p) ** n), 6),
+    minimumHitRateStillDetectedAt95: n === 0 ? 1 : round(1 - (0.05 ** (1 / n)), 9),
+    falsePositivePollsMeasured: VANISH_FALSE_POSITIVE_POLLS_MEASURED,
+    falsePositiveEventsMeasured: VANISH_FALSE_POSITIVE_EVENTS_MEASURED,
+    falsePositiveRatePerPollUpperBound95: round(fpBound, 12),
+    falseRedProbabilityUpperBound95: n === 0 ? 0 : round(1 - ((1 - fpBound) ** n), 9),
+    requiredPolls,
+  };
+}
+
+/**
+ * Runs the vanish probe and returns { receipt }.
+ *
+ *   VIOLATED  — at least one poll of an ESTABLISHED store classified ENOENT.
+ *   UNMEASURED— no hit, but a precondition failed (detector control blind, seam
+ *               unbuildable, writer never replaced a present target or died
+ *               early, a reader never reported or never established, too few
+ *               witnessed replacements, fewer polls than n, or any poll the
+ *               classifier could not name).
+ *   HELD      — no vanish across >= n polls of a store proven to be under live
+ *               replacement.
+ */
+export async function runVanishProbe({
+  scratchRoot,
+  readerCount = VANISH_READER_COUNT,
+  requiredPolls = VANISH_REQUIRED_POLLS,
+  minReplacementsWitnessed = VANISH_MIN_REPLACEMENTS_WITNESSED,
+  deadlineMs = VANISH_DEADLINE_MS,
+} = {}) {
+  if (!scratchRoot || typeof scratchRoot !== 'string') {
+    throw new ModelVillageCrashDrillError('scratchRoot must be a non-empty string');
+  }
+  if (!Number.isInteger(readerCount) || readerCount < 1) {
+    throw new ModelVillageCrashDrillError('readerCount must be a positive integer');
+  }
+  if (!Number.isInteger(requiredPolls) || requiredPolls < 1) {
+    throw new ModelVillageCrashDrillError('requiredPolls must be a positive integer');
+  }
+
+  mkdirSync(scratchRoot, { recursive: true });
+  const caseDir = path.join(scratchRoot, `vanish-${randomUUID()}`);
+  const storeDir = path.join(caseDir, 'phase0b');
+  mkdirSync(storeDir, { recursive: true });
+
+  // 20% headroom so readers do not all stop one observation short of the
+  // aggregate floor. Each reader must independently reach the witness target,
+  // because a reader that saw no replacement contributes polls that were never
+  // near a replacement window.
+  const perReaderTarget = Math.ceil((requiredPolls * 1.2) / readerCount);
+  const perReaderWitnessTarget = Math.ceil(minReplacementsWitnessed * 1.2);
+  const deadline = Date.now() + deadlineMs;
+  const unmeasuredReasons = [];
+
+  const observed = {
+    detectorControl: runVanishDetectorControl(caseDir),
+    readerCount,
+    readersReporting: 0,
+    readersEstablished: 0,
+    pollsTotal: 0,
+    pollsPresent: 0,
+    pollsVanished: 0,
+    pollsTransient: 0,
+    pollsOther: 0,
+    replacementsWitnessed: 0,
+    vanishedSamples: [],
+    otherSamples: [],
+    postRunStateFile: 'unknown',
+    postRunDetail: '',
+    seamAppendedBytes: 0,
+    seamShippedRuntimeSha256: '',
+    writerPid: -1,
+    writerExitSignal: null,
+    writerExitedEarly: false,
+    writerSignalledFirstReplacement: false,
+    writerReplacementsReported: 0,
+    writerRenameRetriesReported: 0,
+  };
+
+  if (!observed.detectorControl.absentClassifiedAsVanished) {
+    unmeasuredReasons.push(
+      'the in-run detector positive control did NOT classify a genuinely absent '
+      + 'path as vanished, so this run cannot show its detector can see the '
+      + 'defect it claims to rule out',
+    );
+  }
+  if (!observed.detectorControl.presentClassifiedAsPresent) {
+    unmeasuredReasons.push(
+      'the in-run detector positive control did NOT classify a '
+      + 'production-published state file as present',
+    );
+  }
+  if (!observed.detectorControl.identityDiscriminatesReplacement) {
+    unmeasuredReasons.push(
+      'a known rename over a present target did NOT read as a new file object on '
+      + 'this host, so the reader-side replacement counter — the only non-vacuity '
+      + 'fence this probe has — is not measuring anything',
+    );
+  }
+
+  try {
+    const seam = buildWriteAtomicSeamTree(path.join(caseDir, 'seam'));
+    if (!seam) {
+      unmeasuredReasons.push(
+        'the writeAtomicState anchor was not found in the shipping runtime, so '
+        + 'no byte-identical export seam could be built; this probe must be '
+        + 'repaired rather than skipped',
+      );
+    } else {
+      observed.seamAppendedBytes = seam.appendedBytes;
+      observed.seamShippedRuntimeSha256 = seam.shippedSha256;
+      const runtime = await import(seam.moduleUrl);
+      const fixture = buildValidatorFixture();
+      // Created ONCE. The harness never unlinks it again, so every absence a
+      // reader can observe from here on belongs to the write path under test.
+      runtime.initializePersistentStore({
+        storeDir,
+        trustedValidatorConfig: fixture.trustedValidatorConfig,
+        validatorReceipt: fixture.validatorReceipt,
+        initialWorld: fixture.initialWorld,
+      });
+
+      const writer = spawnProbeChild([
+        '--role=vanish-writer',
+        `--store-dir=${storeDir}`,
+        `--seam-url=${seam.moduleUrl}`,
+        `--deadline=${deadline}`,
+      ]);
+      observed.writerPid = writer.pid ?? -1;
+      let writerStdout = '';
+      writer.stdout.on('data', (chunk) => { writerStdout += chunk.toString(); });
+      const writerDone = collectProbeChild(writer);
+      let writerSettled = false;
+      writerDone.then(() => { writerSettled = true; });
+
+      observed.writerSignalledFirstReplacement = await new Promise((resolve) => {
+        const timer = setTimeout(() => resolve(false), VANISH_READY_TIMEOUT_MS);
+        const check = () => {
+          if (writerStdout.includes(PROBE_READY_TOKEN)) {
+            clearTimeout(timer);
+            clearInterval(poll);
+            resolve(true);
+          }
+        };
+        const poll = setInterval(check, 5);
+        writerDone.then(() => {
+          clearTimeout(timer);
+          clearInterval(poll);
+          resolve(writerStdout.includes(PROBE_READY_TOKEN));
+        });
+      });
+
+      let readerResults = [];
+      if (observed.writerSignalledFirstReplacement) {
+        const readers = [];
+        for (let index = 0; index < readerCount; index += 1) {
+          readers.push(collectProbeChild(spawnProbeChild([
+            '--role=vanish-reader',
+            `--store-dir=${storeDir}`,
+            `--target-polls=${perReaderTarget}`,
+            `--target-replacements=${perReaderWitnessTarget}`,
+            `--deadline=${deadline}`,
+          ])));
+        }
+        readerResults = await Promise.all(readers);
+      } else {
+        unmeasuredReasons.push(
+          'the writer child never signalled a completed production replacement '
+          + 'of a PRESENT target, so no reader ever raced a real replacement',
+        );
+      }
+
+      if (writerSettled) {
+        observed.writerExitedEarly = true;
+        unmeasuredReasons.push(
+          'the writer child exited before the probe finished, so the reader '
+          + 'window was not fully raced',
+        );
+      } else {
+        try {
+          writer.kill('SIGKILL');
+        } catch {
+          /* already gone; the exit handler still resolves */
+        }
+      }
+      const writerExit = await writerDone;
+      observed.writerExitSignal = writerExit.signal ?? null;
+      const progress = parseLastProgress(writerStdout || writerExit.stdout);
+      if (progress) {
+        observed.writerReplacementsReported = progress.replacements ?? 0;
+        observed.writerRenameRetriesReported = progress.renameRetries ?? 0;
+      }
+
+      for (const result of readerResults) {
+        const parsed = parseProbeResult(result.stdout);
+        if (!parsed) continue;
+        observed.readersReporting += 1;
+        if (parsed.established) observed.readersEstablished += 1;
+        observed.pollsTotal += parsed.polls;
+        observed.pollsPresent += parsed.pollsPresent;
+        observed.pollsVanished += parsed.pollsVanished;
+        observed.pollsTransient += parsed.pollsTransient;
+        observed.pollsOther += parsed.pollsOther;
+        observed.replacementsWitnessed += parsed.replacementsWitnessed;
+        for (const sample of parsed.vanishedSamples ?? []) {
+          if (observed.vanishedSamples.length < VANISH_MAX_SAMPLES) {
+            observed.vanishedSamples.push(boundString(sample, 160));
+          }
+        }
+        for (const sample of parsed.otherSamples ?? []) {
+          if (observed.otherSamples.length < VANISH_MAX_SAMPLES) {
+            observed.otherSamples.push(boundString(sample, 160));
+          }
+        }
+      }
+
+      const inspect = spawnSync(
+        process.execPath,
+        [THIS_FILE, '--role=vanish-inspect', `--store-dir=${storeDir}`],
+        {
+          encoding: 'utf8',
+          killSignal: 'SIGKILL',
+          timeout: VANISH_INSPECT_TIMEOUT_MS,
+          windowsHide: true,
+        },
+      );
+      const inspectResult = parseProbeResult(inspect.stdout);
+      if (inspectResult) {
+        observed.postRunStateFile = inspectResult.state;
+        observed.postRunDetail = boundString(inspectResult.detail ?? '', 160);
+      }
+    }
+  } catch (error) {
+    unmeasuredReasons.push(boundString(
+      `the probe could not complete: ${error?.name}: ${error?.message}`,
+      300,
+    ));
+  }
+
+  if (observed.readersReporting !== readerCount) {
+    unmeasuredReasons.push(
+      `only ${observed.readersReporting}/${readerCount} reader children reported a result`,
+    );
+  }
+  if (observed.readersEstablished !== readerCount) {
+    unmeasuredReasons.push(
+      `only ${observed.readersEstablished}/${readerCount} readers ever saw the store `
+      + 'present, so their polls cannot be read as observations of an established '
+      + 'store disappearing',
+    );
+  }
+  if (observed.replacementsWitnessed < minReplacementsWitnessed) {
+    unmeasuredReasons.push(
+      `readers personally witnessed only ${observed.replacementsWitnessed} distinct `
+      + `state file objects (need >= ${minReplacementsWitnessed}); they were not `
+      + 'demonstrably racing a live replacement loop',
+    );
+  }
+  if (observed.pollsTotal < requiredPolls) {
+    unmeasuredReasons.push(
+      `only ${observed.pollsTotal} polls of the established store were made `
+      + `(need >= ${requiredPolls} for >=95% detection at the measured rate)`,
+    );
+  }
+  if (observed.pollsOther > 0) {
+    unmeasuredReasons.push(
+      `${observed.pollsOther} poll(s) returned an error code this classifier does `
+      + `not understand (${observed.otherSamples.join(', ') || 'no sample'}), so it `
+      + 'cannot certify what it did or did not see',
+    );
+  }
+
+  const hits = observed.pollsVanished;
+  let verdict;
+  if (hits > 0) verdict = VANISH_VERDICTS.VIOLATED;
+  else if (unmeasuredReasons.length > 0) verdict = VANISH_VERDICTS.UNMEASURED;
+  else verdict = VANISH_VERDICTS.HELD;
+
+  const receipt = finalizeVanishReceipt({
+    at: new Date().toISOString(),
+    engine: VANISH_PROBE_ENGINE,
+    hits,
+    observed,
+    power: deriveVanishPower(observed.pollsTotal, requiredPolls),
+    property:
+      'CONTINUOUS PUBLICATION ACROSS REPLACEMENT: while production '
+      + 'writeAtomicState replaces the state file of an ESTABLISHED store, a '
+      + 'concurrent reader polling the published path NEVER observes it '
+      + 'genuinely absent. This is the property both other probes are blind to '
+      + '(G-VANISH): an implementation that unlinks the target before renaming '
+      + 'over it reads as atomic to the identity comparator and makes the '
+      + "torn-read probe MORE confident, because that probe counts ENOENT as "
+      + 'evidence its race happened. CLASSIFIER, which is the whole design: '
+      + 'ENOENT is a hit; EPERM/EACCES/EBUSY are win32 delete-pending / sharing '
+      + 'violations, exactly what a CORRECT rename-over-a-held-open-target '
+      + 'produces, and are never hits; any other code makes the run UNMEASURED. '
+      + 'MECHANISM: the harness creates the store ONCE and never unlinks it, so '
+      + 'every absence observable here belongs to the write path under test '
+      + 'rather than to the harness — the flaw that made the torn-read probe a '
+      + 'create-path probe. Production is not edited: the writer drives a '
+      + 'byte-identical copy of the shipping runtime with one appended export '
+      + 'line, whose sha256 and appended byte count ride in this receipt. '
+      + 'NON-VACUITY is reader-side: readers count DISTINCT file objects at the '
+      + 'published path, so a wedged writer cannot certify its own liveness. '
+      + 'NOT COVERED: this observes reader-visible absence, which is the same '
+      + 'window a crash would expose but is not itself a crash; it covers the '
+      + 'phase0b state file only; and it is PROBABILISTIC — see power for the '
+      + 'measured hit rate, the achieved detection, and the measured '
+      + 'false-positive bound on correct code.',
+    requiredPollFloor: requiredPolls,
+    schema: VANISH_PROBE_SCHEMA,
+    unmeasuredReasons: unmeasuredReasons.map((reason) => boundString(reason, 300)),
+    verdict,
+  });
+
+  try {
+    rmSync(caseDir, { recursive: true, force: true });
+  } catch {
+    /* best-effort scratch cleanup */
+  }
+  return { receipt };
+}
+
+const VANISH_RECEIPT_KEYS = Object.freeze([
+  'at',
+  'engine',
+  'hits',
+  'observed',
+  'power',
+  'property',
+  'requiredPollFloor',
+  'schema',
+  'unmeasuredReasons',
+  'verdict',
+]);
+
+const VANISH_OBSERVED_KEYS = Object.freeze([
+  'detectorControl',
+  'otherSamples',
+  'pollsOther',
+  'pollsPresent',
+  'pollsTotal',
+  'pollsTransient',
+  'pollsVanished',
+  'postRunDetail',
+  'postRunStateFile',
+  'readerCount',
+  'readersEstablished',
+  'readersReporting',
+  'replacementsWitnessed',
+  'seamAppendedBytes',
+  'seamShippedRuntimeSha256',
+  'vanishedSamples',
+  'writerExitSignal',
+  'writerExitedEarly',
+  'writerPid',
+  'writerRenameRetriesReported',
+  'writerReplacementsReported',
+  'writerSignalledFirstReplacement',
+]);
+
+const VANISH_CONTROL_KEYS = Object.freeze([
+  'absentClassifiedAsVanished',
+  'identityDiscriminatesReplacement',
+  'presentClassifiedAsPresent',
+]);
+
+const VANISH_POWER_KEYS = Object.freeze([
+  'detectionAtMeasuredRate',
+  'falsePositiveEventsMeasured',
+  'falsePositivePollsMeasured',
+  'falsePositiveRatePerPollUpperBound95',
+  'falseRedProbabilityUpperBound95',
+  'measuredHitRatePerPoll',
+  'minimumHitRateStillDetectedAt95',
+  'pollsAchieved',
+  'requiredPolls',
+]);
+
+function finalizeVanishReceipt(fields) {
+  const receipt = {};
+  for (const key of VANISH_RECEIPT_KEYS) receipt[key] = fields[key];
+  receipt.receiptHash = canonicalDigest(receipt);
+  return Object.freeze(receipt);
+}
+
+/**
+ * Validates a vanish receipt AND re-derives its hit count, power and verdict
+ * from its own counters. A HELD receipt must additionally satisfy the MODULE's
+ * floors, not the caller's, so a caller who asked for ten polls cannot mint a
+ * cheaper HELD.
+ */
+export function verifyVanishProbeReceipt(receipt) {
+  assertProbeKeys(receipt, [...VANISH_RECEIPT_KEYS, 'receiptHash'], 'vanish receipt');
+  if (receipt.schema !== VANISH_PROBE_SCHEMA) {
+    throw new ModelVillageCrashDrillError('vanish receipt schema mismatch');
+  }
+  if (receipt.engine !== VANISH_PROBE_ENGINE) {
+    throw new ModelVillageCrashDrillError('vanish receipt engine mismatch');
+  }
+  if (!ISO_UTC_PATTERN.test(receipt.at)) {
+    throw new ModelVillageCrashDrillError('vanish receipt at must be ISO-8601 UTC');
+  }
+  if (typeof receipt.property !== 'string' || receipt.property.length === 0) {
+    throw new ModelVillageCrashDrillError('vanish property must be a non-empty string');
+  }
+  if (!Object.values(VANISH_VERDICTS).includes(receipt.verdict)) {
+    throw new ModelVillageCrashDrillError(`unknown vanish verdict ${receipt.verdict}`);
+  }
+  if (!Array.isArray(receipt.unmeasuredReasons)) {
+    throw new ModelVillageCrashDrillError('unmeasuredReasons must be an array');
+  }
+  if (!Number.isInteger(receipt.requiredPollFloor) || receipt.requiredPollFloor < 1) {
+    throw new ModelVillageCrashDrillError('requiredPollFloor must be a positive integer');
+  }
+  assertProbeKeys(receipt.observed, VANISH_OBSERVED_KEYS, 'vanish observed');
+  assertProbeKeys(receipt.observed.detectorControl, VANISH_CONTROL_KEYS, 'vanish detectorControl');
+  assertProbeKeys(receipt.power, VANISH_POWER_KEYS, 'vanish power');
+  for (const key of VANISH_CONTROL_KEYS) {
+    if (typeof receipt.observed.detectorControl[key] !== 'boolean') {
+      throw new ModelVillageCrashDrillError(`observed.detectorControl.${key} must be boolean`);
+    }
+  }
+  for (const key of [
+    'pollsOther',
+    'pollsPresent',
+    'pollsTotal',
+    'pollsTransient',
+    'pollsVanished',
+    'readersEstablished',
+    'readersReporting',
+    'replacementsWitnessed',
+  ]) {
+    if (!Number.isInteger(receipt.observed[key]) || receipt.observed[key] < 0) {
+      throw new ModelVillageCrashDrillError(`observed.${key} must be a non-negative integer`);
+    }
+  }
+  const o = receipt.observed;
+  if (o.pollsPresent + o.pollsVanished + o.pollsTransient + o.pollsOther !== o.pollsTotal) {
+    throw new ModelVillageCrashDrillError(
+      'vanish poll classes do not sum to observed.pollsTotal',
+    );
+  }
+  if (receipt.hits !== o.pollsVanished) {
+    throw new ModelVillageCrashDrillError(
+      `vanish hits ${receipt.hits} does not equal the observed vanish count ${o.pollsVanished}`,
+    );
+  }
+  // READER-SIDE BLINDING. The in-run detector positive control calls
+  // classifyVanishPoll directly, so it stays green when the READER's tally of
+  // a correctly-classified poll is misrouted (a one-token edit sending a
+  // `vanished` observation into the transient bucket previously turned a
+  // genuinely VIOLATED run GREEN). The receipt already carried the evidence:
+  // `vanishedSamples` are captured on the same branch that increments
+  // pollsVanished, so samples with a zero count are internally impossible.
+  if (!Array.isArray(o.vanishedSamples)) {
+    throw new ModelVillageCrashDrillError('observed.vanishedSamples must be an array');
+  }
+  if (o.pollsVanished === 0 && o.vanishedSamples.length > 0) {
+    throw new ModelVillageCrashDrillError(
+      `vanish receipt reports 0 vanished polls but carries ${o.vanishedSamples.length} `
+      + `vanish sample(s) (${JSON.stringify(o.vanishedSamples.slice(0, 2))}); a reader `
+      + 'that saw ENOENT and did not count it is a blinded detector, not a clean run',
+    );
+  }
+  // The transient (EPERM/EACCES/EBUSY win32 delete-pending) bucket has fired
+  // ZERO times in 6,306,137 + 604,382 honest polls across two independent
+  // measurement campaigns, because node's fs opens with FILE_SHARE_DELETE. A
+  // nonzero count here is therefore not routine noise: either this host really
+  // does surface delete-pending (in which case the run is informative and must
+  // be looked at) or a classification is being misrouted into it. Either way a
+  // HELD verdict must not be issued silently on top of it.
+  if (receipt.verdict === VANISH_VERDICTS.HELD && o.pollsTransient > 0) {
+    throw new ModelVillageCrashDrillError(
+      `vanish receipt claims HELD with ${o.pollsTransient} transient poll(s); that `
+      + 'bucket has never fired on an honest run, so it must be explained rather '
+      + 'than absorbed into a pass',
+    );
+  }
+
+  // Re-derived independently from the counters, never trusted as carried. This
+  // is what stops a receipt from importing a full-power detection number into an
+  // under-powered run.
+  const expectedPower = deriveVanishPower(o.pollsTotal, receipt.power.requiredPolls);
+  for (const key of VANISH_POWER_KEYS) {
+    if (receipt.power[key] !== expectedPower[key]) {
+      throw new ModelVillageCrashDrillError(
+        `vanish power.${key} (${receipt.power[key]}) was not derived from the `
+        + `${o.pollsTotal} polls this run achieved (expected ${expectedPower[key]})`,
+      );
+    }
+  }
+
+  let expectedVerdict;
+  if (receipt.hits > 0) expectedVerdict = VANISH_VERDICTS.VIOLATED;
+  else if (receipt.unmeasuredReasons.length > 0) expectedVerdict = VANISH_VERDICTS.UNMEASURED;
+  else expectedVerdict = VANISH_VERDICTS.HELD;
+  if (receipt.verdict !== expectedVerdict) {
+    throw new ModelVillageCrashDrillError(
+      `vanish verdict ${receipt.verdict} disagrees with its own observations `
+      + `(${expectedVerdict})`,
+    );
+  }
+
+  if (receipt.verdict === VANISH_VERDICTS.HELD) {
+    if (
+      o.detectorControl.absentClassifiedAsVanished !== true
+      || o.detectorControl.presentClassifiedAsPresent !== true
+      || o.detectorControl.identityDiscriminatesReplacement !== true
+      || receipt.requiredPollFloor < VANISH_REQUIRED_POLLS
+      || receipt.power.requiredPolls < VANISH_REQUIRED_POLLS
+      || o.pollsTotal < receipt.requiredPollFloor
+      || o.pollsOther !== 0
+      || o.readersReporting !== o.readerCount
+      || o.readersEstablished !== o.readerCount
+      || o.replacementsWitnessed < VANISH_MIN_REPLACEMENTS_WITNESSED
+      || o.writerSignalledFirstReplacement !== true
+      || o.writerExitedEarly !== false
+      || !SHA256_PATTERN.test(o.seamShippedRuntimeSha256)
+      || o.seamAppendedBytes < 1
+      || receipt.power.detectionAtMeasuredRate < 0.95
+    ) {
+      throw new ModelVillageCrashDrillError(
+        'vanish receipt claims HELD without meeting every measurement '
+        + 'precondition (detector control saw a real ENOENT and a real '
+        + 'replacement, polls >= the module floor with no unclassifiable code, '
+        + 'every reader established and reporting, the reader-side replacement '
+        + 'floor met, the writer alive throughout, and the seam built from '
+        + 'recorded shipping bytes)',
+      );
+    }
+  }
+
+  const { receiptHash, ...rest } = receipt;
+  if (canonicalDigest(rest) !== receiptHash) {
+    throw new ModelVillageCrashDrillError('vanish receiptHash mismatch (receipt was altered)');
+  }
+  return true;
+}
+
+// ---------------------------------------------------------------------------
 // Receipt construction + verification
 // ---------------------------------------------------------------------------
 
@@ -2094,6 +3243,7 @@ const RECEIPT_KEYS = Object.freeze([
   'at',
   'engine',
   'gapReference',
+  'harnessPid',
   'invariantDescription',
   'invariantHeld',
   'killSignal',
@@ -2152,6 +3302,34 @@ export function verifyCrashDrillReceipt(receipt) {
   if (typeof receipt.invariantHeld !== 'boolean') {
     throw new ModelVillageCrashDrillError('invariantHeld must be boolean');
   }
+  // --- Fresh-process recovery: enforced from the pids, not from the claim. ---
+  // workerPid, recoveryPid and harnessPid are all held to the same bar (a real,
+  // observed, positive pid), then the fresh-process property is RE-DERIVED here
+  // and compared against what the receipt claims. A receipt whose boolean
+  // disagrees with its own pids is rejected even though it hashes correctly.
+  for (const key of ['workerPid', 'recoveryPid', 'harnessPid']) {
+    if (!isObservedPid(receipt[key])) {
+      throw new ModelVillageCrashDrillError(
+        `${key} must be an observed pid (positive integer), got ${String(receipt[key])}`,
+      );
+    }
+  }
+  if (typeof receipt.recoveredInFreshProcess !== 'boolean') {
+    throw new ModelVillageCrashDrillError('recoveredInFreshProcess must be boolean');
+  }
+  const derivedFreshProcess = deriveRecoveredInFreshProcess({
+    workerPid: receipt.workerPid,
+    recoveryPid: receipt.recoveryPid,
+    harnessPid: receipt.harnessPid,
+  });
+  if (receipt.recoveredInFreshProcess !== derivedFreshProcess) {
+    throw new ModelVillageCrashDrillError(
+      'recoveredInFreshProcess disagrees with the observed pids '
+      + `(claimed ${receipt.recoveredInFreshProcess}, derived ${derivedFreshProcess} `
+      + `from workerPid=${receipt.workerPid}, recoveryPid=${receipt.recoveryPid}, `
+      + `harnessPid=${receipt.harnessPid})`,
+    );
+  }
   if (receipt.recoveredInFreshProcess !== true) {
     throw new ModelVillageCrashDrillError('recoveredInFreshProcess must be true');
   }
@@ -2171,9 +3349,9 @@ export function verifyCrashDrillReceipt(receipt) {
   if (typeof receipt.killSignal !== 'string' || !receipt.killSignal) {
     throw new ModelVillageCrashDrillError('killSignal must be a non-empty string');
   }
-  if (!Number.isInteger(receipt.workerPid)) {
-    throw new ModelVillageCrashDrillError('workerPid must be an integer');
-  }
+  // (workerPid/recoveryPid/harnessPid are validated above, together, at the
+  // observed-pid bar — a bare Number.isInteger check here would be weaker than
+  // the one the fresh-process derivation already applies.)
   if (
     receipt.storeStateHashAfterRecovery !== null
     && !SHA256_PATTERN.test(receipt.storeStateHashAfterRecovery)

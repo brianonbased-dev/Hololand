@@ -53,6 +53,12 @@ import {
 
 const READY_TOKEN = 'MV_CRASH_READY';
 const VERDICT_MARKER = 'MV_CRASH_VERDICT ';
+// Printed synchronously as the very first act of main(), by BOTH roles. It is
+// the only thing in the drill that ties a receipt's pid to a process that
+// actually ran this file: the parent's spawn-observed pid must equal the pid
+// the child reported about itself, so an emitter cannot substitute a throwaway
+// child's pid for work it performed somewhere else.
+const SELF_PID_MARKER = 'MV_CRASH_PID ';
 const MAX_OUTCOME = 600;
 
 function parseArgs(argv) {
@@ -756,6 +762,7 @@ function runRecover(args) {
 // ---------------------------------------------------------------------------
 
 function main() {
+  writeSync(1, `${SELF_PID_MARKER}${process.pid}\n`);
   const args = parseArgs(process.argv.slice(2));
   if (args.role === 'crash') {
     runCrash(args);

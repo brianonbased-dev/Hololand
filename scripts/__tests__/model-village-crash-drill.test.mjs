@@ -1,3 +1,5 @@
+/* global process */
+
 import assert from 'node:assert/strict';
 import {
   copyFileSync,
@@ -11,6 +13,7 @@ import {
 } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { after, test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -26,19 +29,29 @@ import {
   CRASH_DRILL_SCENARIO_EXPECTATIONS,
   CRASH_DRILL_SCENARIOS,
   CRASH_DRILL_SCHEMA,
+  deriveRecoveredInFreshProcess,
+  isObservedPid,
   ModelVillageCrashDrillError,
+  parseSelfReportedPid,
   runAtomicReplacementProbe,
   runCrashDrill,
   runNegativeControl,
   runTornReadProbe,
+  runVanishProbe,
   verifyAtomicReplacementProbeReceipt,
   TORN_READ_CALIBRATED_HIT_RATE,
   TORN_READ_MIN_PUBLICATIONS_WITNESSED,
   TORN_READ_PROBE_SCHEMA,
   TORN_READ_REQUIRED_ATTEMPTS,
   TORN_READ_VERDICTS,
+  VANISH_MEASURED_HIT_RATE,
+  VANISH_MIN_REPLACEMENTS_WITNESSED,
+  VANISH_PROBE_SCHEMA,
+  VANISH_REQUIRED_POLLS,
+  VANISH_VERDICTS,
   verifyCrashDrillReceipt,
   verifyTornReadProbeReceipt,
+  verifyVanishProbeReceipt,
 } from '../model-village-crash-drill.mjs';
 
 const SCRATCH_ROOT = path.join(
@@ -64,14 +77,35 @@ function assertCommonReceipt(receipt, scenario) {
   assert.equal(receipt.engine, CRASH_DRILL_ENGINE);
   assert.equal(receipt.scenario, scenario);
   assert.equal(receipt.recoveredInFreshProcess, true);
-  assert.ok(Number.isInteger(receipt.workerPid), 'workerPid is an integer');
-  assert.ok(Number.isInteger(receipt.recoveryPid), 'recoveryPid is an integer');
 
-  // Recovery really happened in a FRESH process: a distinct pid.
+  // Recovery really happened in a FRESH process, and the receipt says so only
+  // because three OBSERVED pids say so. -1 / null placeholders are not pids.
+  assert.ok(isObservedPid(receipt.workerPid), 'workerPid is an observed pid');
+  assert.ok(isObservedPid(receipt.recoveryPid), 'recoveryPid is an observed pid');
+  assert.ok(isObservedPid(receipt.harnessPid), 'harnessPid is an observed pid');
+  assert.equal(
+    receipt.harnessPid,
+    process.pid,
+    'harnessPid is the process that actually ran the drill',
+  );
   assert.notEqual(
     receipt.recoveryPid,
     receipt.workerPid,
     'recovery pid must differ from the crashed worker pid',
+  );
+  assert.notEqual(
+    receipt.recoveryPid,
+    receipt.harnessPid,
+    'recovery must not have run inside the harness process',
+  );
+  assert.equal(
+    receipt.recoveredInFreshProcess,
+    deriveRecoveredInFreshProcess({
+      workerPid: receipt.workerPid,
+      recoveryPid: receipt.recoveryPid,
+      harnessPid: receipt.harnessPid,
+    }),
+    'the fresh-process claim is derived from the pids, not asserted',
   );
 
   // The child was really killed: it did NOT exit cleanly.
@@ -208,6 +242,110 @@ test('verifyCrashDrillReceipt rejects a tampered receipt', {
   // Extra/missing key → rejected.
   const withExtra = { ...receipt, sneaky: true };
   assert.throws(() => verifyCrashDrillReceipt(withExtra), ModelVillageCrashDrillError);
+});
+
+/**
+ * Rebuilds a receipt with overrides AND a correctly recomputed receiptHash, so
+ * the receipt is internally consistent. Anything that still gets rejected below
+ * is rejected on the MEANING of the pids, not because the hash broke.
+ */
+function reseal(receipt, overrides) {
+  const { receiptHash, ...rest } = { ...receipt, ...overrides };
+  void receiptHash;
+  return { ...rest, receiptHash: canonicalDigest(rest) };
+}
+
+test('the fresh-process claim cannot survive a degraded pid (the hardcoded-literal hole)', {
+  timeout: SCENARIO_TIMEOUT_MS,
+}, async () => {
+  const { receipt } = await runCrashDrill({
+    scratchRoot: SCRATCH_ROOT,
+    scenario: 'persistent-state-killed-after-rename',
+  });
+
+  // POSITIVE CONTROL: reseal is faithful. Without this, every rejection below
+  // could be nothing but a broken hash, and this test would be vacuous.
+  assert.equal(
+    verifyCrashDrillReceipt(reseal(receipt, {})),
+    true,
+    'a resealed but unmodified receipt must still verify',
+  );
+
+  // The exact shape the drill used to emit when spawn gave no pid: a -1
+  // placeholder next to a hardcoded recoveredInFreshProcess:true. This is the
+  // mutation that left the whole gate green at exit 0.
+  assert.throws(
+    () => verifyCrashDrillReceipt(
+      reseal(receipt, { recoveryPid: -1, recoveredInFreshProcess: true }),
+    ),
+    /recoveryPid must be an observed pid/,
+    'a -1 recovery pid must never certify a fresh process',
+  );
+
+  // Recovery "in" the harness process is not a fresh process.
+  assert.throws(
+    () => verifyCrashDrillReceipt(
+      reseal(receipt, { recoveryPid: receipt.harnessPid, recoveredInFreshProcess: true }),
+    ),
+    /disagrees with the observed pids/,
+    'recovering in the harness process must not certify a fresh process',
+  );
+
+  // Recovery "in" the crashed worker's process is not a fresh process.
+  assert.throws(
+    () => verifyCrashDrillReceipt(
+      reseal(receipt, { recoveryPid: receipt.workerPid, recoveredInFreshProcess: true }),
+    ),
+    /disagrees with the observed pids/,
+    'a pid collision with the crashed worker must not certify a fresh process',
+  );
+
+  // A missing harness pid is ABSENT EVIDENCE, and absent evidence blocks.
+  assert.throws(
+    () => verifyCrashDrillReceipt(reseal(receipt, { harnessPid: 0 })),
+    /harnessPid must be an observed pid/,
+    'an unobserved harness pid must block the claim',
+  );
+
+  // And the claim cannot be flipped away from what the pids derive either.
+  assert.throws(
+    () => verifyCrashDrillReceipt(reseal(receipt, { recoveredInFreshProcess: false })),
+    /disagrees with the observed pids/,
+    'the boolean must track the derivation in BOTH directions',
+  );
+});
+
+test('deriveRecoveredInFreshProcess rejects every non-observed pid shape', () => {
+  const good = { workerPid: 111, recoveryPid: 222, harnessPid: 333 };
+  assert.equal(deriveRecoveredInFreshProcess(good), true);
+  assert.equal(deriveRecoveredInFreshProcess({ ...good, recoveryPid: -1 }), false);
+  assert.equal(deriveRecoveredInFreshProcess({ ...good, recoveryPid: 0 }), false);
+  assert.equal(deriveRecoveredInFreshProcess({ ...good, recoveryPid: null }), false);
+  assert.equal(deriveRecoveredInFreshProcess({ ...good, recoveryPid: 222.5 }), false);
+  assert.equal(deriveRecoveredInFreshProcess({ ...good, recoveryPid: 111 }), false);
+  assert.equal(deriveRecoveredInFreshProcess({ ...good, recoveryPid: 333 }), false);
+  assert.equal(deriveRecoveredInFreshProcess({ ...good, workerPid: -1 }), false);
+  assert.equal(deriveRecoveredInFreshProcess({ ...good, harnessPid: -1 }), false);
+  // THE ROW THAT WAS MISSING, and its absence was a live hole. `workerPid`
+  // degraded to the harness pid derived TRUE, which made the load-bearing
+  // `recoveryPid !== workerPid` arm compare against the wrong process and go
+  // vacuous. The one-token production mutation
+  // (`workerPid: crash.pid` -> `workerPid: harnessPid`) left the whole
+  // durability gate green while every drill line reported the gate's own pid as
+  // the SIGKILLed crash worker.
+  assert.equal(
+    deriveRecoveredInFreshProcess({ ...good, workerPid: 333 }),
+    false,
+    'the harness cannot be the process it SIGKILLed',
+  );
+  assert.equal(
+    deriveRecoveredInFreshProcess({ workerPid: 333, recoveryPid: 333, harnessPid: 333 }),
+    false,
+  );
+  assert.equal(deriveRecoveredInFreshProcess({}), false);
+  assert.equal(isObservedPid(-1), false);
+  assert.equal(isObservedPid(0), false);
+  assert.equal(isObservedPid(process.pid), true);
 });
 
 test('runCrashDrill rejects an unknown scenario', async () => {
@@ -781,15 +919,126 @@ test('NON-VACUITY, EXECUTED: atomic-replacement goes VIOLATED on the create-atom
   }
 });
 
-test('G-VANISH, EXECUTED: BOTH probes are blind to an unlink-before-rename publish', {
+// ---------------------------------------------------------------------------
+// VANISH PROBE (G-VANISH).
+//
+// The third probe. The two tests below are an A/B pair and both halves matter:
+// the vanish probe must CATCH the unlink-before-rename mutant, and the other two
+// probes must still MISS it. The second half is not decoration — it is the
+// standing proof that this probe is measuring a property nothing else in the
+// slice covers. If it ever starts passing, the gap entry is stale and must be
+// rewritten rather than left to look closed by accident.
+// ---------------------------------------------------------------------------
+
+test('vanish probe: the REAL writeAtomicState never lets a reader see the state file absent', {
   timeout: PROBE_TIMEOUT_MS,
 }, async () => {
-  // FINDING B of the second adversarial review. This is NOT a passing gate — it
-  // is a documented OPEN gap whose blindness is measured so it cannot be
-  // quietly forgotten, and so that closing it forces this test to be rewritten
-  // together with the G-VANISH entry in check-hololand-model-village-durability.
+  const { receipt } = await runVanishProbe({
+    scratchRoot: path.join(SCRATCH_ROOT, `vanish-${randomUUID()}`),
+  });
+  assert.equal(verifyVanishProbeReceipt(receipt), true, 'probe receipt self-verifies');
+  assert.equal(receipt.schema, VANISH_PROBE_SCHEMA);
+  assert.equal(
+    receipt.verdict,
+    VANISH_VERDICTS.HELD,
+    `continuous publication must hold — observed: ${JSON.stringify(receipt.observed)} `
+    + `unmeasured: ${receipt.unmeasuredReasons.join('; ')}`,
+  );
+  assert.equal(receipt.hits, 0);
+  assert.equal(receipt.observed.pollsVanished, 0);
+  assert.deepEqual(receipt.unmeasuredReasons, []);
+
+  // The detector must be able to SEE the hit class it is ruling out, measured
+  // in-run rather than assumed from the A/B test below (which only runs under
+  // `node --test`, never in the gate).
+  assert.equal(receipt.observed.detectorControl.absentClassifiedAsVanished, true);
+  assert.equal(receipt.observed.detectorControl.presentClassifiedAsPresent, true);
+  assert.equal(receipt.observed.detectorControl.identityDiscriminatesReplacement, true);
+
+  // The race must be PROVEN to have happened, reader-side.
+  assert.equal(receipt.observed.writerSignalledFirstReplacement, true);
+  assert.equal(receipt.observed.writerExitedEarly, false);
+  assert.equal(receipt.observed.readersEstablished, receipt.observed.readerCount);
+  assert.ok(
+    receipt.observed.replacementsWitnessed >= VANISH_MIN_REPLACEMENTS_WITNESSED,
+    `readers witnessed ${receipt.observed.replacementsWitnessed} distinct state file objects`,
+  );
+  assert.ok(
+    receipt.observed.pollsTotal >= VANISH_REQUIRED_POLLS,
+    `${receipt.observed.pollsTotal} polls >= the power floor`,
+  );
+  assert.equal(
+    receipt.observed.pollsOther,
+    0,
+    'no poll returned a code the classifier could not name',
+  );
+  assert.ok(receipt.power.detectionAtMeasuredRate >= 0.95);
+});
+
+test('G-VANISH, IN SCOPE: the vanish probe goes VIOLATED on unlink-before-rename', {
+  timeout: PROBE_TIMEOUT_MS,
+}, async () => {
+  // THE ACCEPTANCE MUTATION for G-VANISH: the standard win32 "cannot rename over
+  // an existing file" workaround, placed after the before_rename fault check so
+  // no crash drill can see it. It is a genuine durability defect — a crash
+  // between the unlink and the rename leaves NO state.json at all — and until
+  // this probe existed nothing in the slice could tell it from the real thing.
   const { dir, moduleUrl } = buildWriteAtomicMutantTree(
     'unlink-before-rename',
+    UNLINK_BEFORE_RENAME_ATOMIC_STATE,
+    (mutated) => {
+      assert.ok(
+        /if \(existsSync\(target\)\) unlinkSync\(target\);\s*\n\s*renameSync/.test(mutated),
+        'the unlink sits immediately before the rename',
+      );
+    },
+  );
+  try {
+    const mutant = await import(moduleUrl);
+    const vanish = await mutant.runVanishProbe({
+      scratchRoot: path.join(dir, 'scratch-vanish'),
+    });
+    assert.equal(
+      vanish.receipt.verdict,
+      mutant.VANISH_VERDICTS.VIOLATED,
+      'the unlink window MUST be caught — observed: '
+      + `${JSON.stringify(vanish.receipt.observed)}`,
+    );
+    assert.ok(vanish.receipt.hits > 0, `at least one vanish (got ${vanish.receipt.hits})`);
+    assert.ok(
+      vanish.receipt.observed.vanishedSamples.length > 0,
+      'the disappearance is sampled by errno, not just counted',
+    );
+    assert.match(
+      vanish.receipt.observed.vanishedSamples.join(' | '),
+      /ENOENT/,
+      'the sample names ENOENT — the entry was GONE, not merely delete-pending',
+    );
+    // A real defect is receipted honestly, never rejected as malformed.
+    assert.equal(mutant.verifyVanishProbeReceipt(vanish.receipt), true);
+
+    // The measured rate must not have collapsed far below the calibration the
+    // poll floor was derived from; if it has, n is no longer sized for this
+    // defect class and the constant must be re-measured rather than trusted.
+    const measured = vanish.receipt.observed.pollsVanished / vanish.receipt.observed.pollsTotal;
+    assert.ok(
+      measured > VANISH_MEASURED_HIT_RATE / 10,
+      `measured vanish rate ${measured.toExponential(3)} must not have collapsed far `
+      + `below the calibrated ${VANISH_MEASURED_HIT_RATE.toExponential(3)} that sized n`,
+    );
+  } finally {
+    rmSync(dir, { force: true, recursive: true });
+  }
+});
+
+test('G-VANISH residual: the OTHER two probes are still blind to unlink-before-rename', {
+  timeout: PROBE_TIMEOUT_MS,
+}, async () => {
+  // The half of the finding that is NOT closed, kept executed so the claim
+  // boundary cannot drift. If either assertion starts failing, that probe got
+  // stronger and the claim boundary must be rewritten.
+  const { dir, moduleUrl } = buildWriteAtomicMutantTree(
+    'unlink-before-rename-residual',
     UNLINK_BEFORE_RENAME_ATOMIC_STATE,
     (mutated) => {
       assert.ok(
@@ -806,8 +1055,8 @@ test('G-VANISH, EXECUTED: BOTH probes are blind to an unlink-before-rename publi
     assert.equal(
       replacement.receipt.verdict,
       mutant.ATOMIC_REPLACEMENT_VERDICTS.HELD,
-      'DOCUMENTED (G-VANISH): unlink+rename still yields a NEW file object, so '
-      + 'the identity comparator reads it as atomic',
+      'DOCUMENTED (G-VANISH residual): unlink+rename still yields a NEW file '
+      + 'object, so the identity comparator reads it as atomic',
     );
     const torn = await mutant.runTornReadProbe({
       scratchRoot: path.join(dir, 'scratch-torn'),
@@ -815,13 +1064,149 @@ test('G-VANISH, EXECUTED: BOTH probes are blind to an unlink-before-rename publi
     assert.equal(
       torn.receipt.verdict,
       mutant.TORN_READ_VERDICTS.HELD,
-      'DOCUMENTED (G-VANISH): the torn-read probe counts ENOENT as evidence the '
-      + 'race happened, so a wider disappearance window makes it MORE confident',
+      'DOCUMENTED (G-VANISH residual): the torn-read probe counts ENOENT as '
+      + 'evidence the race happened, so a wider disappearance window makes it '
+      + 'MORE confident',
     );
     assert.equal(torn.receipt.hits, 0);
   } finally {
     rmSync(dir, { force: true, recursive: true });
   }
+});
+
+test('YOU CANNOT BLIND THE VANISH DETECTOR: an ENOENT-swallowing classifier reports UNMEASURED', {
+  timeout: PROBE_TIMEOUT_MS,
+}, async () => {
+  // The failure mode this probe would otherwise be wide open to: not a broken
+  // production write, but a classifier that stops being able to SEE the hit
+  // class. On the correct implementation an ENOENT-swallowing classifier
+  // produces exactly the same counters as an honest one (zero vanishes either
+  // way), so nothing except the in-run positive control can tell them apart.
+  // That control is therefore load-bearing, and this test RUNS the mutation
+  // instead of asserting the control exists.
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'mv-b5-blind-classifier-'));
+  try {
+    for (const file of MUTANT_TREE_FILES) {
+      copyFileSync(path.join(SCRIPTS_DIR, file), path.join(dir, file));
+    }
+    const drillPath = path.join(dir, 'model-village-crash-drill.mjs');
+    const source = readFileSync(drillPath, 'utf8');
+    const anchor = "    if (code === 'ENOENT') {\n"
+      + "      return { state: 'vanished', hit: true, "
+      + "detail: `${error?.name}:${code}`, identity: '' };\n"
+      + '    }';
+    assert.ok(
+      source.includes(anchor),
+      'the ENOENT branch of classifyVanishPoll must still exist; if it moved, '
+      + 'this blindness proof must be repaired rather than silently skipped',
+    );
+    const blinded = source.replace(
+      anchor,
+      "    if (code === 'ENOENT') {\n"
+      + "      return { state: 'transient', hit: false, "
+      + "detail: `${error?.name}:${code}`, identity: '' };\n"
+      + '    }',
+    );
+    assert.notEqual(blinded, source, 'the classifier really was mutated');
+    writeFileSync(drillPath, blinded, 'utf8');
+
+    const blindModule = await import(pathToFileURL(drillPath).href);
+    const { receipt } = await blindModule.runVanishProbe({
+      scratchRoot: path.join(dir, 'scratch'),
+    });
+    assert.equal(
+      receipt.verdict,
+      blindModule.VANISH_VERDICTS.UNMEASURED,
+      'a blind classifier must fail CLOSED, never report a confident HELD — '
+      + `observed: ${JSON.stringify(receipt.observed)}`,
+    );
+    assert.equal(receipt.observed.detectorControl.absentClassifiedAsVanished, false);
+    assert.ok(
+      receipt.unmeasuredReasons.some((reason) => /can see the defect/.test(reason)),
+      `the reason names the blindness: ${receipt.unmeasuredReasons.join('; ')}`,
+    );
+  } finally {
+    rmSync(dir, { force: true, recursive: true });
+  }
+});
+
+test('a vanish run that cannot reach its poll floor reports UNMEASURED, never HELD', {
+  timeout: PROBE_TIMEOUT_MS,
+}, async () => {
+  const { receipt } = await runVanishProbe({
+    scratchRoot: path.join(SCRATCH_ROOT, `vanish-underpowered-${randomUUID()}`),
+    requiredPolls: 50_000_000,
+    deadlineMs: 2500,
+  });
+  assert.equal(receipt.verdict, VANISH_VERDICTS.UNMEASURED);
+  assert.equal(receipt.hits, 0);
+  assert.ok(
+    receipt.unmeasuredReasons.some((reason) => /polls of the established store/.test(reason)),
+    `the shortfall is named: ${receipt.unmeasuredReasons.join('; ')}`,
+  );
+  // The power block is DERIVED from what this run achieved, not from the floor
+  // it was asked for: an under-powered run cannot inherit a full-power number.
+  assert.equal(receipt.power.pollsAchieved, receipt.observed.pollsTotal);
+  assert.ok(receipt.power.pollsAchieved < 50_000_000);
+  assert.equal(receipt.power.requiredPolls, 50_000_000);
+  assert.equal(verifyVanishProbeReceipt(receipt), true, 'an honest UNMEASURED still verifies');
+});
+
+test('a vanish receipt cannot be laundered into HELD', {
+  timeout: PROBE_TIMEOUT_MS,
+}, async () => {
+  // (a) A caller-supplied floor below the MODULE floor cannot mint a cheap HELD.
+  const cheap = await runVanishProbe({
+    scratchRoot: path.join(SCRATCH_ROOT, `vanish-cheap-${randomUUID()}`),
+    requiredPolls: 5,
+  });
+  assert.equal(cheap.receipt.verdict, VANISH_VERDICTS.HELD, 'the caller got its cheap verdict');
+  assert.throws(
+    () => verifyVanishProbeReceipt(cheap.receipt),
+    ModelVillageCrashDrillError,
+    'but the verifier applies the MODULE floor and rejects it',
+  );
+
+  // (b) Flipping the verdict without recomputing the hash is rejected, and so is
+  // rewriting the counters (the hits/verdict/power are all re-derived).
+  const honest = await runVanishProbe({
+    scratchRoot: path.join(SCRATCH_ROOT, `vanish-tamper-${randomUUID()}`),
+  });
+  assert.throws(
+    () => verifyVanishProbeReceipt({ ...honest.receipt, verdict: VANISH_VERDICTS.VIOLATED }),
+    ModelVillageCrashDrillError,
+  );
+  assert.throws(
+    () => verifyVanishProbeReceipt({ ...honest.receipt, sneaky: true }),
+    ModelVillageCrashDrillError,
+  );
+  const relabelled = {
+    ...honest.receipt,
+    hits: 0,
+    verdict: VANISH_VERDICTS.HELD,
+    observed: { ...honest.receipt.observed, pollsVanished: 3 },
+  };
+  assert.throws(
+    () => verifyVanishProbeReceipt(relabelled),
+    ModelVillageCrashDrillError,
+    'a receipt whose counters and verdict disagree is rejected',
+  );
+
+  // (c) A power block imported from a LARGER n than this run achieved — the
+  //     exact way an under-powered run would launder a confident number.
+  const inflated = {
+    ...honest.receipt,
+    power: {
+      ...honest.receipt.power,
+      pollsAchieved: honest.receipt.power.pollsAchieved * 10,
+      falseRedProbabilityUpperBound95: 0,
+    },
+  };
+  assert.throws(
+    () => verifyVanishProbeReceipt(inflated),
+    ModelVillageCrashDrillError,
+    'the power block must re-derive from the polls the run actually made',
+  );
 });
 
 test('an atomic-replacement receipt cannot be laundered into HELD', {
@@ -900,5 +1285,146 @@ test('the torn-read probe carries an IN-RUN detector positive control', {
     () => verifyTornReadProbeReceipt(signedBlind),
     /without meeting every measurement precondition/,
     'a HELD from a detector that could not see a tear is vacuous',
+  );
+});
+
+// --------------------------------------------------------------------------
+// The SELF-REPORTED PID LAW. Without it `recoveryPid` is any plausible integer
+// the emitter chooses, which is exactly how an emitter that ran recovery
+// IN-PROCESS -- while spawning a throwaway `node -e 0` purely to source a real
+// distinct pid -- certified recoveredInFreshProcess:true for nine scenarios
+// with zero fresh recoveries, gate green. Binding the spawn-observed pid to the
+// pid the child printed about itself is what closes that.
+// --------------------------------------------------------------------------
+
+test('parseSelfReportedPid only accepts a pid a process printed about itself', () => {
+  assert.equal(parseSelfReportedPid('MV_CRASH_PID 4242\n'), 4242);
+  assert.equal(parseSelfReportedPid('noise\r\nMV_CRASH_PID 7\r\nmore\n'), 7);
+  // A throwaway child that printed nothing carries no evidence at all -- this
+  // null is what turns the in-process-recovery shortcut into a hard failure.
+  assert.equal(parseSelfReportedPid(''), null);
+  assert.equal(parseSelfReportedPid(null), null);
+  assert.equal(parseSelfReportedPid('MV_CRASH_VERDICT {}\n'), null);
+  // Placeholders are ABSENT EVIDENCE, not pids, on this path too.
+  assert.equal(parseSelfReportedPid('MV_CRASH_PID -1\n'), null);
+  assert.equal(parseSelfReportedPid('MV_CRASH_PID 0\n'), null);
+  assert.equal(parseSelfReportedPid('MV_CRASH_PID notanumber\n'), null);
+});
+
+test('the crash worker really does report its own pid, and it is the spawned pid', () => {
+  // NON-VACUITY for the law above: the marker is not a convention nobody emits.
+  // Both roles print it, and the pid printed is the pid the OS gave the child.
+  const workerPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'model-village-crash-worker.mjs');
+  const result = spawnSync(process.execPath, [workerPath, '--role=bogus'], {
+    encoding: 'utf8',
+    windowsHide: true,
+  });
+  const reported = parseSelfReportedPid(result.stdout);
+  assert.ok(isObservedPid(reported), 'the worker printed an observed pid about itself');
+  assert.equal(
+    reported,
+    result.pid,
+    'the pid the child reported must be the pid the parent observed',
+  );
+  assert.notEqual(reported, process.pid, 'and it is not the harness process');
+});
+
+// --------------------------------------------------------------------------
+// G-VANISH scope, EXECUTED in both directions. The first version of the vanish
+// writer read the store once and re-published byte-identical content forever,
+// which made the probe structurally blind to a window that opens only when the
+// published bytes CHANGE -- measured: that mutant passed the whole gate green
+// while in production every turn changes the state, so its branch would fire on
+// every single write. The writer now re-seals a VALID but DIFFERENT persistent
+// state each iteration. This is the proof that the fix is real.
+// --------------------------------------------------------------------------
+
+const CONTENT_CONDITIONAL_UNLINK_ATOMIC_STATE = [
+  WRITE_ATOMIC_SIGNATURE,
+  '  const target = statePath(storeDir);',
+  '  const temporary = path.join(',
+  '    storeDir,',
+  '    `.state-${process.pid}-${randomUUID()}.tmp`,',
+  '  );',
+  "  const descriptor = openSync(temporary, 'wx');",
+  '  let renamed = false;',
+  '  try {',
+  "    writeFileSync(descriptor, `${canonicalJson(state)}\n`, 'utf8');",
+  '    fsyncSync(descriptor);',
+  '    closeSync(descriptor);',
+  "    if (faultInjection === 'before_rename') {",
+  "      throw new Error('injected fault before atomic rename');",
+  '    }',
+  '    let changed = true;',
+  '    try {',
+  "      changed = readFileSync(target, 'utf8') !== `${canonicalJson(state)}\n`;",
+  '    } catch {',
+  '      changed = true;',
+  '    }',
+  '    if (changed && existsSync(target)) unlinkSync(target);',
+  '    renameSync(temporary, target);',
+  '    renamed = true;',
+  "    if (faultInjection === 'after_rename') {",
+  "      throw new Error('injected fault after atomic rename');",
+  '    }',
+  '  } catch (error) {',
+  '    try {',
+  '      closeSync(descriptor);',
+  '    } catch {',
+  '      // Descriptor was already closed.',
+  '    }',
+  '    if (!renamed && existsSync(temporary)) unlinkSync(temporary);',
+  '    throw error;',
+  '  }',
+  '}',
+  '',
+].join('\n');
+
+test('G-VANISH, IN SCOPE: a CONTENT-CONDITIONAL unlink window is caught', {
+  timeout: PROBE_TIMEOUT_MS,
+}, async () => {
+  const { dir, moduleUrl } = buildWriteAtomicMutantTree(
+    'content-conditional-unlink',
+    CONTENT_CONDITIONAL_UNLINK_ATOMIC_STATE,
+    (mutated) => {
+      assert.ok(
+        /changed && existsSync\(target\)\) unlinkSync\(target\);\s*\n\s*renameSync/.test(mutated),
+        'the unlink fires only when the published bytes differ, immediately before the rename',
+      );
+    },
+  );
+  try {
+    const mutant = await import(moduleUrl);
+    const vanish = await mutant.runVanishProbe({
+      scratchRoot: path.join(dir, 'scratch-vanish-content'),
+    });
+    assert.equal(
+      vanish.receipt.verdict,
+      mutant.VANISH_VERDICTS.VIOLATED,
+      'a window that opens only on a content change MUST be caught now that the '
+      + 'writer publishes different bytes every write — observed: '
+      + `${JSON.stringify(vanish.receipt.observed)}`,
+    );
+    assert.ok(vanish.receipt.hits > 0);
+    assert.match(vanish.receipt.observed.vanishedSamples.join(' | '), /ENOENT/);
+  } finally {
+    rmSync(dir, { force: true, recursive: true });
+  }
+});
+
+test('the vanish writer publishes a DIFFERENT valid state on every write', () => {
+  // NON-VACUITY for the test above: if the writer ever goes back to republishing
+  // one constant object, the content-conditional mutant silently stops being
+  // reachable and the test above becomes decorative. This pins the mechanism.
+  const source = readFileSync(path.join(SCRIPTS_DIR, 'model-village-crash-drill.mjs'), 'utf8');
+  const writer = source.slice(source.indexOf('async function vanishWriterChild'));
+  const body = writer.slice(0, writer.indexOf('\n}\n'));
+  assert.match(body, /runtime\.validatePersistentState\(/, 'production validation, not scribble');
+  assert.match(body, /runtime\.canonicalDigest\(/, 're-sealed so the state stays valid');
+  assert.match(body, /writeAtomicState\(storeDir, nextState\(\)\)/, 'a fresh state per write');
+  assert.doesNotMatch(
+    body,
+    /writeAtomicState\(storeDir, state\)/,
+    'the single constant state must not come back',
   );
 });

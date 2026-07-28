@@ -54,10 +54,15 @@
  *      certified that run. The outer fence is what fails it, and both of the
  *      checks below fire on it.
  *
- *  (2) LIVE MUTATION CONTROLS AGAINST TODAY'S ARTIFACT. Five mutations are
- *      applied to the receipt that was just produced, each one RE-SIGNED so the
- *      self-hash recomputes cleanly, and each must be REJECTED by
- *      verifyRehearsalReceipt. This is the alias-custody template
+ *  (2) LIVE MUTATION CONTROLS AGAINST TODAY'S ARTIFACT. Every control in
+ *      MUTATION_CONTROLS is applied to the receipt that was just produced, each
+ *      one RE-SIGNED so the self-hash recomputes cleanly (and, where it edits a
+ *      run entry, with every entryHash RESEALED and the aggregate rebuilt), and
+ *      each must be REJECTED by verifyRehearsalReceipt FOR THE RULE IT TARGETS
+ *      — the rejection reason is matched against the control's declared
+ *      rejectionPattern, so a control that quietly degraded into "the hash no
+ *      longer matches" fails instead of scoring green. This is the
+ *      alias-custody template
  *      (__tests__/hololand-model-village-alias-custody.test.mjs:477-496) —
  *      the only claim test in this lane that survived constant mutation —
  *      executed by the gate itself rather than only in a test file. A boundary
@@ -114,13 +119,19 @@
  * Exit codes: 0 pass · 1 failure · 2 usage error.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import {
+  existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync,
+} from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
   REHEARSAL_EXPECTATIONS,
   REHEARSAL_RECEIPT_OUTPUT_PATH,
+  REHEARSAL_VARIANCE_ALLOWLIST,
+  compareRehearsalExecutions,
   installProviderCallFence,
   runRehearsal,
   verifyRehearsalReceipt,
@@ -218,10 +229,16 @@ export function assertSmokeDerivationPinned() {
 }
 
 /**
- * The five mutation controls. Each returns a RE-SIGNED receipt, so a boundary
- * that only detects a broken self-hash catches none of them. Every one must be
+ * The mutation controls. Each returns a RE-SIGNED receipt, so a boundary that
+ * only detects a broken self-hash catches none of them. Every one must be
  * REJECTED; a control that verifies means the claim boundary has stopped
  * biting, and that is a checker failure, not a warning.
+ *
+ * `rejectionPattern` is required on every control and is the second half of the
+ * property. "Rejected" alone is too weak a signal: a control that started
+ * failing on an incidental stale hash, or a control whose own mutate() threw,
+ * would score as a rejection while proving nothing about the rule it targets.
+ * The reason has to be the RIGHT reason, so it is matched.
  */
 export const MUTATION_CONTROLS = Object.freeze([
   Object.freeze({
@@ -231,6 +248,7 @@ export const MUTATION_CONTROLS = Object.freeze([
       body.passed = !body.passed;
       return body;
     },
+    rejectionPattern: /does not match the recomputed verdict/,
   }),
   Object.freeze({
     id: 'zero-custody-reads',
@@ -239,6 +257,7 @@ export const MUTATION_CONTROLS = Object.freeze([
       body.observed.custodyResponseReadsObserved = 0;
       return body;
     },
+    rejectionPattern: /custodyResponseReadsObserved|recomputed verdict/,
   }),
   Object.freeze({
     id: 'drop-a-run-and-rebuild-aggregate',
@@ -251,6 +270,7 @@ export const MUTATION_CONTROLS = Object.freeze([
       return body;
     },
     rebuildAggregate: true,
+    rejectionPattern: /recomputed verdict/,
   }),
   Object.freeze({
     id: 'claim-a-live-study-run',
@@ -259,6 +279,7 @@ export const MUTATION_CONTROLS = Object.freeze([
       body.declared.liveStudyRunClaimed = true;
       return body;
     },
+    rejectionPattern: /pinned claim flag/,
   }),
   Object.freeze({
     id: 'hide-a-provider-call',
@@ -271,8 +292,111 @@ export const MUTATION_CONTROLS = Object.freeze([
       ];
       return body;
     },
+    rejectionPattern: /providerFetchCall|recomputed verdict/,
+  }),
+  Object.freeze({
+    id: 'collapse-the-day-sequence',
+    description:
+      'rewrite every dayIndex to 1, RESEAL each entryHash, rebuild the aggregate, re-sign',
+    // The forgery this control exists for: a three-day study receipt that
+    // claims all twelve runs happened on day one. Every hash it touches is
+    // rebuilt honestly (entryHash per run, aggregate, receiptHash), so it
+    // cannot be caught by a stale digest — only by re-deriving the day sequence
+    // from the frozen plan. Before that derivation existed this receipt
+    // verified clean, failures [].
+    mutate(body) {
+      // The canonical forgery is the collapse to day one. A bounded smoke can
+      // sit entirely inside day one, where a collapse is a NO-OP and would
+      // prove nothing about the rule — so in that shape the sequence is
+      // SHIFTED instead. Either way at least one run ends up on a day the
+      // frozen plan does not put it on, at every run count this gate supports.
+      const spansMultipleDays = new Set(body.runs.map((run) => run.dayIndex)).size > 1;
+      const rewrite = spansMultipleDays ? () => 1 : (day) => day + 1;
+      body.runs = resealRuns(body.runs, (run) => ({
+        ...run,
+        dayIndex: rewrite(run.dayIndex),
+      }));
+      return body;
+    },
+    rebuildAggregate: true,
+    rejectionPattern: /dayIndex is \S+ but position \d+ of the frozen study plan is day \d+/,
+  }),
+  Object.freeze({
+    id: 'relabel-a-run',
+    description:
+      'rewrite one run\'s condition, RESEAL its entryHash, rebuild the aggregate, re-sign',
+    mutate(body) {
+      body.runs = resealRuns(body.runs, (run, index) => (
+        index === 0
+          ? { ...run, condition: run.condition === 'mixed' ? 'adapter_a_only' : 'mixed' }
+          : run
+      ));
+      return body;
+    },
+    rebuildAggregate: true,
+    rejectionPattern: /pair derives|does not run all four study conditions|repeats a study condition/,
+  }),
+  Object.freeze({
+    id: 'permute-two-conditions-within-a-block',
+    description:
+      'SWAP the condition of two runs in the same block and recompute both runIds '
+      + 'and receiptChainRoots, RESEAL each entryHash, rebuild the aggregate, re-sign',
+    // The forgery `relabel-a-run` MISSES, and the reason this control exists as
+    // a separate row. A permutation preserves the per-block condition SET, so
+    // the "repeats a study condition" and "runs all four" rules never fire; and
+    // recomputing each runId from its new condition satisfies the "pair derives"
+    // rule. Before validatorId / runDirectory / roundRunId were re-derived, this
+    // receipt verified CLEAN and the gate exited 0, while runs[0] read
+    // condition=adapter_a_only against a validatorId, a shard directory and six
+    // roundRunIds that all still named `mixed`.
+    //
+    // A bounded smoke of fewer than two runs has no pair to permute; in that
+    // shape the control degrades to the single-run form (rewrite the condition
+    // and recompute the runId), which is the same defect with one run.
+    mutate(body) {
+      const chainRootFor = (run, runId) => canonicalDigest({
+        roundTerminalHashes: run.turnRounds.map((round) => round.terminalReceiptHash),
+        runId,
+      });
+      const runIdFor = (blockId, condition) => (
+        `mv-b2-study-${blockId}-${condition.replace(/_/g, '-')}`
+      );
+      if (body.runs.length < 2 || body.runs[0].blockId !== body.runs[1].blockId) {
+        body.runs = resealRuns(body.runs, (run, index) => {
+          if (index !== 0) return run;
+          const condition = run.condition === 'mixed' ? 'adapter_a_only' : 'mixed';
+          const runId = runIdFor(run.blockId, condition);
+          return { ...run, condition, runId, receiptChainRoot: chainRootFor(run, runId) };
+        });
+        return body;
+      }
+      const swapped = [body.runs[1].condition, body.runs[0].condition];
+      body.runs = resealRuns(body.runs, (run, index) => {
+        if (index > 1) return run;
+        const condition = swapped[index];
+        const runId = runIdFor(run.blockId, condition);
+        return { ...run, condition, runId, receiptChainRoot: chainRootFor(run, runId) };
+      });
+      return body;
+    },
+    rebuildAggregate: true,
+    rejectionPattern:
+      /validatorId is \S+ but its own \(blockId, condition\) pair derives|runDirectory ends in|roundRunId is/,
   }),
 ]);
+
+/**
+ * Rewrites run entries and RESEALS each entryHash, so a per-run forgery is
+ * rejected by a rule rather than by an incidental hash mismatch.
+ */
+function resealRuns(runs, mutateRun) {
+  return runs.map((run, index) => {
+    const { entryHash, ...unsigned } = run;
+    void entryHash;
+    const mutated = mutateRun(unsigned, index);
+    return { ...mutated, entryHash: canonicalDigest(mutated) };
+  });
+}
 
 function reSign(receipt, control, deriveAggregateFn) {
   const unsigned = { ...receipt };
@@ -333,11 +457,90 @@ export function projectRun(run) {
  * Returns { receipt, output, failures }. `receipt.passed` is COMPUTED from the
  * failures list; there is no path that sets it directly.
  */
+/**
+ * Runs the SAME rehearsal shape twice, in two fresh child processes, under one
+ * shared frozen clock and two distinct scratch roots, and compares the two
+ * receipts leaf by leaf.
+ *
+ * Why child processes and not two in-process calls: process warm state is
+ * itself a nondeterminism source. Measured at HEAD before this existed — the
+ * one-time `/holoscript_wasm_bg.wasm` module load makes
+ * observed.fetchCallsObserved 1 on the FIRST in-process rehearsal and 0 on
+ * every later one, so two in-process executions disagree on the provider-call
+ * counter, the one field that must never be exempted. Two fresh processes are
+ * symmetric on it.
+ *
+ * Failure to LAUNCH is reported as measured:false, which the caller turns into
+ * a failure. A comparison that could not run is never a pass.
+ */
+export async function runRepeatExecutionProbe({ expectations, hololandRoot, runs }) {
+  const conductorPath = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    'model-village-run-conductor.mjs',
+  );
+  const base = mkdtempSync(path.join(os.tmpdir(), 'mv-repeat-probe-'));
+  // ONE clock value, shared by both executions: the point is that two runs of
+  // the same shape at the same instant produce the same artifact.
+  const clock = String(Date.now());
+  const expectationsPath = path.join(base, 'expectations.json');
+  try {
+    writeFileSync(expectationsPath, `${canonicalJson(expectations)}\n`, 'utf8');
+    const receipts = [];
+    const scratchRoots = [];
+    for (const label of ['a', 'b']) {
+      const outPath = path.join(base, `receipt-${label}.json`);
+      const scratchRoot = path.join(base, `scratch-${label}`);
+      scratchRoots.push(scratchRoot);
+      execFileSync(process.execPath, [
+        conductorPath,
+        '--repeat-probe',
+        '--clock', clock,
+        '--expectations', expectationsPath,
+        '--out', outPath,
+        '--root', hololandRoot,
+        '--runs', String(runs),
+        '--scratch', scratchRoot,
+      ], { stdio: ['ignore', 'ignore', 'pipe'] });
+      receipts.push(JSON.parse(readFileSync(outPath, 'utf8')));
+    }
+    // The runDirectory exemption is only honest if the two executions really
+    // were given different roots. Asserted, not assumed.
+    if (scratchRoots[0] === scratchRoots[1]) {
+      return {
+        comparison: null,
+        measured: false,
+        note: 'both probe executions were handed the same scratch root',
+      };
+    }
+    return {
+      clock,
+      comparison: compareRehearsalExecutions(receipts[0], receipts[1]),
+      measured: true,
+      note: null,
+      shape: runs,
+    };
+  } catch (error) {
+    // The CHILD's stderr first, and the launcher's message second. Node's
+    // execFileSync message leads with the whole command line, which pushed the
+    // actual cause off the end of a truncated report the first time this fired.
+    const stderr = error?.stderr ? String(error.stderr).trim() : '';
+    return {
+      comparison: null,
+      measured: false,
+      note: 'probe execution did not complete: '
+        + `${stderr ? `${stderr.slice(0, 600)} :: ` : ''}${String(error?.message ?? error).slice(0, 200)}`,
+    };
+  } finally {
+    try { rmSync(base, { force: true, recursive: true }); } catch { /* best effort */ }
+  }
+}
+
 export async function runRehearsalCheck({
   root = repoRootDefault,
   runs = FULL_VILLAGE_RUNS,
   output = null,
   json = false,
+  repeatExecutionProbe = true,
 } = {}) {
   void json;
   const hololandRoot = path.resolve(root);
@@ -449,6 +652,7 @@ export async function runRehearsalCheck({
   for (const control of MUTATION_CONTROLS) {
     let rejected = false;
     let failureReason = null;
+    let rejectedForTheRightReason = false;
     try {
       const mutated = reSign(receipt, control, deriveAggregate);
       const result = verifyRehearsalReceipt(mutated, { expectations });
@@ -464,14 +668,36 @@ export async function runRehearsalCheck({
         );
       }
     } catch (error) {
-      // A throw is a rejection too, but an unstructured one — record it.
+      // A throw is a rejection too, but an unstructured one — record it. It
+      // does NOT count as rejected-for-the-right-reason: a control whose own
+      // mutate() threw never reached the verifier at all.
       rejected = true;
       failureReason = `threw: ${error?.message ?? error}`;
+    }
+    // THE SECOND HALF OF THE PROPERTY. A rejection is only evidence about the
+    // rule it targets if the verifier rejected it FOR that rule. Without this,
+    // a control silently degraded into "the hash no longer matches" would keep
+    // scoring green forever.
+    if (!(control.rejectionPattern instanceof RegExp)) {
+      failures.push(
+        `mutation control "${control.id}" declares no rejectionPattern, so its `
+        + 'rejection is UNMEASURED — a control that cannot say why it was rejected '
+        + 'is not evidence',
+      );
+    } else if (rejected) {
+      rejectedForTheRightReason = control.rejectionPattern.test(String(failureReason ?? ''));
+      if (!rejectedForTheRightReason) {
+        failures.push(
+          `mutation control "${control.id}" was rejected for the WRONG reason: expected `
+          + `${control.rejectionPattern} but the verifier said ${JSON.stringify(String(failureReason ?? '').slice(0, 200))}`,
+        );
+      }
     }
     mutationControls.push({
       description: control.description,
       id: control.id,
       rejected,
+      rejectedForTheRightReason,
       rejectionReason: failureReason ? String(failureReason).slice(0, 240) : null,
     });
   }
@@ -515,8 +741,35 @@ export async function runRehearsalCheck({
     residualScratchRoots = 0;
   }
 
+  // (7) REPEAT-EXECUTION EQUALITY. Nothing in this lane had ever run the
+  // conductor twice and compared the artifacts, while a runtime-closure gate
+  // row was named "Seed and deterministic clock". Two FRESH PROCESSES (warm
+  // state is itself a nondeterminism source — see the conductor's
+  // runRepeatProbeExecution) execute the same shape under the same injected
+  // frozen clock, and every receipt leaf outside the pinned variance allowlist
+  // must be byte-identical. Skippable ONLY by explicit flag, and skipping is
+  // recorded as UNMEASURED rather than as a pass.
+  const repeatExecution = repeatExecutionProbe === false
+    ? {
+      comparisons: null,
+      measured: false,
+      note: 'repeat-execution equality probe was explicitly skipped (--no-repeat-probe)',
+    }
+    : await runRepeatExecutionProbe({ expectations, hololandRoot, runs });
+  if (repeatExecution.measured) {
+    for (const failure of repeatExecution.comparison.failures) {
+      failures.push(`repeat-execution equality: ${failure}`);
+    }
+  } else if (repeatExecutionProbe !== false) {
+    failures.push(
+      `repeat-execution equality: UNMEASURED — ${repeatExecution.note}`,
+    );
+  }
+
   const perRun = receipt.runs.map((run) => projectRun(run));
   const mutationControlsRejected = mutationControls.filter((entry) => entry.rejected).length;
+  const mutationControlsRejectedForTheRightReason =
+    mutationControls.filter((entry) => entry.rejectedForTheRightReason).length;
 
   const observed = {
     checkWallClockMs: Math.max(0, Date.now() - startedAt),
@@ -525,6 +778,7 @@ export async function runRehearsalCheck({
     innerFenceProviderCallsObserved: observedInner.providerFetchCallsObserved,
     modelTurnsResolved: receipt.aggregate.modelTurnsResolved,
     mutationControlsRejected,
+    mutationControlsRejectedForTheRightReason,
     mutationControlsRun: mutationControls.length,
     nonProviderFetchCallTargets: [...observedInner.nonProviderFetchCallTargets],
     onDiskReceiptHash,
@@ -534,6 +788,21 @@ export async function runRehearsalCheck({
     rehearsalExecuted: true,
     rehearsalPassed: receipt.passed === true,
     rehearsalVerified: verification.ok === true,
+    // Repeat-execution equality, all MEASURED. `repeatExecutionMeasured:false`
+    // is the UNMEASURED signal and is already a failure above; it is published
+    // here so a reader can see that the comparison did not happen rather than
+    // inferring a pass from the absence of a complaint.
+    repeatExecutionAllowlistSize: REHEARSAL_VARIANCE_ALLOWLIST.length,
+    repeatExecutionComparedLeaves: repeatExecution.comparison?.comparedLeaves ?? 0,
+    repeatExecutionDeadAllowlistEntries:
+      repeatExecution.comparison?.deadAllowlistEntries?.length ?? null,
+    repeatExecutionDifferingLeaves: repeatExecution.comparison?.differingLeaves?.length ?? null,
+    repeatExecutionMeasured: repeatExecution.measured === true,
+    repeatExecutionNonVaryingAllowlistEntries:
+      repeatExecution.comparison?.nonVaryingAllowlistEntries?.length ?? null,
+    repeatExecutionStructuralDrift: repeatExecution.comparison?.structuralDrift?.length ?? null,
+    repeatExecutionUnallowlistedDifferences:
+      repeatExecution.comparison?.unallowlistedDifferences?.length ?? null,
     // Counted, not gated: pre-existing trees from earlier builds are somebody
     // else's mess and failing on them would make this gate un-runnable on a
     // dirty machine. Only THIS run's own scratch root is load-bearing.
@@ -551,6 +820,13 @@ export async function runRehearsalCheck({
     failures.push(
       `${mutationControls.length - mutationControlsRejected} of `
       + `${mutationControls.length} mutation controls survived verification`,
+    );
+  }
+  if (mutationControlsRejectedForTheRightReason !== mutationControls.length) {
+    failures.push(
+      `${mutationControls.length - mutationControlsRejectedForTheRightReason} of `
+      + `${mutationControls.length} mutation controls were not rejected for the reason `
+      + 'they target; a rejection on some other rule is not evidence about this one',
     );
   }
 
@@ -592,8 +868,12 @@ export function buildCheckReceipt({
   const passed = failures.length === 0;
   const body = {
     // Acceptance evidence is DERIVED: only a full twelve-run shape that passed
-    // every control can be it. A bounded smoke can never set this true.
-    acceptanceEvidence: passed && acceptanceShape === 'full-twelve-run',
+    // every control can be it. A bounded smoke can never set this true, and
+    // neither can a run whose repeat-execution equality probe was skipped —
+    // `--no-repeat-probe` buys speed, never acceptance.
+    acceptanceEvidence: passed
+      && acceptanceShape === 'full-twelve-run'
+      && observed.repeatExecutionMeasured === true,
     acceptanceShape,
     aggregate,
     declared: {
@@ -603,7 +883,9 @@ export function buildCheckReceipt({
       laneStatement:
         'Executed T-7 dress rehearsal plus four out-of-band controls the '
         + 'conductor cannot run against itself: an independent nested fetch '
-        + 'fence, five re-signed mutation controls, an on-disk read-back, and '
+        + 'fence, the re-signed mutation controls counted in '
+        + 'observed.mutationControlsRun (each of which must be rejected FOR THE '
+        + 'RULE IT TARGETS, not merely rejected), an on-disk read-back, and '
         + '(for a bounded smoke) a proof that the full-shape table refuses it. '
         + 'Everything in observed{} is measured; everything in declared{} is an '
         + 'author assertion and is not evidence for anything.',
@@ -652,10 +934,18 @@ export function verifyCheckReceipt(receipt) {
     if (receipt.passed !== (receipt.failures.length === 0)) {
       throw new Error('check receipt passed does not match its own failure list');
     }
+    // Recomputed from the receipt's OWN measured fields, never from a constant
+    // this function carries. repeatExecutionMeasured is part of the law because
+    // `--no-repeat-probe` must not be able to buy acceptance: a full-shape run
+    // with every other control green but no two executions compared is a
+    // PASS with acceptanceEvidence FALSE, and the two must agree.
     if (receipt.acceptanceEvidence
-      !== (receipt.passed === true && receipt.acceptanceShape === 'full-twelve-run')) {
+      !== (receipt.passed === true
+        && receipt.acceptanceShape === 'full-twelve-run'
+        && receipt.observed?.repeatExecutionMeasured === true)) {
       throw new Error(
-        'check receipt acceptanceEvidence does not recompute from (passed, acceptanceShape)',
+        'check receipt acceptanceEvidence does not recompute from '
+        + '(passed, acceptanceShape, observed.repeatExecutionMeasured)',
       );
     }
     if (!Array.isArray(receipt.mutationControls) || receipt.mutationControls.length === 0) {
@@ -671,6 +961,45 @@ export function verifyCheckReceipt(receipt) {
     if (receipt.passed === true && rejected !== receipt.mutationControls.length) {
       throw new Error('a check receipt cannot pass while a mutation control survived');
     }
+    const rightReason = receipt.mutationControls
+      .filter((entry) => entry.rejectedForTheRightReason === true).length;
+    if (receipt.observed?.mutationControlsRejectedForTheRightReason !== rightReason) {
+      throw new Error(
+        'mutationControlsRejectedForTheRightReason does not equal the recorded reasons',
+      );
+    }
+    if (receipt.passed === true && rightReason !== receipt.mutationControls.length) {
+      throw new Error(
+        'a check receipt cannot pass while a mutation control was rejected for a '
+        + 'reason other than the rule it targets',
+      );
+    }
+    // RE-MATCH, do not read. `rejectedForTheRightReason` was previously
+    // enforced only inside the pass that computed it: from the receipt it was
+    // X === X, and rewriting all seven rejectionReason strings to the literal
+    // stale-hash prose the hardening exists to reject — while leaving the
+    // booleans true — verified clean. The receipt carries the reason, so the
+    // verifier re-runs the regex over it. Measured cost on the shipping
+    // artifact: all stored reasons still match their own pattern, so this is
+    // zero false positives today. A control whose id is not in the shipping
+    // table cannot be scored at all.
+    for (const [index, entry] of receipt.mutationControls.entries()) {
+      if (entry?.rejectedForTheRightReason !== true) continue;
+      const control = MUTATION_CONTROLS.find((candidate) => candidate.id === entry.id);
+      if (!control) {
+        throw new Error(
+          `mutationControls[${index}] names control "${entry?.id}", which is not in `
+          + 'the shipping mutation-control table',
+        );
+      }
+      if (!control.rejectionPattern.test(String(entry.rejectionReason ?? ''))) {
+        throw new Error(
+          `mutationControls[${index}] ("${entry.id}") claims it was rejected for the `
+          + `right reason, but its recorded reason does not match ${control.rejectionPattern}: `
+          + `${JSON.stringify(String(entry.rejectionReason ?? '').slice(0, 160))}`,
+        );
+      }
+    }
     if (receipt.passed === true && receipt.observed?.outerFenceProviderCallsObserved !== 0) {
       throw new Error('a check receipt cannot pass with a non-zero independent provider count');
     }
@@ -682,6 +1011,53 @@ export function verifyCheckReceipt(receipt) {
         'a check receipt cannot pass while the rehearsal scratch root — which holds '
         + 'every village-run\'s custody content key — still exists',
       );
+    }
+    // A MEASURED repeat-execution probe must carry a measurement. Zeroing the
+    // six repeat-execution counters and re-signing previously verified clean,
+    // which meant `repeatExecutionMeasured: true` could be carried with no
+    // comparison behind it — a count of zero over zero attempts, which is the
+    // one shape this gate exists to refuse.
+    if (receipt.observed?.repeatExecutionMeasured === true) {
+      for (const key of [
+        'repeatExecutionComparedLeaves',
+        'repeatExecutionDeadAllowlistEntries',
+        'repeatExecutionDifferingLeaves',
+        'repeatExecutionNonVaryingAllowlistEntries',
+        'repeatExecutionStructuralDrift',
+        'repeatExecutionUnallowlistedDifferences',
+      ]) {
+        if (!Number.isInteger(receipt.observed[key]) || receipt.observed[key] < 0) {
+          throw new Error(
+            `observed.${key} must be a non-negative integer when the repeat-execution `
+            + 'probe is measured',
+          );
+        }
+      }
+      if (receipt.observed.repeatExecutionComparedLeaves <= 0) {
+        throw new Error(
+          'observed.repeatExecutionMeasured is true but zero leaves were compared; '
+          + 'a measurement over nothing is UNMEASURED, not a pass',
+        );
+      }
+      if (receipt.observed.repeatExecutionDifferingLeaves <= 0) {
+        throw new Error(
+          'observed.repeatExecutionMeasured is true but ZERO leaves differed between '
+          + 'the two executions; the alias draw and the run roots are nondeterministic '
+          + 'by design, so a zero here means the comparison did not happen',
+        );
+      }
+      if (receipt.passed === true && (
+        receipt.observed.repeatExecutionUnallowlistedDifferences !== 0
+        || receipt.observed.repeatExecutionStructuralDrift !== 0
+        || receipt.observed.repeatExecutionDeadAllowlistEntries !== 0
+        || receipt.observed.repeatExecutionNonVaryingAllowlistEntries !== 0
+      )) {
+        throw new Error(
+          'a check receipt cannot pass while the repeat-execution probe recorded an '
+          + 'unallowlisted difference, structural drift, a dead allowlist entry or a '
+          + 'non-varying allowlist entry',
+        );
+      }
     }
     if (!Array.isArray(receipt.perRun)) throw new Error('perRun must be an array');
     if (receipt.perRun.length !== receipt.observed?.villageRunsExecuted) {
@@ -703,8 +1079,9 @@ export function verifyCheckReceipt(receipt) {
 
 function parseArgs(argv) {
   const args = {
-    help: false, json: false, output: null, root: repoRootDefault,
-    runs: FULL_VILLAGE_RUNS, verify: null, verifyRequested: false,
+    help: false, json: false, output: null, repeatExecutionProbe: true,
+    root: repoRootDefault, runs: FULL_VILLAGE_RUNS, verify: null,
+    verifyRequested: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -719,6 +1096,7 @@ function parseArgs(argv) {
       args.verify = arg.slice('--verify='.length);
     } else if (arg === '--runs') args.runs = Number(argv[++i]);
     else if (arg.startsWith('--runs=')) args.runs = Number(arg.slice('--runs='.length));
+    else if (arg === '--no-repeat-probe') args.repeatExecutionProbe = false;
     else if (arg === '--root') args.root = argv[++i];
     else if (arg.startsWith('--root=')) args.root = arg.slice('--root='.length);
     else if (arg === '--output') args.output = argv[++i];
@@ -758,6 +1136,10 @@ Options:
                    acceptance evidence.
   --verify [path]  Verify an existing rehearsal receipt and exit without running
                    (default ${REHEARSAL_RECEIPT_OUTPUT_PATH}).
+  --no-repeat-probe
+                   Skip the repeat-execution equality probe (two extra fresh
+                   processes at the requested shape). Skipping is recorded as
+                   repeatExecutionMeasured:false, never as a pass.
   --root <path>    Hololand repository root.
   --output <path>  Check-receipt output path (default ${DEFAULT_CHECK_OUTPUT}).
   --json           Print the check receipt as JSON.
@@ -834,6 +1216,7 @@ async function main(argv = process.argv.slice(2)) {
     result = await runRehearsalCheck({
       json: args.json,
       output: args.output,
+      repeatExecutionProbe: args.repeatExecutionProbe,
       root: hololandRoot,
       runs: args.runs,
     });
@@ -879,6 +1262,18 @@ async function main(argv = process.argv.slice(2)) {
     console.log(
       `[mv-rehearsal] custodyHygiene:   scratchRootRemoved=${o.scratchRootRemoved} `
       + `(measured on disk) · residual rehearsal-* trees from earlier runs: ${o.residualScratchRoots}`,
+    );
+    console.log(
+      o.repeatExecutionMeasured
+        ? `[mv-rehearsal] repeatExecution:  ${o.repeatExecutionComparedLeaves} leaves compared across two `
+          + `fresh processes · ${o.repeatExecutionDifferingLeaves} differed, `
+          + `${o.repeatExecutionUnallowlistedDifferences === 0 ? 'all' : 'NOT all'} within the `
+          + `${o.repeatExecutionAllowlistSize}-entry pinned variance allowlist `
+          + `(unallowlisted=${o.repeatExecutionUnallowlistedDifferences} · `
+          + `structuralDrift=${o.repeatExecutionStructuralDrift} · `
+          + `deadAllowlistEntries=${o.repeatExecutionDeadAllowlistEntries} · `
+          + `nonVaryingAllowlistEntries=${o.repeatExecutionNonVaryingAllowlistEntries})`
+        : '[mv-rehearsal] repeatExecution:  UNMEASURED — no two executions were compared',
     );
     if (receipt.acceptanceShape === 'bounded-smoke') {
       console.log(`[mv-rehearsal] smokeRefused:     ${o.smokeRefusedByFullTable} (by the full twelve-run table)`);

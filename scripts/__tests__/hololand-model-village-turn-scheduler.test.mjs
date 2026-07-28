@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* global process, structuredClone */
+/* global Response, URL, process, structuredClone */
 
 // MV-B2 turn scheduler integration checker tests. FULLY OFFLINE: the run
 // uses skipLive semantics, so both runs (mv-b2-live-r1 and mv-b2-live-r2)
@@ -104,11 +104,17 @@ test('receipt schema, manifest binding, and on-disk copy', () => {
   assert.equal(receipt.runs.length, 2);
   assert.equal(receipt.runs[0].runId, 'mv-b2-live-r1');
   assert.equal(receipt.runs[1].runId, 'mv-b2-live-r2');
-  // skipLive: run 1 is stubbed too, so live is false on BOTH runs and the
-  // claim boundary must say no sovereign route was exercised.
-  assert.equal(receipt.runs[0].live, false);
-  assert.equal(receipt.runs[1].live, false);
-  assert.equal(receipt.claimBoundary.liveSovereignRouteExercised, false);
+  // skipLive: BOTH runs are pointed at in-process stubs. routesStubbed records
+  // that CONFIGURATION and is not a liveness claim; the liveness claim is the
+  // measured transport verdict, which must be a MEASURED negative here (the
+  // observer worked and saw no traffic to the declared authority) rather than
+  // UNMEASURED.
+  assert.equal(receipt.runs[0].routesStubbed, true);
+  assert.equal(receipt.runs[1].routesStubbed, true);
+  assert.equal(
+    receipt.claimBoundary.sovereignRouteTransport.verdict,
+    'MEASURED_NO_LIVE_TRANSPORT',
+  );
 });
 
 test('routes certify and residents map round-robin across certified routes', () => {
@@ -325,7 +331,8 @@ test('claim-boundary flags are exactly the pinned never-claim set', () => {
   assert.equal(boundary.openOutcomeCanonicalMutationClaimed, false);
   assert.equal(boundary.nativeLifecycleDispatchClaimed, false);
   assert.equal(boundary.multiDayRunControlsClaimed, false);
-  assert.equal(boundary.liveSovereignRouteExercised, false);
+  // The flag-derived claim is WITHDRAWN, not merely false.
+  assert.ok(!('liveSovereignRouteExercised' in boundary));
   assert.ok(Array.isArray(boundary.observed) && boundary.observed.length > 0);
   assert.ok(
     Array.isArray(boundary.notObserved) && boundary.notObserved.length > 0,
@@ -343,6 +350,245 @@ test('claim-boundary flags are exactly the pinned never-claim set', () => {
     boundary.observed.some((item) =>
       item.includes('live proposals gate, deterministic receipts mutate')),
     'the admission-gating law must be stated in observed',
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Sovereign-route transport (ported MV-B1 observation).
+//
+// The claim these tests defend: the liveness statement on this receipt is
+// derived from MEASURED socket events, not from the --skip-live CLI flag. The
+// two executed adversary runs at the bottom are the non-vacuity proof -- both
+// of them PASSED against the pre-port checker (exit 0, liveSovereignRouteExer-
+// cised: true, zero real sockets); they must now go red.
+// ---------------------------------------------------------------------------
+
+function resign(clone) {
+  const { receiptHash, ...unsigned } = clone;
+  void receiptHash;
+  clone.receiptHash = canonicalDigest(unsigned);
+  return clone;
+}
+
+test('the sovereign-route liveness claim is measured, not declared', () => {
+  const transport = receipt.claimBoundary.sovereignRouteTransport;
+  assert.equal(
+    transport.observed.observerName,
+    'node:diagnostics_channel undici:client:sendHeaders+undici:request:headers',
+  );
+  // The observer proved it can see this process's own transport ...
+  assert.equal(transport.conjuncts.observerCalibrated, true);
+  // ... and it DID record traffic on real sockets during the r1 window, so the
+  // negative verdict is a measurement and not a blind spot reported as news.
+  assert.ok(transport.observed.drillWindowRequestCount > 0);
+  // Nothing reached the declared sovereign authority.
+  assert.equal(transport.observed.chatPathRequestsToDeclaredAuthority, 0);
+  assert.equal(transport.conjuncts.requestSentToDeclaredSocketAddress, false);
+  assert.equal(transport.conjuncts.endpointUsedMatchesDeclared, false);
+  // The required route's turn DID complete, so the negative is not an artefact
+  // of nothing having happened at all.
+  assert.equal(transport.conjuncts.requiredRouteTurnCompleted, true);
+  assert.equal(
+    transport.declared.requiredRouteId,
+    drillBundle.routes[0].routeId,
+  );
+  // skipLive survives ONLY as an explicitly non-load-bearing breadcrumb: no
+  // verdict branch reads it.
+  assert.equal(transport.declared.skipLiveRequested, true);
+});
+
+test('transport residuals stay honest: the OPEN forging residual is carried, and the port correction is stated', () => {
+  const { residuals, claimScope } =
+    receipt.claimBoundary.sovereignRouteTransport;
+  assert.ok(
+    claimScope.includes('NON-ADVERSARIAL IN-PROCESS CALLER'),
+    'the claim scope must not sound stronger here than at its source',
+  );
+  assert.ok(
+    residuals.some((item) => item.startsWith('OPEN, NOT CLOSED')),
+    'the unclosed diagnostics_channel forging residual must be carried',
+  );
+  assert.ok(
+    residuals.some((item) =>
+      item.startsWith('address occupancy is not identity')),
+    'address-occupancy residual must be carried',
+  );
+  assert.ok(
+    residuals.some((item) => item.startsWith('PORT CORRECTION')),
+    'the inherited UNPORTED-SITES residual must be corrected, not left to rot',
+  );
+  assert.ok(
+    residuals.some((item) => item.startsWith('MEASURED WINDOW IS RUN r1 ONLY')),
+    'the r1-only window must be stated',
+  );
+});
+
+test('the live verdict cannot be bought with a re-signed receipt', () => {
+  // (a) Flip the stored verdict and re-sign: the verdict is DERIVED from the
+  // conjuncts at verification time, so the hash no longer protects the lie.
+  const flipped = structuredClone(receipt);
+  flipped.claimBoundary.sovereignRouteTransport.verdict =
+    'MEASURED_LIVE_TRANSPORT';
+  const flippedResult = verifyTurnSchedulerReceipt(resign(flipped));
+  assert.equal(flippedResult.ok, false);
+  assert.match(flippedResult.failureReason, /derive/);
+
+  // (b) Flip the verdict AND every conjunct that feeds it, then re-sign. The
+  // conjuncts now derive the live verdict internally -- and the ROUTES region,
+  // written by a different producer, still refutes it.
+  const forged = structuredClone(receipt);
+  const forgedTransport = forged.claimBoundary.sovereignRouteTransport;
+  for (const key of Object.keys(forgedTransport.conjuncts)) {
+    forgedTransport.conjuncts[key] = true;
+  }
+  forgedTransport.verdict = 'MEASURED_LIVE_TRANSPORT';
+  const forgedResult = verifyTurnSchedulerReceipt(resign(forged));
+  assert.equal(forgedResult.ok, false);
+  assert.match(forgedResult.failureReason, /disagrees with the routes region/);
+
+  // (c) ... and even with the routes region rewritten to agree, a run that was
+  // pointed at in-process stubs can never carry a live verdict.
+  const deeper = structuredClone(forged);
+  const deeperTransport = deeper.claimBoundary.sovereignRouteTransport;
+  for (const entry of deeper.runs[0].routeCertifications) {
+    entry.endpointUsed = entry.declaredEndpoint;
+  }
+  deeperTransport.observed.inProcessListenerAuthorities = [];
+  deeperTransport.observed.observerCalibrated = true;
+  const deeperResult = verifyTurnSchedulerReceipt(resign(deeper));
+  assert.equal(deeperResult.ok, false);
+
+  // (d) ABSENT EVIDENCE BLOCKS: an UNMEASURED receipt does not verify at all.
+  const unmeasured = structuredClone(receipt);
+  const unmeasuredTransport = unmeasured.claimBoundary.sovereignRouteTransport;
+  unmeasuredTransport.conjuncts.observerCalibrated = false;
+  unmeasuredTransport.observed.observerCalibrated = false;
+  unmeasuredTransport.verdict = 'UNMEASURED';
+  const unmeasuredResult = verifyTurnSchedulerReceipt(resign(unmeasured));
+  assert.equal(unmeasuredResult.ok, false);
+  assert.match(unmeasuredResult.failureReason, /UNMEASURED/);
+});
+
+test('a conjunct that contradicts the run it was measured against fails', () => {
+  // requiredRouteTurnCompleted is re-derived from the resident mapping and the
+  // safety receipts, so it cannot be asserted independently of them.
+  const lying = structuredClone(receipt);
+  lying.claimBoundary.sovereignRouteTransport
+    .conjuncts.requiredRouteTurnCompleted = false;
+  const result = verifyTurnSchedulerReceipt(resign(lying));
+  assert.equal(result.ok, false);
+  assert.match(result.failureReason, /requiredRouteTurnCompleted disagrees/);
+
+  // An observer that reports itself calibrated while recording no loopback
+  // listener of its own is internally impossible: calibration binds one.
+  const impossible = structuredClone(receipt);
+  impossible.claimBoundary.sovereignRouteTransport
+    .observed.inProcessListenerAuthorities = [];
+  const impossibleResult = verifyTurnSchedulerReceipt(resign(impossible));
+  assert.equal(impossibleResult.ok, false);
+});
+
+// --- Executed adversaries. Both of these PASSED against the pre-port gate. ---
+
+async function runAgainstFetch(fetchImpl) {
+  const adversaryDir = mkdtempSync(path.join(os.tmpdir(), 'mv-b2-adversary-'));
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = fetchImpl(realFetch.bind(globalThis));
+  try {
+    await runTurnSchedulerCheck({
+      root: repoRoot,
+      output: path.join(adversaryDir, 'receipt.json'),
+      storeRoot: path.join(adversaryDir, 'stores'),
+      // Claims the LIVE lane. Under the pre-port gate this alone set
+      // claimBoundary.liveSovereignRouteExercised to true.
+      skipLive: false,
+    });
+    return { error: null, receipt: JSON.parse(readFileSync(path.join(adversaryDir, 'receipt.json'), 'utf8')) };
+  } catch (error) {
+    return { error, receipt: null };
+  } finally {
+    globalThis.fetch = realFetch;
+    rmSync(adversaryDir, { recursive: true, force: true });
+    if (existsSync(tracerScratchRoot)) {
+      for (const entry of readdirSync(tracerScratchRoot)) {
+        if (tracerScratchPattern.test(entry)) {
+          rmSync(path.join(tracerScratchRoot, entry), {
+            recursive: true,
+            force: true,
+          });
+        }
+      }
+    }
+  }
+}
+
+function fabricatedResponse(target) {
+  const json = (payload) => new Response(JSON.stringify(payload), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+  });
+  const { pathname } = new URL(target);
+  if (pathname.endsWith('/health')) {
+    return json({
+      process_instance_id: 'TOTALLY-NOT-A-REAL-PROCESS',
+      status: 'ok',
+      version: '0.0.0-FABRICATED',
+    });
+  }
+  if (pathname.endsWith('/models')) {
+    return json({
+      data: [{ id: 'TOTALLY-NOT-A-REAL-MODEL', object: 'model' }],
+      object: 'list',
+    });
+  }
+  return json({
+    choices: [{
+      finish_reason: 'stop',
+      index: 0,
+      message: {
+        content: JSON.stringify({
+          action: 'contribute_water',
+          amount: 1,
+          reason: 'fabricated proposal; no socket was ever opened',
+          target: 'commons_cistern',
+        }),
+        role: 'assistant',
+      },
+    }],
+    id: 'chatcmpl-FABRICATED',
+    model: 'TOTALLY-NOT-A-REAL-MODEL',
+    object: 'chat.completion',
+    usage: { completion_tokens: 1, prompt_tokens: 1, total_tokens: 2 },
+  });
+}
+
+test('EXECUTED: a fully fabricated fetch cannot reach a passing verdict', async () => {
+  const { error, receipt: adversaryReceipt } = await runAgainstFetch(
+    () => async (url) => fabricatedResponse(String(url)),
+  );
+  assert.ok(error, 'the fabricating caller must not reach the exit-0 path');
+  assert.match(error.message, /UNMEASURED/);
+  assert.equal(adversaryReceipt, null);
+});
+
+test('EXECUTED: forwarding only the calibration request still cannot reach a passing verdict', async () => {
+  // Layer 1 alone is defeatable: this adversary sends the calibration probe to
+  // the real fetch so the observer certifies itself, then fabricates every
+  // drill response. Layer 2 catches it -- a completed turn with zero observed
+  // sockets is a CONTRADICTION between two accounts, not a negative result.
+  const { error } = await runAgainstFetch((realFetch) => async (url, init) => {
+    const target = String(url);
+    if (target.includes('__mv-b1-transport-observer-calibration')) {
+      return realFetch(url, init);
+    }
+    return fabricatedResponse(target);
+  });
+  assert.ok(error, 'the calibration-forwarding caller must not reach exit 0');
+  assert.match(error.message, /UNMEASURED/);
+  assert.match(
+    error.message,
+    /observer recorded the calibration request on a real socket/,
+    'calibration passed; the verdict must fall to the drill-window contradiction',
   );
 });
 
@@ -383,7 +629,14 @@ test('tampering any receipt region fails verification', () => {
   }
 
   const deepTampers = [
-    (clone) => { clone.runs[0].live = true; },
+    (clone) => { clone.runs[0].routesStubbed = false; },
+    (clone) => {
+      clone.claimBoundary.sovereignRouteTransport.verdict =
+        'MEASURED_LIVE_TRANSPORT';
+    },
+    (clone) => {
+      clone.claimBoundary.liveSovereignRouteExercised = true;
+    },
     (clone) => { clone.runs[0].runId = 'phase1-live-study'; },
     (clone) => { clone.runs[0].barrierReceipt.frozen = true; },
     (clone) => {
@@ -456,4 +709,77 @@ test('durable per-run stores exist under the scratch parent only', () => {
     assert.ok(existsSync(path.join(runRoot, 'persistent-store', 'state.json')));
     assert.ok(existsSync(path.join(runRoot, 'custody', 'access-log.jsonl')));
   }
+});
+
+// --------------------------------------------------------------------------
+// Non-vacuity for the two transport defenses an adversarial review found to be
+// unexercised. Both were measured to leave the gate AND this suite green when
+// deleted from production, which means they were being counted as defenses
+// while proving nothing. One is pinned here; the other is documented as an
+// open gap on the receipt because nothing in the shipped manifest can reach it.
+// --------------------------------------------------------------------------
+
+test('a stubbed r1 cannot carry a live verdict, and the arm that refuses it is named', () => {
+  // EXECUTED, and it did not go the way the code comment implies. A stubbed run
+  // claiming live transport IS refused -- but not by the "routes-only
+  // refutation" the emitter advertises. Two earlier arms dominate it:
+  //   (a) verdict-vs-conjuncts re-derivation, if the conjuncts are left alone;
+  //   (b) conjuncts-vs-routes cross-check, if the conjuncts are forced true.
+  // Every route to the refutation is closed by (b), because keeping
+  // routesStubbed:true forces stubbed route certifications, which forces
+  // endpointUsedMatchesDeclared false. That is why deleting the refutation
+  // leaves gate and suite green: it is SHADOWED, not load-bearing. This test
+  // pins the property (a stubbed run cannot be laundered into a live verdict)
+  // and records which arm actually holds it, rather than crediting a line that
+  // never runs.
+  const base = structuredClone(receipt);
+  const measured = base.runs.find((entry) => entry.runId === 'mv-b2-live-r1');
+  assert.ok(measured, 'the measured run is present');
+  assert.equal(
+    measured.routesStubbed,
+    true,
+    'this suite runs the stubbed lane, which is the precondition for the refutation',
+  );
+
+  const reseal = (body) => {
+    const { receiptHash, ...unsigned } = body;
+    void receiptHash;
+    body.receiptHash = canonicalDigest(unsigned);
+    return body;
+  };
+
+  // (a) verdict flipped alone.
+  const flipped = structuredClone(base);
+  flipped.claimBoundary.sovereignRouteTransport.verdict = 'MEASURED_LIVE_TRANSPORT';
+  const flippedVerdict = verifyTurnSchedulerReceipt(reseal(flipped));
+  assert.equal(flippedVerdict.ok, false);
+  assert.match(String(flippedVerdict.failureReason), /the recorded conjuncts derive/);
+
+  // (b) verdict flipped AND every conjunct forced true, which is what
+  // deriveTransportVerdict needs to produce a live verdict.
+  const forced = structuredClone(base);
+  const transport = forced.claimBoundary.sovereignRouteTransport;
+  for (const key of Object.keys(transport.conjuncts)) transport.conjuncts[key] = true;
+  transport.verdict = 'MEASURED_LIVE_TRANSPORT';
+  const forcedVerdict = verifyTurnSchedulerReceipt(reseal(forced));
+  assert.equal(forcedVerdict.ok, false, 'a stubbed run claiming live transport must be refused');
+  assert.match(
+    String(forcedVerdict.failureReason),
+    /conjuncts\.endpointUsedMatchesDeclared disagrees with the routes region/,
+  );
+});
+
+test('the transport residuals name the surviving gaps with their measurements', () => {
+  const residuals = receipt.claimBoundary.sovereignRouteTransport.residuals;
+  const joined = residuals.join(' | ');
+  // The mode-consistency hole: named, with the fact that it was exploitable on
+  // the unmutated file rather than only under a mutation.
+  assert.match(joined, /MODE CONSISTENCY WAS MISSING FROM THE FIRST PORT/);
+  assert.match(joined, /the DEFAULT live lane could not fail for not being live/);
+  // The unexercised defense: named as a documented gap with its file:line, not
+  // silently carried as if it were doing work.
+  assert.match(joined, /DOCUMENTED GAP, NOT CLOSED: registerInProcessAuthority/);
+  assert.match(joined, /check-hololand-model-village-turn-scheduler\.mjs:\d+/);
+  // The forging adversary is still open and must not have been quietly dropped.
+  assert.match(joined, /forge/i);
 });

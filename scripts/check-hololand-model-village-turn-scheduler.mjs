@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* global Buffer, console, process */
+/* global Buffer, URL, console, process */
 
 // HoloLand Model Village MV-B2 live turn scheduler integration checker.
 //
@@ -40,6 +40,14 @@
 //                    shipped MV-B1 checker), proving multi-run isolation
 //                    cheaply: the r1 run directory is byte-identical after
 //                    r2 completes and cross-run custody reads are refused.
+//
+// LIVENESS IS MEASURED, NOT DECLARED. Whether run r1 actually reached the
+// declared sovereign route is not read off the --skip-live flag: it is the
+// three-state `claimBoundary.sovereignRouteTransport` verdict, derived from
+// out-of-band node:diagnostics_channel undici send-path events (the observation
+// is imported from the MV-B1 checker, not re-implemented). A run whose
+// transport could not be observed is UNMEASURED and FAILS. See the block above
+// TRANSPORT_REGION_KEYS for what this does and does not establish.
 
 import { createHash } from 'node:crypto';
 import {
@@ -53,12 +61,24 @@ import {
 } from 'node:fs';
 import { createServer } from 'node:http';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 
 import {
   canonicalDigest,
   canonicalJson,
 } from './model-village-phase0b-runtime.mjs';
+// The sovereign-route transport OBSERVATION is shared with the MV-B1 gate on
+// purpose: one implementation of the hard part, one place to attack. This gate
+// imports it and never re-implements it. See the long comment block at
+// scripts/check-hololand-model-village-adapter-custody.mjs:126 for the design,
+// the two layers, and the residuals -- all of which apply here unchanged.
+import {
+  TRANSPORT_VERDICTS,
+  buildTransportObservation,
+  calibrateTransportObserver,
+  createTransportObserver,
+  deriveTransportVerdict,
+} from './check-hololand-model-village-adapter-custody.mjs';
 import {
   certifyLockedAdapterRoute,
   loadAdapterCustodyDrillManifest,
@@ -122,9 +142,9 @@ const RUN_ENTRY_KEYS = Object.freeze([
   'custodyAccessLogEntryCount',
   'gatedAdmissionReceipts',
   'isolation',
-  'live',
   'residentRouteMapping',
   'routeCertifications',
+  'routesStubbed',
   'runId',
   'runRootRelative',
   'safetyCheckReceipts',
@@ -171,10 +191,98 @@ const PINNED_CLAIM_BOUNDARY_VALUES = Object.freeze({
   sixResidentLiveTurnsClaimed: false,
 });
 const CLAIM_BOUNDARY_KEYS = Object.freeze([
-  'liveSovereignRouteExercised',
   'notObserved',
   'observed',
+  'sovereignRouteTransport',
   ...Object.keys(PINNED_CLAIM_BOUNDARY_VALUES),
+]);
+
+// ---------------------------------------------------------------------------
+// Sovereign-route transport observation (ported from MV-B1, 2026-07-27).
+//
+// WHAT WAS WRONG HERE. `claimBoundary.liveSovereignRouteExercised` was
+// `skipLive === false` -- a restatement of a CLI argument -- and the check that
+// appeared to verify it compared it against `runs.some(run => run.live)`, where
+// `run.live` was `!stubbed` and `stubbed` was that SAME `skipLive` input. The
+// cross-check was `X === X`: it had zero detection power by construction, and
+// no mutation to the runner could make the two sides disagree. EXECUTED at
+// commit 804c511: overriding `globalThis.fetch` with a function that fabricates
+// every health/models/chat response produced 22 fabricated calls, ZERO real
+// sockets, `runs[0].live: true`, `liveSovereignRouteExercised: true`, and a
+// receipt that self-verified ok -- the same adversary that motivated the MV-B1
+// fix, reproduced against this gate.
+//
+// WHAT REPLACES IT. The MV-B1 out-of-band measurement, IMPORTED not copied:
+// undici publishes node:diagnostics_channel events from inside its own send
+// path carrying the real net.Socket, so a caller that merely returns fabricated
+// data publishes nothing. Verdict is DERIVED = min() over measured conjuncts,
+// three-state, and re-derived at verification time.
+//
+// SCOPE OF THE WINDOW. Only run r1 is measured. r2 is stub-by-construction in
+// EVERY mode (it exists to prove per-run isolation, not liveness), so folding
+// its loopback traffic into the window would only add noise. The window opens
+// after calibration and closes the moment r1 returns.
+//
+// EVERY MV-B1 RESIDUAL APPLIES HERE UNCHANGED, including the OPEN one: an
+// in-process caller that can supply a fabricated fetch can also publish forged
+// diagnostics_channel messages and obtain MEASURED_LIVE_TRANSPORT with zero TCP
+// connects. This is evidence against a NON-FORGING caller only. The residual
+// list is inherited verbatim from the MV-B1 receipt rather than restated, so it
+// cannot drift; two port-specific residuals are appended.
+//
+// ABSENT EVIDENCE BLOCKS. UNMEASURED is a FAILURE on both the run path and the
+// --verify path (stricter than the MV-B1 gate, which warns on --verify). A run
+// whose transport was never observed cannot reach any passing verdict at all,
+// let alone the live one.
+// ---------------------------------------------------------------------------
+
+const TRANSPORT_REGION_KEYS = Object.freeze([
+  'claimScope',
+  'conjuncts',
+  'declared',
+  'observed',
+  'residuals',
+  'verdict',
+]);
+const TRANSPORT_CONJUNCT_KEYS = Object.freeze([
+  'chatPathSentToDeclaredAuthority',
+  'declaredAuthorityIsNotAnInProcessListener',
+  'endpointUsedMatchesDeclared',
+  'everySendToDeclaredOriginHitDeclaredSocket',
+  'observerAccountConsistentWithDrill',
+  'observerCalibrated',
+  'requestSentToDeclaredSocketAddress',
+  'requiredRouteTurnCompleted',
+  'responseObservedFromDeclaredOrigin',
+]);
+const TRANSPORT_DECLARED_KEYS = Object.freeze([
+  'requiredRouteAuthority',
+  'requiredRouteId',
+  'skipLiveRequested',
+]);
+const TRANSPORT_OBSERVED_KEYS = Object.freeze([
+  'calibrationDetail',
+  'chatPathRequestsToDeclaredAuthority',
+  'drillWindowRequestCount',
+  'inProcessListenerAuthorities',
+  'observerCalibrated',
+  'observerName',
+  'requestsToDeclaredOrigin',
+  'responseStatusesFromDeclaredOrigin',
+  'socketAuthoritiesObserved',
+]);
+// The MV-B1 residual that names THIS file as an unported site is answered by
+// this change. It is inherited verbatim anyway (provenance beats tidiness, and
+// the MV-B1 checker is not edited from here), so the correction is appended as
+// its own residual rather than by rewriting somebody else's text.
+const PORT_RESIDUALS = Object.freeze([
+  'PORT CORRECTION: the inherited MV-B1 residual that names scripts/check-hololand-model-village-turn-scheduler.mjs:1059 as an UNPORTED SITE is STALE as of this receipt -- the observation IS ported here, the self-scoring cross-check is deleted, and claimBoundary.liveSovereignRouteExercised no longer exists on this receipt. Still unported at time of writing: scripts/check-hololand-model-village-alias-custody.mjs, which continues to emit liveSovereignRouteExercised from its own skipLive input',
+  'MEASURED WINDOW IS RUN r1 ONLY: mv-b2-live-r2 is stub-by-construction in every mode and is outside the observation window, so this verdict says nothing about r2 and r2 must never be cited for liveness. The in-process listener set does span both runs, which can only make the verdict more conservative, never less',
+  'THE MEASURED ROUTE IS THE REQUIRED ROUTE ONLY: the optional route is attempted but its transport is not observed, so a run in which only the optional route was genuinely contacted would still be reported by the required route\'s conjuncts',
+  'MODE CONSISTENCY WAS MISSING FROM THE FIRST PORT AND IS RESTORED (2026-07-28). The port brought the measurement and dropped MV-B1\'s two mode branches, so MEASURED_NO_LIVE_TRANSPORT passed in EVERY mode and the DEFAULT live lane could not fail for not being live. Exploited on the unmutated file with nothing but a caller-supplied fabricating fetch that forwarded calibration and issued one incidental real request to an unrelated loopback address: exit 0, verdict MEASURED_NO_LIVE_TRANSPORT, requestsToDeclaredOrigin 0, required route certified:true stubbed:false, receipt self-verifying, on a host where the true verdict was measurably MEASURED_LIVE_TRANSPORT. Both branches are now present at the emit path',
+  'THE POSITIVE PATH IS NOW EXERCISED FROM THIS GATE (2026-07-28): a real sovereign holoserve on 127.0.0.1:8099 yields MEASURED_LIVE_TRANSPORT with 6 POSTs to the declared authority in the measured window, alongside MEASURED_NO_LIVE_TRANSPORT under --skip-live. The earlier residual saying this gate had only ever seen the measured-negative path is closed by execution',
+  'DOCUMENTED GAP, NOT CLOSED: registerInProcessAuthority is called for the checker\'s own stub endpoints at scripts/check-hololand-model-village-turn-scheduler.mjs:556, and DELETING that call leaves both the gate (exit 0) and the 16-test suite green. That defense is therefore unexercised: the verify-time emptiness guard is satisfied by calibration alone, and the shipped manifest never binds a stub on the declared authority, so nothing today can reach it. It is counted as a defense while measuring nothing, and closing it needs a manifest whose stub and declared authority collide',
+  'DOCUMENTED GAP, MEASURED AND SHADOWED: the routes-only refutation at scripts/check-hololand-model-village-turn-scheduler.mjs:1424-1433 (a receipt whose r1 was stubbed can never carry a live verdict) is UNREACHABLE and deleting it leaves gate and suite green. Executed 2026-07-28: flipping the verdict alone is caught by the verdict-vs-conjuncts re-derivation, and forcing every conjunct true to get past that is caught by conjuncts.endpointUsedMatchesDeclared disagreeing with the routes region -- because routesStubbed:true forces stubbed route certifications. The PROPERTY (a stubbed run cannot be laundered into a live verdict) is real and is now pinned by an executed test naming both dominating arms; the refutation line itself is credited with nothing. The emit/verify cross-check over requiredRouteTurnCompleted likewise remains a TAMPER check, not a second measurement, as stated in the code',
 ]);
 
 export class TurnSchedulerCheckError extends Error {
@@ -228,6 +336,36 @@ function normalizePath(root, target) {
 
 function runTimestamp() {
   return `${new Date().toISOString().replace(/[:.]/g, '-')}-p${process.pid}`;
+}
+
+/**
+ * host:port for an endpoint, with the scheme default filled in -- the same
+ * normalization the MV-B1 observation uses, so a declared endpoint and an
+ * observed socket address compare on equal terms.
+ */
+function endpointAuthority(endpoint) {
+  const url = new URL(endpoint);
+  const port = url.port || (url.protocol === 'https:' ? '443' : '80');
+  return `${url.hostname}:${port}`;
+}
+
+/**
+ * The required route's turn COMPLETED when at least one resident mapped to that
+ * route produced a safety-passing adjudicable turn. Computed ONLY from the run
+ * entry's own receipted regions (residentRouteMapping + safetyCheckReceipts),
+ * never from a runner variable -- so verification re-derives the identical
+ * value from the receipt and a transport conjunct that disagrees with the runs
+ * it was supposedly measured against is caught rather than believed.
+ */
+function requiredRouteTurnCompleted(run, requiredRouteId) {
+  const residentsOnRequiredRoute = new Set(
+    (Array.isArray(run?.residentRouteMapping) ? run.residentRouteMapping : [])
+      .filter((entry) => entry?.routeId === requiredRouteId)
+      .map((entry) => entry?.residentId),
+  );
+  return (Array.isArray(run?.safetyCheckReceipts) ? run.safetyCheckReceipts : [])
+    .some((receipt) => receipt?.passed === true
+      && residentsOnRequiredRoute.has(receipt?.residentId));
 }
 
 function countJsonlLines(filePath) {
@@ -377,6 +515,10 @@ async function executeOneRun({
   resolvedRoot,
   failures,
   priorRun = null,
+  // Every loopback listener THIS process binds is registered here, so the
+  // transport observation can refuse to call "reaching the declared authority"
+  // evidence of anything when the declared authority is our own stub.
+  registerInProcessAuthority = () => {},
 }) {
   const context = provisionIsolatedRun({
     hololandRoot: resolvedRoot,
@@ -415,6 +557,7 @@ async function executeOneRun({
           routeIndex === 0 ? 'contribute' : 'abstain',
         );
         stubs.push(stub);
+        registerInProcessAuthority(endpointAuthority(stub.endpoint));
         effectiveRoute = { ...effectiveRoute, endpoint: stub.endpoint };
       }
       const entry = {
@@ -641,11 +784,15 @@ async function executeOneRun({
     custodyAccessLogEntryCount,
     gatedAdmissionReceipts,
     isolation,
-    live: !stubbed,
     markerCustodyId: marker.custodyId,
     residentRouteMapping,
     round,
     routeCertifications,
+    // CONFIGURATION, NOT A CLAIM. This records which endpoints the run was
+    // pointed at; it says nothing about whether bytes crossed a socket. The
+    // liveness claim lives in claimBoundary.sovereignRouteTransport and is
+    // derived from measured sockets, never from this field or its input.
+    routesStubbed: stubbed === true,
     runId,
     runRoot,
   };
@@ -678,21 +825,46 @@ export async function runTurnSchedulerCheck({
 
   const failures = [];
   const runResults = [];
+  // Transport observation. The observer subscribes BEFORE anything runs;
+  // calibration proves it can see this process's own transport through the
+  // exact fetch the drill will use, and only then does the r1 window open.
+  const observer = createTransportObserver();
+  const inProcessListenerAuthorities = new Set();
+  const registerInProcessAuthority = (authority) => {
+    inProcessListenerAuthorities.add(authority);
+  };
+  let calibration = {
+    authority: null,
+    detail: 'calibration did not run',
+    ok: false,
+  };
+  let drillWindow = { responses: [], sent: [] };
   try {
-    // (b)-(d) Run 1: LIVE sovereign routes unless --skip-live.
+    calibration = await calibrateTransportObserver(observer, globalThis.fetch);
+    if (typeof calibration.authority === 'string') {
+      registerInProcessAuthority(calibration.authority);
+    }
+
+    // (b)-(d) Run 1: LIVE sovereign routes unless --skip-live. This is the
+    // ONLY measured window.
+    const mark = observer.mark();
     const firstRun = await executeOneRun({
       drillBundle,
       failures,
       policyBundle,
+      registerInProcessAuthority,
       resolvedRoot,
       runId: LIVE_RUN_ID,
       storeParent,
       stubbed: skipLive,
     });
+    drillWindow = observer.since(mark);
     runResults.push(firstRun);
 
     // (e) Run 2: stub routes ALWAYS (even in live mode) -- multi-run
     // isolation proven cheaply against run 1's completed directory tree.
+    // Outside the measured window by design; its stub authorities are still
+    // registered, which can only make the r1 verdict more conservative.
     const secondRun = await executeOneRun({
       drillBundle,
       failures,
@@ -703,6 +875,7 @@ export async function runTurnSchedulerCheck({
         runId: firstRun.runId,
         runRoot: firstRun.runRoot,
       },
+      registerInProcessAuthority,
       resolvedRoot,
       runId: STUB_RUN_ID,
       storeParent,
@@ -710,6 +883,7 @@ export async function runTurnSchedulerCheck({
     });
     runResults.push(secondRun);
   } finally {
+    observer.stop();
     cleanOwnTracerScratch(resolvedRoot);
   }
 
@@ -720,13 +894,52 @@ export async function runTurnSchedulerCheck({
     custodyAccessLogEntryCount: result.custodyAccessLogEntryCount,
     gatedAdmissionReceipts: result.gatedAdmissionReceipts,
     isolation: result.isolation,
-    live: result.live,
     residentRouteMapping: result.residentRouteMapping,
     routeCertifications: result.routeCertifications,
+    routesStubbed: result.routesStubbed,
     runId: result.runId,
     runRootRelative: normalizePath(resolvedRoot, result.runRoot),
     safetyCheckReceipts: result.round.safetyCheckReceipts,
   }));
+
+  // (f) Sovereign-route transport verdict for run r1, DERIVED from measured
+  // sockets. Nothing below reads skipLive: the only place it appears is the
+  // explicitly non-load-bearing `declared.skipLiveRequested` breadcrumb, which
+  // no verdict branch consults.
+  const requiredRoute = drillBundle.routes.find((route) => route.required);
+  if (!requiredRoute) fail('drill manifest declares no required route');
+  const measuredRun = runs[0];
+  const requiredEntry = measuredRun.routeCertifications.find(
+    (entry) => entry.routeId === requiredRoute.routeId,
+  );
+  const baseTransport = buildTransportObservation({
+    calibration,
+    drillWindow,
+    inProcessListenerAuthorities,
+    requiredEntry: requiredEntry
+      ? {
+        declaredEndpoint: requiredEntry.declaredEndpoint,
+        endpointUsed: requiredEntry.endpointUsed,
+        // MV-B1 has one turn; MV-B2 has six residents round-robin, so the
+        // required route's turn "completed" when at least one resident
+        // mapped to it produced a safety-passing adjudicable turn. That is
+        // recomputable from the receipt's own routes/mapping/safety regions,
+        // which is what verification re-derives it from.
+        turn: {
+          turnCompleted: requiredRouteTurnCompleted(
+            measuredRun,
+            requiredRoute.routeId,
+          ),
+        },
+      }
+      : null,
+    requiredRoute,
+    skipLive,
+  });
+  const sovereignRouteTransport = {
+    ...baseTransport,
+    residuals: [...baseTransport.residuals, ...PORT_RESIDUALS],
+  };
 
   // (g) Claim boundary: what this tracer observed, what it does not claim,
   // and the pinned never-claim flags (MV-B1 set plus the MV-B2 additions).
@@ -740,6 +953,7 @@ export async function runTurnSchedulerCheck({
       'gated admission where ONLY the deterministic V4 lane mutates: live proposals gate, deterministic receipts mutate; admitted non-matches, denials, and already-committed matches are receipted refusals with zero side effects',
       'per-run isolation: a fresh persistent store and fresh sealed custody store per runId; the prior run directory is byte-identical after the second run and cross-run custody reads are refused',
       'zero retry by construction: exactly one model-turn executor invocation per resident',
+      'sovereign-route transport for run r1, MEASURED out of band from node:diagnostics_channel undici send-path events rather than declared: see claimBoundary.sovereignRouteTransport for the verdict, its conjuncts, and its residuals -- assumes a NON-ADVERSARIAL in-process caller',
     ],
     notObserved: [
       'live study run',
@@ -752,8 +966,10 @@ export async function runTurnSchedulerCheck({
       'production validator custody',
       'process-crash durability',
       'provider sampling determinism (temperature zero is not a determinism receipt)',
+      'sovereign-route transport for run r2 (stub-by-construction in every mode, outside the measured window) and for the optional route in either run',
+      'the identity of whatever peer holds the declared address, and any resistance to a caller that forges the observation itself (see sovereignRouteTransport.residuals)',
     ],
-    liveSovereignRouteExercised: skipLive === false,
+    sovereignRouteTransport,
     ...PINNED_CLAIM_BOUNDARY_VALUES,
   };
 
@@ -770,6 +986,49 @@ export async function runTurnSchedulerCheck({
   const resolvedOutput = path.resolve(resolvedRoot, output);
   mkdirSync(path.dirname(resolvedOutput), { recursive: true });
   writeFileSync(resolvedOutput, `${JSON.stringify(receipt, null, 2)}\n`);
+
+  // ABSENT EVIDENCE BLOCKS. UNMEASURED is not a soft "we could not tell" --
+  // it means the observer could not prove it sees this process's own transport,
+  // or its account contradicts the drill's. Neither the live nor the not-live
+  // conclusion is available, so the gate goes RED rather than resolving to the
+  // convenient answer. A count of zero over zero attempts is vacuous.
+  if (sovereignRouteTransport.verdict === TRANSPORT_VERDICTS.unmeasured) {
+    failures.push(
+      'sovereign-route transport is UNMEASURED for '
+      + `${LIVE_RUN_ID}; absent evidence blocks, so this run may claim neither `
+      + 'live nor not-live transport. calibration: '
+      + `${sovereignRouteTransport.observed.calibrationDetail}; drill-window `
+      + 'requests on real sockets: '
+      + `${sovereignRouteTransport.observed.drillWindowRequestCount}`,
+    );
+  } else if (skipLive && sovereignRouteTransport.verdict !== TRANSPORT_VERDICTS.notLive) {
+    // MODE CONSISTENCY. Ported from the MV-B1 gate
+    // (check-hololand-model-village-adapter-custody.mjs:980-992) on 2026-07-28.
+    // The first port of this observation brought the measurement and dropped
+    // these two branches, which left the observation as instrumentation rather
+    // than a gate: MEASURED_NO_LIVE_TRANSPORT passed in EVERY mode, so the
+    // DEFAULT (live) lane could not fail for not being live. A caller-supplied
+    // fabricating fetch that forwarded calibration and made one incidental real
+    // request to an unrelated loopback address reached exit 0 with the required
+    // route recorded certified/not-stubbed, zero packets to the sovereign route,
+    // and a self-verifying signed receipt -- on a host where the true verdict
+    // was measurably MEASURED_LIVE_TRANSPORT. No forged diagnostics_channel
+    // messages were needed; one extra fetch was enough, because
+    // observerAccountConsistentWithDrill was the only load-bearing condition.
+    failures.push(
+      `--skip-live must measure ${TRANSPORT_VERDICTS.notLive}; measured `
+      + `${sovereignRouteTransport.verdict}`,
+    );
+  } else if (!skipLive && sovereignRouteTransport.verdict !== TRANSPORT_VERDICTS.live) {
+    failures.push(
+      `the live lane requires ${TRANSPORT_VERDICTS.live}; measured `
+      + `${sovereignRouteTransport.verdict}. Failed conjuncts: `
+      + `${Object.entries(sovereignRouteTransport.conjuncts)
+        .filter(([, value]) => value !== true)
+        .map(([name]) => name)
+        .join(', ') || 'none'}`,
+    );
+  }
 
   const verification = verifyTurnSchedulerReceipt(receipt);
   if (!verification.ok) {
@@ -801,7 +1060,9 @@ function verifyRunEntry(run, index, receipt) {
   if (!run.runId.startsWith('mv-b2-')) {
     fail(`${label}.runId must use the engineering lane mv-b2- prefix`);
   }
-  if (typeof run.live !== 'boolean') fail(`${label}.live must be boolean`);
+  if (typeof run.routesStubbed !== 'boolean') {
+    fail(`${label}.routesStubbed must be boolean`);
+  }
   assertNonEmptyString(run.runRootRelative, `${label}.runRootRelative`);
   if (
     !Number.isInteger(run.custodyAccessLogEntryCount)
@@ -830,8 +1091,8 @@ function verifyRunEntry(run, index, receipt) {
     if (typeof entry.certified !== 'boolean') {
       fail(`${certLabel}.certified must be boolean`);
     }
-    if (entry.stubbed !== !run.live) {
-      fail(`${certLabel}.stubbed must equal NOT ${label}.live`);
+    if (entry.stubbed !== run.routesStubbed) {
+      fail(`${certLabel}.stubbed must equal ${label}.routesStubbed`);
     }
     if (entry.required) requiredCount += 1;
     if (entry.certified) {
@@ -1015,6 +1276,164 @@ function verifyRunEntry(run, index, receipt) {
   }
 }
 
+/**
+ * Verifies the sovereign-route transport region. This CANNOT re-run the
+ * observation, so it does the two things that are available to it:
+ *
+ *   1. RE-DERIVES the verdict from the recorded conjuncts, so a stored verdict
+ *      that was edited (or emitted by a future code path that computed it some
+ *      other way) does not survive --verify; and
+ *   2. CROSS-CHECKS the conjuncts against regions of the receipt that were
+ *      written by a DIFFERENT producer -- the routes region, the resident
+ *      mapping, and the safety receipts -- so the conjuncts cannot be their own
+ *      only evidence.
+ *
+ * BE PRECISE ABOUT WHAT (2) IS WORTH. Inside the emitting process the same
+ * helpers produce and re-derive those values, so (2) is a TAMPER and
+ * FOREIGN-RECEIPT check, not an independent second measurement. It catches an
+ * edited receipt, a re-signed forgery, and a receipt whose transport region was
+ * copied from a different run; it does NOT catch a mis-derivation shared by
+ * both sides. The load-bearing non-vacuity evidence is the pair of EXECUTED
+ * adversary runs in the test file, and the inherited residual that says a
+ * receipt proves internal consistency rather than a replayed measurement.
+ *
+ * UNMEASURED fails here too, not just on the run path: a receipt whose
+ * transport was never observed is not a valid receipt to cite.
+ */
+function verifyTransportRegion(receipt) {
+  const label = 'receipt.claimBoundary.sovereignRouteTransport';
+  const transport = receipt.claimBoundary.sovereignRouteTransport;
+  assertExactKeys(transport, TRANSPORT_REGION_KEYS, label);
+  assertNonEmptyString(transport.claimScope, `${label}.claimScope`);
+  assertExactKeys(transport.conjuncts, TRANSPORT_CONJUNCT_KEYS, `${label}.conjuncts`);
+  assertExactKeys(transport.declared, TRANSPORT_DECLARED_KEYS, `${label}.declared`);
+  assertExactKeys(transport.observed, TRANSPORT_OBSERVED_KEYS, `${label}.observed`);
+  if (!Array.isArray(transport.residuals) || transport.residuals.length === 0) {
+    fail(`${label}.residuals must be a non-empty array`);
+  }
+  for (const item of transport.residuals) {
+    assertNonEmptyString(item, `${label}.residuals entry`);
+  }
+  for (const key of TRANSPORT_CONJUNCT_KEYS) {
+    if (typeof transport.conjuncts[key] !== 'boolean') {
+      fail(`${label}.conjuncts.${key} must be boolean`);
+    }
+  }
+
+  const { conjuncts, declared, observed } = transport;
+  // (1) The verdict is DERIVED, never stored as an independent fact.
+  const rederived = deriveTransportVerdict(conjuncts);
+  if (transport.verdict !== rederived) {
+    fail(
+      `${label}.verdict is ${canonicalJson(transport.verdict)} but the `
+      + `recorded conjuncts derive ${canonicalJson(rederived)}`,
+    );
+  }
+  if (transport.verdict === TRANSPORT_VERDICTS.unmeasured) {
+    fail(
+      `${label} is UNMEASURED: the observation could not run or its account `
+      + 'contradicts the drill, so this receipt establishes neither live nor '
+      + `not-live transport (${observed.calibrationDetail})`,
+    );
+  }
+
+  // (2) Cross-checks against regions written by a different producer.
+  const measuredRun = receipt.runs[0];
+  if (!measuredRun || measuredRun.runId !== LIVE_RUN_ID) {
+    fail(`${label} must be measured against ${LIVE_RUN_ID} as receipt.runs[0]`);
+  }
+  const requiredEntries = measuredRun.routeCertifications
+    .filter((entry) => entry.required === true);
+  if (requiredEntries.length !== 1) {
+    fail(
+      `${label} needs exactly one required route in ${LIVE_RUN_ID}; found `
+      + `${requiredEntries.length}`,
+    );
+  }
+  const [requiredEntry] = requiredEntries;
+  if (declared.requiredRouteId !== requiredEntry.routeId) {
+    fail(`${label}.declared.requiredRouteId does not bind the required route`);
+  }
+  if (
+    declared.requiredRouteAuthority
+    !== endpointAuthority(requiredEntry.declaredEndpoint)
+  ) {
+    fail(
+      `${label}.declared.requiredRouteAuthority does not match the required `
+      + "route's declared endpoint",
+    );
+  }
+  if (
+    conjuncts.endpointUsedMatchesDeclared
+    !== (requiredEntry.endpointUsed === requiredEntry.declaredEndpoint)
+  ) {
+    fail(
+      `${label}.conjuncts.endpointUsedMatchesDeclared disagrees with the `
+      + 'routes region',
+    );
+  }
+  if (
+    conjuncts.requiredRouteTurnCompleted
+    !== requiredRouteTurnCompleted(measuredRun, requiredEntry.routeId)
+  ) {
+    fail(
+      `${label}.conjuncts.requiredRouteTurnCompleted disagrees with the `
+      + "measured run's resident mapping and safety receipts",
+    );
+  }
+  if (conjuncts.observerCalibrated !== (observed.observerCalibrated === true)) {
+    fail(`${label}.conjuncts.observerCalibrated disagrees with the observation`);
+  }
+  if (!Array.isArray(observed.inProcessListenerAuthorities)) {
+    fail(`${label}.observed.inProcessListenerAuthorities must be an array`);
+  }
+  if (
+    conjuncts.declaredAuthorityIsNotAnInProcessListener
+    !== !observed.inProcessListenerAuthorities.includes(
+      declared.requiredRouteAuthority,
+    )
+  ) {
+    fail(
+      `${label}.conjuncts.declaredAuthorityIsNotAnInProcessListener disagrees `
+      + 'with the recorded in-process listeners',
+    );
+  }
+  // A calibrated observer bound its own loopback listener, so an empty set is
+  // internally impossible and would mean the register was suppressed.
+  if (
+    conjuncts.observerCalibrated
+    && observed.inProcessListenerAuthorities.length === 0
+  ) {
+    fail(
+      `${label}.observed.inProcessListenerAuthorities is empty on a calibrated `
+      + 'observer, which cannot happen: calibration binds a loopback listener',
+    );
+  }
+  if (
+    !Number.isInteger(observed.drillWindowRequestCount)
+    || observed.drillWindowRequestCount < 0
+  ) {
+    fail(`${label}.observed.drillWindowRequestCount must be a non-negative integer`);
+  }
+  if (
+    conjuncts.observerAccountConsistentWithDrill === false
+    && observed.drillWindowRequestCount !== 0
+  ) {
+    fail(`${label}.conjuncts.observerAccountConsistentWithDrill is unexplained`);
+  }
+  // A stubbed run can never have exercised the declared sovereign route: the
+  // routes region alone refutes a live verdict, independently of the observer.
+  if (
+    transport.verdict === TRANSPORT_VERDICTS.live
+    && measuredRun.routesStubbed === true
+  ) {
+    fail(
+      `${label}.verdict is MEASURED_LIVE_TRANSPORT but ${LIVE_RUN_ID} ran `
+      + 'against in-process stub routes',
+    );
+  }
+}
+
 export function verifyTurnSchedulerReceipt(receipt) {
   try {
     assertExactKeys(receipt, RECEIPT_KEYS, 'turn scheduler receipt');
@@ -1038,8 +1457,14 @@ export function verifyTurnSchedulerReceipt(receipt) {
         );
       }
     }
-    if (typeof receipt.claimBoundary.liveSovereignRouteExercised !== 'boolean') {
-      fail('receipt.claimBoundary.liveSovereignRouteExercised must be boolean');
+    // The withdrawn claim must stay withdrawn: a receipt that reintroduces the
+    // flag-derived boolean is rejected outright rather than silently accepted
+    // alongside the measured verdict.
+    if ('liveSovereignRouteExercised' in receipt.claimBoundary) {
+      fail(
+        'receipt.claimBoundary.liveSovereignRouteExercised was withdrawn (it '
+        + 'restated a CLI flag); use claimBoundary.sovereignRouteTransport',
+      );
     }
     for (const listName of ['observed', 'notObserved']) {
       const list = receipt.claimBoundary[listName];
@@ -1055,15 +1480,7 @@ export function verifyTurnSchedulerReceipt(receipt) {
       fail('receipt.runs must be a non-empty array');
     }
     receipt.runs.forEach((run, index) => verifyRunEntry(run, index, receipt));
-    if (
-      receipt.claimBoundary.liveSovereignRouteExercised
-      !== receipt.runs.some((run) => run.live === true)
-    ) {
-      fail(
-        'receipt.claimBoundary.liveSovereignRouteExercised does not match '
-        + 'the receipted runs',
-      );
-    }
+    verifyTransportRegion(receipt);
 
     const { receiptHash, ...unsigned } = receipt;
     assertSha256(receiptHash, 'receipt.receiptHash');
@@ -1108,9 +1525,11 @@ Options:
   --output <path>      Receipt output path
   --store-root <path>  Parent directory for the per-run isolated stores
   --skip-live          Run mv-b2-live-r1 against in-process loopback stubs
-                       instead of the declared sovereign routes (marks
-                       claimBoundary.liveSovereignRouteExercised false);
-                       mv-b2-live-r2 uses stubs in EVERY mode
+                       instead of the declared sovereign routes; mv-b2-live-r2
+                       uses stubs in EVERY mode. This flag does NOT set the
+                       liveness claim -- claimBoundary.sovereignRouteTransport
+                       is measured from real socket events either way, and an
+                       unobservable run fails as UNMEASURED
   --verify <path>      Verify an existing receipt file and exit
   --json               Print the bounded receipt as JSON
 `);
@@ -1127,7 +1546,7 @@ function describeRun(run) {
   const barrier = run.barrierReceipt;
   lines.push(
     `run ${run.runId} `
-    + `(${run.live ? 'LIVE sovereign routes' : 'loopback stubs'}):`,
+    + `(${run.routesStubbed ? 'loopback stubs' : 'declared sovereign routes'}):`,
   );
   for (const entry of run.routeCertifications) {
     lines.push(
@@ -1197,9 +1616,24 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
         console.log(`policyHash: ${receipt.policyHash}`);
         console.log(`vocabularyHash: ${receipt.vocabularyHash}`);
         for (const run of receipt.runs) console.log(describeRun(run));
+        const transport = receipt.claimBoundary.sovereignRouteTransport;
         console.log(
-          'live sovereign route exercised: '
-          + `${receipt.claimBoundary.liveSovereignRouteExercised}`,
+          `sovereign-route transport (${LIVE_RUN_ID}): ${transport.verdict}`,
+        );
+        console.log(
+          `  observer: ${transport.observed.observerName}; calibration: `
+          + `${transport.observed.calibrationDetail}`,
+        );
+        console.log(
+          `  ${transport.observed.drillWindowRequestCount} request(s) on real `
+          + 'sockets in the measured window, '
+          + `${transport.observed.chatPathRequestsToDeclaredAuthority} of them `
+          + `POSTs to ${transport.declared.requiredRouteAuthority}`,
+        );
+        console.log(
+          '  claim scope and residuals: see '
+          + 'claimBoundary.sovereignRouteTransport (this is evidence against a '
+          + 'NON-forging in-process caller only)',
         );
         console.log(
           'live study run: not claimed (engineering tracer lane; live '

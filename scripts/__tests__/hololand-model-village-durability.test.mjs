@@ -46,10 +46,16 @@ import {
   CRASH_DRILL_SCENARIO_EXPECTATIONS,
   CRASH_DRILL_SCENARIOS,
   CRASH_DRILL_SCHEMA,
+  deriveRecoveredInFreshProcess,
+  isObservedPid,
   TORN_READ_MIN_PUBLICATIONS_WITNESSED,
   TORN_READ_PROBE_SCHEMA,
   TORN_READ_REQUIRED_ATTEMPTS,
   TORN_READ_VERDICTS,
+  VANISH_MIN_REPLACEMENTS_WITNESSED,
+  VANISH_PROBE_SCHEMA,
+  VANISH_REQUIRED_POLLS,
+  VANISH_VERDICTS,
 } from '../model-village-crash-drill.mjs';
 import {
   canonicalDigest,
@@ -113,6 +119,7 @@ test('receipt has the exact top-level schema shape', { timeout: SUITE_TIMEOUT_MS
     'receiptHash',
     'schema',
     'tornReadProbe',
+    'vanishProbe',
   ]);
 });
 
@@ -131,7 +138,26 @@ test('every crash scenario ran ONCE and matches its documented expectation', {
   for (const drill of RECEIPT.crashDrills) {
     assert.equal(drill.schema, CRASH_DRILL_SCHEMA);
     assert.equal(drill.recoveredInFreshProcess, true);
+    // The claim must be BACKED: three observed pids, all distinct in the ways
+    // that matter, and the boolean must equal what they derive.
+    assert.ok(isObservedPid(drill.workerPid), `${drill.scenario} workerPid observed`);
+    assert.ok(isObservedPid(drill.recoveryPid), `${drill.scenario} recoveryPid observed`);
+    assert.ok(isObservedPid(drill.harnessPid), `${drill.scenario} harnessPid observed`);
     assert.notEqual(drill.recoveryPid, drill.workerPid, 'recovery ran in a fresh process');
+    assert.notEqual(
+      drill.recoveryPid,
+      drill.harnessPid,
+      'recovery did not run inside the gate process',
+    );
+    assert.equal(
+      drill.recoveredInFreshProcess,
+      deriveRecoveredInFreshProcess({
+        workerPid: drill.workerPid,
+        recoveryPid: drill.recoveryPid,
+        harnessPid: drill.harnessPid,
+      }),
+      `${drill.scenario} fresh-process claim is derived from its pids`,
+    );
     assert.equal(
       drill.invariantHeld,
       CRASH_DRILL_SCENARIO_EXPECTATIONS[drill.scenario],
@@ -346,8 +372,12 @@ test('claim-boundary flags are pinned exactly (honest about what is NOT proven)'
   );
   assert.match(cb.notObserved.join(' '), /do NOT discriminate atomic replacement/);
   assert.match(cb.notObserved.join(' '), /torn-read probe is PROBABILISTIC/);
-  // The disappearing-state-file blind spot is disclosed, not silently carried.
-  assert.match(cb.notObserved.join(' '), /NO PROBE HERE SEES A DISAPPEARING STATE FILE/);
+  // The disappearing-state-file class is now MEASURED — and the part of it that
+  // is still a residual (single point of detection, collapse margin, false-red
+  // bound, custody store not covered) is disclosed rather than silently carried.
+  assert.match(cb.observed.join(' '), /CONTINUOUS PUBLICATION ACROSS REPLACEMENT/);
+  assert.match(cb.notObserved.join(' '), /single point of detection/);
+  assert.match(cb.notObserved.join(' '), /false-red/);
 });
 
 test('the atomic-replacement probe is a real gate row, not a decoration', {
@@ -374,6 +404,55 @@ test('the atomic-replacement probe is a real gate row, not a decoration', {
   assert.ok(probe.observed.seamAppendedBytes > 0);
   // allInvariantsHeld must be a conjunction that INCLUDES this probe.
   assert.equal(RECEIPT.allInvariantsHeld, true);
+});
+
+test('a vanish probe cannot be laundered into the durability receipt', {
+  timeout: SUITE_TIMEOUT_MS,
+}, () => {
+  const probe = RECEIPT.vanishProbe;
+
+  // (a) A probe that SAW the state file vanish but is labelled HELD, re-signed
+  //     at BOTH levels so only the re-derivation can catch it.
+  const observedVanish = {
+    ...probe,
+    hits: 3,
+    observed: {
+      ...probe.observed,
+      pollsVanished: 3,
+      pollsTotal: probe.observed.pollsTotal + 3,
+    },
+  };
+  delete observedVanish.receiptHash;
+  const signedVanish = { ...observedVanish, receiptHash: canonicalDigest(observedVanish) };
+  const laundered = { ...RECEIPT, vanishProbe: signedVanish };
+  delete laundered.receiptHash;
+  const verification = verifyDurabilityReceipt({
+    ...laundered,
+    receiptHash: canonicalDigest(laundered),
+  });
+  assert.equal(verification.ok, false, 'an observed disappearance cannot be labelled HELD');
+  assert.match(verification.failureReason, /vanish/i);
+
+  // (b) UNMEASURED fails closed.
+  const unmeasured = {
+    ...probe,
+    unmeasuredReasons: ['synthetic: the probe could not measure'],
+    verdict: VANISH_VERDICTS.UNMEASURED,
+  };
+  delete unmeasured.receiptHash;
+  const signedUnmeasured = { ...unmeasured, receiptHash: canonicalDigest(unmeasured) };
+  const launderedUnmeasured = { ...RECEIPT, vanishProbe: signedUnmeasured };
+  delete launderedUnmeasured.receiptHash;
+  const verificationUnmeasured = verifyDurabilityReceipt({
+    ...launderedUnmeasured,
+    receiptHash: canonicalDigest(launderedUnmeasured),
+  });
+  assert.equal(verificationUnmeasured.ok, false, 'UNMEASURED must fail closed');
+
+  // (c) Dropping the probe entirely is rejected by the closed-key assertion.
+  const stripped = { ...RECEIPT };
+  delete stripped.vanishProbe;
+  assert.equal(verifyDurabilityReceipt(stripped).ok, false, 'the probe cannot be removed');
 });
 
 test('the torn-read probe reports its IN-RUN detector control in the receipt', {
@@ -419,24 +498,109 @@ test('the gap register records what the torn-read probe does NOT cover', {
     'the scope correction must ride on the gap entry, not only in a comment',
   );
 
-  // G-VANISH: an OPEN gap, disclosed with its file:line, its executed evidence,
-  // and the feasibility data needed to close it — never silently carried.
+  // G-VANISH: NARROWED, not closed. The probe measures write-conditional
+  // windows; a rename-failure-conditional window is out of its reach and the
+  // entry must say so with the numbers that prove it, not with silence.
   const vanishGap = RECEIPT.gapsObserved.find((gap) => gap.ref === 'G-VANISH');
-  assert.ok(vanishGap, 'the disappearing-state-file blind spot is catalogued');
+  assert.ok(vanishGap, 'the disappearing-state-file class is still catalogued');
   assert.equal(vanishGap.executed, false);
-  assert.equal(vanishGap.severity, 'MEDIUM');
+  assert.equal(vanishGap.severity, 'LOW');
   assert.match(vanishGap.file, /model-village-phase0b-runtime\.mjs:\d+/);
-  assert.match(vanishGap.summary, /OPEN, NOT CLOSED/);
+  assert.match(vanishGap.summary, /NARROWED, NOT CLOSED/);
+  assert.doesNotMatch(
+    vanishGap.summary,
+    /CLOSED by the VANISH PROBE/,
+    'the unqualified class-closure claim was disproven and must not come back',
+  );
   assert.match(
     vanishGap.summary,
-    /invisible to BOTH probes/,
-    'it must say plainly that neither probe catches it',
+    /11\/11 VIOLATED/,
+    'the mutant detection must be carried as a measured number, not a claim',
   );
   assert.match(
-    vanishGap.minimalFix,
-    /false-positive/i,
-    'the reason it was recorded rather than shipped must be stated',
+    vanishGap.summary,
+    /6,306,137 polls/,
+    'the false-positive measurement that justified shipping it must ride along',
   );
+  assert.match(
+    vanishGap.summary,
+    /RESIDUAL/,
+    'what it still does not prove must be stated, not implied by silence',
+  );
+  // The surviving mutant must be named with its file:line and its measurements,
+  // so nobody can read this entry and believe the class is covered.
+  assert.match(vanishGap.summary, /rename-failure-conditional/i);
+  assert.match(vanishGap.summary, /model-village-phase0b-runtime\.mjs:1563/);
+  assert.match(vanishGap.summary, /55,286 polls/);
+  assert.match(vanishGap.summary, /108,575 polls/);
+  assert.match(vanishGap.summary, /FILE_SHARE_DELETE/);
+  // ...and the class it DOES now cover must be stated as covered.
+  assert.match(vanishGap.summary, /CONTENT-CONDITIONAL window[\s\S]*IS now closed/);
+
+  const scopeLine = RECEIPT.claimBoundary.notObserved.find(
+    (line) => line.includes('DISAPPEARING-STATE-FILE'),
+  );
+  assert.ok(scopeLine, 'the claim boundary still scopes the disappearing-state-file class');
+  assert.match(scopeLine, /only for windows that OPEN ON A WRITE/);
+  assert.match(scopeLine, /rename FAILS is NOT measured/);
+});
+
+test('the vanish probe is a real gate row, not a decoration', {
+  timeout: SUITE_TIMEOUT_MS,
+}, () => {
+  const probe = RECEIPT.vanishProbe;
+  assert.ok(probe, 'the receipt carries a vanish probe');
+  assert.equal(probe.schema, VANISH_PROBE_SCHEMA);
+  assert.equal(probe.verdict, VANISH_VERDICTS.HELD);
+  assert.equal(probe.hits, 0);
+  assert.deepEqual(probe.unmeasuredReasons, []);
+
+  // The detector's ability to SEE the hit class is controlled in-run, in the
+  // gate process, on every run — not assumed from a `node --test` A/B.
+  assert.deepEqual(probe.observed.detectorControl, {
+    absentClassifiedAsVanished: true,
+    identityDiscriminatesReplacement: true,
+    presentClassifiedAsPresent: true,
+  });
+
+  // Both fences met: enough polls for the power claim, and enough distinct file
+  // objects for those polls to be observations OF a live replacement loop.
+  assert.ok(probe.observed.pollsTotal >= VANISH_REQUIRED_POLLS);
+  assert.ok(probe.observed.replacementsWitnessed >= VANISH_MIN_REPLACEMENTS_WITNESSED);
+  assert.equal(probe.observed.readersEstablished, probe.observed.readerCount);
+  assert.equal(
+    probe.observed.pollsOther,
+    0,
+    'no poll returned a code the classifier could not name',
+  );
+
+  // The power block is DERIVED from the achieved n, and the false-positive
+  // measurement rides in the receipt so nobody has to trust a comment.
+  assert.ok(probe.power.detectionAtMeasuredRate >= 0.95);
+  assert.equal(probe.power.falsePositiveEventsMeasured, 0);
+  assert.ok(probe.power.falsePositivePollsMeasured > 1_000_000);
+  // The false-red bound is a function of the ACHIEVED n and n is deliberately
+  // uncapped, so a bare `< 0.05` here is a latent red on CORRECT code: with the
+  // pinned per-poll bound of 4.757236e-7 the run-level bound
+  // 1-(1-4.757236e-7)^n crosses 0.05 at n = ln(0.95)/ln(1-4.757236e-7) ~= 107,821
+  // polls, and 128,000-poll runs have already been observed on this host during
+  // calibration. The assertion is therefore made against the DESIGN point (the
+  // poll floor, which is what the shipping decision was made on) and the
+  // achieved-n value is asserted only to be a real, monotone number.
+  const floorBound = 1 - ((1 - probe.power.falsePositiveRatePerPollUpperBound95)
+    ** probe.power.requiredPolls);
+  assert.ok(
+    floorBound < 0.05,
+    `at the pinned poll floor the false-red bound is ${floorBound}, not < 0.05`,
+  );
+  assert.equal(typeof probe.power.falseRedProbabilityUpperBound95, 'number');
+  assert.ok(probe.power.falseRedProbabilityUpperBound95 >= floorBound);
+
+  // The seam is recorded so a reader can check it is the shipping bytes.
+  assert.match(probe.observed.seamShippedRuntimeSha256, /^[a-f0-9]{64}$/);
+  assert.ok(probe.observed.seamAppendedBytes > 0);
+  // allInvariantsHeld must be a conjunction that INCLUDES this probe.
+  assert.equal(RECEIPT.allInvariantsHeld, true);
 });
 
 test('the two rename-named crash drills state their own non-coverage', {

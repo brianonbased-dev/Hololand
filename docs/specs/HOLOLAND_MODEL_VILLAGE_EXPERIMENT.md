@@ -569,7 +569,7 @@ Phase 0B profile:
 
 | Gate | Phase 0B evidence | Remaining Phase 1 requirement |
 |---|---|---|
-| Seed and deterministic clock | One-tick `.hs` plan executes through Rust/WASM/uAAL. | Six-resident, multi-run scheduler and day controls. |
+| Injected clock and repeat-execution equality (renamed from "Seed and deterministic clock", see below) | One-tick `.hs` plan executes through Rust/WASM/uAAL. The twelve-run rehearsal additionally accepts an injected clock (`runRehearsal({ nowFn })`, threaded into the turn scheduler's previously unused `nowFn` seam) and is EXECUTED TWICE in two fresh processes under one frozen clock: every receipt leaf is byte-identical except an eleven-entry pinned variance allowlist. | Six-resident, multi-run scheduler and day controls. |
 | Action entrypoints | Engine-owned deterministic `.hsplus` subset executes two actions and the stop drill. | Full/native `.hsplus`, production policy surface, and native lifecycle dispatch. |
 | `.hs` execution | The bounded `main(): string` plan kernel executes and returns canonical JSON. | Full/native pipeline semantics beyond the plan subset. |
 | Ordered traces and snapshots | Eight schedule rows, six observations, two actions, and nine snapshots are sealed. | Live provider/model-turn traces and production retention. |
@@ -587,6 +587,96 @@ Phase 0B profile:
 The bridge is evidence for HoloScript-authored behavior executed through named
 bounded engines. It is not a substitute for the remaining native, live, and
 production closure gates.
+
+### Why the first row was renamed, and what it does NOT claim
+
+The row above used to be called "Seed and deterministic clock". Nothing in the
+lane had ever executed the conductor twice and compared the artifacts, and when
+that was finally measured (2026-07-27, two read-only executions) **53 of 271
+receipt leaves differed**, including `rehearsalRoot`, every `runManifestHash`,
+every `receiptChainRoot`, and every round terminal hash. The gate was named for
+a property no artifact tested. Two corrections were made, and one claim was
+deleted rather than weakened:
+
+- **There is no seed, and one was deliberately not added.** The load-bearing
+  randomness is blinding material that must be fresh: the alias-to-route
+  assignment (a CSPRNG draw, because a deterministic assignment is a function of
+  public source and therefore not sealed at all) and the 32-byte hiding salt
+  `sealAliasAssignment` generates for it. The name was corrected instead of
+  satisfied.
+
+  **CORRECTION (2026-07-28), measured rather than argued.** This bullet
+  previously said the rehearsal draws randomness "in exactly two places" and
+  that every other value is a pure function of frozen source. That is FALSE and
+  an adversarial re-run disproved it by execution: derandomizing both named
+  sources — replacing the alias draw with `routes[index % routes.length]` and
+  pinning the captured-response commitment salt to a constant — left **exactly
+  the same 49 differing leaves** at the smoke shape, and threading a
+  deterministic `nonceFn` into the scheduler as well left 49. At least seven
+  independent CSPRNG sources reach the receipt, including the alias vault's own
+  hiding salt, the turn scheduler's default per-turn `nonceFn`, the custody
+  store's IV / content key / `randomUUID()` store id, a per-run ed25519 key pair
+  in validator custody, and `randomUUID()` receipt ids in the alias vault. The
+  practical consequence is stated plainly: the variance-allowlist `reason`
+  strings that attribute a leaf to "THE root cause: a fresh CSPRNG alias draw"
+  are **causally wrong** — the varying leaves are over-determined by several
+  sources at once, so the dead-entry rule can never shrink the list on the
+  grounds those reasons give. It is also not established that a seed would have
+  had nothing to consume: `createTurnScheduler`'s `nonceFn` is an already-built,
+  unused seam, the exact twin of the `nowFn` seam that IS threaded.
+- **The run roots are NOT reproducible, by design.** `runManifestHash` pins the
+  alias commitment, and the receipt chain is anchored on `runManifestHash`, so
+  the terminal hashes, `receiptChainRoot`, `blockChainRoots`, `rehearsalRoot`
+  and `receiptHash` all vary between executions and always will. Any future
+  claim that two rehearsals produce the same root is false.
+
+What IS certified: given the same source, the same shape, and the same injected
+clock, two independent executions in two fresh processes produce byte-identical
+receipts everywhere outside a short pinned list — decisions, adjudication
+counts, seat bindings, turn outcomes, chain-verification flags, custody read
+counts, the provider-call counters, `generatedAt`, and the aggregate. The pinned
+list is enumerated in `REHEARSAL_VARIANCE_ALLOWLIST`
+(`scripts/model-village-run-conductor.mjs`) and it is not an escape hatch: an
+entry that matches nothing fails the gate, and so does an entry over a field
+that did not actually vary, so the list cannot be padded to absorb a new source
+of nondeterminism. Two precisions, because the sentence above is stronger than
+the code:
+
+- Those two rules are enforced per PATTERN, not per PATH, so one varying member
+  licenses every member of a `.*` pattern.
+- **The comparison has a power limit and it is not 1.** The probe runs exactly
+  ONE pair of executions, seconds apart, under one frozen clock. Detection is 1
+  only *conditional on the field differing between those two executions*: for a
+  nondeterministic field with k plausible values a single pair detects with
+  probability 1 - 1/k, and for a coarse real-clock leak it is worse still. That
+  is not hypothetical — the hour-floored `Date.now()` rewrites of
+  `rehearsalWallClockMs` and `generatedAt` pass this comparison with probability
+  ~99.86% (they differ only if the pair straddles an hour boundary). Those two
+  specific leaks are now caught by the containment law below rather than by leaf
+  equality, but the general limit stands for any future low-cardinality
+  nondeterministic field, and no n was sized against it.
+
+**The clock seam is separately CONTAINED, because leaf equality could not see
+it.** Comparing two receipts can only detect a clock leak that reaches a
+compared leaf, and four of the six sites threaded onto `nowFn` reach the receipt
+only through hashes that are allowlisted for an unrelated reason. That was
+measured, not supposed: deleting `nowFn` from the `createTurnScheduler` options
+— the deepest of the six — left the repeat-execution probe **exit 0** while
+every round barrier receipt carried real millisecond wall-clock stamps again,
+and two further sites (`rehearsalWallClockMs`, `generatedAt`) survived being
+rewired to an hour-floored `Date.now()` because an hour-floored real clock is
+equal across two executions five seconds apart. `runRehearsal` therefore records
+every value it derives from the clock and, when it measures that the injected
+clock is frozen (`nowFn()` has not advanced across the whole ~37s rehearsal,
+which the real clock cannot do), REFUSES TO EMIT unless every one of them came
+from that clock — including the turn scheduler's own `barrierReceipt.closedAt`,
+which is the one sample a mutation to the options object can move. The sample
+SET is fenced as well: a clock-derived value that stops registering a sample is
+as loud as one that registers a wrong value, because otherwise the
+`Math.max(0, …)` clamp on `rehearsalWallClockMs` silently absorbed the leak.
+This law is armed only under an injected clock, so it is inert on the real-clock
+acceptance path — meaning what is certified is determinism UNDER an injected
+clock, and the acceptance artifact itself still runs on `Date.now()`.
 
 ## Phase gates
 
