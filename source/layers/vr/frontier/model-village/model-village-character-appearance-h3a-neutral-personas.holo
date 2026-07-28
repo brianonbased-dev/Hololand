@@ -1,0 +1,319 @@
+// Stormglass Commons Character Appearance H3A.
+//
+// A read-only visual target for neutral civic faces, hands, eyes, skin, hair
+// silhouettes, and expression deltas. This is deliberately a shadow consumer:
+// the current upstream HoloScript host still reports @hair(style) and @morph
+// as unwired, so this source cannot promote full H3 or enter live research.
+
+composition "Stormglass Character Appearance H3A Neutral Personas" {
+  metadata {
+    title: "Stormglass Character Appearance H3A - Neutral Persona Shadow Target"
+    version: "0.1.0"
+    date: "2026-07-27"
+    milestone: "MV_CHARACTER_APPEARANCE_H3A_SHADOW_TARGET"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3a-neutral-personas.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3a-neutral-personas-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3a-neutral-personas-seed.hs"
+    appearancePlan: "docs/specs/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_PLAN.md"
+    appearancePlanSha256: "ac3535ce75aac5b45feef6ea11f9e9e09e3e001fc23defb5119e71ad1fa930c8"
+    inheritedH2Source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h2-family-mantles.holo"
+    inheritedH2SourceSha256: "9ac3fc87acfecc1555e5de1a5c0445f1deab2f7ff9a141a76d25c3dbd2cfd5b2"
+    inheritedH2Manifest: "source/layers/vr/frontier/model-village/model-village-character-appearance-h2-family-mantles-manifest.holo"
+    inheritedH2ManifestSha256: "49eeaf4dfd16f80a4e35414c5aa29c2c294f34ff2aa317b25d6f871f21992d8b"
+    inheritedH2Report: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H2_2026-07-27.md"
+    inheritedH2ReportSha256: "0594f003d0730677babf5984ae7f2c3e90e850e18e8cedfa9509e14e9b10cc27"
+    upstreamHoloScriptCommit: "9153ab98a87decffc38876070ca8bfc04b179f01"
+    upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamCharacterHostSha256: "f451aba16f6af6fec204b3e8d728b996d53274ac5e3f393399df841734e85131"
+    upstreamHairBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
+    upstreamHairBuilderSha256: "04148fe420429ae5d3994ef7c91b163ab6be8f83ec204f1051d19e77aa6acd2b"
+    projectionRole: "read_only_neutral_persona_shadow_target"
+    artStyle: "hearthlight_biorealism"
+    characterStyle: "stormglass_craftfolk_soft_faceted_civic"
+  }
+
+  environment {
+    mode: "neutral_persona_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#06101D"
+    ambient_light: 0.18
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3A"
+    fullH3PromotionStatus: "blocked_upstream_native_hair_style_and_morph"
+    presentationProfile: "village_story_unblinded_shadow_only"
+    productionProfilePromotionClaimed: false
+    publicFirstReleaseReplacementClaimed: false
+    civicPersonaCount: 3
+    familyIdentityVisible: false
+    adapterFamilyBinding: "absent"
+    sharedMotionQualityInvariant: true
+    sharedCapabilityInvariant: true
+    researchSeatBinding: "absent"
+    liveResearchJoinAllowed: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    faceTrackingEnabledByDefault: false
+    eyeTrackingEnabledByDefault: false
+    biometricPersistenceAllowed: false
+    sourceOwnedHairGeometryBridgePreview: true
+    nativeHairStyleChannelClaimed: false
+    sourceOwnedExpressionDeltaBridgePreview: true
+    nativeMorphTargetChannelClaimed: false
+    nativeSubsurfaceScatteringClaimedByBrowser: false
+    productionFaceCompleteClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    upstreamNativeAdmission: {
+      holoScriptCommit: "9153ab98a87decffc38876070ca8bfc04b179f01"
+      hairColorOperative: true
+      defaultProceduralHairOperative: true
+      authoredHairStyleGeometryOperative: false
+      authoredMorphFacsOperative: false
+      characterHostHairStyleReport: "has_no_geometry_channel_yet"
+      characterHostMorphReport: "no_facs_morph_target_channel_yet"
+      fullH3Admitted: false
+    }
+
+    atlas: {
+      algorithm: "stormglass_neutral_dermal_atlas_v1"
+      seed: 271828
+      columns: 3
+      rows: 1
+      albedoSize: [2048, 2048]
+      normalSize: [2048, 2048]
+      surfaceMaskSize: [1024, 1024]
+      externalUris: []
+    }
+
+    sharedSurface: {
+      faceGeometry: "soft_faceted_anatomical_ellipsoid"
+      handGeometry: "soft_faceted_capsule"
+      scleraGeometry: "refractive_sphere"
+      irisGeometry: "recessed_disc"
+      corneaIor: 1.376
+      skinRoughness: 0.52
+      skinClearcoat: 0.035
+      browserMaterialModel: "physical_wrap_fill_approximation"
+      nativeSkinSssTarget: "skin_sss"
+      expressionPreviewMode: "source_delta_bridge_only"
+    }
+
+    lod: {
+      levels: [0, 1, 2]
+      distancesMeters: [0, 8, 20]
+      faceRadialSegments: [28, 18, 10]
+      faceHeightSegments: [20, 12, 8]
+      hairRadialSegments: [18, 12, 6]
+      maximumPersonaTriangles: [12000, 5000, 1800]
+      monotonicTopologyReductionRequired: true
+      sourceAuthoredVisibilityRequired: true
+      secondLodAuthorityAllowed: false
+    }
+
+    benchmark: {
+      profileId: "neutral_persona_shadow_desktop_h3a"
+      renderWidth: 1800
+      renderHeight: 1000
+      devicePixelRatio: 1
+      warmupFrames: 300
+      measuredFrames: 600
+      simultaneousPersonaCount: 3
+      maximumRafP95Milliseconds: 25
+      maximumRenderSubmitP95Milliseconds: 8
+      maximumDroppedFrameRatio: 0.02
+      hardwareRendererRequired: true
+      d3d11BackendRequired: true
+    }
+
+    resetEvents: [
+      "camera_cut",
+      "lod_change",
+      "expression_change",
+      "persona_change",
+      "profile_change"
+    ]
+
+    goldenTargets: [
+      { id: "h3a_persona_close", output: "docs/assets/model-village/model-village-character-appearance-h3a-neutral-personas-2026-07-27.png", width: 2400, height: 900 },
+      { id: "h3a_expression_grid", output: "docs/assets/model-village/model-village-character-appearance-h3a-expression-preview-2026-07-27.png", width: 2400, height: 900 },
+      { id: "h3a_lod_grid", output: "docs/assets/model-village/model-village-character-appearance-h3a-lods-2026-07-27.png", width: 2400, height: 600 },
+      { id: "h3a_accessibility", output: "docs/assets/model-village/model-village-character-appearance-h3a-accessibility-2026-07-27.png", width: 2400, height: 600 }
+    ]
+  }
+
+  object "HearthKeeperPersona" {
+    type: "neutral_civic_persona_target"
+    personaId: "hearth_keeper"
+    civicRole: "keeper"
+    displayLabel: "Hearth Keeper"
+    adapterFamilyBinding: "absent"
+    silhouetteProfile: "cropped_coil_crown"
+    dermalAtlasCell: [0, 0]
+    skinBaseColor: "#B9785F"
+    skinUndertoneColor: "#D99B77"
+    skinScatterColor: "#B85F4C"
+    irisColor: "#6B8C82"
+    hairColor: "#2D201C"
+    hairStyleId: "cropped_coils"
+    faceScale: [0.184, 0.198, 0.166]
+    jawScale: [0.142, 0.076, 0.141]
+    noseScale: [0.024, 0.048, 0.026]
+    eyeSpacing: 0.088
+    hairParts: [
+      { id: "keeper_cap", geometryProfile: "hair_cap", position: [0, 1.684, -0.010], rotationDegrees: [0, 0, 0], dimensions: [0.190, 0.142, 0.176], visibleThroughLod: 2 },
+      { id: "keeper_coil_l", geometryProfile: "hair_coil", position: [-0.098, 1.742, 0.112], rotationDegrees: [0, 0, 8], dimensions: [0.034, 0.034, 0.026], visibleThroughLod: 1 },
+      { id: "keeper_coil_c", geometryProfile: "hair_coil", position: [0, 1.764, 0.124], rotationDegrees: [0, 0, 0], dimensions: [0.037, 0.037, 0.028], visibleThroughLod: 0 },
+      { id: "keeper_coil_r", geometryProfile: "hair_coil", position: [0.098, 1.742, 0.112], rotationDegrees: [0, 0, -8], dimensions: [0.034, 0.034, 0.026], visibleThroughLod: 1 }
+    ]
+  }
+
+  object "PathTenderPersona" {
+    type: "neutral_civic_persona_target"
+    personaId: "path_tender"
+    civicRole: "wayfinder"
+    displayLabel: "Path Tender"
+    adapterFamilyBinding: "absent"
+    silhouetteProfile: "swept_ridge"
+    dermalAtlasCell: [1, 0]
+    skinBaseColor: "#87543F"
+    skinUndertoneColor: "#A66C4F"
+    skinScatterColor: "#874735"
+    irisColor: "#A58B52"
+    hairColor: "#161A20"
+    hairStyleId: "swept_ridge"
+    faceScale: [0.178, 0.205, 0.162]
+    jawScale: [0.136, 0.082, 0.138]
+    noseScale: [0.023, 0.052, 0.027]
+    eyeSpacing: 0.086
+    hairParts: [
+      { id: "tender_cap", geometryProfile: "hair_cap", position: [0, 1.690, -0.012], rotationDegrees: [0, 0, -4], dimensions: [0.184, 0.148, 0.172], visibleThroughLod: 2 },
+      { id: "tender_sweep_a", geometryProfile: "hair_swept_lock", position: [-0.030, 1.796, 0.108], rotationDegrees: [2, -8, -12], dimensions: [0.116, 0.032, 0.026], visibleThroughLod: 1 },
+      { id: "tender_sweep_b", geometryProfile: "hair_swept_lock", position: [0.052, 1.778, 0.120], rotationDegrees: [2, 6, -8], dimensions: [0.108, 0.030, 0.025], visibleThroughLod: 0 },
+      { id: "tender_side_lock", geometryProfile: "hair_swept_lock", position: [0.142, 1.684, 0.024], rotationDegrees: [0, 12, 74], dimensions: [0.102, 0.025, 0.023], visibleThroughLod: 1 }
+    ]
+  }
+
+  object "RecordStewardPersona" {
+    type: "neutral_civic_persona_target"
+    personaId: "record_steward"
+    civicRole: "archivist"
+    displayLabel: "Record Steward"
+    adapterFamilyBinding: "absent"
+    silhouetteProfile: "braided_crown"
+    dermalAtlasCell: [2, 0]
+    skinBaseColor: "#D0A086"
+    skinUndertoneColor: "#E4B89A"
+    skinScatterColor: "#C47E6A"
+    irisColor: "#526D91"
+    hairColor: "#5A3828"
+    hairStyleId: "braided_crown"
+    faceScale: [0.188, 0.200, 0.170]
+    jawScale: [0.151, 0.078, 0.146]
+    noseScale: [0.025, 0.047, 0.027]
+    eyeSpacing: 0.090
+    hairParts: [
+      { id: "steward_cap", geometryProfile: "hair_cap", position: [0, 1.686, -0.012], rotationDegrees: [0, 0, 0], dimensions: [0.194, 0.144, 0.180], visibleThroughLod: 2 },
+      { id: "steward_crown", geometryProfile: "hair_braid_crown", position: [0, 1.746, 0.004], rotationDegrees: [90, 0, 0], dimensions: [0.168, 0.014, 0.148], visibleThroughLod: 1 },
+      { id: "steward_braid_l", geometryProfile: "hair_braid", position: [-0.154, 1.664, 0.018], rotationDegrees: [0, 0, 5], dimensions: [0.020, 0.168, 0.020], visibleThroughLod: 0 },
+      { id: "steward_braid_r", geometryProfile: "hair_braid", position: [0.154, 1.664, 0.018], rotationDegrees: [0, 0, -5], dimensions: [0.020, 0.168, 0.020], visibleThroughLod: 0 }
+    ]
+  }
+
+  object "ExpressionNeutral" {
+    type: "neutral_persona_expression_target"
+    expressionId: "neutral"
+    nativeMorphTargetClaimed: false
+    eyelidScale: 1
+    browRotationDegrees: 0
+    mouthWidthScale: 1
+    mouthHeightScale: 1
+    mouthCornerLift: 0
+    jawDrop: 0
+  }
+
+  object "ExpressionSoftSmile" {
+    type: "neutral_persona_expression_target"
+    expressionId: "soft_smile"
+    nativeMorphTargetClaimed: false
+    eyelidScale: 0.88
+    browRotationDegrees: 2
+    mouthWidthScale: 1.18
+    mouthHeightScale: 0.78
+    mouthCornerLift: 0.012
+    jawDrop: 0
+  }
+
+  object "ExpressionBlink" {
+    type: "neutral_persona_expression_target"
+    expressionId: "blink"
+    nativeMorphTargetClaimed: false
+    eyelidScale: 0.08
+    browRotationDegrees: -1
+    mouthWidthScale: 1
+    mouthHeightScale: 1
+    mouthCornerLift: 0
+    jawDrop: 0
+  }
+
+  object "VisemeAA" {
+    type: "neutral_persona_expression_target"
+    expressionId: "viseme_aa"
+    nativeMorphTargetClaimed: false
+    eyelidScale: 0.96
+    browRotationDegrees: 1
+    mouthWidthScale: 0.92
+    mouthHeightScale: 1.75
+    mouthCornerLift: 0
+    jawDrop: 0.026
+  }
+
+  object "VisemeEE" {
+    type: "neutral_persona_expression_target"
+    expressionId: "viseme_ee"
+    nativeMorphTargetClaimed: false
+    eyelidScale: 0.94
+    browRotationDegrees: 1
+    mouthWidthScale: 1.42
+    mouthHeightScale: 0.55
+    mouthCornerLift: 0.004
+    jawDrop: 0.008
+  }
+
+  object "VisemeOH" {
+    type: "neutral_persona_expression_target"
+    expressionId: "viseme_oh"
+    nativeMorphTargetClaimed: false
+    eyelidScale: 1
+    browRotationDegrees: 3
+    mouthWidthScale: 0.62
+    mouthHeightScale: 1.50
+    mouthCornerLift: 0
+    jawDrop: 0.020
+  }
+
+  object "H3ANativeAdmissionBoundary" {
+    type: "character_appearance_claim_boundary"
+    visible: false
+    h3aShadowTargetClaimed: true
+    fullH3Claimed: false
+    nativeHairStyleChannelClaimed: false
+    nativeMorphTargetChannelClaimed: false
+    adapterFamilyBinding: "absent"
+    liveResearchFamilyIdentityVisible: false
+    researchSeatBinding: "absent"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    biometricPersistenceAllowed: false
+    productionFaceCompleteClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+  }
+}

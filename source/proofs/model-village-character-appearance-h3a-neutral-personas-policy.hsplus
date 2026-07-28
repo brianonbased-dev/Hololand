@@ -1,0 +1,155 @@
+// Typed admission policy for Character Appearance H3A neutral persona targets.
+
+composition CharacterAppearanceH3ANeutralPersonaPolicy {
+  metadata {
+    version: "0.1.0"
+    milestone: "MV_CHARACTER_APPEARANCE_H3A_SHADOW_TARGET"
+    source: "source/proofs/model-village-character-appearance-h3a-neutral-personas-policy.hsplus"
+    nativeActionExecutionClaimed: false
+  }
+
+  template NeutralCivicPersonaTarget {
+    type: "neutral_civic_persona_target"
+    requiredFields: [
+      "personaId",
+      "civicRole",
+      "displayLabel",
+      "adapterFamilyBinding",
+      "silhouetteProfile",
+      "dermalAtlasCell",
+      "skinBaseColor",
+      "skinUndertoneColor",
+      "skinScatterColor",
+      "irisColor",
+      "hairColor",
+      "hairStyleId",
+      "faceScale",
+      "jawScale",
+      "noseScale",
+      "eyeSpacing",
+      "hairParts"
+    ]
+    allowedPersonaIds: ["hearth_keeper", "path_tender", "record_steward"]
+    adapterFamilyBinding: "absent"
+    familyCapabilityEncodingAllowed: false
+    familyMotionEncodingAllowed: false
+    researchSeatEncodingAllowed: false
+  }
+
+  template H3AHairBridgeTarget {
+    type: "h3a_hair_bridge_target"
+    sourceOwnedGeometryRequired: true
+    allowedGeometryProfiles: [
+      "hair_cap",
+      "hair_coil",
+      "hair_swept_lock",
+      "hair_braid_crown",
+      "hair_braid"
+    ]
+    sharedHeadSocket: "head"
+    bridgePreviewAllowed: true
+    nativeHairStyleChannelClaimed: false
+    nativePromotionAllowed: false
+  }
+
+  template H3AExpressionBridgeTarget {
+    type: "neutral_persona_expression_target"
+    allowedExpressions: [
+      "neutral",
+      "soft_smile",
+      "blink",
+      "viseme_aa",
+      "viseme_ee",
+      "viseme_oh"
+    ]
+    sourceOwnedDeltasRequired: true
+    bridgePreviewAllowed: true
+    nativeMorphTargetChannelClaimed: false
+    nativePromotionAllowed: false
+  }
+
+  template DeterministicNeutralDermalAtlas {
+    type: "deterministic_neutral_dermal_atlas"
+    algorithm: "stormglass_neutral_dermal_atlas_v1"
+    seed: 271828
+    columns: 3
+    rows: 1
+    albedoSize: [2048, 2048]
+    normalSize: [2048, 2048]
+    surfaceMaskSize: [1024, 1024]
+    externalUrisAllowed: false
+    repeatedGenerationByteIdentityRequired: true
+  }
+
+  template H3ANativeAdmissionProbe {
+    type: "h3a_native_admission_probe"
+    upstreamCharacterHostRequired: true
+    upstreamHairBuilderRequired: true
+    authoredHairStyleGeometryOperativeRequiredForFullH3: true
+    authoredMorphFacsOperativeRequiredForFullH3: true
+    currentAuthoredHairStyleGeometryOperative: false
+    currentAuthoredMorphFacsOperative: false
+    fullH3AdmissionExpected: false
+    failClosed: true
+  }
+
+  template NeutralPersonaPrivacyGate {
+    type: "neutral_persona_privacy_gate"
+    faceTrackingEnabledByDefault: false
+    eyeTrackingEnabledByDefault: false
+    biometricPersistenceAllowed: false
+    liveResearchJoinAllowed: false
+    researchSeatBindingAllowed: false
+    visitorTrackingRequiresSeparateConsentProfile: true
+    assignmentInvarianceReproofRequiredBeforeResearch: true
+  }
+
+  template H3ALodAdmission {
+    type: "h3a_lod_admission"
+    levels: [0, 1, 2]
+    distancesMeters: [0, 8, 20]
+    faceRadialSegments: [28, 18, 10]
+    faceHeightSegments: [20, 12, 8]
+    hairRadialSegments: [18, 12, 6]
+    maximumPersonaTriangles: [12000, 5000, 1800]
+    monotonicTopologyReductionRequired: true
+    sourceAuthoredVisibilityRequired: true
+    secondLodAuthorityAllowed: false
+  }
+
+  template H3APromotionGate {
+    type: "h3a_promotion_gate"
+    promotionTarget: "read_only_neutral_persona_shadow_target"
+    fullH3PromotionTarget: "blocked"
+    requiredChecks: [
+      "three_format_parse",
+      "three_exact_neutral_personas",
+      "adapter_family_binding_absent",
+      "upstream_hash_binding",
+      "native_gap_fail_closed",
+      "repeated_atlas_byte_identity",
+      "source_owned_hair_preview",
+      "source_owned_expression_preview",
+      "lod_budget",
+      "offline_load",
+      "hardware_renderer",
+      "performance_budget",
+      "visual_inspection"
+    ]
+    liveResearchAdmissionAllowed: false
+    publicFirstReleaseReplacementAllowed: false
+    fullH3ClaimAllowed: false
+  }
+
+  template H3ALaneFirewall {
+    type: "h3a_lane_firewall"
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    walletIdentityMutationAllowed: false
+    productionFaceCompleteClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+  }
+}
