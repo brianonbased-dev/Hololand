@@ -522,6 +522,23 @@ test('the gap register records what the torn-read probe does NOT cover', {
     /6,306,137 polls/,
     'the false-positive measurement that justified shipping it must ride along',
   );
+
+  // G-VANISH residual (6): a dedicated non-Node-lock test closed the
+  // "cannot be driven at all" complaint (2026-07-28), but that is a
+  // detection-capability proof, not live-gate coverage or a production fix.
+  // Pin the disclaimer so a future edit cannot quietly drop it while keeping
+  // the "a real actor closes it" framing -- the same overclaim shape the
+  // CLOSED-by-the-VANISH-PROBE guard above already exists to prevent.
+  assert.match(
+    vanishGap.summary,
+    /still does not spin up a non-Node locker on every run/,
+    'residual (6) must keep saying the live gate stays blind to this pattern, not only the dedicated test',
+  );
+  assert.match(
+    vanishGap.summary,
+    /cannot distinguish "never created" from "just vanished mid-replace"/,
+    'the genesis-reinit hazard that closing residual (6) surfaced must stay recorded, not dropped',
+  );
   assert.match(
     vanishGap.summary,
     /RESIDUAL/,

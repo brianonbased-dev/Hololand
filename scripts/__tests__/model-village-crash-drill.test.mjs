@@ -8,23 +8,28 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
+  renameSync,
   rmSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { after, test } from 'node:test';
+import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
   canonicalDigest,
+  initializePersistentStore,
 } from '../model-village-phase0b-runtime.mjs';
 import {
   ATOMIC_REPLACEMENT_MIN_REPLACEMENTS,
   ATOMIC_REPLACEMENT_PROBE_SCHEMA,
   ATOMIC_REPLACEMENT_VERDICTS,
+  buildValidatorFixture,
   CRASH_DRILL_ENGINE,
   CRASH_DRILL_SCENARIO_EXPECTATIONS,
   CRASH_DRILL_SCENARIOS,
@@ -33,6 +38,7 @@ import {
   isObservedPid,
   ModelVillageCrashDrillError,
   parseSelfReportedPid,
+  resolveLocalModuleClosure,
   runAtomicReplacementProbe,
   runCrashDrill,
   runNegativeControl,
@@ -414,12 +420,25 @@ const PROBE_TIMEOUT_MS = 120000;
 const RUNTIME_FILE = 'model-village-phase0b-runtime.mjs';
 const SCRIPTS_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-/** The three modules a standalone crash-drill tree needs. */
-const MUTANT_TREE_FILES = Object.freeze([
-  'model-village-canonical-lifecycle.mjs',
-  'model-village-crash-drill.mjs',
-  RUNTIME_FILE,
-]);
+/**
+ * The modules a standalone crash-drill tree needs — DERIVED from the two entry
+ * files' own relative imports rather than hand-listed. The hand-listed version
+ * turned "someone added an import to the runtime" into a wall of
+ * ERR_MODULE_NOT_FOUND in drills that have nothing to do with imports.
+ *
+ * The walk itself is the SHIPPING one, imported from the drill, not a second
+ * copy of the same regex living here: two copies is how one of them silently
+ * stops matching what the other matches.
+ *
+ * Fails LOUD by construction: a file that cannot be read is simply not copied,
+ * and the drill that needs it dies at the import instead of quietly passing.
+ */
+const MUTANT_TREE_FILES = Object.freeze(
+  resolveLocalModuleClosure(SCRIPTS_DIR, [
+    'model-village-crash-drill.mjs',
+    RUNTIME_FILE,
+  ]),
+);
 
 const WRITE_ATOMIC_SIGNATURE =
   "function writeAtomicState(storeDir, state, faultInjection = 'none') {";
@@ -567,6 +586,177 @@ const UNLINK_BEFORE_RENAME_ATOMIC_STATE = [
   '}',
   '',
 ].join('\n');
+
+/**
+ * G-VANISH RESIDUAL 6: the CONDITIONAL form of the same win32 workaround,
+ * gated on the rename genuinely THROWING rather than firing unconditionally
+ * on every write. This is the pattern the gap register calls "a strictly more
+ * likely real-world form of this defect": `try { rename } catch { if
+ * (existsSync(target)) unlink(target); rename }`. It is invisible to every
+ * Node-only probe in this file (torn-read, atomic-replacement, vanish)
+ * because none of them can make `renameSync` itself throw -- Node always
+ * opens with FILE_SHARE_DELETE, so a Node reader/prober can never deny the
+ * writer delete access. Exercising this mutant for real needs a NON-Node
+ * actor holding the target open without FILE_SHARE_DELETE; see
+ * `spawnNonNodeExclusiveLocker` and the "REAL" test below.
+ *
+ * `renameFailureCatchState` is a sentinel bumped ONLY from inside the catch,
+ * with the real errno recorded, so a passing test that never actually
+ * triggered the first rename failure cannot be mistaken for a real repro.
+ */
+const RENAME_FAILURE_CONDITIONAL_UNLINK_ATOMIC_STATE = [
+  WRITE_ATOMIC_SIGNATURE,
+  '  const target = statePath(storeDir);',
+  '  const temporary = path.join(',
+  '    storeDir,',
+  '    `.state-${process.pid}-${randomUUID()}.tmp`,',
+  '  );',
+  "  const descriptor = openSync(temporary, 'wx');",
+  '  let renamed = false;',
+  '  try {',
+  "    writeFileSync(descriptor, `${canonicalJson(state)}\\n`, 'utf8');",
+  '    fsyncSync(descriptor);',
+  '    closeSync(descriptor);',
+  "    if (faultInjection === 'before_rename') {",
+  "      throw new Error('injected fault before atomic rename');",
+  '    }',
+  '    try {',
+  '      renameSync(temporary, target);',
+  '    } catch (renameError) {',
+  '      renameFailureCatchState.hits += 1;',
+  '      renameFailureCatchState.errnoSamples.push(',
+  '        renameError && renameError.code ? renameError.code : String(renameError),',
+  '      );',
+  '      if (existsSync(target)) unlinkSync(target);',
+  '      renameSync(temporary, target);',
+  '    }',
+  '    renamed = true;',
+  "    if (faultInjection === 'after_rename') {",
+  "      throw new Error('injected fault after atomic rename');",
+  '    }',
+  '  } catch (error) {',
+  '    try {',
+  '      closeSync(descriptor);',
+  '    } catch {',
+  '      // Descriptor was already closed.',
+  '    }',
+  '    if (!renamed && existsSync(temporary)) unlinkSync(temporary);',
+  '    throw error;',
+  '  }',
+  '}',
+  'export const renameFailureCatchState = { errnoSamples: [], hits: 0 };',
+  'export { statePath, writeAtomicState };',
+  '',
+].join('\n');
+
+function buildRenameFailureConditionalUnlinkMutantTree() {
+  return buildWriteAtomicMutantTree(
+    'rename-failure-conditional-unlink',
+    RENAME_FAILURE_CONDITIONAL_UNLINK_ATOMIC_STATE,
+    (mutated) => {
+      assert.ok(
+        /catch \(renameError\) \{[\s\S]*?if \(existsSync\(target\)\) unlinkSync\(target\);\s*\n\s*renameSync/
+          .test(mutated),
+        'the conditional unlink sits inside the rename-failure catch, immediately before the retry',
+      );
+      assert.ok(
+        mutated.includes('export { statePath, writeAtomicState };'),
+        'the test-only seam is exported',
+      );
+    },
+  );
+}
+
+/**
+ * Spawns a REAL non-Node process (PowerShell / .NET) that opens `targetPath`
+ * with FileAccess.Read + FileShare.Read only -- i.e. it does NOT request
+ * FILE_SHARE_DELETE, the one share mode Node's own fs calls always request.
+ * This is the only way to make a Node `renameSync()` targeting that path
+ * genuinely throw on win32 (verified standalone: EPERM on rename, EBUSY on
+ * unlink, both real OS-level denials, not simulated).
+ *
+ * Resolves once the lock is confirmed established (a ready-marker file
+ * exists on disk, written by the PowerShell process itself). Returns
+ * `release()` (signals the PowerShell process to close its handle and exit,
+ * and waits for it) and `waitEstablished()`.
+ */
+function spawnNonNodeExclusiveLocker(targetPath) {
+  const readyMarker = `${targetPath}.locker-ready`;
+  const releaseMarker = `${targetPath}.locker-release`;
+  for (const marker of [readyMarker, releaseMarker]) {
+    try {
+      if (existsSync(marker)) unlinkSync(marker);
+    } catch {
+      /* best-effort */
+    }
+  }
+  const escapeForPs = (value) => value.replace(/'/g, "''");
+  const psScript = [
+    `$fs = [System.IO.File]::Open('${escapeForPs(targetPath)}', `
+      + '[System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, '
+      + '[System.IO.FileShare]::Read)',
+    `New-Item -Path '${escapeForPs(readyMarker)}' -ItemType File -Force | Out-Null`,
+    `while (-not (Test-Path '${escapeForPs(releaseMarker)}')) { Start-Sleep -Milliseconds 20 }`,
+    '$fs.Close()',
+  ].join('\n');
+  const child = spawn(
+    'powershell.exe',
+    ['-NoProfile', '-NonInteractive', '-Command', psScript],
+    { stdio: 'ignore', windowsHide: true },
+  );
+  const exited = new Promise((resolve) => {
+    child.on('exit', (code) => resolve(code));
+    child.on('error', (error) => resolve(`spawn-error:${error.code || error.message}`));
+  });
+  return {
+    exited,
+    async release() {
+      try {
+        writeFileSync(releaseMarker, 'release', 'utf8');
+      } catch {
+        /* best-effort */
+      }
+      await exited;
+      for (const marker of [readyMarker, releaseMarker]) {
+        try {
+          if (existsSync(marker)) unlinkSync(marker);
+        } catch {
+          /* best-effort */
+        }
+      }
+    },
+    async waitEstablished(deadlineMs = 10000) {
+      const deadline = Date.now() + deadlineMs;
+      while (!existsSync(readyMarker)) {
+        if (Date.now() > deadline) {
+          throw new Error(
+            'powershell locker did not establish its exclusive lock before the deadline',
+          );
+        }
+        await delay(15);
+      }
+    },
+  };
+}
+
+test(
+  'CONTROL: renameSync over an EXISTING, UNLOCKED target succeeds on this host '
+    + '(the workaround is not needed merely because the target exists)',
+  () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'mv-b5-residual6-baseline-'));
+    try {
+      const target = path.join(dir, 'state.json');
+      const temp = path.join(dir, 'state.tmp');
+      writeFileSync(target, 'original\n', 'utf8');
+      writeFileSync(temp, 'replacement\n', 'utf8');
+      // Plain node:fs semantics -- no mutant needed to establish this control.
+      renameSync(temp, target);
+      assert.equal(readFileSync(target, 'utf8'), 'replacement\n');
+    } finally {
+      rmSync(dir, { force: true, recursive: true });
+    }
+  },
+);
 
 test('torn-read probe: the REAL writeAtomicState never lets a reader see a partial state', {
   timeout: PROBE_TIMEOUT_MS,
@@ -1073,6 +1263,204 @@ test('G-VANISH residual: the OTHER two probes are still blind to unlink-before-r
     rmSync(dir, { force: true, recursive: true });
   }
 });
+
+// ---------------------------------------------------------------------------
+// G-VANISH RESIDUAL 6: "a rename-failure-conditional window is out of reach
+// of this probe" -- the CONDITIONAL win32 workaround (`try { rename } catch {
+// if (existsSync(target)) unlink(target); rename }`) that only opens its
+// hazard window when renameSync genuinely THROWS. Node cannot ever provoke
+// that on itself (FILE_SHARE_DELETE), so closing this residual needs a REAL
+// non-Node actor. The two tests below are deliberately split:
+//   REAL           -- proves the catch branch is reachable at all, using a
+//                     genuine external lock and a real captured errno. This
+//                     is the part no Node-only probe in this file can do.
+//   CHARACTERIZED  -- proves what the catch branch does once reached: it
+//                     deterministically reproduces the intermediate on-disk
+//                     state its own two statements (unlink, then retry
+//                     rename) would leave if a real crash landed between
+//                     them, the same way the codebase's own SIGKILL-based
+//                     scenarios construct un-raceable synchronous windows
+//                     rather than trying to land a kill inside them.
+// ---------------------------------------------------------------------------
+
+test(
+  'G-VANISH residual 6, REAL: a non-Node exclusive lock genuinely trips the '
+    + 'rename-failure-conditional-unlink catch branch',
+  {
+    timeout: PROBE_TIMEOUT_MS,
+    skip: process.platform !== 'win32'
+      ? 'win32-specific: FILE_SHARE_DELETE is a win32 concept, and POSIX '
+        + 'rename(2) does not fail merely because the target is open'
+      : false,
+  },
+  async () => {
+    const { dir, moduleUrl } = buildRenameFailureConditionalUnlinkMutantTree();
+    let locker = null;
+    try {
+      // Force through the crash-drill entry point too, exactly like every
+      // other mutant in this file, so the tree-build contract (anchors still
+      // exist, sibling files resolved) is exercised identically.
+      await import(moduleUrl);
+      const runtimeModuleUrl = pathToFileURL(path.join(dir, RUNTIME_FILE)).href;
+      const runtimeMutant = await import(runtimeModuleUrl);
+      assert.equal(runtimeMutant.renameFailureCatchState.hits, 0, 'sentinel starts at zero');
+
+      const storeDir = path.join(dir, 'scratch-real-lock', 'phase0b');
+      mkdirSync(storeDir, { recursive: true });
+      const target = runtimeMutant.statePath(storeDir);
+      const originalBytes = `${JSON.stringify({ before: true })}\n`;
+      writeFileSync(target, originalBytes, 'utf8');
+
+      locker = spawnNonNodeExclusiveLocker(target);
+      await locker.waitEstablished();
+
+      let caught = null;
+      try {
+        runtimeMutant.writeAtomicState(storeDir, { after: true });
+      } catch (error) {
+        caught = error;
+      }
+      await locker.release();
+      locker = null;
+
+      assert.ok(
+        caught,
+        'writeAtomicState must throw while the target is genuinely, externally locked '
+        + '(both the first rename AND the retry unlink are denied)',
+      );
+
+      // The sentinel proves the catch branch executed for real, exactly once,
+      // with a real OS errno -- not a simulated fault, not a assumption.
+      assert.equal(
+        runtimeMutant.renameFailureCatchState.hits,
+        1,
+        'the rename-failure catch fired exactly once',
+      );
+      assert.equal(runtimeMutant.renameFailureCatchState.errnoSamples.length, 1);
+      assert.match(
+        runtimeMutant.renameFailureCatchState.errnoSamples[0],
+        /^(EPERM|EBUSY|EACCES)$/,
+        `expected a real win32 share-mode denial, got: `
+        + `${runtimeMutant.renameFailureCatchState.errnoSamples[0]}`,
+      );
+
+      // Because the external lock also denies delete, the retry's own
+      // unlink(target) is ALSO denied for real -- so this particular repro
+      // fails loudly with the ORIGINAL state untouched. That is the safe half
+      // of the finding; the dangerous half (unlink succeeds, retry does not)
+      // is characterized deterministically in the next test.
+      assert.equal(
+        readFileSync(target, 'utf8'),
+        originalBytes,
+        'original state.json survives untouched -- the failure was loud, not silent',
+      );
+
+      // Sanity: once the external lock is truly released, the SAME mutant's
+      // fast (non-catch) path still works normally.
+      runtimeMutant.writeAtomicState(storeDir, { after: true });
+      assert.equal(
+        JSON.parse(readFileSync(target, 'utf8')).after,
+        true,
+        'a normal write after the lock clears succeeds via the fast path',
+      );
+      assert.equal(
+        runtimeMutant.renameFailureCatchState.hits,
+        1,
+        'the fast-path write did not touch the catch-branch sentinel',
+      );
+    } finally {
+      if (locker) await locker.release();
+      rmSync(dir, { force: true, recursive: true });
+    }
+  },
+);
+
+test(
+  'G-VANISH residual 6, CHARACTERIZED: a crash between the workaround\'s unlink '
+    + 'and its retry rename leaves NO state.json at all',
+  { timeout: PROBE_TIMEOUT_MS },
+  () => {
+    // This test does not re-derive reachability (the REAL test above already
+    // does that with a genuine external lock); it isolates exactly the
+    // statement the mutant's catch branch runs immediately before its retry
+    // rename, so the intermediate on-disk state a real crash in that gap
+    // would leave can be inspected directly -- without the surrounding
+    // function's own outer-catch cleanup running afterward (a JS `throw`
+    // there would ALSO trigger that cleanup and additionally erase the
+    // orphan temp file, which a genuine process death could not do; that
+    // would misrepresent the hazard as worse-in-a-different-way than it is).
+    //
+    // Tied to the real mutant source by containment, so this cannot silently
+    // drift if the mutant is ever edited without updating this test.
+    assert.ok(
+      RENAME_FAILURE_CONDITIONAL_UNLINK_ATOMIC_STATE.includes(
+        '      if (existsSync(target)) unlinkSync(target);',
+      ),
+      'the unlink-before-retry statement must still exist verbatim in the mutant source',
+    );
+
+    const caseDir = mkdtempSync(path.join(os.tmpdir(), 'mv-b5-residual6-window-'));
+    try {
+      const storeDir = path.join(caseDir, 'phase0b');
+      mkdirSync(storeDir, { recursive: true });
+      const target = path.join(storeDir, 'state.json');
+      const originalBytes = `${JSON.stringify({ before: true, revision: 0 })}\n`;
+      writeFileSync(target, originalBytes, 'utf8');
+      const temporary = path.join(storeDir, `.state-${process.pid}-${randomUUID()}.tmp`);
+      const nextBytes = `${JSON.stringify({ after: true, revision: 1 })}\n`;
+      writeFileSync(temporary, nextBytes, 'utf8');
+
+      // The exact statement the mutant's catch branch runs at this point.
+      assert.ok(existsSync(target));
+      unlinkSync(target);
+
+      // A crash HERE -- before the retry renameSync -- is residual 6's
+      // window. It is exactly what it was described as: worse than a torn
+      // read, because there is no file to read at all.
+      assert.equal(
+        existsSync(target),
+        false,
+        'the target is genuinely gone: no state.json at all, the same hazard class '
+        + 'G-VANISH already names for the unconditional-unlink defect',
+      );
+      assert.equal(
+        existsSync(temporary),
+        true,
+        'the new bytes survive on disk, orphaned and unrenamed',
+      );
+      assert.equal(readFileSync(temporary, 'utf8'), nextBytes);
+      assert.throws(
+        () => readFileSync(target, 'utf8'),
+        /ENOENT/,
+        'a reader at this exact instant gets ENOENT, not a torn or stale read',
+      );
+
+      // SEVERITY NOTE, demonstrated rather than asserted from reading the
+      // source: production initializePersistentStore treats an ABSENT
+      // state.json as "this store was never created" -- there is no way for
+      // it to distinguish "genuinely fresh" from "just vanished mid-replace".
+      // A caller that naively re-initializes after observing exactly this
+      // on-disk state does not get a loud failure; it gets a brand-new
+      // genesis store, silently discarding every prior ledger entry. This is
+      // a real production function, not a mutant, run against a scratch dir.
+      const fixture = buildValidatorFixture();
+      const reinitialized = initializePersistentStore({
+        storeDir,
+        trustedValidatorConfig: fixture.trustedValidatorConfig,
+        validatorReceipt: fixture.validatorReceipt,
+        initialWorld: fixture.initialWorld,
+      });
+      assert.equal(
+        reinitialized.revision,
+        0,
+        'initializePersistentStore did NOT detect the vanished replace -- it silently '
+        + 'created a fresh genesis store (revision 0) instead of failing closed',
+      );
+    } finally {
+      rmSync(caseDir, { force: true, recursive: true });
+    }
+  },
+);
 
 test('YOU CANNOT BLIND THE VANISH DETECTOR: an ENOENT-swallowing classifier reports UNMEASURED', {
   timeout: PROBE_TIMEOUT_MS,
