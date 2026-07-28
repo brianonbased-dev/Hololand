@@ -1,0 +1,159 @@
+// Immutable witness manifest for Stormglass Character Appearance H3G.
+// H3G admits native card-width coverage and tangent-aware material response.
+// It does not promote this bounded low-poly foundation to strand hair,
+// production grooming, photorealism, or VR-converged status.
+
+composition "HoloLand Model Village Character Appearance H3G Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3G Native Hair Response Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3G_HAIR_RESPONSE"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3g-hair-response.holo"
+      sourceSha256: "1750a4aeae76c6c3d8ab317866a4b033fe7db1deb283b220d74ca919299aa1b7"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3g-hair-response-policy.hsplus"
+      policySha256: "56212c766a0bea584f085a0ee80434b3aa4701b6871a7e0e92b77f81a1856998"
+      parser: "HoloScriptPlusParser"
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3g-hair-response-seed.hs"
+      seedSha256: "7668d1c0042ae0cc8d4c180ae18b9b412e372a3dfbe28cffe4ece171c345f362"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3g.mjs"
+      checkerSha256: "58b566ce46187bf895c6c3a8f12e88d6ba7d20a02dca945be4ad0d45ff4ac387"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3g.test.mjs"
+      testSha256: "b3d7f4d4469b9ac311734c111e27c8f8137ea7a00df3c9b20963bceb0c0ac1a2"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3g-hair-response-2026-07-28.md"
+      reportSha256: "5581295919716293583f1a8ed9b9d760ca8200288a556d9b6b8f94fe8c3c9c59"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3g-hair-response-portraits-2026-07-28.png"
+      heroSha256: "83e515a9f2da738e2240a59776a5298786e4bf80de0be12fb911b68bf71e845e"
+      width: 1800
+      height: 720
+      bytes: 436727
+      visuallyInspected: true
+      iterationAccepted: 9
+    }
+    upstream: {
+      holoScriptCommit: "5a828db7f9fa54b805741e0997e1e98bb4e48926"
+      inheritedH3FSourceSha256: "1f35e8541e6b62ade27ffd25133f536fc3bc1927269efbb719c529331d6db957"
+      groomBuilderSha256: "a26c955e19fd8294c6b10fcdfa7e63e51c8e2e3e07b137f76bb9127513fdbf42"
+      characterHostSha256: "edbad40844f40e67614111797c6765849d620077e4b322bcd39eeed6ecfae10b"
+      compositionBridgeSha256: "a3ec426c57d7bdfa08e600703e4c6df194c8b216939fe3bc14e5cda012b78c48"
+      nativeRendererSha256: "746501775d4007c173f705ed3c41255e9d104783869d8024ab51ac103515f1fa"
+      hairShaderSha256: "c5d71aa86c6fe7d12a00c6f71e517fefc3e8dd4c9b98ddcf22377994edd10018"
+      drawSpecSha256: "d92c8792897d6bcca5c554c512deaa8a44ba7a1d7bf0ba3eb5c0ad22dc54be00"
+      compilerSha256: "ff9880f7a3b678ab2cf3e76c19e0b2273094f6e6de22bfc3de25ca6eca663932"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      topology: "neutral-anatomical-v2"
+      ocularProfile: "layered-ocular-v1"
+      orbitalProfile: "recessed-lids-v1"
+      groomProfile: "scalp-flow-v1"
+      scalpSurface: "neutral-anatomical-ellipsoid"
+      coverageProfile: "alpha-to-coverage-v1"
+      opaqueComparisonProfile: "opaque-v1"
+      materialReceiptSchema: "holoscript.agent-avatar-hair-material.v1"
+      nativeBundleCount: 9
+      geometryByteIdenticalComparisonCount: 9
+      ocularGroupsPerBundle: 8
+      cardWidthUvAttribute: "card-width"
+      cardWidthUvMinimum: 0
+      cardWidthUvMaximum: 1
+      tangentAttribute: "strand-flow"
+      multisampleCount: 4
+      alphaToCoverageRequested: true
+      sourceAuthoredVisualHairLod: 1
+      fallbackUsed: false
+      stubCount: 0
+    }
+    profile: {
+      id: "native_hair_coverage_response_desktop_h3g"
+      renderWidth: 1800
+      renderHeight: 720
+      devicePixelRatio: 1
+      measuredPortraitRendererCount: 3
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+      hardwareSampleCount: 4
+      antialias: true
+    }
+    performance: {
+      frameIntervalP95Milliseconds: 17.2
+      renderSubmitP95Milliseconds: 1.5
+      vrBudgetMilliseconds: 11.1
+      budgetClaimed: false
+    }
+    presentationBridge: {
+      material: "Three.js MeshPhysicalMaterial"
+      capAndCardMaterialSplit: true
+      capBoundaryDerivedFromNativeReceipt: true
+      capAnisotropy: 0
+      cardAnisotropySourceAuthored: true
+      cardAlphaToCoverage: true
+      proceduralColorMap: true
+      proceduralAlphaMap: true
+      customShader: false
+      externalHairTexture: false
+    }
+    boundaries: {
+      nativeCardWidthUvClaimed: true
+      nativeHairCoverageProfileClaimed: true
+      nativeAlphaToCoverageRequestedClaimed: true
+      nativeTangentAnisotropyClaimed: true
+      nativeLongitudinalShiftClaimed: true
+      derivedHairMaterialReceiptClaimed: true
+      presentationShaderOverrideUsed: false
+      presentationMaterialBridgeUsed: true
+      presentationAlphaMapUsed: true
+      externalHairTextureUsed: false
+      hairCardAlphaCoverageClaimed: true
+      strandAlphaCoverageClaimed: false
+      strandHairClaimed: false
+      productionGroomClaimed: false
+      anatomicalHairAccuracyClaimed: false
+      scanDerivedGroomClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      vrPerformanceConvergenceClaimed: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCallsAllowed: false
+      externalNetworkRequests: 0
+    }
+    residuals: {
+      dominantVisualDefect: "low_poly_contiguous_scalp_cap_and_unconverged_temporal_lod_response"
+      nextCharacterLane: "lod_transition_taa_and_single_context_frame_pacing"
+      crownTopologyLaneOpen: true
+      characterProportionLaneOpen: true
+      skinMicrodetailLaneOpen: true
+      performanceLaneOpen: true
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedBootstrapSha256: "d6ba352e2d3386541b362f9ffff4386ce5cb19e1fd72d0acb027f58dafd21147"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h3g/character-appearance-h3g-witness.json"
+    }
+  }
+}

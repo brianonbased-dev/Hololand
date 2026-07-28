@@ -1,0 +1,257 @@
+// Stormglass Commons Character Appearance H3G.
+//
+// This read-only look-development composition inherits H3F scalp-flow geometry
+// and authors native card-width coverage plus tangent-aware highlight response.
+// HoloScript requests a 4x multisampled alpha-to-coverage pipeline and carries a
+// material receipt through character-webgpu. This is card coverage, not strand
+// hair, scan-derived grooming, production grooming, or photorealism.
+
+composition "Stormglass Character Appearance H3G Hair Response" {
+  metadata {
+    title: "Stormglass Character Appearance H3G - Native Hair Coverage and Response"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3G_HAIR_RESPONSE"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3g-hair-response.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3g-hair-response-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3g-hair-response-seed.hs"
+    inheritedH3FSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3f-native-groom.holo"
+    inheritedH3FSourceSha256: "1f35e8541e6b62ade27ffd25133f536fc3bc1927269efbb719c529331d6db957"
+    upstreamHoloScriptCommit: "5a828db7f9fa54b805741e0997e1e98bb4e48926"
+    upstreamGroomBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
+    upstreamGroomBuilderSha256: "a26c955e19fd8294c6b10fcdfa7e63e51c8e2e3e07b137f76bb9127513fdbf42"
+    upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
+    upstreamCharacterHostSha256: "edbad40844f40e67614111797c6765849d620077e4b322bcd39eeed6ecfae10b"
+    upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamCompositionBridgeSha256: "a3ec426c57d7bdfa08e600703e4c6df194c8b216939fe3bc14e5cda012b78c48"
+    upstreamNativeRendererPath: "packages/engine/src/character-render/character-render.ts"
+    upstreamNativeRendererSha256: "746501775d4007c173f705ed3c41255e9d104783869d8024ab51ac103515f1fa"
+    upstreamHairShaderPath: "packages/engine/src/rendering/webgpu/shaders/skin-skinning.wgsl"
+    upstreamHairShaderSha256: "c5d71aa86c6fe7d12a00c6f71e517fefc3e8dd4c9b98ddcf22377994edd10018"
+    upstreamDrawSpecPath: "packages/engine/src/native-render/draw-spec.ts"
+    upstreamDrawSpecSha256: "d92c8792897d6bcca5c554c512deaa8a44ba7a1d7bf0ba3eb5c0ad22dc54be00"
+    upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
+    upstreamCompilerSha256: "ff9880f7a3b678ab2cf3e76c19e0b2273094f6e6de22bfc3de25ca6eca663932"
+    projectionRole: "read_only_native_hair_coverage_response_witness"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "stormglass_craft_fiber_highlight_portrait_studio"
+  }
+
+  environment {
+    mode: "native_hair_response_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#030A13"
+    ambient_light: 0.14
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3G_HAIR_RESPONSE"
+    presentationProfile: "village_story_unblinded_native_hair_response_lookdev"
+    civicPersonaCount: 3
+    familyIdentityVisible: false
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    liveResearchJoinAllowed: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    biometricPersistenceAllowed: false
+    nativeCharacterCompilerClaimed: true
+    nativeNeutralAnatomicalFaceClaimed: true
+    nativeLayeredOcularProfileClaimed: true
+    nativeOrbitalProfileClaimed: true
+    nativeGroomProfileClaimed: true
+    nativeScalpTangentClaimed: true
+    nativeScalpAlignedCardsClaimed: true
+    nativeNeutralScalpAlignmentClaimed: true
+    nativeTipTaperClaimed: true
+    nativeHairlineRetractionClaimed: true
+    derivedGroomReceiptClaimed: true
+    nativeCardWidthUvClaimed: true
+    nativeHairCoverageProfileClaimed: true
+    nativeAlphaToCoverageRequestedClaimed: true
+    nativeTangentAnisotropyClaimed: true
+    nativeLongitudinalShiftClaimed: true
+    derivedHairMaterialReceiptClaimed: true
+    presentationShaderOverrideUsed: false
+    presentationMaterialBridgeUsed: true
+    presentationAlphaMapUsed: true
+    externalHairTextureUsed: false
+    hairCardAlphaCoverageClaimed: true
+    strandAlphaCoverageClaimed: false
+    strandHairClaimed: false
+    scanDerivedGroomClaimed: false
+    productionGroomClaimed: false
+    anatomicalHairAccuracyClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    hairResponseFoundation: {
+      groomProfile: "scalp-flow-v1"
+      coverageProfile: "alpha-to-coverage-v1"
+      opaqueComparisonProfile: "opaque-v1"
+      sourceAuthoredStrandCoverageRange: [0.8, 0.86]
+      sourceAuthoredEdgeSoftnessRange: [0.1, 0.14]
+      sourceAuthoredAnisotropyStrengthRange: [0.84, 0.9]
+      sourceAuthoredLongitudinalShiftRange: [0.06, 0.12]
+      cardWidthUvAttribute: "card-width"
+      tangentAttribute: "strand-flow"
+      multisampleCount: 4
+      alphaToCoverageRequested: true
+      analyticNativeCoverage: true
+      tangentAwareDualLobe: true
+      longitudinalLobeShift: true
+      derivedMaterialReceipt: true
+      presentationShaderOverride: false
+      presentationMaterialBridge: true
+      presentationAlphaMap: true
+      externalHairTexture: false
+      strandHair: false
+      scanDerived: false
+    }
+
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      fallbackAllowed: false
+      repeatedCompileByteIdentityRequired: true
+      exactNineNativeBundlesRequired: true
+      exactEightOcularGroupsPerBundleRequired: true
+      mappedGroomReceiptRequired: true
+      derivedGroomReceiptRequired: true
+      mappedHairMaterialReceiptRequired: true
+      derivedHairMaterialReceiptRequired: true
+      opaqueCoverageComparisonRequired: true
+      cardWidthUvOperative: true
+      authoredStrandCoverageOperative: true
+      authoredEdgeSoftnessOperative: true
+      authoredAnisotropyStrengthOperative: true
+      authoredLongitudinalShiftOperative: true
+      alphaToCoverageRequestedRequired: true
+      multisampleCountRequired: 4
+      fullH3Admitted: false
+    }
+
+    benchmark: {
+      profileId: "native_hair_coverage_response_desktop_h3g"
+      renderWidth: 1800
+      renderHeight: 720
+      devicePixelRatio: 1
+      simultaneousPersonaCount: 3
+      visualHairLod: 1
+      visualHairLodReason: "close_portrait_material_response_with_bounded_mid_tier_card_budget"
+      hardwareRendererRequired: true
+      d3d11BackendRequired: true
+      vrBudgetMilliseconds: 11.1
+    }
+
+    goldenTargets: [
+      { id: "h3g_native_hair_response_portraits", output: "docs/assets/model-village/model-village-character-appearance-h3g-hair-response-portraits-2026-07-28.png", width: 1800, height: 720 }
+    ]
+  }
+
+  template "StormglassNativeHairResponsePersona" {
+    @skeleton(rig: "humanoid_65", ik_enabled: true)
+    @locomotion(mode: "idle", speed: 1.0)
+    geometry: "avatar"
+    position: [0, 0, 0]
+    scale: [1, 1, 1]
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    canonicalWriteAuthority: false
+  }
+
+  object "HearthKeeper" using "StormglassNativeHairResponsePersona" {
+    @body(height: 1.82, build_scale: 1.04, skin_tone: "#B9785F")
+    @face(topology: "neutral_anatomical_v2", radial_segments: 22, vertical_segments: 16, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.3, lid_opening: 0.46, canthal_tilt: 0.14, ocular_profile: "layered_ocular_v1", iris_color: "#6B8C82", sclera_color: "#EEE9DF", iris_scale: 0.5, pupil_scale: 0.38, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#B9785F", scatter_color: "#B85F4C")
+    @hair(style: "cropped_coils", color: "#563A30", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.17, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.84, edge_softness: 0.12, anisotropy_strength: 0.86, longitudinal_shift: 0.08)
+    @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
+    @lod(levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 168, hair_cards_per_guide: 2, hair_segments: 7 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 92, hair_cards_per_guide: 1, hair_segments: 5 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 42, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "native_hair_response_civic_persona"
+    personaId: "hearth_keeper"
+    civicRole: "keeper"
+    displayLabel: "Hearth Keeper"
+    irisColor: "#6B8C82"
+    hairColor: "#563A30"
+    nativeHairStyleId: "cropped_coils"
+    groomProfile: "scalp-flow-v1"
+    cardWidth: 0.0052
+    rootLift: 0.0025
+    tipTaper: 0.08
+    hairlineBias: 0.17
+    coverageProfile: "alpha-to-coverage-v1"
+    strandCoverage: 0.84
+    edgeSoftness: 0.12
+    anisotropyStrength: 0.86
+    longitudinalShift: 0.08
+  }
+
+  object "PathTender" using "StormglassNativeHairResponsePersona" {
+    @body(height: 1.88, build_scale: 0.98, skin_tone: "#87543F")
+    @face(topology: "neutral_anatomical_v2", radial_segments: 22, vertical_segments: 16, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.27, lid_opening: 0.49, canthal_tilt: 0.1, ocular_profile: "layered_ocular_v1", iris_color: "#A58B52", sclera_color: "#F0EADF", iris_scale: 0.48, pupil_scale: 0.4, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#87543F", scatter_color: "#874735")
+    @hair(style: "short", color: "#303641", groom_profile: "scalp_flow_v1", card_width: 0.0058, root_lift: 0.002, tip_taper: 0.14, hairline_bias: 0.18, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.8, edge_softness: 0.14, anisotropy_strength: 0.9, longitudinal_shift: 0.12)
+    @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
+    @lod(levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 126, hair_cards_per_guide: 2, hair_segments: 6 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 72, hair_cards_per_guide: 1, hair_segments: 4 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 38, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "native_hair_response_civic_persona"
+    personaId: "path_tender"
+    civicRole: "wayfinder"
+    displayLabel: "Path Tender"
+    irisColor: "#A58B52"
+    hairColor: "#303641"
+    nativeHairStyleId: "short"
+    groomProfile: "scalp-flow-v1"
+    cardWidth: 0.0058
+    rootLift: 0.002
+    tipTaper: 0.14
+    hairlineBias: 0.18
+    coverageProfile: "alpha-to-coverage-v1"
+    strandCoverage: 0.8
+    edgeSoftness: 0.14
+    anisotropyStrength: 0.9
+    longitudinalShift: 0.12
+  }
+
+  object "RecordSteward" using "StormglassNativeHairResponsePersona" {
+    @body(height: 1.78, build_scale: 1.08, skin_tone: "#D0A086")
+    @face(topology: "neutral_anatomical_v2", radial_segments: 22, vertical_segments: 16, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.32, lid_opening: 0.44, canthal_tilt: 0.16, ocular_profile: "layered_ocular_v1", iris_color: "#526D91", sclera_color: "#F2EBE4", iris_scale: 0.52, pupil_scale: 0.36, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A")
+    @hair(style: "medium_wavy", color: "#82563A", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.15, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.86, edge_softness: 0.1, anisotropy_strength: 0.84, longitudinal_shift: 0.06)
+    @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
+    @lod(levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 160, hair_cards_per_guide: 2, hair_segments: 8 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 88, hair_cards_per_guide: 1, hair_segments: 5 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 42, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "native_hair_response_civic_persona"
+    personaId: "record_steward"
+    civicRole: "archivist"
+    displayLabel: "Record Steward"
+    irisColor: "#526D91"
+    hairColor: "#82563A"
+    nativeHairStyleId: "medium_wavy"
+    groomProfile: "scalp-flow-v1"
+    cardWidth: 0.0052
+    rootLift: 0.0025
+    tipTaper: 0.08
+    hairlineBias: 0.15
+    coverageProfile: "alpha-to-coverage-v1"
+    strandCoverage: 0.86
+    edgeSoftness: 0.1
+    anisotropyStrength: 0.84
+    longitudinalShift: 0.06
+  }
+}

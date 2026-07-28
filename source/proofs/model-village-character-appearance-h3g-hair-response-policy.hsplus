@@ -1,0 +1,96 @@
+// H3G native hair-card coverage and tangent-response admission policy.
+
+composition "Stormglass Character Appearance H3G Hair Response Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3g-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3G_HAIR_RESPONSE"
+    source: "source/proofs/model-village-character-appearance-h3g-hair-response-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3g-hair-response.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3g-hair-response-seed.hs"
+    formatRole: "native_hair_coverage_response_admission_and_firewall_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3GHairResponseState {
+    profile: "native_hair_coverage_response_desktop_h3g"
+    compiledPersonaCount: 0
+    compiledLodBundleCount: 0
+    admittedHairResponseBundleCount: 0
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "NativeHairResponseAdmission" {
+    type: "native_hair_response_admission"
+    target: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    groomProfile: "scalp-flow-v1"
+    coverageProfile: "alpha-to-coverage-v1"
+    opaqueComparisonProfile: "opaque-v1"
+    tangentAttribute: "strand-flow"
+    cardUvAttribute: "card-width"
+    multisampleCount: 4
+    expectedPersonaCount: 3
+    expectedLodBundleCount: 9
+    repeatedCompileByteIdentityRequired: true
+    compilerFallbackAllowed: false
+    mappedHairMaterialReceiptRequired: true
+    derivedHairMaterialReceiptRequired: true
+    alphaToCoverageRequestedRequired: true
+    cardWidthUvOperativeRequired: true
+    tangentAnisotropyOperativeRequired: true
+    presentationShaderOverrideAllowed: false
+    presentationMaterialBridgeAllowed: true
+    presentationAlphaMapAllowed: true
+    externalHairTextureAllowed: false
+    strandAlphaCoverageClaimed: false
+    hairCardAlphaCoverageClaimed: true
+    scanDerivedClaimed: false
+    productionGroomClaimed: false
+    photorealismClaimed: false
+  }
+
+  template "H3GHairResponseFirewall" {
+    type: "model_village_character_appearance_firewall"
+    presentationLane: "mv_character_appearance_h3g"
+    prohibitedLane: "research_live_blinded"
+    prohibitedInputs: ["live_model_output", "resident_observation", "adapter_assignment", "research_seat", "seat_wallet", "biometric_sample"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_action", "village_receipt", "wallet_identity", "biometric_store"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+    networkFetchCountRequired: 0
+  }
+
+  action admit_native_hair_response_bundle(bundle, expected) {
+    if (bundle.format != expected.outputFormat) {
+      return { admitted: false, reason: "wrong_output_format" }
+    }
+    if (bundle.usedFallback == true) {
+      return { admitted: false, reason: "compiler_fallback_used" }
+    }
+    if (bundle.groomProfile != expected.groomProfile) {
+      return { admitted: false, reason: "wrong_groom_profile" }
+    }
+    if (bundle.coverageProfile != expected.coverageProfile) {
+      return { admitted: false, reason: "wrong_coverage_profile" }
+    }
+    if (bundle.alphaToCoverageRequested != true) {
+      return { admitted: false, reason: "alpha_to_coverage_not_requested" }
+    }
+    if (bundle.cardUvAttribute != expected.cardUvAttribute) {
+      return { admitted: false, reason: "card_width_uv_missing" }
+    }
+    if (bundle.tangentAttribute != expected.tangentAttribute) {
+      return { admitted: false, reason: "strand_tangent_missing" }
+    }
+    if (bundle.presentationShaderOverrideUsed == true) {
+      return { admitted: false, reason: "presentation_shader_override_used" }
+    }
+    if (bundle.externalHairTextureUsed == true) {
+      return { admitted: false, reason: "external_hair_texture_used" }
+    }
+    return { admitted: true, reason: "native_hair_coverage_response_admitted" }
+  }
+}
