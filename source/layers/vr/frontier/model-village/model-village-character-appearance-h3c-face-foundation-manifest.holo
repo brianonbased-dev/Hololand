@@ -1,0 +1,111 @@
+// Immutable witness manifest for Stormglass Character Appearance H3C.
+// H3C admits a smoother native procedural facial foundation. It does not
+// promote this bounded topology to a production face or photorealism.
+
+composition "HoloLand Model Village Character Appearance H3C Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3C Face Foundation Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3C_FACE_FOUNDATION"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3c-face-foundation.holo"
+      sourceSha256: "4e82a903464018201a588c82cc9cb99388272be40c7f0aaaa9bfde1f31d6d7a5"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3c-face-foundation-policy.hsplus"
+      policySha256: "1321d58ef313be6d7ed6aade2191ca47123a153957252356e8a3a9d228e77a9a"
+      parser: "HoloScriptPlusParser"
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3c-face-foundation-seed.hs"
+      seedSha256: "b1505818419e634303d2985b15efa5a2e694bd42e6071efb0e7d5fb321489d10"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3c.mjs"
+      checkerSha256: "87f19bbc49bf86299314da78b8902374c18bf2d192c234bf1cac66abdff8bc0f"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3c.test.mjs"
+      testSha256: "e20bd1e356f97613f6bbe4c39934d4f62b4d2e6040cba2b78d9ebb57bb551945"
+    }
+    report: {
+      path: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H3C_2026-07-28.md"
+      reportSha256: "54891e67c90455207214a6a5a7a3b2b015b19905e8ec11157a9397e6ba23c95c"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3c-native-face-portraits-2026-07-28.png"
+      heroSha256: "096e4580d6655ece628ccb33d898339ce4f73d1db0186bcba60708caa6188dbf"
+      width: 1800
+      height: 720
+      bytes: 383463
+      visuallyInspected: true
+      iterationAccepted: 4
+    }
+    upstream: {
+      holoScriptCommit: "faf90ec8cbac992c6ca0ed9ffafb9033fa9bd127"
+      faceBuilderSha256: "77ce27afc799ea48f8a04189664ee01529f5fdfe0928df9aff1ec7e8132610f2"
+      eyeBuilderSha256: "bd5ed2aa28527983275eac024636b8c80acae0728480001d68165e425b672bf9"
+      compositionBridgeSha256: "cd3039cdcbbc7df089ab00e7d7c25317436d88c8e542820f6c19c62c44354c23"
+      morphBuilderSha256: "7a95a85d362c2d55d802a0587dd79b6d4787e752ca5f302c47c49e521f464de6"
+      compilerSha256: "34cb6770008c6aa42f876bdaebf777999f18adf513e5280d0559312f91b71a66"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      topology: "neutral-anatomical-v2"
+      nativeBundleCount: 9
+      nativeExpressionProbeCount: 3
+      topologyVertexDelta: 561
+      legacyVertexCount: 5958
+      sourceAuthoredVisualHairLod: 2
+      fallbackUsed: false
+      stubCount: 0
+    }
+    profile: {
+      id: "native_neutral_face_desktop_h3c"
+      renderWidth: 1800
+      renderHeight: 720
+      devicePixelRatio: 1
+      measuredPortraitRendererCount: 3
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+    }
+    performance: {
+      frameIntervalP95Milliseconds: 20.600000023841858
+      renderSubmitP95Milliseconds: 4.5
+      budgetClaimed: false
+    }
+    boundaries: {
+      nativeNeutralAnatomicalFaceClaimed: true
+      sourceDrivenProceduralIrisPresentation: true
+      nativeIrisMaterialSerialized: false
+      productionFaceCompleteClaimed: false
+      productionTearFilmClaimed: false
+      normalsRecomputedAfterMorphClaimed: false
+      motionReprojectionClaimed: false
+      productionTaaClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCallsAllowed: false
+      externalNetworkRequests: 0
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedBootstrapSha256: "a21ba70d62b66e9b35043d6c9a99cf1d86639b3159971a33c5466da5b11ba23d"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h3c/character-appearance-h3c-witness.json"
+    }
+  }
+}

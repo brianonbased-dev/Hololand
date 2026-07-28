@@ -1,0 +1,229 @@
+// Stormglass Commons Character Appearance H3C.
+//
+// This read-only look-development composition opts three neutral civic personas
+// into HoloScript's native neutral-anatomical-v2 face topology. The goal is
+// specific: remove the visible block-head bottleneck while retaining the H3B
+// sovereign character compiler, authored hair LODs, native eyes, and bounded
+// morph channels. This is a procedural facial foundation, not a scan, production
+// blendshape rig, biometric likeness, or photorealism claim.
+
+composition "Stormglass Character Appearance H3C Face Foundation" {
+  metadata {
+    title: "Stormglass Character Appearance H3C - Native Neutral Face Foundation"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3C_FACE_FOUNDATION"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3c-face-foundation.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3c-face-foundation-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3c-face-foundation-seed.hs"
+    inheritedH3BSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3b-native-channels.holo"
+    inheritedH3BSourceSha256: "be9c335799a4369b1fdbe0ec85a0733b6f3635865584a8a0931d891974ff6f26"
+    upstreamHoloScriptCommit: "faf90ec8cbac992c6ca0ed9ffafb9033fa9bd127"
+    upstreamFaceBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
+    upstreamFaceBuilderSha256: "77ce27afc799ea48f8a04189664ee01529f5fdfe0928df9aff1ec7e8132610f2"
+    upstreamEyeBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
+    upstreamEyeBuilderSha256: "bd5ed2aa28527983275eac024636b8c80acae0728480001d68165e425b672bf9"
+    upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamCompositionBridgeSha256: "cd3039cdcbbc7df089ab00e7d7c25317436d88c8e542820f6c19c62c44354c23"
+    upstreamMorphBuilderPath: "packages/engine/src/character-render/AgentAvatarMorph.ts"
+    upstreamMorphBuilderSha256: "7a95a85d362c2d55d802a0587dd79b6d4787e752ca5f302c47c49e521f464de6"
+    upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
+    upstreamCompilerSha256: "34cb6770008c6aa42f876bdaebf777999f18adf513e5280d0559312f91b71a66"
+    projectionRole: "read_only_native_face_foundation_witness"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "stormglass_craft_real_portrait_studio"
+  }
+
+  environment {
+    mode: "native_neutral_face_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#030A13"
+    ambient_light: 0.16
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3C_FACE_FOUNDATION"
+    presentationProfile: "village_story_unblinded_native_face_lookdev"
+    productionProfilePromotionClaimed: false
+    publicFirstReleaseReplacementClaimed: false
+    civicPersonaCount: 3
+    familyIdentityVisible: false
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    liveResearchJoinAllowed: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    biometricPersistenceAllowed: false
+    nativeCharacterCompilerClaimed: true
+    nativeNeutralAnatomicalFaceClaimed: true
+    nativeEyeGeometryClaimed: true
+    nativeEyelidTearlineRimTopologyClaimed: true
+    nativeHairStyleChannelClaimed: true
+    nativeHairLodChannelClaimed: true
+    nativeMorphTargetChannelClaimed: true
+    nativeSkinSssMaterialSerialized: true
+    productionFaceCompleteClaimed: false
+    productionTearFilmClaimed: false
+    productionHairCompleteClaimed: false
+    normalsRecomputedAfterMorphClaimed: false
+    motionReprojectionClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    faceFoundation: {
+      topology: "neutral-anatomical-v2"
+      radialSegments: 22
+      verticalSegments: 16
+      tearlineRimTopology: true
+      smoothSkullNormals: true
+      jawTaper: true
+      noseLandmark: true
+      neutralLipSeam: true
+      wetTearFilm: false
+      productionBlendshapeRig: false
+      scanDerived: false
+      sourceDrivenProceduralIrisPresentation: true
+      nativeIrisMaterialSerialized: false
+    }
+
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      fallbackAllowed: false
+      repeatedCompileByteIdentityRequired: true
+      exactNineNativeBundlesRequired: true
+      authoredHairLodTopologyOperative: true
+      authoredMorphFacsSubsetOperative: true
+      authoredLocomotionPoseMaterialized: true
+      morphTopology: "neutral-anatomical-v2"
+      normalsRecomputedAfterMorph: false
+      fullH3Admitted: false
+    }
+
+    lod: {
+      runtimeClass: "LODManager"
+      runtimePackage: "@holoscript/engine"
+      levels: [0, 1, 2]
+      distancesMeters: [0, 8, 20]
+      sourceAuthoredHairTopologyRequired: true
+      monotonicHairTopologyReductionRequired: true
+      secondLodAuthorityAllowed: false
+    }
+
+    benchmark: {
+      profileId: "native_neutral_face_desktop_h3c"
+      renderWidth: 1800
+      renderHeight: 720
+      devicePixelRatio: 1
+      simultaneousPersonaCount: 3
+      visualHairLod: 2
+      visualHairLodReason: "facial_landmark_readability"
+      hardwareRendererRequired: true
+      d3d11BackendRequired: true
+    }
+
+    goldenTargets: [
+      { id: "h3c_native_face_portraits", output: "docs/assets/model-village/model-village-character-appearance-h3c-native-face-portraits-2026-07-28.png", width: 1800, height: 720 }
+    ]
+  }
+
+  template "StormglassNativeFacePersona" {
+    @skeleton(rig: "humanoid_65", ik_enabled: true)
+    @locomotion(mode: "idle", speed: 1.0)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 22, vertical_segments: 16, tearline: true)
+    geometry: "avatar"
+    position: [0, 0, 0]
+    scale: [1, 1, 1]
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    canonicalWriteAuthority: false
+  }
+
+  object "HearthKeeper" using "StormglassNativeFacePersona" {
+    @body(height: 1.82, build_scale: 1.04, skin_tone: "#B9785F")
+    @subsurface_scattering(color: "#B9785F", scatter_color: "#B85F4C")
+    @hair(style: "cropped_coils", color: "#2D201C")
+    @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
+    @lod(levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 168, hair_cards_per_guide: 2, hair_segments: 7 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 92, hair_cards_per_guide: 1, hair_segments: 5 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 28, hair_cards_per_guide: 1, hair_segments: 3 }
+    ])
+    type: "native_neutral_civic_persona"
+    personaId: "hearth_keeper"
+    civicRole: "keeper"
+    displayLabel: "Hearth Keeper"
+    irisColor: "#6B8C82"
+    hairColor: "#2D201C"
+    nativeHairStyleId: "cropped_coils"
+    h3aShadowStyleId: "cropped_coils"
+    nativeStyleParityClaimed: true
+  }
+
+  object "PathTender" using "StormglassNativeFacePersona" {
+    @body(height: 1.88, build_scale: 0.98, skin_tone: "#87543F")
+    @subsurface_scattering(color: "#87543F", scatter_color: "#874735")
+    @hair(style: "short", color: "#161A20")
+    @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
+    @lod(levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 126, hair_cards_per_guide: 2, hair_segments: 6 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 72, hair_cards_per_guide: 1, hair_segments: 4 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 24, hair_cards_per_guide: 1, hair_segments: 3 }
+    ])
+    type: "native_neutral_civic_persona"
+    personaId: "path_tender"
+    civicRole: "wayfinder"
+    displayLabel: "Path Tender"
+    irisColor: "#A58B52"
+    hairColor: "#161A20"
+    nativeHairStyleId: "short"
+    h3aShadowStyleId: "swept_ridge"
+    nativeStyleSubstitutionReason: "h3c_portrait_landmark_clarity"
+    nativeStyleParityClaimed: false
+  }
+
+  object "RecordSteward" using "StormglassNativeFacePersona" {
+    @body(height: 1.78, build_scale: 1.08, skin_tone: "#D0A086")
+    @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A")
+    @hair(style: "medium_wavy", color: "#5A3828")
+    @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
+    @lod(levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 160, hair_cards_per_guide: 2, hair_segments: 8 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 88, hair_cards_per_guide: 1, hair_segments: 5 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 28, hair_cards_per_guide: 1, hair_segments: 3 }
+    ])
+    type: "native_neutral_civic_persona"
+    personaId: "record_steward"
+    civicRole: "archivist"
+    displayLabel: "Record Steward"
+    irisColor: "#526D91"
+    hairColor: "#5A3828"
+    nativeHairStyleId: "medium_wavy"
+    h3aShadowStyleId: "braided_crown"
+    nativeStyleSubstitutionReason: "braided_crown_not_yet_in_native_catalog_and_h3c_portrait_landmark_clarity"
+    nativeStyleParityClaimed: false
+  }
+
+  object "ExpressionNeutral" {
+    type: "native_morph_expression_probe"
+    expressionId: "neutral"
+    weights: { smile: 0, jawOpen: 0, blink: 0 }
+  }
+
+  object "ExpressionSoftSmile" {
+    type: "native_morph_expression_probe"
+    expressionId: "soft_smile"
+    weights: { smile: 0.62 }
+  }
+
+  object "ExpressionVisemeOH" {
+    type: "native_morph_expression_probe"
+    expressionId: "viseme_oh"
+    weights: { oh: 0.9, jawOpen: 0.2 }
+  }
+}

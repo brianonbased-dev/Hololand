@@ -1,0 +1,65 @@
+// H3C native neutral-face admission and truth-boundary policy.
+
+composition "Stormglass Character Appearance H3C Face Foundation Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3c-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3C_FACE_FOUNDATION"
+    source: "source/proofs/model-village-character-appearance-h3c-face-foundation-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3c-face-foundation.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3c-face-foundation-seed.hs"
+    formatRole: "native_face_topology_admission_and_firewall_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3CFaceFoundationState {
+    profile: "native_neutral_face_desktop_h3c"
+    compiledPersonaCount: 0
+    compiledLodBundleCount: 0
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "NeutralAnatomicalFaceAdmission" {
+    type: "native_face_topology_admission"
+    target: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    topology: "neutral-anatomical-v2"
+    expectedPersonaCount: 3
+    expectedLodBundleCount: 9
+    repeatedCompileByteIdentityRequired: true
+    compilerFallbackAllowed: false
+    mappedFaceReceiptRequired: true
+    smoothSkullNormalsRequired: true
+    eyelidTearlineRimTopologyRequired: true
+    wetTearFilmClaimed: false
+    productionBlendshapeRigClaimed: false
+    scanDerivedClaimed: false
+    photorealismClaimed: false
+  }
+
+  template "H3CFaceFirewall" {
+    type: "model_village_character_appearance_firewall"
+    presentationLane: "mv_character_appearance_h3c"
+    prohibitedLane: "research_live_blinded"
+    prohibitedInputs: ["live_model_output", "resident_observation", "adapter_assignment", "research_seat", "seat_wallet", "biometric_sample"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_action", "village_receipt", "wallet_identity", "biometric_store"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+    networkFetchCountRequired: 0
+  }
+
+  action admit_native_face_bundle(bundle, expected) {
+    if (bundle.format != expected.outputFormat) {
+      return { admitted: false, reason: "wrong_output_format" }
+    }
+    if (bundle.usedFallback == true) {
+      return { admitted: false, reason: "compiler_fallback_used" }
+    }
+    if (bundle.faceTopology != expected.topology) {
+      return { admitted: false, reason: "wrong_face_topology" }
+    }
+    return { admitted: true, reason: "native_face_foundation_admitted" }
+  }
+}
