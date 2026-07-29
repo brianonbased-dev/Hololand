@@ -1,0 +1,128 @@
+// Immutable H3L witness manifest for connected upper limbs, tailored civic fit,
+// and a fresh post-install RTX desktop capture. The residents are symbolic
+// appearances only. WebGPU device creation and the D3D11 scene bridge are
+// separate receipts; native WebGPU scene rendering and TAA are not claimed.
+
+composition "HoloLand Model Village Character Appearance H3L Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3L Upper Limb Tailoring Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3L_UPPER_LIMB_TAILORING"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3l-upper-limb.holo"
+      sourceSha256: "32f8dc8460ab0887489c4c7686f37236bbb981a79bc6de7b8a731c33965a2770"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3l-upper-limb-policy.hsplus"
+      policySha256: "452ef5d8f3e326f28fa8172b4627f9bd215ac527f2d1f65cd321b761f808103d"
+      parser: "HoloScriptPlusParser"
+      nativeActionExecutionClaimed: false
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3l-upper-limb-seed.hs"
+      seedSha256: "73f0d2ad5c036cf0a0c8863fb0b8984ac6ae6d0f6a20d1a2d432ee6e22101f4a"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3l.mjs"
+      checkerSha256: "1893400e837e68752ec4f39e9f1ecea0669f9b648081a8645300b2533dfeec93"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3l.test.mjs"
+      testSha256: "b33be24748e6f58cf1bd7cef74476c8e3df19d869b80d093065c369c341fca60"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3l-upper-limb-2026-07-28.md"
+      reportSha256: "cf6c5fc027fcd4c78161259490600cf4a39a3de8c4cdb2e6b41710ee20e34989"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3l-upper-limb-2026-07-28.png"
+      heroSha256: "91b963b5aab773041379f9370af9c4b0cebaf8ba362e157d848134c0f65774e9"
+      width: 1800
+      height: 900
+      bytes: 400806
+      visuallyInspected: true
+      iterationAccepted: "source_driven_upper_limb_tailoring_pass_with_visible_remaining_seams"
+    }
+    upstream: {
+      holoScriptCommit: "7d7ebaefb1dcfe7bba15525d6f261cc216aab793"
+      bodyBuilderSha256: "d6e5cc9027907d815ffafa2c482a87f81dc3b46e1a426cfc72277c07fc6e4e36"
+      garmentBuilderSha256: "bb05f603b0f0887acf447da910a7177ff34589a48e5ed8f9e35914dc80e12dd9"
+      characterMeshBuilderSha256: "c4b8f6b3d974b1238e308831a337048d5e6cc940784a72a4b110fd2ebf446963"
+      characterHostSha256: "ed7f72c9522ae302da6e85440475d4afbfdd7fc3a8c2ec4748b94f07a894bd18"
+      compositionBridgeSha256: "472dbceeb5c81c2908000464abe3008810d66489af1930efb209cd43ddb1c214"
+      compilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+      upperLimbReceiptSchema: "holoscript.agent-avatar-upper-limb-geometry.v1"
+      upperLimbProfile: "coherent-arm-palm-v1"
+      upperLimbReceiptCount: 8
+      connectedUpperLimbComponentCount: 8
+      upperLimbVertexCountPerSide: 193
+      upperLimbIndexCountPerSide: 1080
+      tailoredGarmentReceiptCount: 4
+      collarProfile: "tailored-open-v-collar-v1"
+      poseClearanceReceiptCount: 12
+      triangleIntersectionCount: 0
+      minimumClearanceMeters: 0.02385231928147596
+      minimumCoveredRayRatio: 1
+      fallbackUsed: false
+      repeatedCompileByteIdentity: true
+      strippedUpperBodyDelta: true
+    }
+    currentDesktopAdmission: {
+      status: "pass"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      driverVersion: "610.88"
+      cimDriverVersion: "32.0.16.1088"
+      installerProcessRunning: false
+      nvidiaPendingRenameCount: 0
+      webgpuProbeMode: "headed"
+      webgpuSecureContext: true
+      webgpuAdapterCreated: true
+      webgpuDeviceCreated: true
+      webgpuTimestampQueryAvailable: true
+      sceneRenderer: "ANGLE NVIDIA GeForce RTX 3060 Laptop GPU Direct3D11"
+      sceneRendererApi: "WebGL_ANGLE_D3D11"
+      browser: "Chrome 150.0.7871.182"
+      antialias: true
+      samples: 4
+      frameSampleCount: 20
+      renderCallP95Milliseconds: 6
+      externalRequestCount: 0
+      pageErrorCount: 0
+      h3lReceiptSha256: "c723452b51ca32f288049468cf1fb91ae1b8c0c38176a9bdd63e302540e5e7cd"
+      sceneReceiptSha256: "262e03d8f2abd3e12a85840265846cfa45d28f54db9cebd01449c0c975c89045"
+      historicalEvidenceCountsAsCurrent: false
+    }
+    boundaries: {
+      providerModelBinding: "absent"
+      symbolicAppearanceOnly: true
+      torsoToLimbSharedTopologyClaimed: false
+      sceneWebgpuRenderingClaimed: false
+      nativeWebgpuTaaClaimed: false
+      gpuTimestampFrameTimeClaimed: false
+      endToEndDisplayLatencyClaimed: false
+      motionReprojectionClaimed: false
+      productionSkinTexturingClaimed: false
+      productionGroomClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      questWebxrMeasured: false
+      vrPerformanceConvergenceClaimed: false
+      externalSkinTextureUsed: false
+      externalHairTextureUsed: false
+      externalWardrobeTextureUsed: false
+    }
+  }
+}

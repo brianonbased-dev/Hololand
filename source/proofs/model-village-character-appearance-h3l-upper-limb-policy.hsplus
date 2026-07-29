@@ -1,0 +1,127 @@
+// H3L upper-limb, tailoring, and fresh-RTX admission policy.
+//
+// The actions document the intended HoloScript Plus admission behavior. This
+// phase parses and independently enforces them in the H3L checker; native
+// hsplus action execution is not claimed.
+
+composition "Stormglass Character Appearance H3L Upper Limb Tailoring Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3l-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3L_UPPER_LIMB_TAILORING"
+    source: "source/proofs/model-village-character-appearance-h3l-upper-limb-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3l-upper-limb.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3l-upper-limb-seed.hs"
+    formatRole: "native_upper_limb_tailoring_and_fresh_rtx_admission_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3LUpperLimbTailoringState {
+    profile: "native_upper_limb_tailoring_desktop_h3l"
+    compiledResidentCount: 0
+    admittedUpperLimbReceiptCount: 0
+    admittedTailoredGarmentReceiptCount: 0
+    admittedPoseClearanceReceiptCount: 0
+    freshRtxBenchmarkCount: 0
+    historicalRtxEvidencePromotedToCurrentCount: 0
+    canonicalVillageMutationCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "NativeUpperLimbAdmission" {
+    type: "native_upper_limb_admission"
+    receiptSchema: "holoscript.agent-avatar-upper-limb-geometry.v1"
+    profile: "coherent-arm-palm-v1"
+    expectedSideCount: 2
+    expectedSides: ["left", "right"]
+    radialSegments: 24
+    ringCount: 8
+    vertexCountPerSide: 193
+    indexCountPerSide: 1080
+    continuityScope: "shoulder_to_palm_per_side"
+    legacyBoxUpperLimbsAllowed: false
+  }
+
+  template "TailoredCivicGarmentAdmission" {
+    type: "tailored_civic_garment_admission"
+    receiptSchema: "holoscript.agent-avatar-garment-geometry.v1"
+    style: "stormglass-open-civic-tunic"
+    fitProfile: "coherent-upper-body-clearance-v1"
+    collarProfile: "tailored-open-v-collar-v1"
+    shoulderShellMaximumHalfWidthMeters: 0.43
+    sleeveRootMaximumRadiusMeters: 0.1
+    taperedSleeveRequired: true
+  }
+
+  template "FreshRtxHeroAdmission" {
+    type: "fresh_rtx_hero_admission"
+    installerProcessRunningAllowed: false
+    pendingDriverRestartAllowed: false
+    hardwareReadbackOnlyCountsAsBenchmark: false
+    historicalCaptureCountsAsCurrent: false
+    browserProbeRequired: true
+    sceneCaptureRequired: true
+    exactDriverVersionRequired: true
+    gpuName: "NVIDIA GeForce RTX 3060 Laptop GPU"
+  }
+
+  action admit_upper_limb(limb, expected) {
+    if (limb.schemaVersion != expected.receiptSchema) {
+      return { admitted: false, reason: "upper_limb_receipt_missing" }
+    }
+    if (limb.profile != expected.profile) {
+      return { admitted: false, reason: "wrong_upper_limb_profile" }
+    }
+    if (limb.radialSegments != expected.radialSegments) {
+      return { admitted: false, reason: "wrong_upper_limb_radial_segments" }
+    }
+    if (limb.ringCount != expected.ringCount) {
+      return { admitted: false, reason: "wrong_upper_limb_ring_count" }
+    }
+    if (limb.vertexRange.vertexCount != expected.vertexCountPerSide) {
+      return { admitted: false, reason: "wrong_upper_limb_vertex_count" }
+    }
+    if (limb.indexRange.indexCount != expected.indexCountPerSide) {
+      return { admitted: false, reason: "wrong_upper_limb_index_count" }
+    }
+    return { admitted: true, reason: "native_upper_limb_admitted" }
+  }
+
+  action admit_tailored_garment(garment, expected) {
+    if (garment.schemaVersion != expected.receiptSchema) {
+      return { admitted: false, reason: "garment_receipt_missing" }
+    }
+    if (garment.collarProfile != expected.collarProfile) {
+      return { admitted: false, reason: "wrong_collar_profile" }
+    }
+    if (garment.shoulderShellHalfWidth >= expected.shoulderShellMaximumHalfWidthMeters) {
+      return { admitted: false, reason: "shoulder_shell_too_wide" }
+    }
+    if (garment.sleeveRootRadius >= expected.sleeveRootMaximumRadiusMeters) {
+      return { admitted: false, reason: "sleeve_root_too_wide" }
+    }
+    if (garment.sleeveWristRadius >= garment.sleeveRootRadius) {
+      return { admitted: false, reason: "sleeve_not_tapered" }
+    }
+    return { admitted: true, reason: "tailored_civic_garment_admitted" }
+  }
+
+  action admit_fresh_rtx_hero(receipt, expected) {
+    if (receipt.installerProcessRunning == true) {
+      return { admitted: false, reason: "driver_installer_active" }
+    }
+    if (receipt.pendingDriverRestart == true) {
+      return { admitted: false, reason: "driver_restart_pending" }
+    }
+    if (receipt.browserProbePassed != true) {
+      return { admitted: false, reason: "browser_probe_missing" }
+    }
+    if (receipt.sceneCapturePassed != true) {
+      return { admitted: false, reason: "scene_capture_missing" }
+    }
+    if (receipt.gpuName != expected.gpuName) {
+      return { admitted: false, reason: "wrong_gpu" }
+    }
+    return { admitted: true, reason: "fresh_rtx_hero_admitted" }
+  }
+}

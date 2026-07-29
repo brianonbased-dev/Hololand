@@ -1,0 +1,156 @@
+// Stormglass Commons Character Appearance H3L.
+//
+// This read-only HoloScript composition advances the H3K character source with
+// continuous skinned shoulder-to-palm surfaces and measured tailoring metadata.
+// OpenAI, Claude, Gemini, and Grok remain symbolic model-family identities:
+// this source binds no provider adapter, live model, research seat, wallet, or
+// biometric identity.
+
+composition "Stormglass Character Appearance H3L Upper Limb Tailoring" {
+  metadata {
+    title: "Stormglass Character Appearance H3L - Connected Upper Limbs and Tailored Civic Fit"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3L_UPPER_LIMB_TAILORING"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3l-upper-limb.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3l-upper-limb-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3l-upper-limb-seed.hs"
+    inheritedH3KSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3k-upper-body-occlusion.holo"
+    inheritedH3KSourceSha256: "36c032523889ce1cd5a2f0f490f471e3f503ee875f56667b514ee5e1d70708c3"
+    upstreamHoloScriptCommit: "7d7ebaefb1dcfe7bba15525d6f261cc216aab793"
+    upstreamBodyBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
+    upstreamBodyBuilderSha256: "d6e5cc9027907d815ffafa2c482a87f81dc3b46e1a426cfc72277c07fc6e4e36"
+    upstreamGarmentBuilderPath: "packages/engine/src/character-render/AgentAvatarGarment.ts"
+    upstreamGarmentBuilderSha256: "bb05f603b0f0887acf447da910a7177ff34589a48e5ed8f9e35914dc80e12dd9"
+    upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
+    upstreamCharacterHostSha256: "ed7f72c9522ae302da6e85440475d4afbfdd7fc3a8c2ec4748b94f07a894bd18"
+    upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamCompositionBridgeSha256: "472dbceeb5c81c2908000464abe3008810d66489af1930efb209cd43ddb1c214"
+    upstreamCharacterMeshBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
+    upstreamCharacterMeshBuilderSha256: "c4b8f6b3d974b1238e308831a337048d5e6cc940784a72a4b110fd2ebf446963"
+    upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
+    upstreamCompilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+    projectionRole: "read_only_symbolic_model_family_upper_limb_tailoring_witness"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "stormglass_model_family_civic_portrait_stage"
+  }
+
+  environment {
+    mode: "native_upper_limb_tailoring_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#020811"
+    ambient_light: 0.12
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3L_UPPER_LIMB_TAILORING"
+    presentationProfile: "named_model_family_symbolic_appearance_only"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    providerModelBinding: "absent"
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    liveResearchJoinAllowed: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    biometricPersistenceAllowed: false
+
+    nativeCharacterCompilerClaimed: true
+    nativeCoherentUpperBodyClaimed: true
+    nativeUpperLimbReceiptClaimed: true
+    nativeTailoredGarmentReceiptClaimed: true
+    continuousShoulderToPalmClaimed: true
+    torsoToLimbSharedTopologyClaimed: false
+    legacyBoxUpperLimbsSuppressedClaimed: true
+    repeatedCompileByteIdentityClaimed: true
+    strippedUpperBodyDeltaClaimed: true
+    nativePoseClearanceClaimed: true
+
+    freshRtxBenchmarkClaimed: false
+    currentDriverInstallBenchmarkClaimed: false
+    historicalRtxEvidenceMayBeReusedAsCurrent: false
+    freshGpuGateRequiredForHero: true
+    heroCaptureClaimed: false
+    nativeWebgpuTaaClaimed: false
+    questWebxrMeasured: false
+    vrPerformanceConvergenceClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    upperLimbFoundation: {
+      receiptSchema: "holoscript.agent-avatar-upper-limb-geometry.v1"
+      profile: "coherent-arm-palm-v1"
+      sideNames: ["left", "right"]
+      sideCount: 2
+      radialSegments: 24
+      ringCount: 8
+      vertexCountPerSide: 193
+      indexCountPerSide: 1080
+      continuityScope: "shoulder_to_palm_per_side"
+      legacySegmentsSuppressed: ["shoulder", "upper_arm", "forearm", "hand"]
+      skinningMode: "existing_humanoid_rig_rigid_ring_weights"
+    }
+
+    tailoredGarmentFoundation: {
+      receiptSchema: "holoscript.agent-avatar-garment-geometry.v1"
+      style: "stormglass-open-civic-tunic"
+      fitProfile: "coherent-upper-body-clearance-v1"
+      collarProfile: "tailored-open-v-collar-v1"
+      shoulderShellMaximumHalfWidthMeters: 0.43
+      sleeveRootMaximumRadiusMeters: 0.1
+      taperedSleeveRequired: true
+    }
+
+    freshGpuAdmission: {
+      evidenceScope: "post_install_current_driver_session"
+      installerProcessRunningAllowed: false
+      pendingDriverRestartAllowed: false
+      hardwareReadbackOnlyCountsAsBenchmark: false
+      historicalCaptureCountsAsCurrent: false
+      browserProbeRequired: true
+      sceneCaptureRequired: true
+      exactDriverVersionRecorded: true
+      gpuNameRequired: "NVIDIA GeForce RTX 3060 Laptop GPU"
+    }
+  }
+
+  template "H3LNamedModelResidentWitness" {
+    type: "named_model_family_upper_limb_witness"
+    providerBinding: "appearance_only_absent"
+    upperLimbProfile: "coherent-arm-palm-v1"
+    collarProfile: "tailored-open-v-collar-v1"
+  }
+
+  object "OpenAIResidentWitness" using "H3LNamedModelResidentWitness" {
+    modelFamilyId: "openai"
+    displayLabel: "OpenAI"
+    civicRole: "systems_synthesist"
+    inheritedObjectId: "OpenAIResident"
+  }
+
+  object "ClaudeResidentWitness" using "H3LNamedModelResidentWitness" {
+    modelFamilyId: "anthropic"
+    displayLabel: "Claude"
+    civicRole: "constitutional_steward"
+    inheritedObjectId: "ClaudeResident"
+  }
+
+  object "GeminiResidentWitness" using "H3LNamedModelResidentWitness" {
+    modelFamilyId: "google"
+    displayLabel: "Gemini"
+    civicRole: "multimodal_cartographer"
+    inheritedObjectId: "GeminiResident"
+  }
+
+  object "GrokResidentWitness" using "H3LNamedModelResidentWitness" {
+    modelFamilyId: "xai"
+    displayLabel: "Grok"
+    civicRole: "frontier_provocateur"
+    inheritedObjectId: "GrokResident"
+  }
+}
