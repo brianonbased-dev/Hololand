@@ -1,0 +1,116 @@
+// Immutable H3K witness manifest for the connected native upper body and pose-safe tunic.
+// The named residents are symbolic appearances only. This witness does not claim live model
+// bindings, photorealism, production textures/groom, native TAA, Quest, or VR convergence.
+
+composition "HoloLand Model Village Character Appearance H3K Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3K Upper Body Occlusion Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3K_UPPER_BODY_OCCLUSION"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3k-upper-body-occlusion.holo"
+      sourceSha256: "10de8c5452596f60369f4acf257c1cd3d17ec21a26a0327ce00114652cffc7ea"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3k-upper-body-occlusion-policy.hsplus"
+      policySha256: "d4eefcc3bbd715de4dc61e042f6bfd2d5fe29c15fbb11502b6070857cf6c3d8c"
+      parser: "HoloScriptPlusParser"
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3k-upper-body-occlusion-seed.hs"
+      seedSha256: "7d5d037d13c012821756384723a0340403c10604f0c6b9e850d4f43e1c725343"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3k.mjs"
+      checkerSha256: "cd74c8a42554ccf6d8084451f6bf02aa07304ff049bb13273741826171e79524"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3k.test.mjs"
+      testSha256: "4e35707c1eb3ed5172f812b4ceba8cc8c4fc7c55b826efafb19f746fb36534ce"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3k-upper-body-occlusion-2026-07-28.md"
+      reportSha256: "8f709ae728d3ff43d8f2f0b8ca5db5c9fafc612f4f715eb722999d90fa07ea62"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3k-upper-body-occlusion-2026-07-28.png"
+      heroSha256: "f98d52a98a24fc9b096d1e9b82953ef117a2046717c48af60051204b895e5a95"
+      width: 1800
+      height: 900
+      bytes: 408320
+      visuallyInspected: true
+      iterationAccepted: "source_driven_pose_clearance_pass"
+    }
+    upstream: {
+      holoScriptCommit: "5836a2dee69f278b89ef801312c7bb6fe003bf0f"
+      bodyBuilderSha256: "5cb1e9f020dba39eb3063c182dc6efccbcb7ef7078bde6a45b34f5a8f0237707"
+      garmentBuilderSha256: "f66694a7352eb426e92eac493a379da2c64cadc9481a83e0e0ecf532ffb3b6ea"
+      characterMeshBuilderSha256: "c4b8f6b3d974b1238e308831a337048d5e6cc940784a72a4b110fd2ebf446963"
+      characterHostSha256: "ed7f72c9522ae302da6e85440475d4afbfdd7fc3a8c2ec4748b94f07a894bd18"
+      compositionBridgeSha256: "472dbceeb5c81c2908000464abe3008810d66489af1930efb209cd43ddb1c214"
+      compilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+      upperBodyProfile: "coherent-shoulder-neck-torso-v1"
+      upperBodyReceiptSchema: "holoscript.agent-avatar-upper-body-geometry.v1"
+      garmentReceiptSchema: "holoscript.agent-avatar-garment-geometry.v1"
+      garmentFitProfile: "coherent-upper-body-clearance-v1"
+      tunicIndexCount: 1008
+      nativeBundleCount: 4
+      upperBodyReceiptCount: 4
+      garmentReceiptCount: 4
+      poseClearanceReceiptCount: 12
+      triangleIntersectionCount: 0
+      minimumClearanceMeters: 0.02385231928147596
+      minimumCoveredRayRatio: 1
+      fallbackUsed: false
+      stubCount: 0
+      repeatedCompileByteIdentity: true
+      strippedUpperBodyDelta: true
+    }
+    presentation: {
+      renderer: "ANGLE NVIDIA GeForce RTX 3060 Laptop GPU Direct3D11"
+      browser: "Chrome 150.0.7871.182"
+      width: 1800
+      height: 900
+      antialias: true
+      samples: 4
+      acceptedRunCount: 2
+      frameSampleCountPerRun: 20
+      renderFrameP95MinimumMilliseconds: 9.8
+      renderFrameP95MaximumMilliseconds: 28.5
+      externalRequestCount: 0
+      pageErrorCount: 0
+      presentationMaterialBridgeUsed: true
+      presentationWardrobeBridgeUsed: false
+      presentationNativeTorsoClipUsed: false
+      presentationTaaBridgeUsed: false
+    }
+    boundaries: {
+      providerModelBinding: "absent"
+      symbolicAppearanceOnly: true
+      nativeWebgpuTaaClaimed: false
+      motionReprojectionClaimed: false
+      productionSkinTexturingClaimed: false
+      productionGroomClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      questWebxrMeasured: false
+      vrPerformanceConvergenceClaimed: false
+      externalSkinTextureUsed: false
+      externalHairTextureUsed: false
+      externalWardrobeTextureUsed: false
+    }
+  }
+}

@@ -1,0 +1,144 @@
+// H3K coherent upper-body and pose-safe garment admission policy.
+
+composition "Stormglass Character Appearance H3K Upper Body Occlusion Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3k-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3K_UPPER_BODY_OCCLUSION"
+    source: "source/proofs/model-village-character-appearance-h3k-upper-body-occlusion-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3k-upper-body-occlusion.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3k-upper-body-occlusion-seed.hs"
+    formatRole: "native_upper_body_pose_clearance_admission_and_firewall_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3KUpperBodyOcclusionState {
+    profile: "native_upper_body_occlusion_desktop_h3k"
+    compiledResidentCount: 0
+    admittedUpperBodyReceiptCount: 0
+    admittedGarmentReceiptCount: 0
+    admittedPoseClearanceReceiptCount: 0
+    triangleIntersectionCount: 0
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "NativeUpperBodyOcclusionAdmission" {
+    type: "native_upper_body_occlusion_admission"
+    target: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    upperBodyReceiptSchema: "holoscript.agent-avatar-upper-body-geometry.v1"
+    upperBodyProfile: "coherent-shoulder-neck-torso-v1"
+    garmentReceiptSchema: "holoscript.agent-avatar-garment-geometry.v1"
+    garmentStyle: "stormglass-open-civic-tunic"
+    garmentFitProfile: "coherent-upper-body-clearance-v1"
+    garmentTunicIndexCount: 1008
+    expectedResidentCount: 4
+    expectedPoseCount: 3
+    expectedPoseResidentPairs: 12
+    radialSegments: 24
+    ringCount: 10
+    minimumClearanceMeters: 0.015
+    minimumCoveredRayRatio: 0.95
+    zeroTriangleIntersectionsRequired: true
+    repeatedCompileByteIdentityRequired: true
+    strippedUpperBodyDeltaRequired: true
+    compilerFallbackAllowed: false
+    presentationShaderOverrideAllowed: false
+    presentationMaterialBridgeAllowed: true
+    presentationWardrobeBridgeAllowed: false
+    presentationNativeTorsoClipAllowed: false
+    externalSkinTextureAllowed: false
+    externalHairTextureAllowed: false
+    externalWardrobeTextureAllowed: false
+    nativeWebgpuTaaClaimed: false
+    questWebxrMeasured: false
+    photorealismClaimed: false
+  }
+
+  object "CivicRestPose" {
+    type: "upper_body_pose_probe"
+    order: 0
+    poseId: "civic_rest"
+    leftUpperArmZ: -0.12
+    rightUpperArmZ: 0.12
+    leftForearmZ: -0.08
+    rightForearmZ: 0.08
+    spine2Y: 0
+  }
+
+  object "OpenWelcomePose" {
+    type: "upper_body_pose_probe"
+    order: 1
+    poseId: "open_welcome"
+    leftUpperArmZ: -0.58
+    rightUpperArmZ: 0.58
+    leftForearmZ: -0.28
+    rightForearmZ: 0.28
+    spine2Y: 0.08
+  }
+
+  object "DialogueReachPose" {
+    type: "upper_body_pose_probe"
+    order: 2
+    poseId: "dialogue_reach"
+    leftUpperArmZ: -0.82
+    rightUpperArmZ: 0.34
+    leftForearmZ: -0.42
+    rightForearmZ: 0.18
+    spine2Y: -0.1
+  }
+
+  template "H3KUpperBodyOcclusionFirewall" {
+    type: "model_village_character_appearance_firewall"
+    presentationLane: "mv_character_appearance_h3k"
+    prohibitedLane: "research_live_blinded"
+    prohibitedInputs: ["live_model_output", "resident_observation", "adapter_assignment", "research_seat", "seat_wallet", "biometric_sample"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_action", "village_receipt", "wallet_identity", "biometric_store"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+    networkFetchCountRequired: 0
+  }
+
+  action admit_native_upper_body_bundle(bundle, expected) {
+    if (bundle.format != expected.outputFormat) {
+      return { admitted: false, reason: "wrong_output_format" }
+    }
+    if (bundle.usedFallback == true) {
+      return { admitted: false, reason: "compiler_fallback_used" }
+    }
+    if (bundle.anatomy.upperBody.schemaVersion != expected.upperBodyReceiptSchema) {
+      return { admitted: false, reason: "upper_body_receipt_missing" }
+    }
+    if (bundle.anatomy.upperBody.profile != expected.upperBodyProfile) {
+      return { admitted: false, reason: "wrong_upper_body_profile" }
+    }
+    if (bundle.garment.schemaVersion != expected.garmentReceiptSchema) {
+      return { admitted: false, reason: "garment_receipt_missing" }
+    }
+    if (bundle.garment.style != expected.garmentStyle) {
+      return { admitted: false, reason: "wrong_garment_style" }
+    }
+    if (bundle.garment.fitProfile != expected.garmentFitProfile) {
+      return { admitted: false, reason: "wrong_garment_fit_profile" }
+    }
+    if (bundle.garment.tunicIndexRange.indexCount != expected.garmentTunicIndexCount) {
+      return { admitted: false, reason: "wrong_tunic_proof_range" }
+    }
+    return { admitted: true, reason: "native_upper_body_bundle_admitted" }
+  }
+
+  action admit_pose_clearance(receipt, expected) {
+    if (receipt.triangleIntersectionCount != 0) {
+      return { admitted: false, reason: "body_garment_intersection" }
+    }
+    if (receipt.minimumClearanceMeters < expected.minimumClearanceMeters) {
+      return { admitted: false, reason: "garment_clearance_below_floor" }
+    }
+    if (receipt.coveredRayRatio < expected.minimumCoveredRayRatio) {
+      return { admitted: false, reason: "body_not_occluded_by_garment" }
+    }
+    return { admitted: true, reason: "pose_clearance_admitted" }
+  }
+}

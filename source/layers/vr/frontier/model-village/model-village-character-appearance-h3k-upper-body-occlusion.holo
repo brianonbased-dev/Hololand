@@ -1,0 +1,224 @@
+// Stormglass Commons Character Appearance H3K.
+//
+// This read-only systems-look-development composition selects the connected native
+// torso-shoulder-neck surface and open civic garment for four explicitly named model-family
+// residents. Names are symbolic appearance identities only: no provider adapter, research
+// seat, model call, wallet, live observation, or canonical village mutation is bound here.
+
+composition "Stormglass Character Appearance H3K Upper Body Occlusion" {
+  metadata {
+    title: "Stormglass Character Appearance H3K - Coherent Upper Body and Pose-Safe Garment"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3K_UPPER_BODY_OCCLUSION"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3k-upper-body-occlusion.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3k-upper-body-occlusion-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3k-upper-body-occlusion-seed.hs"
+    inheritedH3JSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3j-civic-landmarks.holo"
+    inheritedH3JSourceSha256: "925fe0fb907cab7afd3b3985e471bba3220a45833e49c0e0a8d64cc084816071"
+    upstreamHoloScriptCommit: "5836a2dee69f278b89ef801312c7bb6fe003bf0f"
+    upstreamBodyBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
+    upstreamBodyBuilderSha256: "5cb1e9f020dba39eb3063c182dc6efccbcb7ef7078bde6a45b34f5a8f0237707"
+    upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
+    upstreamCharacterHostSha256: "ed7f72c9522ae302da6e85440475d4afbfdd7fc3a8c2ec4748b94f07a894bd18"
+    upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamCompositionBridgeSha256: "472dbceeb5c81c2908000464abe3008810d66489af1930efb209cd43ddb1c214"
+    upstreamGarmentBuilderPath: "packages/engine/src/character-render/AgentAvatarGarment.ts"
+    upstreamGarmentBuilderSha256: "f66694a7352eb426e92eac493a379da2c64cadc9481a83e0e0ecf532ffb3b6ea"
+    upstreamCharacterMeshBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
+    upstreamCharacterMeshBuilderSha256: "c4b8f6b3d974b1238e308831a337048d5e6cc940784a72a4b110fd2ebf446963"
+    upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
+    upstreamCompilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+    projectionRole: "read_only_symbolic_model_family_upper_body_occlusion_witness"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "stormglass_model_family_civic_portrait_stage"
+  }
+
+  environment {
+    mode: "native_upper_body_occlusion_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#020811"
+    ambient_light: 0.12
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3K_UPPER_BODY_OCCLUSION"
+    presentationProfile: "named_model_family_symbolic_appearance_only"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    providerModelBinding: "absent"
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    liveResearchJoinAllowed: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    biometricPersistenceAllowed: false
+
+    nativeCharacterCompilerClaimed: true
+    nativeCoherentUpperBodyClaimed: true
+    nativeUpperBodyReceiptClaimed: true
+    nativeOpenCivicGarmentClaimed: true
+    nativeGarmentReceiptClaimed: true
+    nativePoseClearanceClaimed: true
+    nativeTriangleIntersectionProofClaimed: true
+    nativeOutwardRayOcclusionProofClaimed: true
+    repeatedCompileByteIdentityClaimed: true
+    strippedUpperBodyDeltaClaimed: true
+
+    presentationShaderOverrideUsed: false
+    presentationMaterialBridgeUsed: true
+    presentationWardrobeBridgeUsed: false
+    presentationNativeTorsoClipUsed: false
+    presentationTaaBridgeUsed: false
+    externalSkinTextureUsed: false
+    externalHairTextureUsed: false
+    externalWardrobeTextureUsed: false
+
+    productionSkinTexturingClaimed: false
+    strandHairClaimed: false
+    productionGroomClaimed: false
+    biometricLikenessClaimed: false
+    photorealismClaimed: false
+    motionReprojectionClaimed: false
+    nativeWebgpuTaaClaimed: false
+    questWebxrMeasured: false
+    vrPerformanceConvergenceClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    upperBodyFoundation: {
+      profile: "coherent-shoulder-neck-torso-v1"
+      receiptSchema: "holoscript.agent-avatar-upper-body-geometry.v1"
+      radialSegments: 24
+      ringCount: 10
+      garmentStyle: "stormglass-open-civic-tunic"
+      garmentReceiptSchema: "holoscript.agent-avatar-garment-geometry.v1"
+      garmentFitProfile: "coherent-upper-body-clearance-v1"
+      garmentTunicIndexCount: 1008
+      poseNames: ["civic_rest", "open_welcome", "dialogue_reach"]
+      poseCount: 3
+      expectedPoseResidentPairs: 12
+      collisionMethod: "posed_triangle_intersection_v1"
+      occlusionMethod: "posed_outward_ray_v1"
+      minimumClearanceMeters: 0.015
+      minimumCoveredRayRatio: 0.95
+      nativeWardrobeRequired: true
+      presentationWardrobeBridge: false
+      nativeTorsoClip: false
+    }
+
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      fallbackAllowed: false
+      exactFourNativeBundlesRequired: true
+      exactFourUpperBodyReceiptsRequired: true
+      exactFourGarmentReceiptsRequired: true
+      exactTwelvePoseClearanceReceiptsRequired: true
+      zeroTriangleIntersectionsRequired: true
+      minimumCoveredRayRatioRequired: 0.95
+      strippedUpperBodyDeltaRequired: true
+      repeatedCompileByteIdentityRequired: true
+    }
+  }
+
+  template "StormglassNamedModelResident" {
+    @skeleton(rig: "humanoid_65")
+    @locomotion(mode: "idle", speed: 0)
+    @cloth_simulation(solver: "xpbd", fixed_step_hz: 120, iterations: 5, gravity: [0, -9.81, 0])
+    type: "named_model_family_resident"
+    providerBinding: "appearance_only_absent"
+  }
+
+  object "OpenAIResident" using "StormglassNamedModelResident" {
+    @body(height: 1.82, build_scale: 1.07, shoulder_scale: 1.1, torso_scale: 0.96, upper_body_profile: "coherent_shoulder_neck_torso_v1", upper_body_radial_segments: 24, skin_tone: "#B9826F")
+    @face(topology: "neutral_anatomical_v2", radial_segments: 30, vertical_segments: 22, face_width: 0.95, face_length: 1.06, jaw_taper: 0.29, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.35, lid_opening: 0.47, canthal_tilt: 0.11, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.82, brow_height: 1.22, brow_thickness: 0.18, ear_scale: 1.02, mouth_depth: 0.84, ocular_profile: "layered_ocular_v1", iris_color: "#5FC9B2", sclera_color: "#F0E7E0", iris_scale: 0.49, pupil_scale: 0.38, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#B9826F", scatter_color: "#A65D50", microdetail_profile: "analytic_pore_v1", microdetail_scale: 94, microdetail_strength: 0.074)
+    @hair(style: "cropped_coils", color: "#20292A", groom_profile: "scalp_flow_v1", card_width: 0.0054, root_lift: 0.0024, tip_taper: 0.1, hairline_bias: 0.16, crown_whorl: 0.38, cluster_count: 14, cluster_spread: 0.42, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.84, edge_softness: 0.12, anisotropy_strength: 0.88, longitudinal_shift: 0.08)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#176B5B")
+    @morph(targets: { smile: 0.08, jawOpen: 0, blink: 0 })
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 260, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 216, hair_cards_per_guide: 2, hair_segments: 8 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 124, hair_cards_per_guide: 2, hair_segments: 6 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 52, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "named_model_family_resident"
+    providerBinding: "appearance_only_absent"
+    modelFamilyId: "openai"
+    displayLabel: "OpenAI"
+    civicRole: "systems_synthesist"
+    heroPose: "open_welcome"
+    wardrobeColor: "#176B5B"
+    accentColor: "#62D9C0"
+  }
+
+  object "ClaudeResident" using "StormglassNamedModelResident" {
+    @body(height: 1.86, build_scale: 1.05, shoulder_scale: 1.08, torso_scale: 0.95, upper_body_profile: "coherent_shoulder_neck_torso_v1", upper_body_radial_segments: 24, skin_tone: "#C58B70")
+    @face(topology: "neutral_anatomical_v2", radial_segments: 30, vertical_segments: 22, face_width: 0.94, face_length: 1.08, jaw_taper: 0.31, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.36, lid_opening: 0.46, canthal_tilt: 0.12, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.81, brow_height: 1.27, brow_thickness: 0.19, ear_scale: 1.05, mouth_depth: 0.9, ocular_profile: "layered_ocular_v1", iris_color: "#9C744F", sclera_color: "#F1E8DF", iris_scale: 0.5, pupil_scale: 0.39, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#C58B70", scatter_color: "#AF6958", microdetail_profile: "analytic_pore_v1", microdetail_scale: 91, microdetail_strength: 0.07)
+    @hair(style: "medium_wavy", color: "#744531", groom_profile: "scalp_flow_v1", card_width: 0.0053, root_lift: 0.0027, tip_taper: 0.09, hairline_bias: 0.15, crown_whorl: 0.44, cluster_count: 15, cluster_spread: 0.45, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.86, edge_softness: 0.11, anisotropy_strength: 0.86, longitudinal_shift: 0.07)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#A85F36")
+    @morph(targets: { smile: 0.06, jawOpen: 0, blink: 0 })
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 260, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 232, hair_cards_per_guide: 2, hair_segments: 8 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 132, hair_cards_per_guide: 2, hair_segments: 6 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 56, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "named_model_family_resident"
+    providerBinding: "appearance_only_absent"
+    modelFamilyId: "anthropic"
+    displayLabel: "Claude"
+    civicRole: "constitutional_steward"
+    heroPose: "dialogue_reach"
+    wardrobeColor: "#A85F36"
+    accentColor: "#E3A16F"
+  }
+
+  object "GeminiResident" using "StormglassNamedModelResident" {
+    @body(height: 1.79, build_scale: 1.04, shoulder_scale: 1.06, torso_scale: 0.94, upper_body_profile: "coherent_shoulder_neck_torso_v1", upper_body_radial_segments: 24, skin_tone: "#8D695C")
+    @face(topology: "neutral_anatomical_v2", radial_segments: 28, vertical_segments: 20, face_width: 0.96, face_length: 1.04, jaw_taper: 0.27, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.34, lid_opening: 0.49, canthal_tilt: 0.14, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.84, brow_height: 1.18, brow_thickness: 0.17, ear_scale: 1, mouth_depth: 0.78, ocular_profile: "layered_ocular_v1", iris_color: "#557FD0", sclera_color: "#ECE7E2", iris_scale: 0.51, pupil_scale: 0.37, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#8D695C", scatter_color: "#785147", microdetail_profile: "analytic_pore_v1", microdetail_scale: 103, microdetail_strength: 0.083)
+    @hair(style: "long", color: "#25283A", groom_profile: "scalp_flow_v1", card_width: 0.0055, root_lift: 0.0023, tip_taper: 0.12, hairline_bias: 0.17, crown_whorl: -0.26, cluster_count: 13, cluster_spread: 0.39, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.82, edge_softness: 0.13, anisotropy_strength: 0.9, longitudinal_shift: 0.11)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#3859A8")
+    @morph(targets: { smile: 0.05, jawOpen: 0, blink: 0 })
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 260, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 224, hair_cards_per_guide: 2, hair_segments: 8 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 128, hair_cards_per_guide: 2, hair_segments: 6 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 54, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "named_model_family_resident"
+    providerBinding: "appearance_only_absent"
+    modelFamilyId: "google"
+    displayLabel: "Gemini"
+    civicRole: "multimodal_cartographer"
+    heroPose: "civic_rest"
+    wardrobeColor: "#3859A8"
+    accentColor: "#829BFF"
+  }
+
+  object "GrokResident" using "StormglassNamedModelResident" {
+    @body(height: 1.88, build_scale: 1.08, shoulder_scale: 1.13, torso_scale: 0.98, upper_body_profile: "coherent_shoulder_neck_torso_v1", upper_body_radial_segments: 24, skin_tone: "#D0A086")
+    @face(topology: "neutral_anatomical_v2", radial_segments: 30, vertical_segments: 22, face_width: 0.93, face_length: 1.07, jaw_taper: 0.32, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.38, lid_opening: 0.45, canthal_tilt: 0.16, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.8, brow_height: 1.3, brow_thickness: 0.2, ear_scale: 1.08, mouth_depth: 0.94, ocular_profile: "layered_ocular_v1", iris_color: "#53BFD0", sclera_color: "#F2EBE4", iris_scale: 0.52, pupil_scale: 0.36, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A", microdetail_profile: "analytic_pore_v1", microdetail_scale: 88, microdetail_strength: 0.065)
+    @hair(style: "short", color: "#171B21", groom_profile: "scalp_flow_v1", card_width: 0.0057, root_lift: 0.0021, tip_taper: 0.13, hairline_bias: 0.18, crown_whorl: -0.31, cluster_count: 12, cluster_spread: 0.36, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.81, edge_softness: 0.14, anisotropy_strength: 0.91, longitudinal_shift: 0.12)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#263945")
+    @morph(targets: { smile: 0.04, jawOpen: 0, blink: 0 })
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 260, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 196, hair_cards_per_guide: 2, hair_segments: 7 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 112, hair_cards_per_guide: 2, hair_segments: 5 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 48, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "named_model_family_resident"
+    providerBinding: "appearance_only_absent"
+    modelFamilyId: "xai"
+    displayLabel: "Grok"
+    civicRole: "frontier_provocateur"
+    heroPose: "open_welcome"
+    wardrobeColor: "#263945"
+    accentColor: "#65D8E7"
+  }
+}
