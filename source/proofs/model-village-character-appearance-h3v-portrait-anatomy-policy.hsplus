@@ -1,0 +1,78 @@
+// H3V portrait-anatomy admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// fail-closed contract enforced by the H3V checker.
+
+composition "Stormglass Character Appearance H3V Portrait Anatomy Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3v-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3V_PORTRAIT_ANATOMY"
+    source: "source/proofs/model-village-character-appearance-h3v-portrait-anatomy-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3v-portrait-anatomy.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3v-portrait-anatomy-seed.hs"
+    formatRole: "portrait_anatomy_deformation_and_browser_lookdev_admission"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3VPortraitAdmissionState {
+    sourceCompiledResidentCount: 0
+    portraitShoulderReceiptCount: 0
+    portraitFaceReceiptCount: 0
+    browserGpuDeviceCount: 0
+    browserRenderCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+  }
+
+  template "PortraitAnatomyAdmission" {
+    type: "portrait_anatomy_admission"
+    expectedBackend: "webgpu"
+    expectedUpperBodyProfile: "portrait-anatomy-v6"
+    expectedJointProfile: "portrait-shoulder-volume-v2"
+    expectedFaceProfile: "portrait-silhouette-v2"
+    expectedShoulderBlendRingCount: 6
+    minimumAuthoredShoulderRadiusRatio: 0.7
+    expectedSuperiorContourScaleMin: 0.15
+    expectedPoseName: "portrait_arms_down"
+    expectedPoseBoneCount: 4
+    gpuTimestampRequired: false
+    questHeadsetRequired: false
+  }
+
+  action admit_portrait_resident(resident, expected) {
+    if (resident.upperBodyProfile != expected.expectedUpperBodyProfile) {
+      return { admitted: false, reason: "wrong_upper_body_profile" }
+    }
+    if (resident.shoulderBlendRingCount != expected.expectedShoulderBlendRingCount) {
+      return { admitted: false, reason: "shoulder_blend_ring_drift" }
+    }
+    if (resident.minimumShoulderRadiusRatio < expected.minimumAuthoredShoulderRadiusRatio) {
+      return { admitted: false, reason: "shoulder_volume_floor_failed" }
+    }
+    if (resident.superiorContourScaleMin != expected.expectedSuperiorContourScaleMin) {
+      return { admitted: false, reason: "superior_shoulder_contour_drift" }
+    }
+    if (resident.faceProfile != expected.expectedFaceProfile) {
+      return { admitted: false, reason: "wrong_face_profile" }
+    }
+    if (resident.poseBoneCount != expected.expectedPoseBoneCount) {
+      return { admitted: false, reason: "source_pose_missing" }
+    }
+    return { admitted: true, reason: "portrait_resident_admitted" }
+  }
+
+  action admit_claim_boundary(receipt) {
+    if (receipt.gpuTimestampMeasured == true) {
+      return { admitted: false, reason: "gpu_timestamp_not_in_scope" }
+    }
+    if (receipt.questHeadsetMeasured == true) {
+      return { admitted: false, reason: "quest_headset_not_present" }
+    }
+    if (receipt.freshRtxBenchmarkClaimed == true) {
+      return { admitted: false, reason: "rtx_benchmark_not_measured" }
+    }
+    return { admitted: true, reason: "bounded_browser_portrait_claim_admitted" }
+  }
+}

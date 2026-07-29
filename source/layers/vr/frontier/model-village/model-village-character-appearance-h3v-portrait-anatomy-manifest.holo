@@ -1,0 +1,47 @@
+// H3V immutable source, proof, browser, and claim-boundary bindings.
+// Hashes bind the visually selected browser render and its admission receipt.
+
+composition "Stormglass Character Appearance H3V Portrait Anatomy Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-appearance-h3v-manifest.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3V_PORTRAIT_ANATOMY"
+    date: "2026-07-29"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3v-portrait-anatomy.holo"
+    sourceSha256: "02fcf5860fe3b91880efd8b99abbf088028c2e9eee75777b3c6efa813bb59fe9"
+    policy: "source/proofs/model-village-character-appearance-h3v-portrait-anatomy-policy.hsplus"
+    policySha256: "2d4ded16f2f218f138c3b59120bf3f9d56bf7ab3baed54c5c5fd51efd7ea6636"
+    seed: "source/proofs/model-village-character-appearance-h3v-portrait-anatomy-seed.hs"
+    seedSha256: "82879446578155a12a39e2fb75214c771657132c91078e40c32135695710a195"
+    checker: "scripts/check-hololand-model-village-character-appearance-h3v.mjs"
+    checkerSha256: "0bb81f42c3d8c3eaf42a7556c8984b773db32cc626f1bc6d3c394a6d31d09b48"
+    test: "scripts/__tests__/hololand-model-village-character-appearance-h3v.test.mjs"
+    testSha256: "057dc2eb2370259108491a4c922c03dba0a639fdae133b0bcf3f775ec49b8e0d"
+    report: "docs/reports/model-village-character-appearance-h3v-portrait-anatomy-2026-07-29.md"
+    reportSha256: "342a86bf25507f3d14dc7681cd7aff945aa9e67681d3a424870b36ddd4b58e61"
+    hero: "docs/assets/model-village/model-village-character-appearance-h3v-portrait-anatomy-2026-07-29.png"
+    heroSha256: "33a99d2030bcf66512ce0fd0609fe0b134d3847b0bd5b5f8b07c69d54020b7b0"
+    evidence: "docs/assets/model-village/model-village-character-appearance-h3v-portrait-anatomy-2026-07-29.json"
+    evidenceSha256: "d4e796ccbbca6b64cf56b22fda9f27426718ff6b5167a421698734168933cc0f"
+    evidenceReceiptSha256: "aa27bed35575357c77d0bd91e5aba51c3e86c5e7ab1296c7c09bd40d495e64be"
+    upstreamHoloScriptCommit: "38cef37972e2c5a6a980ae874206c15f5752ce26"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    sourceCompiledResidentCount: 4
+    browserCharacterRenderCount: 4
+    browserWebgpuMeasured: true
+    browserAdapterMeasured: true
+    browserDeviceMeasured: true
+    sourcePoseApplied: true
+    portraitShoulderVolumeMeasured: true
+    portraitFaceSilhouetteMeasured: true
+    gpuTimestampMeasured: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    photorealismClaimed: false
+    fullWorldPerformanceClaimed: false
+  }
+}
