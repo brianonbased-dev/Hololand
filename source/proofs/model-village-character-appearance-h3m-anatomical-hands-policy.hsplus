@@ -1,0 +1,69 @@
+// H3M anatomical deltoid and articulated-hand admission policy.
+//
+// Native hsplus action execution is not claimed. The parsed actions define
+// executable intent that the H3M checker independently enforces.
+
+composition "Stormglass Character Appearance H3M Anatomical Hands Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3m-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3M_ANATOMICAL_HANDS"
+    source: "source/proofs/model-village-character-appearance-h3m-anatomical-hands-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3m-anatomical-hands.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3m-anatomical-hands-seed.hs"
+    formatRole: "native_anatomical_deltoid_and_digit_admission_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3MAnatomicalHandsState {
+    compiledResidentCount: 0
+    admittedUpperBodyReceiptCount: 0
+    admittedLimbReceiptCount: 0
+    admittedDigitReceiptCount: 0
+    admittedPoseClearanceReceiptCount: 0
+    canonicalVillageMutationCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "AnatomicalLimbAdmission" {
+    type: "anatomical_limb_admission"
+    upperBodyProfile: "anatomical-shoulder-neck-torso-v2"
+    limbProfile: "anatomical-deltoid-hand-v2"
+    digitProfile: "articulated-three-phalanx-v1"
+    expectedLimbCount: 2
+    expectedDigitCountPerLimb: 5
+    expectedConnectedSurfaceCountPerLimb: 6
+    radialSegments: 24
+    digitRadialSegments: 8
+    minimumShoulderOverlapMeters: 0.02
+  }
+
+  action admit_anatomical_limb(limb, expected) {
+    if (limb.profile != expected.limbProfile) {
+      return { admitted: false, reason: "wrong_anatomical_limb_profile" }
+    }
+    if (limb.digits.length != expected.expectedDigitCountPerLimb) {
+      return { admitted: false, reason: "wrong_digit_count" }
+    }
+    if (limb.connectedSurfaceCount != expected.expectedConnectedSurfaceCountPerLimb) {
+      return { admitted: false, reason: "wrong_surface_count" }
+    }
+    if (limb.shoulderOverlapDepth <= expected.minimumShoulderOverlapMeters) {
+      return { admitted: false, reason: "insufficient_deltoid_overlap" }
+    }
+    return { admitted: true, reason: "native_anatomical_limb_admitted" }
+  }
+
+  action admit_digit(digit, expected) {
+    if (digit.profile != expected.digitProfile) {
+      return { admitted: false, reason: "wrong_digit_profile" }
+    }
+    if (digit.radialSegments != expected.digitRadialSegments) {
+      return { admitted: false, reason: "wrong_digit_radial_segments" }
+    }
+    if (digit.phalanxSegmentCount != 3) {
+      return { admitted: false, reason: "wrong_phalanx_segment_count" }
+    }
+    return { admitted: true, reason: "native_articulated_digit_admitted" }
+  }
+}

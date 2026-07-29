@@ -1,0 +1,126 @@
+// Immutable H3M witness manifest for the native anatomical upper-body profile.
+// Model-family names are symbolic appearances only. The visual witness uses the
+// D3D11 material bridge; native scene WebGPU, TAA, and a fresh RTX benchmark are
+// not claimed.
+
+composition "HoloLand Model Village Character Appearance H3M Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3M Anatomical Hands Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3M_ANATOMICAL_HANDS"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3m-anatomical-hands.holo"
+      sourceSha256: "ee71a77685bb4c159750fc1323b4a0bc323422b5404322e24a6cc4e6366210b5"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3m-anatomical-hands-policy.hsplus"
+      policySha256: "29f86d49b8df3c602fc295c2bc6438cbaca0ba11230a21655d2adb932ad2f78c"
+      parser: "HoloScriptPlusParser"
+      nativeActionExecutionClaimed: false
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3m-anatomical-hands-seed.hs"
+      seedSha256: "20d5a4bdf984cb8ea99026e97e9194c56b51b6f7350f14ac6571265af7850bdb"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3m.mjs"
+      checkerSha256: "aa91137c922957e079b1d24223238ca9934d752701da9ffe94aa305c3bab2f06"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3m.test.mjs"
+      testSha256: "fd9315dedf0c2f80434475c7b5a1ff7114bb6b92d74c63767751a83f11f1de5b"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3m-anatomical-hands-2026-07-28.md"
+      reportSha256: "febb10a20595bb14e20622b153f07773049f60b7771496aea006a71aa83b35b0"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3m-anatomical-hands-2026-07-28.png"
+      heroSha256: "9dd340304bbdafb3139fa4ca1d7b56ca84abd7110e0c73e8fa54b67e9dd46887"
+      width: 1800
+      height: 900
+      bytes: 369799
+      visuallyInspected: true
+      iterationAccepted: "source_compiled_four_resident_stage_plus_isolated_five_digit_detail"
+    }
+    upstream: {
+      holoScriptCommit: "7ed46ad627d5b9582216f008aa82021ef4e85152"
+      geometryChangeCommit: "a89d351926609aa4aa9c00befbecf2622796c885"
+      compilerMappingCommit: "7ed46ad627d5b9582216f008aa82021ef4e85152"
+      bodyBuilderSha256: "dbed01ba427bec343fcdbb7aee8c6b9aa15be51940d03a5e9a26ab58c8441741"
+      garmentBuilderSha256: "bb05f603b0f0887acf447da910a7177ff34589a48e5ed8f9e35914dc80e12dd9"
+      characterHostSha256: "ed7f72c9522ae302da6e85440475d4afbfdd7fc3a8c2ec4748b94f07a894bd18"
+      compositionBridgeSha256: "fbf8be80e8f8cbd0be5281bd8bd52a6d8f5a4161a75d92a9ca183c7bedce2cae"
+      hairBuilderSha256: "c4b8f6b3d974b1238e308831a337048d5e6cc940784a72a4b110fd2ebf446963"
+      compilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      compilerEntrypoint: "CharacterWebGPUCompiler.compile"
+      outputFormat: "character-webgpu/drawspec"
+      residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+      authoredProfile: "coherent-anatomical-limbs-v2"
+      upperBodyProfile: "anatomical-shoulder-neck-torso-v2"
+      upperBodyReceiptCount: 4
+      limbProfile: "anatomical-deltoid-hand-v2"
+      limbReceiptCount: 8
+      digitProfile: "articulated-three-phalanx-v1"
+      digitReceiptCount: 40
+      connectedSurfaceCount: 48
+      tailoredGarmentReceiptCount: 4
+      poseClearanceReceiptCount: 12
+      triangleIntersectionCount: 0
+      minimumClearanceMeters: 0.02385231928147596
+      minimumCoveredRayRatio: 1
+      fallbackUsed: false
+      repeatedCompileByteIdentity: true
+      strippedAnatomyDelta: true
+      acceptedVisualRunReceiptSha256: "ca5ba9f2d5a10c227e40031a86528afd42025e966150fb6c0419d09a234f723d"
+    }
+    currentVisualAdmission: {
+      status: "pass"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      renderer: "ANGLE NVIDIA GeForce RTX 3060 Laptop GPU Direct3D11"
+      rendererApi: "WebGL_ANGLE_D3D11"
+      browser: "Chrome 150.0.7871.182"
+      antialias: true
+      samples: 4
+      residentMeshCount: 4
+      digitReceiptCount: 40
+      externalRequestCount: 0
+      pageErrorCount: 0
+      freshPerformanceBenchmarkClaimed: false
+    }
+    boundaries: {
+      providerModelBinding: "absent"
+      symbolicAppearanceOnly: true
+      torsoToLimbSharedTopologyClaimed: false
+      palmToDigitSharedTopologyClaimed: false
+      watertightHandClaimed: false
+      sceneWebgpuRenderingClaimed: false
+      nativeWebgpuTaaClaimed: false
+      gpuTimestampFrameTimeClaimed: false
+      freshRtxBenchmarkClaimed: false
+      historicalRtxEvidenceCountsAsCurrent: false
+      endToEndDisplayLatencyClaimed: false
+      motionReprojectionClaimed: false
+      productionSkinTexturingClaimed: false
+      productionGroomClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      questWebxrMeasured: false
+      vrPerformanceConvergenceClaimed: false
+      externalSkinTextureUsed: false
+      externalHairTextureUsed: false
+      externalWardrobeTextureUsed: false
+    }
+  }
+}
