@@ -1,0 +1,212 @@
+// Stormglass Commons Character Appearance H3S.
+//
+// Four symbolic model-family residents request the sovereign V5 hand-surface
+// profile under source-authored poses. The witness holds pose, material, camera,
+// and light constant against a V4 topology counterfactual. This is bounded
+// native-render evidence, not provider binding, biometric likeness, measured
+// tissue, a fresh RTX benchmark, photorealism, or whole-world convergence.
+
+composition "Stormglass Character Appearance H3S Hand Surface Anatomy" {
+  metadata {
+    title: "Stormglass Character Appearance H3S - Hand Surface Anatomy"
+    version: "0.1.0"
+    date: "2026-07-29"
+    milestone: "MV_CHARACTER_APPEARANCE_H3S_HAND_SURFACE_ANATOMY"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3s-hand-surface-anatomy.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3s-hand-surface-anatomy-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3s-hand-surface-anatomy-seed.hs"
+    inheritedH3RSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3r-posed-deformation.holo"
+    inheritedH3RSourceSha256: "40adc1b30b999bd38e1721c2f3a0116afeb21bb3c0c9d6033d85daefd2963aad"
+    upstreamHoloScriptCommit: "8f1555f8a8ccf16a3745b9f021bcc21cf87e2b96"
+    upstreamAvatarMeshPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
+    upstreamAvatarMeshSha256: "d74ba768fe042da665abcf1f5e2e583d3cf49152b368623caf4ff4d3a0e93565"
+    upstreamDrawSpecPath: "packages/engine/src/native-render/draw-spec.ts"
+    upstreamDrawSpecSha256: "65bcd95a1031abb741e0d9f2e68e0952e810112303c0230492619753c4924225"
+    upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
+    upstreamCharacterHostSha256: "cae0782c2ba6346378b71695f952c1a3ac51db76985a52cc70f4317db473be71"
+    upstreamNativeRendererPath: "packages/engine/src/character-render/character-render.ts"
+    upstreamNativeRendererSha256: "d14ba22f651cda7b7c1bbdda4894ba3878f9064f73e1822eb96685239fb3a751"
+    upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamCompositionBridgeSha256: "909f016a9161b06a29cf3dddc25b8749ca3d31c2fbebe3f6575c755217e1fd25"
+    upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
+    upstreamCompilerSha256: "59b277f7e0e378c89b328848cc4e6b502f7ea9d7408d5b8e21ca546c69f890be"
+    projectionRole: "read_only_symbolic_model_family_v5_hand_surface_native_webgpu_witness"
+    architectureGuidance: "W.GOLD.002_sovereign_compiler_priority"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "stormglass_v5_hand_surface_close_plate"
+  }
+
+  environment {
+    mode: "native_webgpu_fixed_light_v5_hand_surface_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#020811"
+    ambient_light: 0.09
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3S_V5_HAND_SURFACE_ANATOMY"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    providerModelBinding: "absent"
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    biometricPersistenceAllowed: false
+
+    sourceCompilerEntrypoint: "CharacterWebGPUCompiler.compile"
+    nativeHostBridgeEntrypoint: "buildCharacterHostFromComposition"
+    nativeRendererEntrypoint: "renderCharacter"
+    nativeRendererBackend: "webgpu"
+    authoredUpperBodyProfile: "coherent-hand-surface-v5"
+    counterfactualUpperBodyProfile: "coherent-deforming-hands-v4"
+    handSurfaceReceiptSchema: "holoscript.agent-avatar-hand-surface.v1"
+    handSurfaceGeometryReceiptSchema: "holoscript.agent-avatar-hand-surface-geometry.v1"
+    handSurfaceProfile: "tapered-digit-commissure-cuticle-wrist-v1"
+    jointDeformationReceiptSchema: "holoscript.agent-avatar-joint-deformation.v1"
+    jointDeformationProfile: "dual-influence-upper-limb-v1"
+    fixedLightDirection: [0.32, 0.72, 0.61]
+    fixedClearColor: [2, 8, 17]
+    sourcePoseSoleAuthoredInputClaimed: true
+    repeatedCompileByteIdentityClaimed: true
+    compilerHandSurfaceReceiptClaimed: true
+    nativeDawnGpuReadbackClaimed: true
+    topologyOnlyV4CounterfactualClaimed: true
+    samePoseMaterialLightCameraClaimed: true
+    measuredTissueModelClaimed: false
+
+    browserWebgpuMeasured: false
+    gpuTimestampFrameTimeClaimed: false
+    freshRtxBenchmarkClaimed: false
+    callbackCadenceCountsAsGpuTime: false
+    endToEndDisplayLatencyClaimed: false
+    nativeWebgpuTaaClaimed: false
+    questWebxrMeasured: false
+    productionSkinTexturingClaimed: false
+    photorealismClaimed: false
+    biometricLikenessClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    handSurfaceFoundation: {
+      expectedVertexDeltaOverV4: 1336
+      secondaryInfluencedVertexCount: 1008
+      uniqueJointPairCount: 38
+      wristTransitionVertexCount: 288
+      digitSectionVertexCount: 1690
+      metacarpalKnuckleVertexCount: 260
+      interdigitalCommissureVertexCount: 560
+      nailCuticleVertexCount: 980
+      wristTransitionIndexCount: 1728
+      digitSectionIndexCount: 9720
+      metacarpalKnuckleIndexCount: 1440
+      interdigitalCommissureIndexCount: 3264
+      nailCuticleIndexCount: 5760
+      upperLimbRingCount: 13
+      digitSectionRingCount: 14
+      digitCrossSectionExponent: 2.35
+      commissureRows: 5
+      commissureColumns: 7
+      nailRows: 7
+      nailColumns: 7
+      plateSizePixels: 320
+      contactSheetColumns: 2
+      contactSheetRows: 4
+      gpuTimestampRequired: false
+    }
+  }
+
+  template "StormglassH3SNamedModelResident" {
+    @skeleton(rig: "humanoid_65")
+    @locomotion(mode: "idle", speed: 0)
+    type: "named_model_family_v5_hand_surface_resident"
+    providerBinding: "appearance_only_absent"
+  }
+
+  object "OpenAIResident" using "StormglassH3SNamedModelResident" {
+    @body(height: 1.82, build_scale: 1.07, shoulder_scale: 1.1, torso_scale: 0.96, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#B9826F", nail_tone: "#E6BEB2", nail_roughness: 0.24, nail_bed_tone: "#C9827C", nail_bed_roughness: 0.36)
+    @pose(name: "measured-open-palm", bones: {
+      left_shoulder: [0, 0, 0.017452, 0.999848]
+      left_forearm: [0, 0, 0.026177, 0.999657]
+      left_hand: [0, 0, -0.258819, 0.965926]
+      left_thumb_proximal: [0, 0, -0.300706, 0.953717]
+      left_index_proximal: [0, 0, 0.130526, 0.991445]
+      left_middle_proximal: [0, 0, 0.043619, 0.999048]
+      left_ring_proximal: [0, 0, -0.043619, 0.999048]
+      left_pinky_proximal: [0, 0, -0.130526, 0.991445]
+    })
+    @subsurface_scattering(color: "#B9826F", scatter_color: "#A65D50", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 94, microdetail_strength: 0.074)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#176B5B")
+    type: "named_model_family_v5_hand_surface_resident"
+    modelFamilyId: "openai"
+    displayLabel: "OpenAI"
+    accentColor: "#62D9C0"
+    gestureMeaning: "measured_open_palm"
+  }
+
+  object "ClaudeResident" using "StormglassH3SNamedModelResident" {
+    @body(height: 1.86, build_scale: 1.05, shoulder_scale: 1.08, torso_scale: 0.95, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#C58B70", nail_tone: "#EDC7B6", nail_roughness: 0.28, nail_bed_tone: "#D28A7C", nail_bed_roughness: 0.38)
+    @pose(name: "considered-listening", bones: {
+      left_shoulder: [0, 0, 0.026177, 0.999657]
+      left_forearm: [0, 0, -0.017452, 0.999848]
+      left_hand: [0, 0, 0.130526, 0.991445]
+      left_thumb_proximal: [0, 0, -0.173648, 0.984808]
+      left_index_proximal: [0, 0, -0.069756, 0.997564]
+      left_middle_proximal: [0, 0, -0.130526, 0.991445]
+      left_ring_proximal: [0, 0, -0.190809, 0.981627]
+      left_pinky_proximal: [0, 0, -0.241922, 0.970296]
+    })
+    @subsurface_scattering(color: "#C58B70", scatter_color: "#AF6958", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 91, microdetail_strength: 0.07)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#A85F36")
+    type: "named_model_family_v5_hand_surface_resident"
+    modelFamilyId: "anthropic"
+    displayLabel: "Claude"
+    accentColor: "#E3A16F"
+    gestureMeaning: "considered_listening"
+  }
+
+  object "GeminiResident" using "StormglassH3SNamedModelResident" {
+    @body(height: 1.79, build_scale: 1.04, shoulder_scale: 1.06, torso_scale: 0.94, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#8D695C", nail_tone: "#C9A094", nail_roughness: 0.31, nail_bed_tone: "#9E706B", nail_bed_roughness: 0.4)
+    @pose(name: "asymmetric-visual-framing", bones: {
+      left_shoulder: [0, 0, -0.017452, 0.999848]
+      left_forearm: [0, 0, 0.034899, 0.999391]
+      left_hand: [0, 0, 0.300706, 0.953717]
+      left_thumb_proximal: [0, 0, -0.342020, 0.939693]
+      left_index_proximal: [0, 0, 0.216440, 0.976296]
+      left_middle_proximal: [0, 0, -0.087156, 0.996195]
+      left_ring_proximal: [0, 0, 0.130526, 0.991445]
+      left_pinky_proximal: [0, 0, -0.216440, 0.976296]
+    })
+    @subsurface_scattering(color: "#8D695C", scatter_color: "#785147", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 103, microdetail_strength: 0.083)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#3859A8")
+    type: "named_model_family_v5_hand_surface_resident"
+    modelFamilyId: "google"
+    displayLabel: "Gemini"
+    accentColor: "#829BFF"
+    gestureMeaning: "asymmetric_visual_framing"
+  }
+
+  object "GrokResident" using "StormglassH3SNamedModelResident" {
+    @body(height: 1.88, build_scale: 1.08, shoulder_scale: 1.13, torso_scale: 0.98, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#D0A086", nail_tone: "#F1CCBB", nail_roughness: 0.22, nail_bed_tone: "#D99A8A", nail_bed_roughness: 0.34)
+    @pose(name: "direct-broad-challenge", bones: {
+      left_shoulder: [0, 0, 0.043619, 0.999048]
+      left_forearm: [0, 0, -0.034899, 0.999391]
+      left_hand: [0, 0, -0.130526, 0.991445]
+      left_thumb_proximal: [0, 0, -0.258819, 0.965926]
+      left_index_proximal: [0, 0, 0.300706, 0.953717]
+      left_middle_proximal: [0, 0, 0.087156, 0.996195]
+      left_ring_proximal: [0, 0, -0.069756, 0.997564]
+      left_pinky_proximal: [0, 0, -0.190809, 0.981627]
+    })
+    @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 88, microdetail_strength: 0.065)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#263945")
+    type: "named_model_family_v5_hand_surface_resident"
+    modelFamilyId: "xai"
+    displayLabel: "Grok"
+    accentColor: "#65D8E7"
+    gestureMeaning: "direct_broad_challenge"
+  }
+}

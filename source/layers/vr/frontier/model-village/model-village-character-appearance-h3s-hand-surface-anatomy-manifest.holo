@@ -1,0 +1,47 @@
+// H3S immutable evidence bindings.
+
+composition "Stormglass Character Appearance H3S Hand Surface Anatomy Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-appearance-h3s-manifest.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3S_HAND_SURFACE_ANATOMY"
+    date: "2026-07-29"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3s-hand-surface-anatomy.holo"
+    sourceSha256: "752563d2bd5949c4d1948fc62da00ffca3530ad6b724523a038b7c7ae01ee23d"
+    policy: "source/proofs/model-village-character-appearance-h3s-hand-surface-anatomy-policy.hsplus"
+    policySha256: "f39b921a3bb7952b2d6e8f53db92e9a3f2d069ca4f6098c433a0b6b449fd3683"
+    seed: "source/proofs/model-village-character-appearance-h3s-hand-surface-anatomy-seed.hs"
+    seedSha256: "d74c4e5fecd2cccc980869ebf2328dbf23f0d09379fdc11fcd89c768deda283c"
+    checker: "scripts/check-hololand-model-village-character-appearance-h3s.mjs"
+    checkerSha256: "eb3bae36de535be31a1883d16d1d81148525245a1c9008f3dd17afab923624e1"
+    test: "scripts/__tests__/hololand-model-village-character-appearance-h3s.test.mjs"
+    testSha256: "5cff4d5b3316dd0cdfa867c746d4a7138fe725ae9a381cda3ed6a9d0ed434ea1"
+    report: "docs/reports/model-village-character-appearance-h3s-hand-surface-anatomy-2026-07-29.md"
+    reportSha256: "0acd12ff3ad7fda15f1d9d4b54a9ba8b14f22aba91c4b16dd37398c25749b2b9"
+    hero: "docs/assets/model-village/model-village-character-appearance-h3s-hand-surface-anatomy-2026-07-29.png"
+    heroSha256: "4e3d6d3c5f1850d23560817e884702f92f6be4c8e005d26b8f09d5aa884ca1d0"
+    evidence: "docs/assets/model-village/model-village-character-appearance-h3s-hand-surface-anatomy-2026-07-29.json"
+    evidenceSha256: "b9d3dca52a6ae2d32f78417645e28db7cfc6ff28e7889cb82896696e7e9be5dc"
+    evidenceReceiptSha256: "c136e5b405e650bbcc74f0f700703ddd1335c0f7c80b6d6eb4898100cdc0fb74"
+    upstreamHoloScriptCommit: "8f1555f8a8ccf16a3745b9f021bcc21cf87e2b96"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    repeatedV5CompileReceiptCount: 4
+    compilerHandSurfaceReceiptCount: 4
+    nativeGpuReadbackPairCount: 4
+    topologyOnlyCounterfactualCount: 4
+    vertexDeltaPerResident: 1336
+    positiveSecondaryInfluenceCountPerResident: 1008
+    jointPairCountPerResident: 38
+    contactSheetColumns: 2
+    contactSheetRows: 4
+    fixedPoseMaterialCameraLightAcrossPairs: true
+    runtimePoseMutationUsed: false
+    timestampQueryMeasured: false
+    freshRtxBenchmarkClaimed: false
+    measuredTissueModelClaimed: false
+    photorealismClaimed: false
+  }
+}

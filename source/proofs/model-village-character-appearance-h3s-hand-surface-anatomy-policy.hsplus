@@ -1,0 +1,73 @@
+// H3S V5 hand-surface admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// independent policy enforced by the H3S checker.
+
+composition "Stormglass Character Appearance H3S Hand Surface Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3s-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3S_HAND_SURFACE_ANATOMY"
+    source: "source/proofs/model-village-character-appearance-h3s-hand-surface-anatomy-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3s-hand-surface-anatomy.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3s-hand-surface-anatomy-seed.hs"
+    formatRole: "v5_hand_surface_native_gpu_admission_policy"
+    nativeHsplusActionExecutionClaimed: false
+    gpuTimestampRequired: false
+  }
+
+  state H3SHandSurfaceState {
+    sourceCompiledResidentCount: 0
+    handSurfaceReceiptCount: 0
+    nativeGpuReadbackPairCount: 0
+    admittedTopologyCounterfactualCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "HandSurfaceAdmission" {
+    type: "hand_surface_admission"
+    expectedBackend: "webgpu"
+    expectedProfile: "coherent-hand-surface-v5"
+    expectedCounterfactualProfile: "coherent-deforming-hands-v4"
+    expectedReceiptSchema: "holoscript.agent-avatar-hand-surface.v1"
+    expectedGeometrySchema: "holoscript.agent-avatar-hand-surface-geometry.v1"
+    expectedReceiptProfile: "tapered-digit-commissure-cuticle-wrist-v1"
+    expectedVertexDelta: 1336
+    expectedInfluencedVertexCount: 1008
+    expectedJointPairCount: 38
+  }
+
+  action admit_compiler_hand_surface(receipt, expected) {
+    if (receipt.handSurface.schemaVersion != expected.expectedReceiptSchema) {
+      return { admitted: false, reason: "hand_surface_receipt_missing" }
+    }
+    if (receipt.handSurface.profile != expected.expectedReceiptProfile) {
+      return { admitted: false, reason: "hand_surface_profile_drifted" }
+    }
+    if (receipt.v5VertexCount - receipt.v4VertexCount != expected.expectedVertexDelta) {
+      return { admitted: false, reason: "topology_vertex_delta_drifted" }
+    }
+    if (receipt.jointDeformation.influencedVertexCount != expected.expectedInfluencedVertexCount) {
+      return { admitted: false, reason: "deformation_abi_drifted" }
+    }
+    return { admitted: true, reason: "compiler_hand_surface_admitted" }
+  }
+
+  action admit_native_topology_counterfactual(witness) {
+    if (witness.nativeGpuReadback != true) {
+      return { admitted: false, reason: "native_gpu_readback_missing" }
+    }
+    if (witness.changedPixelCount <= 0) {
+      return { admitted: false, reason: "v5_v4_counterfactual_no_pixel_delta" }
+    }
+    if (witness.poseChanged == true || witness.materialsChanged == true) {
+      return { admitted: false, reason: "counterfactual_not_topology_only" }
+    }
+    if (witness.cameraChanged == true || witness.lightChanged == true) {
+      return { admitted: false, reason: "counterfactual_view_drifted" }
+    }
+    return { admitted: true, reason: "native_topology_counterfactual_admitted" }
+  }
+}
