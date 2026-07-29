@@ -1,0 +1,85 @@
+// H3T native skin-surface admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// independent policy enforced by the H3T checker.
+
+composition "Stormglass Character Appearance H3T Surface Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3t-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3T_SKIN_SURFACE_RESPONSE"
+    source: "source/proofs/model-village-character-appearance-h3t-skin-surface-response-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3t-skin-surface-response.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3t-skin-surface-response-seed.hs"
+    formatRole: "decoupled_skin_surface_native_gpu_admission_policy"
+    nativeHsplusActionExecutionClaimed: false
+    gpuTimestampRequired: false
+  }
+
+  state H3TSurfaceAdmissionState {
+    sourceCompiledResidentCount: 0
+    nativeGpuReadbackPlateCount: 0
+    admittedAlbedoCounterfactualCount: 0
+    admittedRoughnessCounterfactualCount: 0
+    admittedFineNormalCounterfactualCount: 0
+    admittedNailBedTransitionCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "SkinSurfaceAdmission" {
+    type: "skin_surface_admission"
+    expectedBackend: "webgpu"
+    expectedProfile: "calibrated-skin-surface-v1"
+    expectedSkinReceiptSchema: "holoscript.agent-avatar-skin-material.v3"
+    expectedHandSurfaceSchema: "holoscript.agent-avatar-hand-surface.v1"
+    expectedChannels: ["albedo-variation", "roughness-variation", "fine-normal-response"]
+    minimumShadowContrast: 12
+  }
+
+  action admit_surface_receipt(receipt, expected) {
+    if (receipt.schemaVersion != expected.expectedSkinReceiptSchema) {
+      return { admitted: false, reason: "wrong_skin_receipt_schema" }
+    }
+    if (receipt.surfaceResponseProfile != expected.expectedProfile) {
+      return { admitted: false, reason: "wrong_skin_surface_profile" }
+    }
+    if (receipt.albedoVariationStrength <= 0) {
+      return { admitted: false, reason: "albedo_channel_inoperative" }
+    }
+    if (receipt.roughnessVariationStrength <= 0) {
+      return { admitted: false, reason: "roughness_channel_inoperative" }
+    }
+    if (receipt.normalMicrodetailStrength <= 0) {
+      return { admitted: false, reason: "fine_normal_channel_inoperative" }
+    }
+    return { admitted: true, reason: "decoupled_skin_surface_admitted" }
+  }
+
+  action admit_native_counterfactuals(witness) {
+    if (witness.nativeGpuReadback != true) {
+      return { admitted: false, reason: "native_gpu_readback_missing" }
+    }
+    if (witness.albedo.changedPixelCount <= 0) {
+      return { admitted: false, reason: "albedo_counterfactual_no_pixel_delta" }
+    }
+    if (witness.roughness.changedPixelCount <= 0) {
+      return { admitted: false, reason: "roughness_counterfactual_no_pixel_delta" }
+    }
+    if (witness.fineNormal.changedPixelCount <= 0) {
+      return { admitted: false, reason: "fine_normal_counterfactual_no_pixel_delta" }
+    }
+    if (witness.nailBedTransition.changedPixelCount <= 0) {
+      return { admitted: false, reason: "nail_bed_transition_no_pixel_delta" }
+    }
+    return { admitted: true, reason: "native_surface_counterfactuals_admitted" }
+  }
+
+  action admit_shadow_readability(metric, expected) {
+    if (metric.p90MinusP10 < expected.minimumShadowContrast) {
+      return { admitted: false, reason: "shadow_side_contrast_too_low" }
+    }
+    return { admitted: true, reason: "shadow_side_readability_admitted" }
+  }
+}

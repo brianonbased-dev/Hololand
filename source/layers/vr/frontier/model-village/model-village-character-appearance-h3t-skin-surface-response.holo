@@ -1,0 +1,172 @@
+// Stormglass Commons Character Appearance H3T.
+//
+// Four symbolic model-family residents exercise a source-authored, decoupled
+// analytic skin response through HoloScript's sovereign compiler, CharacterHost,
+// and native WebGPU renderer. The visual witness combines a calibrated raking-light
+// facial plate with a native V5 hand inset so skin response and nail/cuticle
+// continuity remain legible together.
+//
+// This is bounded look-development evidence, not a provider binding, biometric
+// likeness, measured tissue model, production texture set, photorealism claim,
+// browser/Quest measurement, or RTX benchmark.
+
+composition "Stormglass Character Appearance H3T Skin Surface Response" {
+  metadata {
+    title: "Stormglass Character Appearance H3T - Decoupled Skin Surface Response"
+    version: "0.1.0"
+    date: "2026-07-29"
+    milestone: "MV_CHARACTER_APPEARANCE_H3T_SKIN_SURFACE_RESPONSE"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3t-skin-surface-response.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3t-skin-surface-response-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3t-skin-surface-response-seed.hs"
+    inheritedH3SSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3s-hand-surface-anatomy.holo"
+    inheritedH3SSourceSha256: "9101b9b27eea1837018b40ffe08c27ec75503b5063b2f6bf935578df6b45cf80"
+    upstreamHoloScriptCommit: "f165a58722c0808bc4ab9753ab1c68136870e10d"
+    upstreamAvatarMeshPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
+    upstreamAvatarMeshSha256: "d74ba768fe042da665abcf1f5e2e583d3cf49152b368623caf4ff4d3a0e93565"
+    upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
+    upstreamCharacterHostSha256: "746f3d69b2eb5236a10fdce2de15bcbc589008b80ef5ea34a0b02473fb4c576a"
+    upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamCompositionBridgeSha256: "a526b07886f08871e16031029866050fd4150b4ea006cee28d9ac9a46ada0cd5"
+    upstreamNativeRendererPath: "packages/engine/src/character-render/character-render.ts"
+    upstreamNativeRendererSha256: "d871b0c67fbeb4d7f8f04165097e3377ebc88e68d9c816f1104d9a1c5422a15e"
+    upstreamSkinShaderPath: "packages/engine/src/rendering/webgpu/shaders/skin-skinning.wgsl"
+    upstreamSkinShaderSha256: "a35039d46bc5089bf5a0f5791b86bd55c9c130e9d7347fd5810ee1fb07c843a2"
+    upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
+    upstreamCompilerSha256: "59b277f7e0e378c89b328848cc4e6b502f7ea9d7408d5b8e21ca546c69f890be"
+    projectionRole: "read_only_symbolic_model_family_native_skin_surface_witness"
+    architectureGuidance: "W.GOLD.002_sovereign_compiler_priority"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "stormglass_raking_light_face_with_v5_hand_inset"
+  }
+
+  environment {
+    mode: "native_webgpu_calibrated_raking_light_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#020811"
+    ambient_light: 0.09
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3T_SKIN_SURFACE_RESPONSE"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    providerModelBinding: "absent"
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    biometricPersistenceAllowed: false
+
+    sourceCompilerEntrypoint: "CharacterWebGPUCompiler.compile"
+    nativeHostBridgeEntrypoint: "buildCharacterHostFromComposition"
+    nativeRendererEntrypoint: "renderCharacter"
+    nativeRendererBackend: "webgpu"
+    materialCalibrationProfile: "fixed-light-human-v1"
+    skinSurfaceResponseProfile: "calibrated-skin-surface-v1"
+    skinMicrodetailProfile: "analytic-pore-v1"
+    nativeSkinReceiptSchema: "holoscript.agent-avatar-skin-material.v3"
+    semanticSurfaceChannels: ["albedo-variation", "roughness-variation", "fine-normal-response"]
+    retainedHandMaterialRoles: ["skin", "keratin-nail", "nail-bed"]
+    rakingLightDirection: [0.72, 0.28, 0.63]
+    fixedClearColor: [2, 8, 17]
+    sourceBoundFaceFrameClaimed: true
+    sourceBoundHandInsetClaimed: true
+    repeatedCompileByteIdentityClaimed: true
+    nativeDawnGpuReadbackClaimed: true
+    albedoCounterfactualClaimed: true
+    roughnessCounterfactualClaimed: true
+    fineNormalCounterfactualClaimed: true
+    nailBedTransitionCounterfactualClaimed: true
+    shadowSideReadabilityMetric: "figure-luminance-p90-minus-p10"
+    measuredTissueModelClaimed: false
+
+    browserWebgpuMeasured: false
+    gpuTimestampFrameTimeClaimed: false
+    freshRtxBenchmarkClaimed: false
+    callbackCadenceCountsAsGpuTime: false
+    endToEndDisplayLatencyClaimed: false
+    nativeWebgpuTaaClaimed: false
+    questWebxrMeasured: false
+    productionSkinTexturingClaimed: false
+    photorealismClaimed: false
+    biometricLikenessClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    surfaceFoundation: {
+      authoredHandProfile: "coherent-hand-surface-v5"
+      authoredFaceTopology: "neutral-anatomical-v2"
+      authoredFacialDetailProfile: "civic-landmarks-v1"
+      surfaceResponseProfile: "calibrated-skin-surface-v1"
+      microdetailProfile: "analytic-pore-v1"
+      albedoVariationRange: [0.044, 0.058]
+      roughnessVariationRange: [0.12, 0.16]
+      normalMicrodetailRange: [0.23, 0.3]
+      facePlateSizePixels: 320
+      handInsetSizePixels: 128
+      contactSheetColumns: 2
+      contactSheetRows: 2
+      counterfactualChangesGeometry: false
+      gpuTimestampRequired: false
+    }
+  }
+
+  template "StormglassH3TNamedModelResident" {
+    @skeleton(rig: "humanoid_65")
+    @locomotion(mode: "idle", speed: 0)
+    type: "named_model_family_skin_surface_resident"
+    providerBinding: "appearance_only_absent"
+  }
+
+  object "OpenAIResident" using "StormglassH3TNamedModelResident" {
+    @body(height: 1.82, build_scale: 1.07, shoulder_scale: 1.1, torso_scale: 0.96, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#B9826F", nail_tone: "#E6BEB2", nail_roughness: 0.24, nail_bed_tone: "#C9827C", nail_bed_roughness: 0.36)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 24, vertical_segments: 18, face_width: 0.95, face_length: 1.06, jaw_taper: 0.29, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.29, lid_opening: 0.48, canthal_tilt: 0.11, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.98, brow_height: 1.08, brow_thickness: 0.16, ear_scale: 0.98, mouth_depth: 0.74, ocular_profile: "layered_ocular_v1", iris_color: "#6B8C82", sclera_color: "#EEE9DF", iris_scale: 0.5, pupil_scale: 0.38, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#B9826F", scatter_color: "#A65D50", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 104, microdetail_strength: 0.09, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.052, roughness_variation_strength: 0.14, normal_microdetail_strength: 0.28)
+    @hair(style: "cropped_coils", color: "#2F2928", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.17, crown_whorl: 0.42, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.84, edge_softness: 0.12, anisotropy_strength: 0.86, longitudinal_shift: 0.08)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#176B5B")
+    type: "named_model_family_skin_surface_resident"
+    modelFamilyId: "openai"
+    displayLabel: "OpenAI"
+    accentColor: "#62D9C0"
+  }
+
+  object "ClaudeResident" using "StormglassH3TNamedModelResident" {
+    @body(height: 1.86, build_scale: 1.05, shoulder_scale: 1.08, torso_scale: 0.95, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#C58B70", nail_tone: "#EDC7B6", nail_roughness: 0.28, nail_bed_tone: "#D28A7C", nail_bed_roughness: 0.38)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 24, vertical_segments: 18, face_width: 0.94, face_length: 1.09, jaw_taper: 0.31, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.31, lid_opening: 0.46, canthal_tilt: 0.14, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.96, brow_height: 1.12, brow_thickness: 0.15, ear_scale: 1.02, mouth_depth: 0.8, ocular_profile: "layered_ocular_v1", iris_color: "#7C604B", sclera_color: "#F0E8DE", iris_scale: 0.49, pupil_scale: 0.37, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#C58B70", scatter_color: "#AF6958", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 98, microdetail_strength: 0.084, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.048, roughness_variation_strength: 0.13, normal_microdetail_strength: 0.25)
+    @hair(style: "medium_wavy", color: "#6B4633", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.15, crown_whorl: 0.34, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.86, edge_softness: 0.1, anisotropy_strength: 0.84, longitudinal_shift: 0.06)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#A85F36")
+    type: "named_model_family_skin_surface_resident"
+    modelFamilyId: "anthropic"
+    displayLabel: "Claude"
+    accentColor: "#E3A16F"
+  }
+
+  object "GeminiResident" using "StormglassH3TNamedModelResident" {
+    @body(height: 1.79, build_scale: 1.04, shoulder_scale: 1.06, torso_scale: 0.94, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#8D695C", nail_tone: "#C9A094", nail_roughness: 0.31, nail_bed_tone: "#9E706B", nail_bed_roughness: 0.4)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 24, vertical_segments: 18, face_width: 0.97, face_length: 1.03, jaw_taper: 0.25, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.27, lid_opening: 0.5, canthal_tilt: 0.09, facial_detail_profile: "civic_landmarks_v1", eye_scale: 1.02, brow_height: 1.04, brow_thickness: 0.17, ear_scale: 0.96, mouth_depth: 0.7, ocular_profile: "layered_ocular_v1", iris_color: "#526D91", sclera_color: "#F2EBE4", iris_scale: 0.52, pupil_scale: 0.36, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#8D695C", scatter_color: "#785147", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 112, microdetail_strength: 0.1, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.058, roughness_variation_strength: 0.16, normal_microdetail_strength: 0.3)
+    @hair(style: "short", color: "#303641", groom_profile: "scalp_flow_v1", card_width: 0.0058, root_lift: 0.002, tip_taper: 0.14, hairline_bias: 0.18, crown_whorl: -0.28, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.8, edge_softness: 0.14, anisotropy_strength: 0.9, longitudinal_shift: 0.12)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#3859A8")
+    type: "named_model_family_skin_surface_resident"
+    modelFamilyId: "google"
+    displayLabel: "Gemini"
+    accentColor: "#829BFF"
+  }
+
+  object "GrokResident" using "StormglassH3TNamedModelResident" {
+    @body(height: 1.88, build_scale: 1.08, shoulder_scale: 1.13, torso_scale: 0.98, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#D0A086", nail_tone: "#F1CCBB", nail_roughness: 0.22, nail_bed_tone: "#D99A8A", nail_bed_roughness: 0.34)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 24, vertical_segments: 18, face_width: 1.01, face_length: 1.04, jaw_taper: 0.23, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.25, lid_opening: 0.52, canthal_tilt: 0.06, facial_detail_profile: "civic_landmarks_v1", eye_scale: 1, brow_height: 0.98, brow_thickness: 0.19, ear_scale: 1.04, mouth_depth: 0.68, ocular_profile: "layered_ocular_v1", iris_color: "#768D59", sclera_color: "#EFE8DF", iris_scale: 0.48, pupil_scale: 0.4, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 92, microdetail_strength: 0.078, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.044, roughness_variation_strength: 0.12, normal_microdetail_strength: 0.23)
+    @hair(style: "swept_ridge", color: "#171D22", groom_profile: "scalp_flow_v1", card_width: 0.0056, root_lift: 0.0024, tip_taper: 0.11, hairline_bias: 0.16, crown_whorl: -0.18, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.82, edge_softness: 0.11, anisotropy_strength: 0.92, longitudinal_shift: 0.1)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#263945")
+    type: "named_model_family_skin_surface_resident"
+    modelFamilyId: "xai"
+    displayLabel: "Grok"
+    accentColor: "#65D8E7"
+  }
+}
