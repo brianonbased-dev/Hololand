@@ -1,0 +1,75 @@
+// H3P hand-topology admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// policy independently enforced by the H3P checker.
+
+composition "Stormglass Character Appearance H3P Hand Topology Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3p-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3P_HAND_TOPOLOGY_CONVERGENCE"
+    source: "source/proofs/model-village-character-appearance-h3p-hand-topology-convergence-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3p-hand-topology-convergence.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3p-hand-topology-convergence-seed.hs"
+    formatRole: "native_webgpu_hand_topology_and_gpu_readback_admission_policy"
+    nativeHsplusActionExecutionClaimed: false
+    gpuTimestampRequired: false
+  }
+
+  state H3PHandTopologyState {
+    sourceCompiledResidentCount: 0
+    nativeGpuReadbackPlateCount: 0
+    admittedVolumePreservingDigitCount: 0
+    admittedVolumetricWebCount: 0
+    admittedSurfaceConformingNailCount: 0
+    admittedCounterfactualCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "HandTopologyAdmission" {
+    type: "hand_topology_admission"
+    expectedBackend: "webgpu"
+    expectedReceiptSchema: "holoscript.agent-avatar-hand-topology-convergence.v1"
+    expectedDigitProfile: "volume-preserving-three-phalanx-v2"
+    expectedDigitRadialSegments: 12
+    expectedDigitRingCount: 9
+    expectedWebProfile: "volumetric-interdigital-web-v2"
+    expectedWebRadialSegments: 12
+    expectedWebBlendRingCount: 4
+    expectedNailProfile: "surface-conforming-nail-plate-v2"
+    expectedNailAttachment: "distal-phalanx-surface-conforming-v1"
+    expectedNailAttachmentSampleCount: 25
+    expectedWatertightNailSkinUnionClaimed: false
+  }
+
+  action admit_hand_topology(receipt, expected) {
+    if (receipt.schema != expected.expectedReceiptSchema) {
+      return { admitted: false, reason: "wrong_topology_receipt_schema" }
+    }
+    if (receipt.digitProfile != expected.expectedDigitProfile) {
+      return { admitted: false, reason: "wrong_digit_profile" }
+    }
+    if (receipt.webProfile != expected.expectedWebProfile) {
+      return { admitted: false, reason: "wrong_web_profile" }
+    }
+    if (receipt.nailAttachment != expected.expectedNailAttachment) {
+      return { admitted: false, reason: "wrong_nail_attachment" }
+    }
+    if (receipt.watertightNailSkinUnionClaimed != false) {
+      return { admitted: false, reason: "overclaimed_watertight_nail_union" }
+    }
+    return { admitted: true, reason: "hand_topology_convergence_admitted" }
+  }
+
+  action admit_gpu_witness(witness) {
+    if (witness.nativeGpuReadback != true) {
+      return { admitted: false, reason: "native_gpu_readback_missing" }
+    }
+    if (witness.changedPixelCount <= 0) {
+      return { admitted: false, reason: "nail_counterfactual_no_pixel_delta" }
+    }
+    return { admitted: true, reason: "native_gpu_material_counterfactual_admitted" }
+  }
+}
