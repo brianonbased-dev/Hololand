@@ -1,0 +1,159 @@
+// Immutable H3N witness manifest.
+//
+// The source-compiled visual witness and the aspirational look-development
+// target are separate evidence classes. Native scene WebGPU, GPU timestamps,
+// a fresh RTX benchmark, and photorealism are not claimed.
+
+composition "HoloLand Model Village Character Appearance H3N Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3N Hand Landmarks TAA LOD Witness"
+    version: "0.1.0"
+    date: "2026-07-29"
+    milestone: "MV_CHARACTER_APPEARANCE_H3N_HAND_LANDMARKS_TAA_LOD"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3n-hand-landmarks-taa-lod.holo"
+      sourceSha256: "54adad703efb810edd40e8464f060a85eba14ec6cb383fc9adf5110bb2df076d"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3n-hand-landmarks-taa-lod-policy.hsplus"
+      policySha256: "3b6d6d96572fbb2c60ca80590cacfed9904236d0c444ecf039d5a3f146c33ec6"
+      parser: "HoloScriptPlusParser"
+      nativeActionExecutionClaimed: false
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3n-hand-landmarks-taa-lod-seed.hs"
+      seedSha256: "77830a93e60156273e25d857b02173b65aae39778db226a5635bd64b627a3f11"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3n.mjs"
+      checkerSha256: "3add557e2ca067a8b60f0b3a8b85daf4ee5c533684243b1e222dc369ea49c664"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3n.test.mjs"
+      testSha256: "6390ae58e547d3e59c4b957ee2b82980ff651795d19e72d7e1a2a2a1652f59a1"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3n-hand-landmarks-taa-lod-2026-07-28.md"
+      reportSha256: "7bcb5caf4efde119fb2b863de3d254b8406d11d7ca287fce1268a3f2907ae3cf"
+    }
+    evidence: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3n-hand-landmarks-taa-lod-2026-07-28.json"
+      evidenceSha256: "7b8cda18326c70bd769becf2fc179bdeec155cd13baa57bac670a502ca7aa614"
+    }
+    lookDevelopmentTarget: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3n-hand-landmarks-taa-lod-2026-07-28.png"
+      heroSha256: "ce168c436b2151ffc63bfd375b74a3ef9e4e88a291f0fb4121a3ad45840e899c"
+      width: 1774
+      height: 887
+      bytes: 2350885
+      visuallyInspected: true
+      role: "aspirational_image_generated_art_direction_not_renderer_evidence"
+    }
+    upstream: {
+      holoScriptCommit: "15113b292b811f6f4a287eacea048a8c12c9a4e6"
+      bodyBuilderSha256: "fd3eab90245201d8848c6d6e10785f3759faec6aced51ae9eeaaafc177c22f45"
+      garmentBuilderSha256: "bb05f603b0f0887acf447da910a7177ff34589a48e5ed8f9e35914dc80e12dd9"
+      characterHostSha256: "34a1f4242058c3dc0194de261be3d8c889edb3f2d4faf30e20610d3940f5abcb"
+      compositionBridgeSha256: "437c2d75d90fa795d9840d369591d968637586764a190efda341a3056960a7a5"
+      hairBuilderSha256: "11af225d7f3ebab413bf5f88749e58a9735d6e9e66e0a9d6b13477ceda7311c0"
+      compilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+      taaReferenceSha256: "256a465285257c3d9fb1fd4b7c26b4777bf2ccebebd556df699604f8b849c520"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      compilerEntrypoint: "CharacterWebGPUCompiler.compile"
+      outputFormat: "character-webgpu/drawspec"
+      residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+      authoredProfile: "coherent-hand-landmarks-v3"
+      upperBodyProfile: "anatomical-hand-landmarks-v3"
+      limbProfile: "anatomical-landmark-hand-v3"
+      limbReceiptCount: 8
+      digitReceiptCount: 40
+      landmarkProfile: "anatomical-hand-landmark-v1"
+      handLandmarkReceiptCount: 144
+      webReceiptCount: 32
+      knuckleReceiptCount: 40
+      tendonReceiptCount: 32
+      nailReceiptCount: 40
+      connectedSurfaceCount: 192
+      nailMaterialGroupCount: 40
+      lodReceiptCount: 12
+      poseClearanceReceiptCount: 12
+      triangleIntersectionCount: 0
+      minimumClearanceMeters: 0.02385231928147596
+      minimumCoveredRayRatio: 1
+      repeatedCompileByteIdentity: true
+      strippedHandLandmarkDelta: true
+      acceptedNativeReceiptSha256: "950032cd544e8a42619e0391ec8213212b9a97154a60db0da8f01e76f9d00618"
+    }
+    lodAdmission: {
+      selectionMode: "distance"
+      fadeMode: "dither"
+      fadeDurationSeconds: 0.26
+      hysteresisBand: 0.65
+      distancesMeters: [0, 8, 20]
+      allResidentVertexCountsDescend: true
+    }
+    taaReferenceAdmission: {
+      implementation: "holoscript_screen_space_cpu_reference"
+      sampleCount: 16
+      feedback: 0.9
+      jitterScale: 0.5
+      currentProbeVarianceLast8: 0.1764000077605248
+      historyProbeVarianceLast8: 0.0016278771582593499
+      meanCurrentFrameRmseToSampleMean: 0.04546633469880379
+      finalHistoryRmseToSampleMean: 0.0064754593715292815
+      repeatedRunByteIdentity: true
+      receiptSha256: "a8a585069386b37b4112e7e90adaa6a25ef94981efa7b372e419a1deb1ec78ca"
+      nativeSceneTaaClaimed: false
+    }
+    currentHardwareReadback: {
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      nvidiaDriverVersion: "610.88"
+      windowsDriverVersion: "32.0.16.1088"
+      driverInstallationVisibleToHost: true
+    }
+    sourceCompiledVisualBridge: {
+      status: "pass"
+      renderer: "ANGLE NVIDIA GeForce RTX 3060 Laptop GPU Direct3D11"
+      rendererApi: "WebGL_ANGLE_D3D11"
+      browser: "Chrome 150.0.7871.182"
+      antialias: true
+      samples: 4
+      residentMeshCount: 4
+      frameSampleCount: 20
+      renderLoopCallbackP95Milliseconds: 5.400000035762787
+      performanceClassification: "browser_cadence_witness_not_gpu_timestamp_not_rtx_benchmark"
+      externalRequestCount: 0
+      pageErrorCount: 0
+      uneditedScreenshotSha256: "49e160813746cf6e9b59c0edc25a07dd3977cf5a7349e4f5d801fec182f1233b"
+      visuallyInspected: true
+    }
+    boundaries: {
+      providerModelBinding: "absent"
+      symbolicAppearanceOnly: true
+      landmarkToHandSharedTopologyClaimed: false
+      watertightHandClaimed: false
+      sceneWebgpuRenderingClaimed: false
+      nativeWebgpuTaaClaimed: false
+      gpuTimestampFrameTimeClaimed: false
+      freshRtxBenchmarkClaimed: false
+      historicalRtxEvidenceCountsAsCurrent: false
+      endToEndDisplayLatencyClaimed: false
+      motionReprojectionClaimed: false
+      productionSkinTexturingClaimed: false
+      productionGroomClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      questWebxrMeasured: false
+      vrPerformanceConvergenceClaimed: false
+    }
+  }
+}

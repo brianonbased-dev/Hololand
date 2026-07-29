@@ -1,0 +1,73 @@
+// H3N native hand-landmark, LOD, and reference-TAA admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// admission intent independently enforced by the H3N checker.
+
+composition "Stormglass Character Appearance H3N Hand Landmark Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3n-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3N_HAND_LANDMARKS_TAA_LOD"
+    source: "source/proofs/model-village-character-appearance-h3n-hand-landmarks-taa-lod-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3n-hand-landmarks-taa-lod.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3n-hand-landmarks-taa-lod-seed.hs"
+    formatRole: "native_hand_landmark_lod_and_reference_taa_admission_policy"
+    nativeHsplusActionExecutionClaimed: false
+    nativeSceneTaaClaimed: false
+  }
+
+  state H3NHandLandmarkState {
+    compiledResidentCount: 0
+    admittedLandmarkReceiptCount: 0
+    admittedNailMaterialGroupCount: 0
+    admittedLodReceiptCount: 0
+    admittedTaaReferenceRunCount: 0
+    canonicalVillageMutationCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "HandLandmarkAdmission" {
+    type: "hand_landmark_admission"
+    upperBodyProfile: "anatomical-hand-landmarks-v3"
+    limbProfile: "anatomical-landmark-hand-v3"
+    landmarkProfile: "anatomical-hand-landmark-v1"
+    expectedLandmarkCountPerHand: 18
+    expectedNailCountPerHand: 5
+    expectedConnectedSurfaceCountPerLimb: 24
+    expectedNailMaterialRole: "keratin-nail"
+  }
+
+  template "QualityAdmission" {
+    type: "quality_admission"
+    expectedLodLevels: 3
+    expectedSelectionMode: "distance"
+    expectedFadeMode: "dither"
+    expectedTaaSamples: 16
+    expectedTaaFeedback: 0.9
+    expectedTaaJitterScale: 0.5
+    nativeSceneTaaRequired: false
+  }
+
+  action admit_hand_landmarks(limb, expected) {
+    if (limb.profile != expected.limbProfile) {
+      return { admitted: false, reason: "wrong_landmark_limb_profile" }
+    }
+    if (limb.handLandmarks.length != expected.expectedLandmarkCountPerHand) {
+      return { admitted: false, reason: "wrong_landmark_count" }
+    }
+    if (limb.connectedSurfaceCount != expected.expectedConnectedSurfaceCountPerLimb) {
+      return { admitted: false, reason: "wrong_connected_surface_count" }
+    }
+    return { admitted: true, reason: "native_hand_landmarks_admitted" }
+  }
+
+  action admit_quality(lodReceipts, taaReceipt, expected) {
+    if (lodReceipts.length != expected.expectedLodLevels) {
+      return { admitted: false, reason: "wrong_lod_count" }
+    }
+    if (taaReceipt.sampleCount != expected.expectedTaaSamples) {
+      return { admitted: false, reason: "wrong_taa_reference_sample_count" }
+    }
+    return { admitted: true, reason: "lod_and_reference_taa_admitted" }
+  }
+}

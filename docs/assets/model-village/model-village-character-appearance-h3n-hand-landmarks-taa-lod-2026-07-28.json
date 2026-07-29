@@ -1,0 +1,137 @@
+{
+  "schema": "hololand.model-village.character-appearance-h3n-evidence.v1",
+  "milestone": "MV_CHARACTER_APPEARANCE_H3N_HAND_LANDMARKS_TAA_LOD",
+  "status": "pass",
+  "capturedAt": "2026-07-29T06:38:00Z",
+  "upstream": {
+    "holoScriptCommit": "15113b292b811f6f4a287eacea048a8c12c9a4e6",
+    "compilerTarget": "character-webgpu",
+    "compilerEntrypoint": "CharacterWebGPUCompiler.compile",
+    "holoLandSourceFormats": [
+      ".holo",
+      ".hsplus",
+      ".hs"
+    ]
+  },
+  "nativeAdmission": {
+    "receiptSha256": "950032cd544e8a42619e0391ec8213212b9a97154a60db0da8f01e76f9d00618",
+    "nativeBundleCount": 4,
+    "limbReceiptCount": 8,
+    "digitReceiptCount": 40,
+    "handLandmarkReceiptCount": 144,
+    "webReceiptCount": 32,
+    "knuckleReceiptCount": 40,
+    "tendonReceiptCount": 32,
+    "nailReceiptCount": 40,
+    "connectedSurfaceCount": 192,
+    "nailMaterialGroupCount": 40,
+    "lodReceiptCount": 12,
+    "poseClearanceReceiptCount": 12,
+    "triangleIntersectionCount": 0,
+    "minimumClearanceMeters": 0.02385231928147596,
+    "minimumCoveredRayRatio": 1,
+    "repeatedCompileByteIdentity": true,
+    "strippedHandLandmarkDelta": true
+  },
+  "lod": {
+    "selectionMode": "distance",
+    "fadeMode": "dither",
+    "fadeDurationSeconds": 0.26,
+    "hysteresisBand": 0.65,
+    "residentVertexCounts": {
+      "OpenAI": [7728, 5324, 4896],
+      "Claude": [7840, 5374, 4914],
+      "Gemini": [7736, 5270, 4804],
+      "Grok": [7672, 5324, 4908]
+    },
+    "distancesMeters": [0, 8, 20],
+    "garmentSegments": [24, 14, 8],
+    "hairGuides": [168, 92, 48],
+    "hairCardsPerGuide": [2, 1, 1],
+    "hairSegments": [7, 5, 3],
+    "interpretation": "Source-authored topology descends at every level for every resident. Counts are compiler outputs, not frame-rate estimates."
+  },
+  "taaReference": {
+    "implementation": "packages/engine/src/rendering/ScreenSpaceEffects.ts",
+    "executionBoundary": "deterministic CPU pixel-buffer reference",
+    "receiptSha256": "a8a585069386b37b4112e7e90adaa6a25ef94981efa7b372e419a1deb1ec78ca",
+    "sampleCount": 16,
+    "feedback": 0.9,
+    "jitterScale": 0.5,
+    "currentProbeVarianceLast8": 0.1764000077605248,
+    "historyProbeVarianceLast8": 0.0016278771582593499,
+    "meanCurrentFrameRmseToSampleMean": 0.04546633469880379,
+    "finalHistoryRmseToSampleMean": 0.0064754593715292815,
+    "repeatedRunByteIdentity": true,
+    "nativeSceneTaaClaimed": false
+  },
+  "currentHardwareReadback": {
+    "command": "pnpm --dir C:/Users/josep/.ai-ecosystem check:codex-hardware; nvidia-smi --query-gpu=name,driver_version,pstate,temperature.gpu,power.draw,memory.total,memory.used --format=csv,noheader",
+    "auditGeneratedAt": "2026-07-29T06:35:43.662Z",
+    "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+    "nvidiaDriverVersion": "610.88",
+    "windowsDriverVersion": "32.0.16.1088",
+    "vramTotalMiB": 6144,
+    "vramUsedMiB": 3830,
+    "gpuUtilizationPercentAtAudit": 0,
+    "pstateAtReadback": "P8",
+    "temperatureCelsiusAtReadback": 53,
+    "driverInstallationVisibleToHost": true
+  },
+  "sourceCompiledVisualBridge": {
+    "status": "pass",
+    "browser": "Chrome 150.0.7871.182",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Laptop GPU (0x00002520) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "rendererApi": "Three.js WebGL through ANGLE D3D11",
+    "antialias": true,
+    "samples": 4,
+    "residentMeshCount": 4,
+    "frameSampleCount": 20,
+    "renderLoopCallbackP95Milliseconds": 5.400000035762787,
+    "performanceClassification": "fresh_browser_render_loop_cadence_witness_not_gpu_timestamp_not_rtx_benchmark",
+    "externalRequestCount": 0,
+    "pageErrorCount": 0,
+    "uneditedScreenshotSha256": "49e160813746cf6e9b59c0edc25a07dd3977cf5a7349e4f5d801fec182f1233b",
+    "uneditedScreenshotWidth": 1800,
+    "uneditedScreenshotHeight": 900,
+    "visuallyInspected": true,
+    "visualFinding": "Technically valid four-resident source-compiled geometry witness, but mannequin-like and insufficient as the realism target."
+  },
+  "lookDevelopmentTarget": {
+    "path": "docs/assets/model-village/model-village-character-appearance-h3n-hand-landmarks-taa-lod-2026-07-28.png",
+    "sha256": "ce168c436b2151ffc63bfd375b74a3ef9e4e88a291f0fb4121a3ad45840e899c",
+    "width": 1774,
+    "height": 887,
+    "bytes": 2350885,
+    "generationMode": "built_in_image_edit_from_source_compiled_bridge_frame",
+    "role": "aspirational_stormglass_visual_target_not_renderer_evidence",
+    "visuallyInspected": true,
+    "acceptedQualities": [
+      "exactly four symbolic residents",
+      "Stormglass civic architecture",
+      "readable open hands",
+      "distinct wardrobe identities",
+      "cinematic cool and hearth lighting",
+      "higher-fidelity skin hair garment and environment target"
+    ]
+  },
+  "webgpuProbe": {
+    "auditGeneratedAt": "2026-07-29T06:37:06.197Z",
+    "status": "unavailable",
+    "reason": "playwright unavailable in the ai-ecosystem audit workspace",
+    "interpretation": "No native WebGPU adapter or device claim is admitted by this evidence."
+  },
+  "boundaries": {
+    "symbolicModelFamilyAppearanceOnly": true,
+    "providerModelBinding": "absent",
+    "landmarkToHandSharedTopologyClaimed": false,
+    "freshRtxBenchmarkClaimed": false,
+    "nativeSceneWebgpuClaimed": false,
+    "nativeWebgpuTaaClaimed": false,
+    "gpuTimestampFrameTimeClaimed": false,
+    "questWebxrMeasured": false,
+    "productionSkinTexturingClaimed": false,
+    "productionGroomClaimed": false,
+    "photorealismClaimed": false
+  }
+}
