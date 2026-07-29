@@ -40,7 +40,7 @@ composition "HoloLand Model Village Character Appearance H3J Manifest" {
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3j-civic-landmarks-2026-07-28.md"
-      reportSha256: "ced3c9c406771bab384b2c6290fe0b7eb4ccf4b535f419e6df601dbb1ff7cf3b"
+      reportSha256: "0eafa4678924db21d5912d29ebfbbf3e1cb407fec591a1ed95ef7ccdd6837185"
     }
     hero: {
       path: "docs/assets/model-village/model-village-character-appearance-h3j-civic-landmarks-portraits-2026-07-28.png"
@@ -176,7 +176,7 @@ composition "HoloLand Model Village Character Appearance H3J Manifest" {
     }
     receipt: {
       algorithm: "sha256-canonical-json"
-      acceptedWitnessSha256: "6edc2213b41fc10797fc6c9e1b84c9dc885fad845a15a151eeacbf4921d862be"
+      acceptedWitnessSha256: "01398bd08a79e1d6170ca06f864a711489c7b756cb9e80edb938f0c1a041b650"
       ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h3j/final/character-appearance-h3j-witness.json"
     }
   }

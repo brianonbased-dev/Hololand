@@ -1,6 +1,6 @@
 # Model Village Character Appearance H3J — Civic Landmark Convergence
 
-Date: 2026-07-28  
+Date: 2026-07-28
 Status: bounded H3J witness accepted; production character realism remains open
 
 ## Outcome
