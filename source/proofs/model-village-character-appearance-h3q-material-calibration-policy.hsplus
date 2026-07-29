@@ -1,0 +1,72 @@
+// H3Q fixed-light material admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// independent policy enforced by the H3Q checker.
+
+composition "Stormglass Character Appearance H3Q Material Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3q-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3Q_MATERIAL_CALIBRATION"
+    source: "source/proofs/model-village-character-appearance-h3q-material-calibration-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3q-material-calibration.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3q-material-calibration-seed.hs"
+    formatRole: "fixed_light_skin_keratin_nail_bed_native_gpu_admission_policy"
+    nativeHsplusActionExecutionClaimed: false
+    gpuTimestampRequired: false
+  }
+
+  state H3QMaterialCalibrationState {
+    sourceCompiledResidentCount: 0
+    nativeGpuReadbackPlateCount: 0
+    admittedSkinCounterfactualCount: 0
+    admittedKeratinCounterfactualCount: 0
+    admittedNailBedCounterfactualCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "MaterialCalibrationAdmission" {
+    type: "material_calibration_admission"
+    expectedBackend: "webgpu"
+    expectedProfile: "fixed-light-human-v1"
+    expectedSkinReceiptSchema: "holoscript.agent-avatar-skin-material.v2"
+    expectedMaterialReceiptSchema: "holoscript.character-material-plate.v2"
+    expectedKeratinRole: "keratin-nail"
+    expectedNailBedRole: "nail-bed"
+    expectedKeratinGroupCount: 20
+    expectedNailBedGroupCount: 10
+    expectedKeratinIndexCount: 2160
+    expectedNailBedIndexCount: 720
+  }
+
+  action admit_material_receipt(receipt, expected) {
+    if (receipt.schemaVersion != expected.expectedMaterialReceiptSchema) {
+      return { admitted: false, reason: "wrong_material_receipt_schema" }
+    }
+    if (receipt.calibratedNailSurface != true) {
+      return { admitted: false, reason: "nail_surface_partition_not_calibrated" }
+    }
+    if (receipt.nailBedKeratinOverlapIndexCount != 0) {
+      return { admitted: false, reason: "nail_bed_keratin_overlap" }
+    }
+    return { admitted: true, reason: "fixed_light_material_receipt_admitted" }
+  }
+
+  action admit_gpu_counterfactual(witness) {
+    if (witness.nativeGpuReadback != true) {
+      return { admitted: false, reason: "native_gpu_readback_missing" }
+    }
+    if (witness.skin.changedPixelCount <= 0) {
+      return { admitted: false, reason: "skin_counterfactual_no_pixel_delta" }
+    }
+    if (witness.keratin.changedPixelCount <= 0) {
+      return { admitted: false, reason: "keratin_counterfactual_no_pixel_delta" }
+    }
+    if (witness.nailBed.changedPixelCount <= 0) {
+      return { admitted: false, reason: "nail_bed_counterfactual_no_pixel_delta" }
+    }
+    return { admitted: true, reason: "native_gpu_material_counterfactuals_admitted" }
+  }
+}
