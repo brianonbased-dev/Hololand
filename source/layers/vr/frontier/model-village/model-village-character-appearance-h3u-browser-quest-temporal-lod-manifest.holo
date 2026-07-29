@@ -1,0 +1,56 @@
+// H3U immutable source, proof, browser, and claim-boundary bindings.
+
+composition "Stormglass Character Appearance H3U Browser Quest Temporal LOD Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-appearance-h3u-manifest.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3U_BROWSER_QUEST_TEMPORAL_LOD"
+    date: "2026-07-29"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3u-browser-quest-temporal-lod.holo"
+    sourceSha256: "6eebf14228a2ff39b0ecd6d7c70d92c00d8aa4ca9683b1b3d6cc8e2f9fd91f4c"
+    policy: "source/proofs/model-village-character-appearance-h3u-browser-quest-temporal-lod-policy.hsplus"
+    policySha256: "a6dc3ee0bdaa5fc8cd763a27144b95af51c7d19a6fcaf9fdbb6536a5f49f98aa"
+    seed: "source/proofs/model-village-character-appearance-h3u-browser-quest-temporal-lod-seed.hs"
+    seedSha256: "641777c4fe6d4ef7b6b8e691249cd22b83c048940c35ed50de01fe7a30bcd551"
+    checker: "scripts/check-hololand-model-village-character-appearance-h3u.mjs"
+    checkerSha256: "9021fe41c92cb47c7cdd01c499f032ca2e1e8cae1ac177110090519784969ec5"
+    test: "scripts/__tests__/hololand-model-village-character-appearance-h3u.test.mjs"
+    testSha256: "778992ce16080f1f0a09c63c4d5cc97a31a0f1f6e9a8edca114ae2ca5fa1158f"
+    report: "docs/reports/model-village-character-appearance-h3u-browser-quest-temporal-lod-2026-07-29.md"
+    reportSha256: "af6e93b0770bcf0b4e25133b1a126f067e75d957cb955387c5d3983c21476efa"
+    hero: "docs/assets/model-village/model-village-character-appearance-h3u-browser-quest-temporal-lod-2026-07-29.png"
+    heroSha256: "cecdb8822f86b0899f3451741375bc65199a4fc7cfe504439736134228bd56db"
+    evidence: "docs/assets/model-village/model-village-character-appearance-h3u-browser-quest-temporal-lod-2026-07-29.json"
+    evidenceSha256: "d4eabc0c42912d01f6e24525701376bcd4924dfe77fc5f3feb099571f2496d88"
+    evidenceReceiptSha256: "a82ee1915f4250458aa32d3ceaf9baff4b772ed9cb75558ca10fe8dc765a7e32"
+    upstreamHoloScriptCommit: "0c1a5313d0ed207744bf115ee3697a74e59046d2"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    compiledLodBundleCount: 8
+    witnessedLodLevels: [0, 2]
+    browserCharacterRenderCount: 128
+    browserBalancedResolveCount: 128
+    questBudgetResolveCount: 64
+    temporalResolveCount: 192
+    cameraMotionInvalidationCount: 8
+    residentMotionInvalidationCount: 8
+    lodChangeInvalidationCount: 8
+    exactHistoryDiscardCount: 32
+    browserWebgpuMeasured: true
+    browserAdapterMeasured: true
+    browserDeviceMeasured: true
+    questProfileExecutedOnBrowserDevice: true
+    questHeadsetMeasured: false
+    questWebxrMeasured: false
+    gpuTimestampMeasured: false
+    freshRtxBenchmarkClaimed: false
+    motionVectorsConsumed: false
+    reactiveMaskConsumed: false
+    disocclusionInputConsumed: false
+    photorealismClaimed: false
+    fullWorldPerformanceClaimed: false
+  }
+}

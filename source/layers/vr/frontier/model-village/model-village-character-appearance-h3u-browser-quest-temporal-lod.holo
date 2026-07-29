@@ -1,0 +1,165 @@
+// Stormglass Commons Character Appearance H3U.
+//
+// Four symbolic model-family residents exercise source-authored LOD and the
+// native HoloScript temporal-convergence primitive in a real Chrome WebGPU
+// device. The Quest profile is executed on that browser device as a budget
+// contract; no headset, WebXR session, GPU timestamp, or RTX benchmark is
+// claimed by this source.
+
+composition "Stormglass Character Appearance H3U Browser Quest Temporal LOD" {
+  metadata {
+    title: "Stormglass Character Appearance H3U - Browser and Quest Temporal LOD"
+    version: "0.1.0"
+    date: "2026-07-29"
+    milestone: "MV_CHARACTER_APPEARANCE_H3U_BROWSER_QUEST_TEMPORAL_LOD"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3u-browser-quest-temporal-lod.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3u-browser-quest-temporal-lod-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3u-browser-quest-temporal-lod-seed.hs"
+    inheritedH3TSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3t-skin-surface-response.holo"
+    inheritedH3TSourceSha256: "76c7f73703a184fd378fa6f1f6be4e701db9cc25afbddf8ab4d035f9a5972fd4"
+    upstreamHoloScriptCommit: "0c1a5313d0ed207744bf115ee3697a74e59046d2"
+    upstreamTemporalPath: "packages/engine/src/rendering/webgpu/TemporalConvergence.ts"
+    upstreamTemporalSha256: "715576db496c76a2562c26fc33d6f3b48f0ca4f89b1cded77ed7728ef52f17a4"
+    upstreamRendererPath: "packages/engine/src/character-render/character-render.ts"
+    upstreamRendererSha256: "d871b0c67fbeb4d7f8f04165097e3377ebc88e68d9c816f1104d9a1c5422a15e"
+    upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
+    upstreamCompilerSha256: "59b277f7e0e378c89b328848cc4e6b502f7ea9d7408d5b8e21ca546c69f890be"
+    projectionRole: "read_only_symbolic_model_family_browser_temporal_lod_witness"
+    architectureGuidance: "W.GOLD.002_sovereign_compiler_priority"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "stormglass_browser_native_temporal_portrait_grid"
+  }
+
+  environment {
+    mode: "browser_native_webgpu_controlled_motion_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#020811"
+    ambient_light: 0.09
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3U_BROWSER_QUEST_TEMPORAL_LOD"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    providerModelBinding: "absent"
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+
+    sourceCompilerEntrypoint: "CharacterWebGPUCompiler.compile"
+    browserRendererEntrypoint: "renderCharacter"
+    browserTemporalEntrypoint: "resolveTemporalFrameGPU"
+    browserRendererBackend: "webgpu"
+    browserWebgpuMeasured: true
+    browserAdapterRequired: true
+    browserDeviceRequired: true
+    browserProfile: "browser-balanced"
+    browserSampleCount: 8
+    questBudgetProfile: "quest-90hz-budget"
+    questBudgetSampleCount: 4
+    questProfileExecutedOnBrowserDevice: true
+    questHeadsetMeasured: false
+    questWebxrMeasured: false
+
+    lodSelectionMode: "distance"
+    lodTransitionMode: "dither"
+    lodTransitionDurationMilliseconds: 180
+    lodHysteresisBand: 0.65
+    authoredLodLevels: [0, 1, 2]
+    witnessedLodLevels: [0, 2]
+    historyInvalidationPolicy: "invalidate-on-camera-resident-or-lod-change-v1"
+    cameraMotionInvalidationRequired: true
+    residentMotionInvalidationRequired: true
+    lodChangeInvalidationRequired: true
+    neighborhoodClampingRequired: true
+    motionVectorsConsumed: false
+    reactiveMaskConsumed: false
+    disocclusionInputConsumed: false
+    gpuTimestampFrameTimeClaimed: false
+    freshRtxBenchmarkClaimed: false
+    callbackCadenceCountsAsGpuTime: false
+    endToEndDisplayLatencyClaimed: false
+    photorealismClaimed: false
+    fullWorldConvergenceClaimed: false
+  }
+
+  template "StormglassH3UNamedModelResident" {
+    @skeleton(rig: "humanoid_65")
+    @locomotion(mode: "idle", speed: 0)
+    type: "named_model_family_temporal_lod_resident"
+    providerBinding: "appearance_only_absent"
+  }
+
+  object "OpenAIResident" using "StormglassH3UNamedModelResident" {
+    @body(height: 1.82, build_scale: 1.07, shoulder_scale: 1.1, torso_scale: 0.96, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#B9826F", nail_tone: "#E6BEB2", nail_roughness: 0.24, nail_bed_tone: "#C9827C", nail_bed_roughness: 0.36)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 24, vertical_segments: 18, face_width: 0.95, face_length: 1.06, jaw_taper: 0.29, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.29, lid_opening: 0.48, canthal_tilt: 0.11, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.98, brow_height: 1.08, brow_thickness: 0.16, ear_scale: 0.98, mouth_depth: 0.74, ocular_profile: "layered_ocular_v1", iris_color: "#6B8C82", sclera_color: "#EEE9DF", iris_scale: 0.5, pupil_scale: 0.38, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#B9826F", scatter_color: "#A65D50", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 104, microdetail_strength: 0.09, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.052, roughness_variation_strength: 0.14, normal_microdetail_strength: 0.28)
+    @hair(style: "cropped_coils", color: "#2F2928", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.17, crown_whorl: 0.42, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.84, edge_softness: 0.12, anisotropy_strength: 0.86, longitudinal_shift: 0.08)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#176B5B")
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 180, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 168, hair_cards_per_guide: 2, hair_segments: 7 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 92, hair_cards_per_guide: 1, hair_segments: 5 },
+      { level: 2, distance: 18, garment_segments: 8, hair_guides: 42, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "named_model_family_temporal_lod_resident"
+    modelFamilyId: "openai"
+    displayLabel: "OpenAI"
+    accentColor: "#62D9C0"
+  }
+
+  object "ClaudeResident" using "StormglassH3UNamedModelResident" {
+    @body(height: 1.86, build_scale: 1.05, shoulder_scale: 1.08, torso_scale: 0.95, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#C58B70", nail_tone: "#EDC7B6", nail_roughness: 0.28, nail_bed_tone: "#D28A7C", nail_bed_roughness: 0.38)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 24, vertical_segments: 18, face_width: 0.94, face_length: 1.09, jaw_taper: 0.31, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.31, lid_opening: 0.46, canthal_tilt: 0.14, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.96, brow_height: 1.12, brow_thickness: 0.15, ear_scale: 1.02, mouth_depth: 0.8, ocular_profile: "layered_ocular_v1", iris_color: "#7C604B", sclera_color: "#F0E8DE", iris_scale: 0.49, pupil_scale: 0.37, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#C58B70", scatter_color: "#AF6958", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 98, microdetail_strength: 0.084, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.048, roughness_variation_strength: 0.13, normal_microdetail_strength: 0.25)
+    @hair(style: "medium_wavy", color: "#6B4633", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.15, crown_whorl: 0.34, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.86, edge_softness: 0.1, anisotropy_strength: 0.84, longitudinal_shift: 0.06)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#A85F36")
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 180, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 160, hair_cards_per_guide: 2, hair_segments: 8 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 88, hair_cards_per_guide: 1, hair_segments: 5 },
+      { level: 2, distance: 18, garment_segments: 8, hair_guides: 42, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "named_model_family_temporal_lod_resident"
+    modelFamilyId: "anthropic"
+    displayLabel: "Claude"
+    accentColor: "#E3A16F"
+  }
+
+  object "GeminiResident" using "StormglassH3UNamedModelResident" {
+    @body(height: 1.79, build_scale: 1.04, shoulder_scale: 1.06, torso_scale: 0.94, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#8D695C", nail_tone: "#C9A094", nail_roughness: 0.31, nail_bed_tone: "#9E706B", nail_bed_roughness: 0.4)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 24, vertical_segments: 18, face_width: 0.97, face_length: 1.03, jaw_taper: 0.25, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.27, lid_opening: 0.5, canthal_tilt: 0.09, facial_detail_profile: "civic_landmarks_v1", eye_scale: 1.02, brow_height: 1.04, brow_thickness: 0.17, ear_scale: 0.96, mouth_depth: 0.7, ocular_profile: "layered_ocular_v1", iris_color: "#526D91", sclera_color: "#F2EBE4", iris_scale: 0.52, pupil_scale: 0.36, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#8D695C", scatter_color: "#785147", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 112, microdetail_strength: 0.1, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.058, roughness_variation_strength: 0.16, normal_microdetail_strength: 0.3)
+    @hair(style: "short", color: "#303641", groom_profile: "scalp_flow_v1", card_width: 0.0058, root_lift: 0.002, tip_taper: 0.14, hairline_bias: 0.18, crown_whorl: -0.28, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.8, edge_softness: 0.14, anisotropy_strength: 0.9, longitudinal_shift: 0.12)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#3859A8")
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 180, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 126, hair_cards_per_guide: 2, hair_segments: 6 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 72, hair_cards_per_guide: 1, hair_segments: 4 },
+      { level: 2, distance: 18, garment_segments: 8, hair_guides: 38, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "named_model_family_temporal_lod_resident"
+    modelFamilyId: "google"
+    displayLabel: "Gemini"
+    accentColor: "#829BFF"
+  }
+
+  object "GrokResident" using "StormglassH3UNamedModelResident" {
+    @body(height: 1.88, build_scale: 1.08, shoulder_scale: 1.13, torso_scale: 0.98, upper_body_profile: "coherent_hand_surface_v5", upper_body_radial_segments: 24, skin_tone: "#D0A086", nail_tone: "#F1CCBB", nail_roughness: 0.22, nail_bed_tone: "#D99A8A", nail_bed_roughness: 0.34)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 24, vertical_segments: 18, face_width: 1.01, face_length: 1.04, jaw_taper: 0.23, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.25, lid_opening: 0.52, canthal_tilt: 0.06, facial_detail_profile: "civic_landmarks_v1", eye_scale: 1, brow_height: 0.98, brow_thickness: 0.19, ear_scale: 1.04, mouth_depth: 0.68, ocular_profile: "layered_ocular_v1", iris_color: "#768D59", sclera_color: "#EFE8DF", iris_scale: 0.48, pupil_scale: 0.4, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 92, microdetail_strength: 0.078, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.044, roughness_variation_strength: 0.12, normal_microdetail_strength: 0.23)
+    @hair(style: "swept_ridge", color: "#171D22", groom_profile: "scalp_flow_v1", card_width: 0.0056, root_lift: 0.0024, tip_taper: 0.11, hairline_bias: 0.16, crown_whorl: -0.18, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.82, edge_softness: 0.11, anisotropy_strength: 0.92, longitudinal_shift: 0.1)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#263945")
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 180, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 150, hair_cards_per_guide: 2, hair_segments: 7 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 82, hair_cards_per_guide: 1, hair_segments: 5 },
+      { level: 2, distance: 18, garment_segments: 8, hair_guides: 40, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "named_model_family_temporal_lod_resident"
+    modelFamilyId: "xai"
+    displayLabel: "Grok"
+    accentColor: "#65D8E7"
+  }
+}

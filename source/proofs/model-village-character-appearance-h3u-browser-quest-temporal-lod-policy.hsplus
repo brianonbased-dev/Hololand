@@ -1,0 +1,74 @@
+// H3U browser and Quest-budget temporal LOD admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// fail-closed contract enforced by the H3U checker.
+
+composition "Stormglass Character Appearance H3U Temporal LOD Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3u-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3U_BROWSER_QUEST_TEMPORAL_LOD"
+    source: "source/proofs/model-village-character-appearance-h3u-browser-quest-temporal-lod-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3u-browser-quest-temporal-lod.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3u-browser-quest-temporal-lod-seed.hs"
+    formatRole: "browser_webgpu_temporal_lod_admission_and_quest_budget_firewall"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3UTemporalAdmissionState {
+    sourceCompiledResidentCount: 0
+    sourceCompiledLodCount: 0
+    browserGpuDeviceCount: 0
+    browserTemporalResolveCount: 0
+    questHeadsetCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "TemporalLodAdmission" {
+    type: "temporal_lod_admission"
+    expectedBackend: "webgpu"
+    expectedResolveSchema: "holoscript.webgpu-temporal-resolve.v1"
+    expectedHistoryPolicy: "invalidate-on-camera-resident-or-lod-change-v1"
+    browserProfile: "browser-balanced"
+    browserSampleCount: 8
+    questBudgetProfile: "quest-90hz-budget"
+    questBudgetSampleCount: 4
+    expectedInvalidations: ["initial", "camera-motion", "resident-motion", "lod-change"]
+    motionVectorsRequired: false
+    reactiveMaskRequired: false
+    disocclusionInputRequired: false
+    gpuTimestampRequired: false
+    questHeadsetRequired: false
+  }
+
+  action admit_temporal_stage(stage, expected) {
+    if (stage.resolveSchema != expected.expectedResolveSchema) {
+      return { admitted: false, reason: "wrong_resolve_schema" }
+    }
+    if (stage.deviceExecutionMeasured != true) {
+      return { admitted: false, reason: "browser_gpu_execution_missing" }
+    }
+    if (stage.historyDiscardPixelDelta != 0) {
+      return { admitted: false, reason: "invalidated_history_not_discarded" }
+    }
+    if (stage.converged != true) {
+      return { admitted: false, reason: "stable_window_not_converged" }
+    }
+    return { admitted: true, reason: "temporal_stage_admitted" }
+  }
+
+  action admit_claim_boundary(receipt) {
+    if (receipt.gpuTimestampMeasured == true) {
+      return { admitted: false, reason: "gpu_timestamp_not_in_scope" }
+    }
+    if (receipt.questHeadsetMeasured == true) {
+      return { admitted: false, reason: "quest_headset_not_present" }
+    }
+    if (receipt.freshRtxBenchmarkClaimed == true) {
+      return { admitted: false, reason: "rtx_benchmark_not_measured" }
+    }
+    return { admitted: true, reason: "bounded_browser_profile_claim_admitted" }
+  }
+}

@@ -1,0 +1,2093 @@
+{
+  "schema": "hololand.model-village.character-appearance-h3u-witness.v1",
+  "capturedAt": "2026-07-29T21:46:06.993Z",
+  "status": "pass",
+  "milestone": "MV_CHARACTER_APPEARANCE_H3U_BROWSER_QUEST_TEMPORAL_LOD",
+  "sourceAdmission": {
+    "holoScriptCommit": "0c1a5313d0ed207744bf115ee3697a74e59046d2",
+    "sourceSha256": "6eebf14228a2ff39b0ecd6d7c70d92c00d8aa4ca9683b1b3d6cc8e2f9fd91f4c",
+    "policySha256": "a6dc3ee0bdaa5fc8cd763a27144b95af51c7d19a6fcaf9fdbb6536a5f49f98aa",
+    "seedSha256": "641777c4fe6d4ef7b6b8e691249cd22b83c048940c35ed50de01fe7a30bcd551",
+    "residentNames": [
+      "OpenAI",
+      "Claude",
+      "Gemini",
+      "Grok"
+    ]
+  },
+  "compilerAdmission": {
+    "target": "character-webgpu",
+    "residentCount": 4,
+    "witnessedLodLevels": [
+      0,
+      2
+    ],
+    "repeatedCompileByteIdentity": true,
+    "records": [
+      {
+        "objectId": "OpenAIResident",
+        "displayLabel": "OpenAI",
+        "modelFamilyId": "openai",
+        "lods": [
+          {
+            "lodLevel": 0,
+            "outputSha256": "27a3f9ebecfdaf96fca50abf18c33f4d205ada7bbf41ec5e4d14da499a5f0daf",
+            "byteLength": 1998657,
+            "repeatedCompileByteIdentity": true,
+            "vertexCount": 10206,
+            "indexCount": 46008,
+            "materialGroupCount": 43,
+            "lodTransition": {
+              "durationSeconds": 0.18,
+              "hysteresisBand": 0.65,
+              "mode": "dither",
+              "schemaVersion": "holoscript.character-lod-transition.v1",
+              "selectionMode": "distance"
+            }
+          },
+          {
+            "lodLevel": 2,
+            "outputSha256": "5d8d4679127a113aba375c880b380bf4f683961fde50cc3c1255d391df4490b7",
+            "byteLength": 1369495,
+            "repeatedCompileByteIdentity": true,
+            "vertexCount": 7378,
+            "indexCount": 38274,
+            "materialGroupCount": 43,
+            "lodTransition": {
+              "durationSeconds": 0.18,
+              "hysteresisBand": 0.65,
+              "mode": "dither",
+              "schemaVersion": "holoscript.character-lod-transition.v1",
+              "selectionMode": "distance"
+            }
+          }
+        ],
+        "vertexReductionRatio": 0.2770919067215364
+      },
+      {
+        "objectId": "ClaudeResident",
+        "displayLabel": "Claude",
+        "modelFamilyId": "anthropic",
+        "lods": [
+          {
+            "lodLevel": 0,
+            "outputSha256": "0569dec81da3a8975de19e3b87b48e6e9a3da9e0a052c50bbb8becf261c6aeec",
+            "byteLength": 2087646,
+            "repeatedCompileByteIdentity": true,
+            "vertexCount": 10506,
+            "indexCount": 46944,
+            "materialGroupCount": 43,
+            "lodTransition": {
+              "durationSeconds": 0.18,
+              "hysteresisBand": 0.65,
+              "mode": "dither",
+              "schemaVersion": "holoscript.character-lod-transition.v1",
+              "selectionMode": "distance"
+            }
+          },
+          {
+            "lodLevel": 2,
+            "outputSha256": "47ea488fcfb7bbffc273e4f115034e83c6b631b2ea0995da657453dd5b80d866",
+            "byteLength": 1370052,
+            "repeatedCompileByteIdentity": true,
+            "vertexCount": 7378,
+            "indexCount": 38274,
+            "materialGroupCount": 43,
+            "lodTransition": {
+              "durationSeconds": 0.18,
+              "hysteresisBand": 0.65,
+              "mode": "dither",
+              "schemaVersion": "holoscript.character-lod-transition.v1",
+              "selectionMode": "distance"
+            }
+          }
+        ],
+        "vertexReductionRatio": 0.2977346278317152
+      },
+      {
+        "objectId": "GeminiResident",
+        "displayLabel": "Gemini",
+        "modelFamilyId": "google",
+        "lods": [
+          {
+            "lodLevel": 0,
+            "outputSha256": "34a8ca2fd395cff29b07d72711330401789d752d83e3732b48f5ccce803133e3",
+            "byteLength": 1781869,
+            "repeatedCompileByteIdentity": true,
+            "vertexCount": 9234,
+            "indexCount": 43380,
+            "materialGroupCount": 43,
+            "lodTransition": {
+              "durationSeconds": 0.18,
+              "hysteresisBand": 0.65,
+              "mode": "dither",
+              "schemaVersion": "holoscript.character-lod-transition.v1",
+              "selectionMode": "distance"
+            }
+          },
+          {
+            "lodLevel": 2,
+            "outputSha256": "18971a1564056f085f9b5d630e81de9d11415daeea9a9928e517d0cc7e11dedf",
+            "byteLength": 1364374,
+            "repeatedCompileByteIdentity": true,
+            "vertexCount": 7354,
+            "indexCount": 38220,
+            "materialGroupCount": 43,
+            "lodTransition": {
+              "durationSeconds": 0.18,
+              "hysteresisBand": 0.65,
+              "mode": "dither",
+              "schemaVersion": "holoscript.character-lod-transition.v1",
+              "selectionMode": "distance"
+            }
+          }
+        ],
+        "vertexReductionRatio": 0.20359540827377087
+      },
+      {
+        "objectId": "GrokResident",
+        "displayLabel": "Grok",
+        "modelFamilyId": "xai",
+        "lods": [
+          {
+            "lodLevel": 0,
+            "outputSha256": "6126a2e3516bce48bb716ec493de93a84db456a13c76133b3cd94b2374d5d43a",
+            "byteLength": 1939526,
+            "repeatedCompileByteIdentity": true,
+            "vertexCount": 9954,
+            "indexCount": 45360,
+            "materialGroupCount": 43,
+            "lodTransition": {
+              "durationSeconds": 0.18,
+              "hysteresisBand": 0.65,
+              "mode": "dither",
+              "schemaVersion": "holoscript.character-lod-transition.v1",
+              "selectionMode": "distance"
+            }
+          },
+          {
+            "lodLevel": 2,
+            "outputSha256": "22a6449c2653338cdce16159d13609a62d30d4c92373a92072675c1565b98f6f",
+            "byteLength": 1367629,
+            "repeatedCompileByteIdentity": true,
+            "vertexCount": 7370,
+            "indexCount": 38256,
+            "materialGroupCount": 43,
+            "lodTransition": {
+              "durationSeconds": 0.18,
+              "hysteresisBand": 0.65,
+              "mode": "dither",
+              "schemaVersion": "holoscript.character-lod-transition.v1",
+              "selectionMode": "distance"
+            }
+          }
+        ],
+        "vertexReductionRatio": 0.2595941330118545
+      }
+    ]
+  },
+  "browserWebgpuAdmission": {
+    "runtime": {
+      "renderer": "HoloScript CharacterRender.renderCharacter",
+      "temporalResolve": "HoloScript TemporalConvergence.resolveTemporalFrameGPU",
+      "backend": "browser_native_webgpu",
+      "browserUsed": true,
+      "threeJsUsed": false,
+      "r3fUsed": false
+    },
+    "browser": {
+      "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "product": "Chrome/150.0.7871.187",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+      "jsVersion": "15.0.245.21",
+      "launchFlags": [
+        "--headless=new",
+        "--use-angle=d3d11",
+        "--ignore-gpu-blocklist",
+        "--enable-gpu",
+        "--enable-unsafe-webgpu",
+        "--remote-debugging-port=39253",
+        "--user-data-dir=C:\\Users\\josep\\AppData\\Local\\Temp\\hololand-h3u-23352-1785361562262",
+        "--window-size=1400,900",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-dev-shm-usage",
+        "--disable-features=Translate,MediaRouter",
+        "about:blank"
+      ]
+    },
+    "gpu": {
+      "navigatorGpu": true,
+      "adapterAcquired": true,
+      "deviceCreated": true,
+      "vendor": "nvidia",
+      "architecture": "ampere",
+      "device": "",
+      "description": "",
+      "adapterAndDeviceWallClockMilliseconds": 320.60000000009313,
+      "verifiedDeviceMethods": [
+        "createShaderModule",
+        "createRenderPipeline",
+        "createComputePipeline",
+        "createTexture",
+        "createBuffer",
+        "createCommandEncoder"
+      ]
+    },
+    "residents": [
+      {
+        "displayLabel": "OpenAI",
+        "browserProfile": {
+          "profile": "browser-balanced",
+          "config": {
+            "sampleCount": 8,
+            "feedbackCeiling": 0.875,
+            "jitterScalePixels": 0.5
+          },
+          "controller": {
+            "schemaVersion": "holoscript.temporal-convergence.v1",
+            "config": {
+              "sampleCount": 8,
+              "feedbackCeiling": 0.875,
+              "jitterScalePixels": 0.5
+            },
+            "frameCount": 32,
+            "historyGeneration": 4,
+            "invalidationCounts": {
+              "initial": 1,
+              "camera-motion": 1,
+              "resident-motion": 1,
+              "lod-change": 1,
+              "manual": 0
+            },
+            "stableFrameCount": 8,
+            "converged": true,
+            "motionVectorsConsumed": false,
+            "reactiveMaskConsumed": false,
+            "disocclusionInputConsumed": false,
+            "requiredHistoryPolicy": "invalidate-on-camera-resident-or-lod-change-v1"
+          },
+          "stages": [
+            {
+              "name": "initial",
+              "invalidated": true,
+              "invalidationReason": "initial",
+              "historyGeneration": 1,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": null,
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "a695e88d89dfbf2263ea793972ad60ea22bfa15bb7cc1a4b81d05c329cfdd43e",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 228.29999999981374,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "camera-motion",
+              "invalidated": true,
+              "invalidationReason": "camera-motion",
+              "historyGeneration": 2,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 26193,
+                "absoluteChannelDiff": 562655,
+                "maximumPixelDelta": 594
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "4ce2f013fe4da961d4941528500775963a8ee583731ed084b91d1f510bd58e02",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 87.20000000018626,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "resident-motion",
+              "invalidated": true,
+              "invalidationReason": "resident-motion",
+              "historyGeneration": 3,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 29173,
+                "absoluteChannelDiff": 1540378,
+                "maximumPixelDelta": 481
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "5fe97690098595d239b14d0e67d02b37167664c62c356a42b8f701854bcce22a",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 112.60000000009313,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "lod-change",
+              "invalidated": true,
+              "invalidationReason": "lod-change",
+              "historyGeneration": 4,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 13324,
+                "absoluteChannelDiff": 140170,
+                "maximumPixelDelta": 136
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "8c03f07aa2211329c7f4eabbc4e9b4c31fc34cc9beec583f6255c5a90770a2f1",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 104.89999999990687,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            }
+          ]
+        },
+        "questBudgetProfile": {
+          "profile": "quest-90hz-budget",
+          "executedOn": "same_browser_gpu_device_not_quest_headset",
+          "config": {
+            "sampleCount": 4,
+            "feedbackCeiling": 0.75,
+            "jitterScalePixels": 0.42
+          },
+          "controller": {
+            "schemaVersion": "holoscript.temporal-convergence.v1",
+            "config": {
+              "sampleCount": 4,
+              "feedbackCeiling": 0.75,
+              "jitterScalePixels": 0.42
+            },
+            "frameCount": 16,
+            "historyGeneration": 4,
+            "invalidationCounts": {
+              "initial": 1,
+              "camera-motion": 1,
+              "resident-motion": 1,
+              "lod-change": 1,
+              "manual": 0
+            },
+            "stableFrameCount": 4,
+            "converged": true,
+            "motionVectorsConsumed": false,
+            "reactiveMaskConsumed": false,
+            "disocclusionInputConsumed": false,
+            "requiredHistoryPolicy": "invalidate-on-camera-resident-or-lod-change-v1"
+          },
+          "stages": [
+            {
+              "name": "initial",
+              "invalidated": true,
+              "invalidationReason": "initial",
+              "historyGeneration": 1,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": null,
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "f031a7058212ec88ec0a2a0449fd0723ab5ad6c3bd7df750467c68e2662d38dc",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 24.09999999962747,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "camera-motion",
+              "invalidated": true,
+              "invalidationReason": "camera-motion",
+              "historyGeneration": 2,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 26094,
+                "absoluteChannelDiff": 563739,
+                "maximumPixelDelta": 599
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "d83e4dfa9bcd0e9c1e7337245f0d06990f2d78108c473a57c50fdaaf4ffb3ac0",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 27.100000000093132,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "resident-motion",
+              "invalidated": true,
+              "invalidationReason": "resident-motion",
+              "historyGeneration": 3,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 29064,
+                "absoluteChannelDiff": 1543680,
+                "maximumPixelDelta": 533
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "b7bdab9f7fbcda2e3283619fb1bf893f5efcc9385f7aefd74af69234eeffed80",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 26.899999999906868,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "lod-change",
+              "invalidated": true,
+              "invalidationReason": "lod-change",
+              "historyGeneration": 4,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 9309,
+                "absoluteChannelDiff": 126001,
+                "maximumPixelDelta": 136
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "14a6a9ee7f6c44d85d11ee6d50344be2a854fe06b5ce76dd2de131d09b5a9250",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 26.600000000093132,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            }
+          ]
+        }
+      },
+      {
+        "displayLabel": "Claude",
+        "browserProfile": {
+          "profile": "browser-balanced",
+          "config": {
+            "sampleCount": 8,
+            "feedbackCeiling": 0.875,
+            "jitterScalePixels": 0.5
+          },
+          "controller": {
+            "schemaVersion": "holoscript.temporal-convergence.v1",
+            "config": {
+              "sampleCount": 8,
+              "feedbackCeiling": 0.875,
+              "jitterScalePixels": 0.5
+            },
+            "frameCount": 32,
+            "historyGeneration": 4,
+            "invalidationCounts": {
+              "initial": 1,
+              "camera-motion": 1,
+              "resident-motion": 1,
+              "lod-change": 1,
+              "manual": 0
+            },
+            "stableFrameCount": 8,
+            "converged": true,
+            "motionVectorsConsumed": false,
+            "reactiveMaskConsumed": false,
+            "disocclusionInputConsumed": false,
+            "requiredHistoryPolicy": "invalidate-on-camera-resident-or-lod-change-v1"
+          },
+          "stages": [
+            {
+              "name": "initial",
+              "invalidated": true,
+              "invalidationReason": "initial",
+              "historyGeneration": 1,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": null,
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "1c93d56bdc824cd72805d20fbde586039edbd6877063cd6d5b183cab43653132",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 152.29999999981374,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "camera-motion",
+              "invalidated": true,
+              "invalidationReason": "camera-motion",
+              "historyGeneration": 2,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 26439,
+                "absoluteChannelDiff": 556266,
+                "maximumPixelDelta": 590
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "cd10a3cb456224eb73da0ca8ce782926fd7f0f18d88c2aa74101b8d2a7da0a5f",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 94.3000000002794,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "resident-motion",
+              "invalidated": true,
+              "invalidationReason": "resident-motion",
+              "historyGeneration": 3,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 29313,
+                "absoluteChannelDiff": 1489322,
+                "maximumPixelDelta": 494
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "2219925bb8fdda4dc532d2e6481c033d23511bbfc64cbd8c1064f41926a48c5a",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 115.29999999981374,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "lod-change",
+              "invalidated": true,
+              "invalidationReason": "lod-change",
+              "historyGeneration": 4,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 13634,
+                "absoluteChannelDiff": 126090,
+                "maximumPixelDelta": 142
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "a2a2cf5b3d22f67e21714f57236089c90e1b8115865ae44bf968848c7d1dbaf4",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 106.5,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            }
+          ]
+        },
+        "questBudgetProfile": {
+          "profile": "quest-90hz-budget",
+          "executedOn": "same_browser_gpu_device_not_quest_headset",
+          "config": {
+            "sampleCount": 4,
+            "feedbackCeiling": 0.75,
+            "jitterScalePixels": 0.42
+          },
+          "controller": {
+            "schemaVersion": "holoscript.temporal-convergence.v1",
+            "config": {
+              "sampleCount": 4,
+              "feedbackCeiling": 0.75,
+              "jitterScalePixels": 0.42
+            },
+            "frameCount": 16,
+            "historyGeneration": 4,
+            "invalidationCounts": {
+              "initial": 1,
+              "camera-motion": 1,
+              "resident-motion": 1,
+              "lod-change": 1,
+              "manual": 0
+            },
+            "stableFrameCount": 4,
+            "converged": true,
+            "motionVectorsConsumed": false,
+            "reactiveMaskConsumed": false,
+            "disocclusionInputConsumed": false,
+            "requiredHistoryPolicy": "invalidate-on-camera-resident-or-lod-change-v1"
+          },
+          "stages": [
+            {
+              "name": "initial",
+              "invalidated": true,
+              "invalidationReason": "initial",
+              "historyGeneration": 1,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": null,
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "9627eca9cc8da304165e4ee1d1d30f1f1c5e768b586d7ffc4c998ff75c1997ff",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 23.5,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "camera-motion",
+              "invalidated": true,
+              "invalidationReason": "camera-motion",
+              "historyGeneration": 2,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 26410,
+                "absoluteChannelDiff": 558839,
+                "maximumPixelDelta": 612
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "26e5efcc3c47188bdb2fa59968de5172fc4db187b320a525d549a896cb467822",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 22.800000000279397,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "resident-motion",
+              "invalidated": true,
+              "invalidationReason": "resident-motion",
+              "historyGeneration": 3,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 29212,
+                "absoluteChannelDiff": 1492730,
+                "maximumPixelDelta": 509
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "b9a3dfc26759049ca1c6702a7531cb76314edd99edc829448bf70add0a4892a9",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 22.5,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "lod-change",
+              "invalidated": true,
+              "invalidationReason": "lod-change",
+              "historyGeneration": 4,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 9700,
+                "absoluteChannelDiff": 112372,
+                "maximumPixelDelta": 144
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "7ec4323c5324df58bb461b5ef5d0570024e10f67a777ab2f44e726b97ba6fafc",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 22.200000000186265,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            }
+          ]
+        }
+      },
+      {
+        "displayLabel": "Gemini",
+        "browserProfile": {
+          "profile": "browser-balanced",
+          "config": {
+            "sampleCount": 8,
+            "feedbackCeiling": 0.875,
+            "jitterScalePixels": 0.5
+          },
+          "controller": {
+            "schemaVersion": "holoscript.temporal-convergence.v1",
+            "config": {
+              "sampleCount": 8,
+              "feedbackCeiling": 0.875,
+              "jitterScalePixels": 0.5
+            },
+            "frameCount": 32,
+            "historyGeneration": 4,
+            "invalidationCounts": {
+              "initial": 1,
+              "camera-motion": 1,
+              "resident-motion": 1,
+              "lod-change": 1,
+              "manual": 0
+            },
+            "stableFrameCount": 8,
+            "converged": true,
+            "motionVectorsConsumed": false,
+            "reactiveMaskConsumed": false,
+            "disocclusionInputConsumed": false,
+            "requiredHistoryPolicy": "invalidate-on-camera-resident-or-lod-change-v1"
+          },
+          "stages": [
+            {
+              "name": "initial",
+              "invalidated": true,
+              "invalidationReason": "initial",
+              "historyGeneration": 1,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": null,
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "28dfb28d2d3b95932c23e2492010b1ee856108871e18b5a406e787510833fcc4",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 111.3000000002794,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "camera-motion",
+              "invalidated": true,
+              "invalidationReason": "camera-motion",
+              "historyGeneration": 2,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 25069,
+                "absoluteChannelDiff": 533449,
+                "maximumPixelDelta": 617
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "27c80ce206cc7f10ce36ed3b52fd42eb22ee61fa619eafe3173289e12a3706f3",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 108.09999999962747,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "resident-motion",
+              "invalidated": true,
+              "invalidationReason": "resident-motion",
+              "historyGeneration": 3,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 27968,
+                "absoluteChannelDiff": 1461544,
+                "maximumPixelDelta": 535
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "cf76b0d02e1a35d55d6df0f9da33215108d9cd5022f4b875e46ecb0c425a6672",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 121.60000000009313,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "lod-change",
+              "invalidated": true,
+              "invalidationReason": "lod-change",
+              "historyGeneration": 4,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 13426,
+                "absoluteChannelDiff": 165239,
+                "maximumPixelDelta": 166
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "7ad1e359b1f0fa58bf4057bc46b94715274a638b8d51e231e69d86fc444f8250",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 115.39999999990687,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            }
+          ]
+        },
+        "questBudgetProfile": {
+          "profile": "quest-90hz-budget",
+          "executedOn": "same_browser_gpu_device_not_quest_headset",
+          "config": {
+            "sampleCount": 4,
+            "feedbackCeiling": 0.75,
+            "jitterScalePixels": 0.42
+          },
+          "controller": {
+            "schemaVersion": "holoscript.temporal-convergence.v1",
+            "config": {
+              "sampleCount": 4,
+              "feedbackCeiling": 0.75,
+              "jitterScalePixels": 0.42
+            },
+            "frameCount": 16,
+            "historyGeneration": 4,
+            "invalidationCounts": {
+              "initial": 1,
+              "camera-motion": 1,
+              "resident-motion": 1,
+              "lod-change": 1,
+              "manual": 0
+            },
+            "stableFrameCount": 4,
+            "converged": true,
+            "motionVectorsConsumed": false,
+            "reactiveMaskConsumed": false,
+            "disocclusionInputConsumed": false,
+            "requiredHistoryPolicy": "invalidate-on-camera-resident-or-lod-change-v1"
+          },
+          "stages": [
+            {
+              "name": "initial",
+              "invalidated": true,
+              "invalidationReason": "initial",
+              "historyGeneration": 1,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": null,
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "602d65f84640f91df7880116828ea40b8ce8edd5782cc464672daee11b35240b",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 24.600000000093132,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "camera-motion",
+              "invalidated": true,
+              "invalidationReason": "camera-motion",
+              "historyGeneration": 2,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 25027,
+                "absoluteChannelDiff": 534155,
+                "maximumPixelDelta": 631
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "c6df11ce6d01c9cf903e49504677d84d9c0b39241752875aec675d2d56e5c988",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 27.5,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "resident-motion",
+              "invalidated": true,
+              "invalidationReason": "resident-motion",
+              "historyGeneration": 3,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 27905,
+                "absoluteChannelDiff": 1466680,
+                "maximumPixelDelta": 561
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "45d0d4a98bc50bebb23c8969535ca70f51ee6c72986109acee2408c14e4c9bc5",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 27.299999999813735,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "lod-change",
+              "invalidated": true,
+              "invalidationReason": "lod-change",
+              "historyGeneration": 4,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 9788,
+                "absoluteChannelDiff": 153087,
+                "maximumPixelDelta": 171
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "6a14bf652388a4885e79990082694775ba1a0c0438bc0711ac21ecf4ddd9e242",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 22.90000000037253,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            }
+          ]
+        }
+      },
+      {
+        "displayLabel": "Grok",
+        "browserProfile": {
+          "profile": "browser-balanced",
+          "config": {
+            "sampleCount": 8,
+            "feedbackCeiling": 0.875,
+            "jitterScalePixels": 0.5
+          },
+          "controller": {
+            "schemaVersion": "holoscript.temporal-convergence.v1",
+            "config": {
+              "sampleCount": 8,
+              "feedbackCeiling": 0.875,
+              "jitterScalePixels": 0.5
+            },
+            "frameCount": 32,
+            "historyGeneration": 4,
+            "invalidationCounts": {
+              "initial": 1,
+              "camera-motion": 1,
+              "resident-motion": 1,
+              "lod-change": 1,
+              "manual": 0
+            },
+            "stableFrameCount": 8,
+            "converged": true,
+            "motionVectorsConsumed": false,
+            "reactiveMaskConsumed": false,
+            "disocclusionInputConsumed": false,
+            "requiredHistoryPolicy": "invalidate-on-camera-resident-or-lod-change-v1"
+          },
+          "stages": [
+            {
+              "name": "initial",
+              "invalidated": true,
+              "invalidationReason": "initial",
+              "historyGeneration": 1,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": null,
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "4ba08202526d0bf2f275f1dc8950c73f5585c4aaef0a946c877ca68a12e3980d",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 116.10000000009313,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "camera-motion",
+              "invalidated": true,
+              "invalidationReason": "camera-motion",
+              "historyGeneration": 2,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 26852,
+                "absoluteChannelDiff": 582406,
+                "maximumPixelDelta": 648
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "d97f3be6b400c620f086711d03dfa2eb1ca227c45fc6149772a2acaf42189c80",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 110.79999999981374,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "resident-motion",
+              "invalidated": true,
+              "invalidationReason": "resident-motion",
+              "historyGeneration": 3,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 29552,
+                "absoluteChannelDiff": 1554992,
+                "maximumPixelDelta": 512
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "0d6b1183497b96ab58c519375a5ec0f2dc51397a96a8291f647154d27b10723e",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 150.60000000009313,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "lod-change",
+              "invalidated": true,
+              "invalidationReason": "lod-change",
+              "historyGeneration": 4,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 13189,
+                "absoluteChannelDiff": 141408,
+                "maximumPixelDelta": 178
+              },
+              "sampleCount": 8,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.08333333333333334
+                ],
+                [
+                  -0.125,
+                  0.08333333333333331
+                ],
+                [
+                  0.125,
+                  -0.19444444444444445
+                ],
+                [
+                  -0.1875,
+                  -0.02777777777777779
+                ],
+                [
+                  0.0625,
+                  0.13888888888888884
+                ],
+                [
+                  -0.0625,
+                  -0.1388888888888889
+                ],
+                [
+                  0.1875,
+                  0.02777777777777779
+                ],
+                [
+                  -0.21875,
+                  0.19444444444444442
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 8,
+              "finalPixelSha256": "56c23a2500888852b6bb2b376555a80abd41831127f4f6495c8ad9cbe4d110df",
+              "resolveReceiptCount": 8,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 123.39999999990687,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            }
+          ]
+        },
+        "questBudgetProfile": {
+          "profile": "quest-90hz-budget",
+          "executedOn": "same_browser_gpu_device_not_quest_headset",
+          "config": {
+            "sampleCount": 4,
+            "feedbackCeiling": 0.75,
+            "jitterScalePixels": 0.42
+          },
+          "controller": {
+            "schemaVersion": "holoscript.temporal-convergence.v1",
+            "config": {
+              "sampleCount": 4,
+              "feedbackCeiling": 0.75,
+              "jitterScalePixels": 0.42
+            },
+            "frameCount": 16,
+            "historyGeneration": 4,
+            "invalidationCounts": {
+              "initial": 1,
+              "camera-motion": 1,
+              "resident-motion": 1,
+              "lod-change": 1,
+              "manual": 0
+            },
+            "stableFrameCount": 4,
+            "converged": true,
+            "motionVectorsConsumed": false,
+            "reactiveMaskConsumed": false,
+            "disocclusionInputConsumed": false,
+            "requiredHistoryPolicy": "invalidate-on-camera-resident-or-lod-change-v1"
+          },
+          "stages": [
+            {
+              "name": "initial",
+              "invalidated": true,
+              "invalidationReason": "initial",
+              "historyGeneration": 1,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": null,
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "77019d2ae013ed339e85ac00b5407726ba4ea5cb959160046160c62662e63c31",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 23.399999999906868,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "camera-motion",
+              "invalidated": true,
+              "invalidationReason": "camera-motion",
+              "historyGeneration": 2,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 26640,
+                "absoluteChannelDiff": 582772,
+                "maximumPixelDelta": 618
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "2df1c6db6e0e222b5fdad9a25840e7df4711ea8e8a06dcc24e5fd4afb57615ab",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 27.399999999906868,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "resident-motion",
+              "invalidated": true,
+              "invalidationReason": "resident-motion",
+              "historyGeneration": 3,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 29501,
+                "absoluteChannelDiff": 1557602,
+                "maximumPixelDelta": 515
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "5ed34ab08bf6466266d30cc88c6d89cb850e86ce909c02c01c76cd96de980b9f",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 22.90000000037253,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            },
+            {
+              "name": "lod-change",
+              "invalidated": true,
+              "invalidationReason": "lod-change",
+              "historyGeneration": 4,
+              "historyDiscardPixelDelta": 0,
+              "transitionDelta": {
+                "changedPixelCount": 9146,
+                "absoluteChannelDiff": 127432,
+                "maximumPixelDelta": 181
+              },
+              "sampleCount": 4,
+              "jitterSequence": [
+                [
+                  0,
+                  -0.07
+                ],
+                [
+                  -0.105,
+                  0.06999999999999998
+                ],
+                [
+                  0.105,
+                  -0.16333333333333333
+                ],
+                [
+                  -0.1575,
+                  -0.02333333333333334
+                ]
+              ],
+              "converged": true,
+              "finalStableFrameCount": 4,
+              "finalPixelSha256": "4141b06a24a295bf2250809e8ecdb3314da4f2d9f871974d099d88b53d965ad3",
+              "resolveReceiptCount": 4,
+              "resolveSchema": "holoscript.webgpu-temporal-resolve.v1",
+              "deviceExecutionMeasured": true,
+              "neighborhoodClamping": true,
+              "gpuTimestampMeasured": false,
+              "browserObservedWallClockMilliseconds": 23.800000000279397,
+              "timingClassification": "browser_wall_clock_includes_render_resolve_submission_and_readback_not_gpu_timestamp_not_frame_time"
+            }
+          ]
+        }
+      }
+    ],
+    "network": {
+      "loopbackRequestCount": 2,
+      "externalRequestCount": 0
+    },
+    "screenshot": {
+      "width": 1400,
+      "height": 900,
+      "bytes": 649516,
+      "sha256": "cecdb8822f86b0899f3451741375bc65199a4fc7cfe504439736134228bd56db"
+    }
+  },
+  "hostHardwareReadback": {
+    "command": "nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader,nounits",
+    "status": "pass",
+    "stdout": "NVIDIA GeForce RTX 3060 Laptop GPU, 610.88, 6144",
+    "stderr": ""
+  },
+  "boundaries": {
+    "browserWebgpuMeasured": true,
+    "browserAdapterAndDeviceMeasured": true,
+    "questBudgetProfileExecutedOnBrowserDevice": true,
+    "questHeadsetMeasured": false,
+    "questWebxrMeasured": false,
+    "gpuTimestampMeasured": false,
+    "freshRtxBenchmarkClaimed": false,
+    "browserObservedWallClockIsGpuTime": false,
+    "frameTimeClaimed": false,
+    "endToEndDisplayLatencyClaimed": false,
+    "motionVectorsConsumed": false,
+    "reactiveMaskConsumed": false,
+    "disocclusionInputConsumed": false,
+    "photorealismClaimed": false,
+    "fullWorldPerformanceClaimed": false
+  },
+  "integrity": {
+    "canonicalSha256": "a82ee1915f4250458aa32d3ceaf9baff4b772ed9cb75558ca10fe8dc765a7e32"
+  }
+}
