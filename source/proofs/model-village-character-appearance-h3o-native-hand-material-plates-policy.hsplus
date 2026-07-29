@@ -1,0 +1,62 @@
+// H3O native hand-material admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// policy independently enforced by the H3O checker.
+
+composition "Stormglass Character Appearance H3O Native Material Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3o-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3O_NATIVE_HAND_MATERIAL_PLATES"
+    source: "source/proofs/model-village-character-appearance-h3o-native-hand-material-plates-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3o-native-hand-material-plates.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3o-native-hand-material-plates-seed.hs"
+    formatRole: "native_webgpu_material_group_and_gpu_readback_admission_policy"
+    nativeHsplusActionExecutionClaimed: false
+    gpuTimestampRequired: false
+  }
+
+  state H3ONativeMaterialState {
+    sourceCompiledResidentCount: 0
+    nativeGpuReadbackPlateCount: 0
+    admittedNailMaterialGroupCount: 0
+    admittedCounterfactualCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "NativeMaterialAdmission" {
+    type: "native_material_admission"
+    expectedBackend: "webgpu"
+    expectedReceiptSchema: "holoscript.character-material-plate.v1"
+    expectedDetailFrameSchema: "holoscript.character-detail-frame.v1"
+    expectedNailRole: "keratin-nail"
+    expectedNailGroupsPerResident: 10
+    expectedRenderedNailsPerHand: 5
+    expectedSkinNailOverlap: 0
+  }
+
+  action admit_material_plate(receipt, expected) {
+    if (receipt.backend != expected.expectedBackend) {
+      return { admitted: false, reason: "wrong_native_backend" }
+    }
+    if (receipt.roleCounts.keratinNail != expected.expectedNailGroupsPerResident) {
+      return { admitted: false, reason: "wrong_nail_group_count" }
+    }
+    if (receipt.skinNailOverlapIndexCount != expected.expectedSkinNailOverlap) {
+      return { admitted: false, reason: "skin_nail_overlap_detected" }
+    }
+    return { admitted: true, reason: "native_hand_material_plate_admitted" }
+  }
+
+  action admit_gpu_witness(witness) {
+    if (witness.nativeGpuReadback != true) {
+      return { admitted: false, reason: "native_gpu_readback_missing" }
+    }
+    if (witness.changedPixelCount <= 0) {
+      return { admitted: false, reason: "nail_counterfactual_no_pixel_delta" }
+    }
+    return { admitted: true, reason: "native_gpu_material_counterfactual_admitted" }
+  }
+}

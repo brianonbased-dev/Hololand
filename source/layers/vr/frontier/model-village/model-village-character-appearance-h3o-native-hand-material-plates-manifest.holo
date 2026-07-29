@@ -1,0 +1,119 @@
+// Immutable H3O native hand-material witness manifest.
+//
+// The plate proves source compilation, native Dawn/WebGPU execution, GPU
+// texture readback, and a nail-material counterfactual. It does not claim
+// browser WebGPU, GPU timestamp performance, an RTX benchmark, or finished
+// realism.
+
+composition "HoloLand Model Village Character Appearance H3O Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3O Native Hand Material Plates"
+    version: "0.1.0"
+    date: "2026-07-29"
+    milestone: "MV_CHARACTER_APPEARANCE_H3O_NATIVE_HAND_MATERIAL_PLATES"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3o-native-hand-material-plates.holo"
+      sourceSha256: "fffbf6c1cba69ac46b05473c259f9f2ed9b867f05cb34532df9a39da8188db7f"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3o-native-hand-material-plates-policy.hsplus"
+      policySha256: "875325b865aa2fdb8d68a06c69a68cc087aad6d4b1274f66b3b4c7634f7170f2"
+      parser: "HoloScriptPlusParser"
+      nativeActionExecutionClaimed: false
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3o-native-hand-material-plates-seed.hs"
+      seedSha256: "a002afab8494a1d9bf01b6cd40368f3669c49051d89deb9ff48a2c92832aa69d"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3o.mjs"
+      checkerSha256: "a256e2480714c9d66e3f7832518677be28fda4e8a3752ec7ddcc7ede984faad1"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3o.test.mjs"
+      testSha256: "e382fd44a54efb57063c286a0955b47b9511025bba9c0762d352c358d4348d70"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3o-native-hand-material-plates-2026-07-29.md"
+      reportSha256: "1d2caa0712f8730e34dffe8f7350655c814d978f05b3b40d1becafa7539b4b11"
+    }
+    nativeContactSheet: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3o-native-hand-material-plates-2026-07-29.png"
+      heroSha256: "3dea28b6eff65fbda1a1581d3ff8f9b5867a77561f4975a8e32c8d995d3c987b"
+      width: 658
+      height: 658
+      bytes: 1732712
+      visuallyInspected: true
+      role: "native_renderer_evidence_and_current_realism_gap_plate"
+    }
+    evidence: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3o-native-hand-material-plates-2026-07-29.json"
+      evidenceSha256: "7af82e6b26ee144409c884bfceb6a0f9338a9e93fe6621aadd3fd31f46096cf1"
+      receiptSha256: "fee557cfec36b8508b9febf4e2d80e0e5acd228bfd99c506534947fb98aaa4eb"
+    }
+    upstream: {
+      holoScriptCommit: "b76b9f2c62a8de753fca6e55b11e7e60385bce02"
+      drawSpecSha256: "3efa573133b48cf8c8c4f2d216888659732a40070ff2c7d7b887f235058d7452"
+      characterHostSha256: "8dfb432724ac6d1cb5eeda1ac078d7fadbbb868114dc0602c05ebd69b75d46be"
+      nativeRendererSha256: "5971063e800876a7a25a3962e90f2c90f2d60af80b3cbe7b823aa0351be3a1c8"
+      nativeRendererIndexSha256: "7a672e24d0971b1139b5abc179141c8c9330ffd8425332f3cac0add367172b63"
+      compositionBridgeSha256: "437c2d75d90fa795d9840d369591d968637586764a190efda341a3056960a7a5"
+      compilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+    }
+    compilerAdmission: {
+      compilerTarget: "character-webgpu"
+      compilerEntrypoint: "CharacterWebGPUCompiler.compile"
+      residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+      residentCount: 4
+      materialGroupCountPerResident: 16
+      nailMaterialGroupCountPerResident: 10
+      repeatedCompileByteIdentity: true
+    }
+    nativeGpuAdmission: {
+      renderer: "HoloScript CharacterRender.renderCharacter"
+      backend: "native_webgpu_dawn"
+      adapterVendor: "nvidia"
+      adapterArchitecture: "ampere"
+      adapterDevice: "nvidia-geforce-rtx-3060-laptop-gpu"
+      adapterDescription: "D3D12 driver version 32.0.16.1088"
+      nativeGpuTextureReadbackMeasured: true
+      counterfactualChangedOnlyMaterialRole: "keratin-nail"
+      minimumChangedPixelCount: 193
+      minimumAbsoluteChannelDiff: 19373
+      timestampQuerySupported: true
+      timestampQueryMeasured: false
+      threeJsDependencyUsed: false
+      browserUsed: false
+    }
+    browserAudit: {
+      browser: "Chrome 150.0.7871.182"
+      attempted: true
+      status: "unavailable_missing_playwright_prerequisite"
+      browserWebgpuMeasured: false
+      interpretation: "inconclusive_not_hardware_failure"
+    }
+    boundaries: {
+      providerModelBinding: "absent"
+      symbolicAppearanceOnly: true
+      browserWebgpuMeasured: false
+      gpuTimestampFrameTimeClaimed: false
+      freshRtxBenchmarkClaimed: false
+      callbackCadenceCountsAsGpuTime: false
+      endToEndDisplayLatencyClaimed: false
+      nativeWebgpuTaaClaimed: false
+      productionSkinTexturingClaimed: false
+      productionGroomClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      questWebxrMeasured: false
+      fullWorldConvergenceClaimed: false
+    }
+  }
+}

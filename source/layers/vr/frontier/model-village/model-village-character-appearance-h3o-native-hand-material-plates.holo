@@ -1,0 +1,146 @@
+// Stormglass Commons Character Appearance H3O.
+//
+// Four symbolic model-family residents exercise the sovereign HoloScript
+// composition -> CharacterHost -> native WebGPU renderer path. The renderer
+// plate is a bounded hand/material witness, not a provider-model binding,
+// biometric likeness, photorealism claim, or whole-world convergence claim.
+
+composition "Stormglass Character Appearance H3O Native Hand Material Plates" {
+  metadata {
+    title: "Stormglass Character Appearance H3O - Native Hand Material Plates"
+    version: "0.1.0"
+    date: "2026-07-29"
+    milestone: "MV_CHARACTER_APPEARANCE_H3O_NATIVE_HAND_MATERIAL_PLATES"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3o-native-hand-material-plates.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3o-native-hand-material-plates-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3o-native-hand-material-plates-seed.hs"
+    inheritedH3NSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3n-hand-landmarks-taa-lod.holo"
+    inheritedH3NSourceSha256: "d97bccf6802cb62b29ff77f082f230c78c754f7eb23337012510a488f1c61e4c"
+    upstreamHoloScriptCommit: "b76b9f2c62a8de753fca6e55b11e7e60385bce02"
+    upstreamDrawSpecPath: "packages/engine/src/native-render/draw-spec.ts"
+    upstreamDrawSpecSha256: "3efa573133b48cf8c8c4f2d216888659732a40070ff2c7d7b887f235058d7452"
+    upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
+    upstreamCharacterHostSha256: "8dfb432724ac6d1cb5eeda1ac078d7fadbbb868114dc0602c05ebd69b75d46be"
+    upstreamNativeRendererPath: "packages/engine/src/character-render/character-render.ts"
+    upstreamNativeRendererSha256: "5971063e800876a7a25a3962e90f2c90f2d60af80b3cbe7b823aa0351be3a1c8"
+    upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamCompositionBridgeSha256: "437c2d75d90fa795d9840d369591d968637586764a190efda341a3056960a7a5"
+    upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
+    upstreamCompilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+    projectionRole: "read_only_symbolic_model_family_native_webgpu_hand_material_witness"
+    architectureGuidance: "W.GOLD.002_sovereign_compiler_priority"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "stormglass_native_hand_material_calibration_plate"
+  }
+
+  environment {
+    mode: "native_webgpu_hand_material_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#020811"
+    ambient_light: 0.12
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3O_NATIVE_HAND_MATERIAL_PLATES"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    providerModelBinding: "absent"
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    biometricPersistenceAllowed: false
+
+    sourceCompilerEntrypoint: "CharacterWebGPUCompiler.compile"
+    nativeHostBridgeEntrypoint: "buildCharacterHostFromComposition"
+    nativeRendererEntrypoint: "renderCharacter"
+    nativeRendererBackend: "webgpu"
+    nativeMaterialReceiptSchema: "holoscript.character-material-plate.v1"
+    nativeDetailFrameSchema: "holoscript.character-detail-frame.v1"
+    materialRoleMetadataClaimed: true
+    nativeNailMaterialSeparationClaimed: true
+    sourceBoundDetailFrameClaimed: true
+    repeatedCompileByteIdentityClaimed: true
+    nativeDawnGpuReadbackClaimed: true
+    nailMaterialCounterfactualClaimed: true
+
+    browserWebgpuMeasured: false
+    gpuTimestampFrameTimeClaimed: false
+    freshRtxBenchmarkClaimed: false
+    callbackCadenceCountsAsGpuTime: false
+    endToEndDisplayLatencyClaimed: false
+    nativeWebgpuTaaClaimed: false
+    questWebxrMeasured: false
+    productionSkinTexturingClaimed: false
+    photorealismClaimed: false
+    biometricLikenessClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    materialPlateFoundation: {
+      authoredProfile: "coherent-hand-landmarks-v3"
+      rendererBackend: "webgpu"
+      semanticNailRole: "keratin-nail"
+      nailGroupCountPerResident: 10
+      nailGroupCountPerRenderedHand: 5
+      landmarkCountPerRenderedHand: 18
+      closeupPadding: 1.42
+      plateSizePixels: 320
+      contactSheetColumns: 2
+      contactSheetRows: 2
+      counterfactualChangesGeometry: false
+      counterfactualChangesOnlyNailMaterial: true
+      gpuTimestampRequired: false
+    }
+  }
+
+  template "StormglassH3ONamedModelResident" {
+    @skeleton(rig: "humanoid_65")
+    @locomotion(mode: "idle", speed: 0)
+    type: "named_model_family_native_hand_material_resident"
+    providerBinding: "appearance_only_absent"
+  }
+
+  object "OpenAIResident" using "StormglassH3ONamedModelResident" {
+    @body(height: 1.82, build_scale: 1.07, shoulder_scale: 1.1, torso_scale: 0.96, upper_body_profile: "coherent_hand_landmarks_v3", upper_body_radial_segments: 24, skin_tone: "#B9826F", nail_tone: "#E6BEB2", nail_roughness: 0.24)
+    @subsurface_scattering(color: "#B9826F", scatter_color: "#A65D50", microdetail_profile: "analytic_pore_v1", microdetail_scale: 94, microdetail_strength: 0.074)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#176B5B")
+    type: "named_model_family_native_hand_material_resident"
+    modelFamilyId: "openai"
+    displayLabel: "OpenAI"
+    accentColor: "#62D9C0"
+  }
+
+  object "ClaudeResident" using "StormglassH3ONamedModelResident" {
+    @body(height: 1.86, build_scale: 1.05, shoulder_scale: 1.08, torso_scale: 0.95, upper_body_profile: "coherent_hand_landmarks_v3", upper_body_radial_segments: 24, skin_tone: "#C58B70", nail_tone: "#EDC7B6", nail_roughness: 0.28)
+    @subsurface_scattering(color: "#C58B70", scatter_color: "#AF6958", microdetail_profile: "analytic_pore_v1", microdetail_scale: 91, microdetail_strength: 0.07)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#A85F36")
+    type: "named_model_family_native_hand_material_resident"
+    modelFamilyId: "anthropic"
+    displayLabel: "Claude"
+    accentColor: "#E3A16F"
+  }
+
+  object "GeminiResident" using "StormglassH3ONamedModelResident" {
+    @body(height: 1.79, build_scale: 1.04, shoulder_scale: 1.06, torso_scale: 0.94, upper_body_profile: "coherent_hand_landmarks_v3", upper_body_radial_segments: 24, skin_tone: "#8D695C", nail_tone: "#C9A094", nail_roughness: 0.31)
+    @subsurface_scattering(color: "#8D695C", scatter_color: "#785147", microdetail_profile: "analytic_pore_v1", microdetail_scale: 103, microdetail_strength: 0.083)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#3859A8")
+    type: "named_model_family_native_hand_material_resident"
+    modelFamilyId: "google"
+    displayLabel: "Gemini"
+    accentColor: "#829BFF"
+  }
+
+  object "GrokResident" using "StormglassH3ONamedModelResident" {
+    @body(height: 1.88, build_scale: 1.08, shoulder_scale: 1.13, torso_scale: 0.98, upper_body_profile: "coherent_hand_landmarks_v3", upper_body_radial_segments: 24, skin_tone: "#D0A086", nail_tone: "#F1CCBB", nail_roughness: 0.22)
+    @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A", microdetail_profile: "analytic_pore_v1", microdetail_scale: 88, microdetail_strength: 0.065)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#263945")
+    type: "named_model_family_native_hand_material_resident"
+    modelFamilyId: "xai"
+    displayLabel: "Grok"
+    accentColor: "#65D8E7"
+  }
+}

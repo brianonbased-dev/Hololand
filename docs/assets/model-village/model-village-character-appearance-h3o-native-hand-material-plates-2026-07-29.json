@@ -1,0 +1,1124 @@
+{
+  "schema": "hololand.model-village.character-appearance-h3o-witness.v1",
+  "status": "pass",
+  "generatedAt": "2026-07-29T07:52:27.336Z",
+  "source": {
+    "path": "source/layers/vr/frontier/model-village/model-village-character-appearance-h3o-native-hand-material-plates.holo",
+    "sha256": "fffbf6c1cba69ac46b05473c259f9f2ed9b867f05cb34532df9a39da8188db7f",
+    "upstreamHoloScriptCommit": "b76b9f2c62a8de753fca6e55b11e7e60385bce02"
+  },
+  "policy": {
+    "path": "source/proofs/model-village-character-appearance-h3o-native-hand-material-plates-policy.hsplus",
+    "sha256": "875325b865aa2fdb8d68a06c69a68cc087aad6d4b1274f66b3b4c7634f7170f2"
+  },
+  "seed": {
+    "path": "source/proofs/model-village-character-appearance-h3o-native-hand-material-plates-seed.hs",
+    "sha256": "a002afab8494a1d9bf01b6cd40368f3669c49051d89deb9ff48a2c92832aa69d"
+  },
+  "architecture": {
+    "sovereignCompilerGuidance": "W.GOLD.002",
+    "sourceCompilerEntrypoint": "CharacterWebGPUCompiler.compile",
+    "hostBridgeEntrypoint": "buildCharacterHostFromComposition",
+    "rendererEntrypoint": "renderCharacter",
+    "rendererBackend": "webgpu"
+  },
+  "compilerAdmission": {
+    "residentCount": 4,
+    "residentNames": [
+      "OpenAI",
+      "Claude",
+      "Gemini",
+      "Grok"
+    ],
+    "records": [
+      {
+        "objectId": "OpenAIResident",
+        "displayLabel": "OpenAI",
+        "outputSha256": "239a0a1587d2fe9c48e67a7fdae3ec2ff46a3f81c66ade240f9951023457308b",
+        "byteLength": 1138091,
+        "materialGroupCount": 16,
+        "nailMaterialGroupCount": 10,
+        "repeatedCompileByteIdentity": true
+      },
+      {
+        "objectId": "ClaudeResident",
+        "displayLabel": "Claude",
+        "outputSha256": "4a9ce1e75ede6b6dbe719047718961b5872303ecb2cc621dce3890d86cf4898e",
+        "byteLength": 1136857,
+        "materialGroupCount": 16,
+        "nailMaterialGroupCount": 10,
+        "repeatedCompileByteIdentity": true
+      },
+      {
+        "objectId": "GeminiResident",
+        "displayLabel": "Gemini",
+        "outputSha256": "4bbe58ed2a77316aff253e4742a7b560bc55522d3316d8e8a2c3d849e8be9c29",
+        "byteLength": 1138382,
+        "materialGroupCount": 16,
+        "nailMaterialGroupCount": 10,
+        "repeatedCompileByteIdentity": true
+      },
+      {
+        "objectId": "GrokResident",
+        "displayLabel": "Grok",
+        "outputSha256": "1e82ad742df0e73cab95c32d22fca18527a891e5444d42bf44a103be046f3775",
+        "byteLength": 1137404,
+        "materialGroupCount": 16,
+        "nailMaterialGroupCount": 10,
+        "repeatedCompileByteIdentity": true
+      }
+    ]
+  },
+  "nativeGpuAdmission": {
+    "deviceExecutionMeasured": true,
+    "adapter": {
+      "info": {
+        "vendor": "nvidia",
+        "architecture": "ampere",
+        "device": "nvidia-geforce-rtx-3060-laptop-gpu",
+        "description": "D3D12 driver version 32.0.16.1088"
+      },
+      "features": [
+        "bgra8unorm-storage",
+        "clip-distances",
+        "core-features-and-limits",
+        "depth-clip-control",
+        "depth32float-stencil8",
+        "dual-source-blending",
+        "float32-blendable",
+        "float32-filterable",
+        "indirect-first-instance",
+        "primitive-index",
+        "rg11b10ufloat-renderable",
+        "texture-component-swizzle",
+        "texture-compression-bc",
+        "texture-compression-bc-sliced-3d",
+        "texture-formats-tier1",
+        "texture-formats-tier2",
+        "timestamp-query"
+      ],
+      "deviceFeatures": [
+        "core-features-and-limits"
+      ],
+      "timestampQuerySupported": true,
+      "timestampQueryMeasured": false
+    },
+    "runtime": {
+      "renderer": "HoloScript CharacterRender.renderCharacter",
+      "backend": "native_webgpu_dawn",
+      "engineEntrySha256": "8089c94cb993731c73c7b2d6e83833831d73bde83eff0cf459e9d48a00b2be0e",
+      "webGpuModulePath": "../../../../../../../../.ai-ecosystem/.holorepo/worktrees/h3n-hand-landmarks-holoscript/node_modules/.pnpm/webgpu@0.3.10/node_modules/webgpu/index.js",
+      "threeJsDependencyUsed": false,
+      "browserUsed": false
+    },
+    "plates": [
+      {
+        "displayLabel": "OpenAI",
+        "objectId": "OpenAIResident",
+        "sourceObjectSha256": "7b1d980f1a00b932e3ef05b0a1052af1ffded78f08363f2f7c433408c62d5dda",
+        "materialReceipt": {
+          "backend": "webgpu",
+          "deviceExecutionMeasured": false,
+          "groups": [
+            {
+              "color": 12157551,
+              "drawOrdinal": 0,
+              "indexCount": 5328,
+              "indexStart": 0,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 12157551,
+              "drawOrdinal": 1,
+              "indexCount": 3744,
+              "indexStart": 6048,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 12157551,
+              "drawOrdinal": 2,
+              "indexCount": 396,
+              "indexStart": 10512,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15122098,
+              "drawOrdinal": 3,
+              "indexCount": 144,
+              "indexStart": 5328,
+              "materialRole": "keratin-nail",
+              "roughness": 0.24,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15122098,
+              "drawOrdinal": 4,
+              "indexCount": 144,
+              "indexStart": 5472,
+              "materialRole": "keratin-nail",
+              "roughness": 0.24,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15122098,
+              "drawOrdinal": 5,
+              "indexCount": 144,
+              "indexStart": 5616,
+              "materialRole": "keratin-nail",
+              "roughness": 0.24,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15122098,
+              "drawOrdinal": 6,
+              "indexCount": 144,
+              "indexStart": 5760,
+              "materialRole": "keratin-nail",
+              "roughness": 0.24,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15122098,
+              "drawOrdinal": 7,
+              "indexCount": 144,
+              "indexStart": 5904,
+              "materialRole": "keratin-nail",
+              "roughness": 0.24,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15122098,
+              "drawOrdinal": 8,
+              "indexCount": 144,
+              "indexStart": 9792,
+              "materialRole": "keratin-nail",
+              "roughness": 0.24,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15122098,
+              "drawOrdinal": 9,
+              "indexCount": 144,
+              "indexStart": 9936,
+              "materialRole": "keratin-nail",
+              "roughness": 0.24,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15122098,
+              "drawOrdinal": 10,
+              "indexCount": 144,
+              "indexStart": 10080,
+              "materialRole": "keratin-nail",
+              "roughness": 0.24,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15122098,
+              "drawOrdinal": 11,
+              "indexCount": 144,
+              "indexStart": 10224,
+              "materialRole": "keratin-nail",
+              "roughness": 0.24,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15122098,
+              "drawOrdinal": 12,
+              "indexCount": 144,
+              "indexStart": 10368,
+              "materialRole": "keratin-nail",
+              "roughness": 0.24,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 16777215,
+              "drawOrdinal": 13,
+              "indexCount": 7440,
+              "indexStart": 10908,
+              "materialRole": "hair",
+              "roughness": 0.4,
+              "shadingModel": "marschner-hair",
+              "transparent": false
+            },
+            {
+              "color": 4863264,
+              "drawOrdinal": 14,
+              "indexCount": 960,
+              "indexStart": 18348,
+              "materialRole": "eye",
+              "roughness": 0.05,
+              "shadingModel": "refractive-eye",
+              "transparent": false
+            },
+            {
+              "color": 1534811,
+              "drawOrdinal": 15,
+              "indexCount": 1608,
+              "indexStart": 19308,
+              "materialRole": "garment",
+              "roughness": 0.72,
+              "shadingModel": "woven-cloth",
+              "transparent": false
+            }
+          ],
+          "nailIndexCount": 1440,
+          "nailSeparatedFromSkin": true,
+          "rendererEntrypoint": "renderCharacter",
+          "roleCounts": {
+            "eye": 1,
+            "garment": 1,
+            "hair": 1,
+            "keratin-nail": 10,
+            "skin": 3
+          },
+          "scheduledDrawCount": 16,
+          "schemaVersion": "holoscript.character-material-plate.v1",
+          "skinIndexCount": 9468,
+          "skinNailOverlapIndexCount": 0,
+          "sourceMaterialGroups": true
+        },
+        "detailFrame": {
+          "bounds": {
+            "max": [
+              1.0021439790725708,
+              1.4816352128982544,
+              0.04717539623379707
+            ],
+            "min": [
+              0.8297181129455566,
+              1.4317045211791992,
+              -0.049259353429079056
+            ]
+          },
+          "center": [
+            0.9159310460090637,
+            1.4566698670387268,
+            -0.0010419785976409912
+          ],
+          "halfExtent": 0.12242236495018005,
+          "matrix": [
+            8.168441772460938,
+            0,
+            0,
+            0,
+            0,
+            8.168441772460938,
+            0,
+            0,
+            0,
+            0,
+            -0.3333333432674408,
+            0,
+            -7.481729507446289,
+            -11.898723602294922,
+            0.5,
+            1
+          ],
+          "padding": 1.42,
+          "schemaVersion": "holoscript.character-detail-frame.v1",
+          "selectedVertexCount": 335,
+          "vertexRangeCount": 10
+        },
+        "nativeGpuReadback": true,
+        "authoredPixelSha256": "1debe5ea4f2b68d3cc887b7c8883f4fa79b6244208789772b633859f8b688bc7",
+        "counterfactualPixelSha256": "e90bb7b8c9e04e24e3d92304bf22cfd3102a5bc42c141f58b6b17321adbdc68f",
+        "figurePixelCount": 30587,
+        "changedPixelCount": 207,
+        "absoluteChannelDiff": 21143,
+        "counterfactualChangedGeometry": false,
+        "counterfactualChangedOnlyMaterialRole": "keratin-nail",
+        "authoredDigitSpreadPoseRadians": {
+          "left_thumb_proximal": -0.52,
+          "left_index_proximal": 0.24,
+          "left_middle_proximal": 0.08,
+          "left_ring_proximal": -0.09,
+          "left_pinky_proximal": -0.27
+        },
+        "wallClockRenderReadbackMilliseconds": 145.37979999999993,
+        "timingClassification": "host_wall_clock_includes_submission_and_readback_not_gpu_timestamp_not_rtx_benchmark"
+      },
+      {
+        "displayLabel": "Claude",
+        "objectId": "ClaudeResident",
+        "sourceObjectSha256": "1f14b384672ee2c62cec61841b6ea020ab7794d7b026801702bc2f178c946a69",
+        "materialReceipt": {
+          "backend": "webgpu",
+          "deviceExecutionMeasured": false,
+          "groups": [
+            {
+              "color": 12946288,
+              "drawOrdinal": 0,
+              "indexCount": 5328,
+              "indexStart": 0,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 12946288,
+              "drawOrdinal": 1,
+              "indexCount": 3744,
+              "indexStart": 6048,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 12946288,
+              "drawOrdinal": 2,
+              "indexCount": 396,
+              "indexStart": 10512,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15583158,
+              "drawOrdinal": 3,
+              "indexCount": 144,
+              "indexStart": 5328,
+              "materialRole": "keratin-nail",
+              "roughness": 0.28,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15583158,
+              "drawOrdinal": 4,
+              "indexCount": 144,
+              "indexStart": 5472,
+              "materialRole": "keratin-nail",
+              "roughness": 0.28,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15583158,
+              "drawOrdinal": 5,
+              "indexCount": 144,
+              "indexStart": 5616,
+              "materialRole": "keratin-nail",
+              "roughness": 0.28,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15583158,
+              "drawOrdinal": 6,
+              "indexCount": 144,
+              "indexStart": 5760,
+              "materialRole": "keratin-nail",
+              "roughness": 0.28,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15583158,
+              "drawOrdinal": 7,
+              "indexCount": 144,
+              "indexStart": 5904,
+              "materialRole": "keratin-nail",
+              "roughness": 0.28,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15583158,
+              "drawOrdinal": 8,
+              "indexCount": 144,
+              "indexStart": 9792,
+              "materialRole": "keratin-nail",
+              "roughness": 0.28,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15583158,
+              "drawOrdinal": 9,
+              "indexCount": 144,
+              "indexStart": 9936,
+              "materialRole": "keratin-nail",
+              "roughness": 0.28,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15583158,
+              "drawOrdinal": 10,
+              "indexCount": 144,
+              "indexStart": 10080,
+              "materialRole": "keratin-nail",
+              "roughness": 0.28,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15583158,
+              "drawOrdinal": 11,
+              "indexCount": 144,
+              "indexStart": 10224,
+              "materialRole": "keratin-nail",
+              "roughness": 0.28,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15583158,
+              "drawOrdinal": 12,
+              "indexCount": 144,
+              "indexStart": 10368,
+              "materialRole": "keratin-nail",
+              "roughness": 0.28,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 16777215,
+              "drawOrdinal": 13,
+              "indexCount": 7440,
+              "indexStart": 10908,
+              "materialRole": "hair",
+              "roughness": 0.4,
+              "shadingModel": "marschner-hair",
+              "transparent": false
+            },
+            {
+              "color": 4863264,
+              "drawOrdinal": 14,
+              "indexCount": 960,
+              "indexStart": 18348,
+              "materialRole": "eye",
+              "roughness": 0.05,
+              "shadingModel": "refractive-eye",
+              "transparent": false
+            },
+            {
+              "color": 11034422,
+              "drawOrdinal": 15,
+              "indexCount": 1608,
+              "indexStart": 19308,
+              "materialRole": "garment",
+              "roughness": 0.72,
+              "shadingModel": "woven-cloth",
+              "transparent": false
+            }
+          ],
+          "nailIndexCount": 1440,
+          "nailSeparatedFromSkin": true,
+          "rendererEntrypoint": "renderCharacter",
+          "roleCounts": {
+            "eye": 1,
+            "garment": 1,
+            "hair": 1,
+            "keratin-nail": 10,
+            "skin": 3
+          },
+          "scheduledDrawCount": 16,
+          "schemaVersion": "holoscript.character-material-plate.v1",
+          "skinIndexCount": 9468,
+          "skinNailOverlapIndexCount": 0,
+          "sourceMaterialGroups": true
+        },
+        "detailFrame": {
+          "bounds": {
+            "max": [
+              1.0055478811264038,
+              1.5136754512786865,
+              0.047926392406225204
+            ],
+            "min": [
+              0.8328522443771362,
+              1.463456392288208,
+              -0.05013366788625717
+            ]
+          },
+          "center": [
+            0.91920006275177,
+            1.4885659217834473,
+            -0.0011036377400159836
+          ],
+          "halfExtent": 0.12261390209197998,
+          "matrix": [
+            8.155681610107422,
+            0,
+            0,
+            0,
+            0,
+            8.155681610107422,
+            0,
+            0,
+            0,
+            0,
+            -0.3333333432674408,
+            0,
+            -7.496703624725342,
+            -12.140270233154297,
+            0.5,
+            1
+          ],
+          "padding": 1.42,
+          "schemaVersion": "holoscript.character-detail-frame.v1",
+          "selectedVertexCount": 335,
+          "vertexRangeCount": 10
+        },
+        "nativeGpuReadback": true,
+        "authoredPixelSha256": "9be8e795a43a5c7a31d27c865d6a6df10807c691f441ade904f355aef6570f0c",
+        "counterfactualPixelSha256": "1ed37df199f77b17c48a4379647b0724e0397ba9f90d739edf728ee907574c1c",
+        "figurePixelCount": 30772,
+        "changedPixelCount": 213,
+        "absoluteChannelDiff": 21747,
+        "counterfactualChangedGeometry": false,
+        "counterfactualChangedOnlyMaterialRole": "keratin-nail",
+        "authoredDigitSpreadPoseRadians": {
+          "left_thumb_proximal": -0.52,
+          "left_index_proximal": 0.24,
+          "left_middle_proximal": 0.08,
+          "left_ring_proximal": -0.09,
+          "left_pinky_proximal": -0.27
+        },
+        "wallClockRenderReadbackMilliseconds": 2.568200000000047,
+        "timingClassification": "host_wall_clock_includes_submission_and_readback_not_gpu_timestamp_not_rtx_benchmark"
+      },
+      {
+        "displayLabel": "Gemini",
+        "objectId": "GeminiResident",
+        "sourceObjectSha256": "7dcbb692d6862d641ef55f58da7bb0f2f952f23719a47c8e32a7e01448dc6efa",
+        "materialReceipt": {
+          "backend": "webgpu",
+          "deviceExecutionMeasured": false,
+          "groups": [
+            {
+              "color": 9267548,
+              "drawOrdinal": 0,
+              "indexCount": 5328,
+              "indexStart": 0,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 9267548,
+              "drawOrdinal": 1,
+              "indexCount": 3744,
+              "indexStart": 6048,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 9267548,
+              "drawOrdinal": 2,
+              "indexCount": 396,
+              "indexStart": 10512,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13213844,
+              "drawOrdinal": 3,
+              "indexCount": 144,
+              "indexStart": 5328,
+              "materialRole": "keratin-nail",
+              "roughness": 0.31,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13213844,
+              "drawOrdinal": 4,
+              "indexCount": 144,
+              "indexStart": 5472,
+              "materialRole": "keratin-nail",
+              "roughness": 0.31,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13213844,
+              "drawOrdinal": 5,
+              "indexCount": 144,
+              "indexStart": 5616,
+              "materialRole": "keratin-nail",
+              "roughness": 0.31,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13213844,
+              "drawOrdinal": 6,
+              "indexCount": 144,
+              "indexStart": 5760,
+              "materialRole": "keratin-nail",
+              "roughness": 0.31,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13213844,
+              "drawOrdinal": 7,
+              "indexCount": 144,
+              "indexStart": 5904,
+              "materialRole": "keratin-nail",
+              "roughness": 0.31,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13213844,
+              "drawOrdinal": 8,
+              "indexCount": 144,
+              "indexStart": 9792,
+              "materialRole": "keratin-nail",
+              "roughness": 0.31,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13213844,
+              "drawOrdinal": 9,
+              "indexCount": 144,
+              "indexStart": 9936,
+              "materialRole": "keratin-nail",
+              "roughness": 0.31,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13213844,
+              "drawOrdinal": 10,
+              "indexCount": 144,
+              "indexStart": 10080,
+              "materialRole": "keratin-nail",
+              "roughness": 0.31,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13213844,
+              "drawOrdinal": 11,
+              "indexCount": 144,
+              "indexStart": 10224,
+              "materialRole": "keratin-nail",
+              "roughness": 0.31,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13213844,
+              "drawOrdinal": 12,
+              "indexCount": 144,
+              "indexStart": 10368,
+              "materialRole": "keratin-nail",
+              "roughness": 0.31,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 16777215,
+              "drawOrdinal": 13,
+              "indexCount": 7440,
+              "indexStart": 10908,
+              "materialRole": "hair",
+              "roughness": 0.4,
+              "shadingModel": "marschner-hair",
+              "transparent": false
+            },
+            {
+              "color": 4863264,
+              "drawOrdinal": 14,
+              "indexCount": 960,
+              "indexStart": 18348,
+              "materialRole": "eye",
+              "roughness": 0.05,
+              "shadingModel": "refractive-eye",
+              "transparent": false
+            },
+            {
+              "color": 3692968,
+              "drawOrdinal": 15,
+              "indexCount": 1608,
+              "indexStart": 19308,
+              "materialRole": "garment",
+              "roughness": 0.72,
+              "shadingModel": "woven-cloth",
+              "transparent": false
+            }
+          ],
+          "nailIndexCount": 1440,
+          "nailSeparatedFromSkin": true,
+          "rendererEntrypoint": "renderCharacter",
+          "roleCounts": {
+            "eye": 1,
+            "garment": 1,
+            "hair": 1,
+            "keratin-nail": 10,
+            "skin": 3
+          },
+          "scheduledDrawCount": 16,
+          "schemaVersion": "holoscript.character-material-plate.v1",
+          "skinIndexCount": 9468,
+          "skinNailOverlapIndexCount": 0,
+          "sourceMaterialGroups": true
+        },
+        "detailFrame": {
+          "bounds": {
+            "max": [
+              0.9497842192649841,
+              1.4563391208648682,
+              0.045920565724372864
+            ],
+            "min": [
+              0.78681480884552,
+              1.408582329750061,
+              -0.048099588602781296
+            ]
+          },
+          "center": [
+            0.8682995140552521,
+            1.4324607253074646,
+            -0.001089511439204216
+          ],
+          "halfExtent": 0.11570828139781951,
+          "matrix": [
+            8.642423629760742,
+            0,
+            0,
+            0,
+            0,
+            8.642423629760742,
+            0,
+            0,
+            0,
+            0,
+            -0.3333333432674408,
+            0,
+            -7.504212379455566,
+            -12.379932403564453,
+            0.5,
+            1
+          ],
+          "padding": 1.42,
+          "schemaVersion": "holoscript.character-detail-frame.v1",
+          "selectedVertexCount": 335,
+          "vertexRangeCount": 10
+        },
+        "nativeGpuReadback": true,
+        "authoredPixelSha256": "5f57cccf5bc80f3cd6bcf0f3a7477acf9eceef2107227a70d123032364f73309",
+        "counterfactualPixelSha256": "e4f260c8317cc7e460980df92d93b8a225c4ff02f9c6d04dd33e6342ae487677",
+        "figurePixelCount": 26511,
+        "changedPixelCount": 221,
+        "absoluteChannelDiff": 24032,
+        "counterfactualChangedGeometry": false,
+        "counterfactualChangedOnlyMaterialRole": "keratin-nail",
+        "authoredDigitSpreadPoseRadians": {
+          "left_thumb_proximal": -0.52,
+          "left_index_proximal": 0.24,
+          "left_middle_proximal": 0.08,
+          "left_ring_proximal": -0.09,
+          "left_pinky_proximal": -0.27
+        },
+        "wallClockRenderReadbackMilliseconds": 3.2882000000000744,
+        "timingClassification": "host_wall_clock_includes_submission_and_readback_not_gpu_timestamp_not_rtx_benchmark"
+      },
+      {
+        "displayLabel": "Grok",
+        "objectId": "GrokResident",
+        "sourceObjectSha256": "24234df8e3fdb8dbe55da8f0200975f304a9e80ff119a8ad116d001aa2171bd6",
+        "materialReceipt": {
+          "backend": "webgpu",
+          "deviceExecutionMeasured": false,
+          "groups": [
+            {
+              "color": 13672582,
+              "drawOrdinal": 0,
+              "indexCount": 5328,
+              "indexStart": 0,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13672582,
+              "drawOrdinal": 1,
+              "indexCount": 3744,
+              "indexStart": 6048,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 13672582,
+              "drawOrdinal": 2,
+              "indexCount": 396,
+              "indexStart": 10512,
+              "materialRole": "skin",
+              "roughness": 0.45,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15846587,
+              "drawOrdinal": 3,
+              "indexCount": 144,
+              "indexStart": 5328,
+              "materialRole": "keratin-nail",
+              "roughness": 0.22,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15846587,
+              "drawOrdinal": 4,
+              "indexCount": 144,
+              "indexStart": 5472,
+              "materialRole": "keratin-nail",
+              "roughness": 0.22,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15846587,
+              "drawOrdinal": 5,
+              "indexCount": 144,
+              "indexStart": 5616,
+              "materialRole": "keratin-nail",
+              "roughness": 0.22,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15846587,
+              "drawOrdinal": 6,
+              "indexCount": 144,
+              "indexStart": 5760,
+              "materialRole": "keratin-nail",
+              "roughness": 0.22,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15846587,
+              "drawOrdinal": 7,
+              "indexCount": 144,
+              "indexStart": 5904,
+              "materialRole": "keratin-nail",
+              "roughness": 0.22,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15846587,
+              "drawOrdinal": 8,
+              "indexCount": 144,
+              "indexStart": 9792,
+              "materialRole": "keratin-nail",
+              "roughness": 0.22,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15846587,
+              "drawOrdinal": 9,
+              "indexCount": 144,
+              "indexStart": 9936,
+              "materialRole": "keratin-nail",
+              "roughness": 0.22,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15846587,
+              "drawOrdinal": 10,
+              "indexCount": 144,
+              "indexStart": 10080,
+              "materialRole": "keratin-nail",
+              "roughness": 0.22,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15846587,
+              "drawOrdinal": 11,
+              "indexCount": 144,
+              "indexStart": 10224,
+              "materialRole": "keratin-nail",
+              "roughness": 0.22,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 15846587,
+              "drawOrdinal": 12,
+              "indexCount": 144,
+              "indexStart": 10368,
+              "materialRole": "keratin-nail",
+              "roughness": 0.22,
+              "shadingModel": "skin-sss",
+              "transparent": false
+            },
+            {
+              "color": 16777215,
+              "drawOrdinal": 13,
+              "indexCount": 7440,
+              "indexStart": 10908,
+              "materialRole": "hair",
+              "roughness": 0.4,
+              "shadingModel": "marschner-hair",
+              "transparent": false
+            },
+            {
+              "color": 4863264,
+              "drawOrdinal": 14,
+              "indexCount": 960,
+              "indexStart": 18348,
+              "materialRole": "eye",
+              "roughness": 0.05,
+              "shadingModel": "refractive-eye",
+              "transparent": false
+            },
+            {
+              "color": 2505029,
+              "drawOrdinal": 15,
+              "indexCount": 1608,
+              "indexStart": 19308,
+              "materialRole": "garment",
+              "roughness": 0.72,
+              "shadingModel": "woven-cloth",
+              "transparent": false
+            }
+          ],
+          "nailIndexCount": 1440,
+          "nailSeparatedFromSkin": true,
+          "rendererEntrypoint": "renderCharacter",
+          "roleCounts": {
+            "eye": 1,
+            "garment": 1,
+            "hair": 1,
+            "keratin-nail": 10,
+            "skin": 3
+          },
+          "scheduledDrawCount": 16,
+          "schemaVersion": "holoscript.character-material-plate.v1",
+          "skinIndexCount": 9468,
+          "skinNailOverlapIndexCount": 0,
+          "sourceMaterialGroups": true
+        },
+        "detailFrame": {
+          "bounds": {
+            "max": [
+              1.0634139776229858,
+              1.531014084815979,
+              0.049022216349840164
+            ],
+            "min": [
+              0.8802791237831116,
+              1.4786120653152466,
+              -0.05109580606222153
+            ]
+          },
+          "center": [
+            0.9718465507030487,
+            1.5048130750656128,
+            -0.0010367948561906815
+          ],
+          "halfExtent": 0.13002574622631072,
+          "matrix": [
+            7.690784454345703,
+            0,
+            0,
+            0,
+            0,
+            7.690784454345703,
+            0,
+            0,
+            0,
+            0,
+            -0.3333333432674408,
+            0,
+            -7.474262237548828,
+            -11.573193550109863,
+            0.5,
+            1
+          ],
+          "padding": 1.42,
+          "schemaVersion": "holoscript.character-detail-frame.v1",
+          "selectedVertexCount": 335,
+          "vertexRangeCount": 10
+        },
+        "nativeGpuReadback": true,
+        "authoredPixelSha256": "48622c913ce397dc381910c90965d29e3bd4032bb7c3ec12f08bb871e159d249",
+        "counterfactualPixelSha256": "1743b2ac0d78b7e31daf891da278a7c8ece22bdc35cbaf9581868afdd51b9450",
+        "figurePixelCount": 31890,
+        "changedPixelCount": 193,
+        "absoluteChannelDiff": 19373,
+        "counterfactualChangedGeometry": false,
+        "counterfactualChangedOnlyMaterialRole": "keratin-nail",
+        "authoredDigitSpreadPoseRadians": {
+          "left_thumb_proximal": -0.52,
+          "left_index_proximal": 0.24,
+          "left_middle_proximal": 0.08,
+          "left_ring_proximal": -0.09,
+          "left_pinky_proximal": -0.27
+        },
+        "wallClockRenderReadbackMilliseconds": 3.130100000000084,
+        "timingClassification": "host_wall_clock_includes_submission_and_readback_not_gpu_timestamp_not_rtx_benchmark"
+      }
+    ],
+    "contactSheet": {
+      "width": 658,
+      "height": 658,
+      "rgbaSha256": "f26d0b689dad653bbc08978e2c3f5ba2106657d38b1cdafd83bfb38925902c68",
+      "pngSha256": "3dea28b6eff65fbda1a1581d3ff8f9b5867a77561f4975a8e32c8d995d3c987b"
+    }
+  },
+  "manifest": {
+    "status": "not-required",
+    "errors": []
+  },
+  "boundaries": {
+    "providerModelBinding": "absent",
+    "symbolicAppearanceOnly": true,
+    "browserWebgpuMeasured": false,
+    "gpuTimestampFrameTimeClaimed": false,
+    "freshRtxBenchmarkClaimed": false,
+    "callbackCadenceCountsAsGpuTime": false,
+    "endToEndDisplayLatencyClaimed": false,
+    "nativeWebgpuTaaClaimed": false,
+    "questWebxrMeasured": false,
+    "productionSkinTexturingClaimed": false,
+    "productionGroomClaimed": false,
+    "photorealismClaimed": false,
+    "biometricLikenessClaimed": false,
+    "fullWorldConvergenceClaimed": false
+  },
+  "receiptSha256": "fee557cfec36b8508b9febf4e2d80e0e5acd228bfd99c506534947fb98aaa4eb"
+}
