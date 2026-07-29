@@ -1,0 +1,108 @@
+// H3J native civic garment, facial-landmark, groom-cluster, and temporal policy.
+
+composition "Stormglass Character Appearance H3J Civic Landmark Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3j-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3J_CIVIC_LANDMARKS"
+    source: "source/proofs/model-village-character-appearance-h3j-civic-landmarks-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3j-civic-landmarks.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3j-civic-landmarks-seed.hs"
+    formatRole: "native_civic_landmark_temporal_admission_and_firewall_policy"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3JCivicLandmarkState {
+    profile: "native_civic_landmark_desktop_h3j"
+    compiledPersonaCount: 0
+    admittedFacialLandmarkReceiptCount: 0
+    admittedGarmentReceiptCount: 0
+    admittedClusteredGroomReceiptCount: 0
+    canonicalVillageMutationCount: 0
+    residentObservationWriteCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "NativeCivicLandmarkAdmission" {
+    type: "native_civic_landmark_admission"
+    target: "character-webgpu"
+    outputFormat: "character-webgpu/drawspec"
+    facialLandmarkReceiptSchema: "holoscript.agent-avatar-facial-landmarks.v1"
+    garmentReceiptSchema: "holoscript.agent-avatar-garment-geometry.v1"
+    groomReceiptSchema: "holoscript.agent-avatar-groom-geometry.v1"
+    faceProfile: "civic-landmarks-v1"
+    garmentStyle: "stormglass-open-civic-tunic"
+    groomProfile: "scalp-flow-v1"
+    expectedPersonaCount: 3
+    expectedFacialLandmarkReceiptCount: 3
+    expectedGarmentReceiptCount: 3
+    expectedClusteredGroomReceiptCount: 3
+    openFaceRequired: true
+    exactOcularGroupsPerBundle: 8
+    repeatedCompileByteIdentityRequired: true
+    strippedFacialLandmarkDeltaRequired: true
+    strippedGarmentDeltaRequired: true
+    strippedClusterDeltaRequired: true
+    sharedRendererCount: 1
+    sharedSceneCount: 1
+    temporalComposerCount: 1
+    temporalBridge: "three-taarenderpass-v1"
+    temporalAccumulationFrames: 32
+    temporalHistoryPolicy: "invalidate-on-camera-motion-v1"
+    motionReprojectionClaimed: false
+    nativeWebgpuTaaClaimed: false
+    compilerFallbackAllowed: false
+    presentationShaderOverrideAllowed: false
+    presentationMaterialBridgeAllowed: true
+    presentationWardrobeBridgeAllowed: false
+    presentationNativeTorsoClipAllowed: false
+    externalSkinTextureAllowed: false
+    externalHairTextureAllowed: false
+    externalWardrobeTextureAllowed: false
+    biometricLikenessClaimed: false
+    productionGroomClaimed: false
+    photorealismClaimed: false
+  }
+
+  template "H3JCivicLandmarkFirewall" {
+    type: "model_village_character_appearance_firewall"
+    presentationLane: "mv_character_appearance_h3j"
+    prohibitedLane: "research_live_blinded"
+    prohibitedInputs: ["live_model_output", "resident_observation", "adapter_assignment", "research_seat", "seat_wallet", "biometric_sample"]
+    prohibitedWrites: ["canonical_village", "resident_observation", "village_clock", "village_action", "village_receipt", "wallet_identity", "biometric_store"]
+    mutationDeltaRequired: 0
+    modelCallCountRequired: 0
+    networkFetchCountRequired: 0
+  }
+
+  action admit_native_civic_landmark_bundle(bundle, expected) {
+    if (bundle.format != expected.outputFormat) {
+      return { admitted: false, reason: "wrong_output_format" }
+    }
+    if (bundle.usedFallback == true) {
+      return { admitted: false, reason: "compiler_fallback_used" }
+    }
+    if (bundle.facialLandmarks.schemaVersion != expected.facialLandmarkReceiptSchema) {
+      return { admitted: false, reason: "facial_landmark_receipt_missing" }
+    }
+    if (bundle.facialLandmarks.profile != expected.faceProfile) {
+      return { admitted: false, reason: "wrong_facial_landmark_profile" }
+    }
+    if (bundle.garment.schemaVersion != expected.garmentReceiptSchema) {
+      return { admitted: false, reason: "garment_receipt_missing" }
+    }
+    if (bundle.garment.style != expected.garmentStyle) {
+      return { admitted: false, reason: "wrong_garment_style" }
+    }
+    if (bundle.garment.faceCoverage != "open-v-collar") {
+      return { admitted: false, reason: "garment_face_not_open" }
+    }
+    if (bundle.groom.schemaVersion != expected.groomReceiptSchema) {
+      return { admitted: false, reason: "groom_receipt_missing" }
+    }
+    if (bundle.groom.clusterCount < 2) {
+      return { admitted: false, reason: "groom_clusters_missing" }
+    }
+    return { admitted: true, reason: "native_civic_landmark_bundle_admitted" }
+  }
+}

@@ -1,0 +1,247 @@
+// Stormglass Commons Character Appearance H3J.
+//
+// This read-only systems-look-development composition replaces the H3I presentation
+// wardrobe with native open civic garment geometry, reduces and recesses the ocular
+// globes, adds native brows/ears/lips, and clusters the procedural groom. The browser
+// witness still uses bounded Three.js material and temporal bridges. This is not a
+// production human, biometric likeness, strand groom, native WebGPU TAA, or Quest proof.
+
+composition "Stormglass Character Appearance H3J Civic Landmarks" {
+  metadata {
+    title: "Stormglass Character Appearance H3J - Native Civic Landmark Convergence"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3J_CIVIC_LANDMARKS"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3j-civic-landmarks.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3j-civic-landmarks-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3j-civic-landmarks-seed.hs"
+    inheritedH3ISource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3i-anatomy-surface.holo"
+    inheritedH3ISourceSha256: "921b20ada8843d047265cc591a4a9e94a036aaa9b034bb0c7c33a20ae8737f8a"
+    upstreamHoloScriptCommit: "1bc81ee7e02fade1095dc1c1548d7879e27a2800"
+    upstreamGarmentBuilderPath: "packages/engine/src/character-render/AgentAvatarGarment.ts"
+    upstreamGarmentBuilderSha256: "7feaa616776b15a63e101505d96ff4d55847069c1b08d28b48ce5a33341273d3"
+    upstreamGroomBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
+    upstreamGroomBuilderSha256: "0c08b8ec5368a2f5b87efc6db3a0703c9d7039770db0e1be0c5edecd98e14a5d"
+    upstreamFaceBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
+    upstreamFaceBuilderSha256: "63c9792c6df93e64f3be1980cedf9763dbd6fd48d2262928bd82eda5a9a11188"
+    upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
+    upstreamCharacterHostSha256: "4d8466f75a804ffe0089ce45962b75144bb509c1da219a2ef25c883d4ef622c1"
+    upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamCompositionBridgeSha256: "47904743aab87756adf8f02d53ea15a08bc95c2dd681c557754871cc9f1ea69f"
+    upstreamNativeRendererPath: "packages/engine/src/character-render/character-render.ts"
+    upstreamNativeRendererSha256: "4a7101a7b63660b948c117ded57bdbbcf1bd1955af6bef91661879e606fd6d5f"
+    upstreamDrawSpecPath: "packages/engine/src/native-render/draw-spec.ts"
+    upstreamDrawSpecSha256: "65c0dd26a77883b04b5f478ef6eb6dae9e088eeb50020d0375ecc542ab4949c8"
+    upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
+    upstreamCompilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+    projectionRole: "read_only_native_civic_landmark_convergence_witness"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "stormglass_open_civic_portrait_stage"
+  }
+
+  environment {
+    mode: "native_civic_landmark_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#030A13"
+    ambient_light: 0.14
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3J_CIVIC_LANDMARKS"
+    presentationProfile: "village_story_unblinded_native_civic_landmark_lookdev"
+    civicPersonaCount: 3
+    familyIdentityVisible: false
+    adapterFamilyBinding: "absent"
+    researchSeatBinding: "absent"
+    liveResearchJoinAllowed: false
+    canonicalWritesAllowed: false
+    residentObservationWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+    biometricPersistenceAllowed: false
+
+    nativeCharacterCompilerClaimed: true
+    nativeOpenCivicGarmentClaimed: true
+    nativeGarmentReceiptClaimed: true
+    nativeCivicLandmarksClaimed: true
+    nativeFacialLandmarkReceiptClaimed: true
+    nativeReducedOcularScaleClaimed: true
+    nativeRecessedLidsClaimed: true
+    nativeBrowsClaimed: true
+    nativeEarsClaimed: true
+    nativeLipsClaimed: true
+    nativeGroomClustersClaimed: true
+    nativeGroomReceiptClaimed: true
+    nativeLodTransitionReceiptClaimed: true
+
+    presentationShaderOverrideUsed: false
+    presentationMaterialBridgeUsed: true
+    presentationHairMaterialBridgeUsed: true
+    presentationSkinMicrodetailBridgeUsed: true
+    presentationWardrobeBridgeUsed: false
+    presentationNativeTorsoClipUsed: false
+    presentationTaaBridgeUsed: true
+    externalSkinTextureUsed: false
+    externalHairTextureUsed: false
+    externalWardrobeTextureUsed: false
+
+    strandHairClaimed: false
+    productionGroomClaimed: false
+    productionSkinTexturingClaimed: false
+    biometricLikenessClaimed: false
+    photorealismClaimed: false
+    motionReprojectionClaimed: false
+    nativeWebgpuTaaClaimed: false
+    questWebxrMeasured: false
+    vrPerformanceConvergenceClaimed: false
+    fullWorldConvergenceClaimed: false
+
+    civicLandmarkFoundation: {
+      garmentStyle: "stormglass-open-civic-tunic"
+      garmentReceiptSchema: "holoscript.agent-avatar-garment-geometry.v1"
+      faceProfile: "civic-landmarks-v1"
+      faceReceiptSchema: "holoscript.agent-avatar-facial-landmarks.v1"
+      groomProfile: "scalp-flow-v1"
+      groomReceiptSchema: "holoscript.agent-avatar-groom-geometry.v1"
+      eyeScaleRange: [0.8, 0.84]
+      browHeightRange: [1.16, 1.3]
+      browThicknessRange: [0.17, 0.2]
+      earScaleRange: [1, 1.08]
+      mouthDepthRange: [0.76, 0.94]
+      clusterCountRange: [12, 16]
+      clusterSpreadRange: [0.36, 0.48]
+      openFaceRequired: true
+      nativeWardrobeRequired: true
+      presentationWardrobeBridge: false
+      nativeTorsoClip: false
+    }
+
+    temporalPresentationFoundation: {
+      sharedRendererCount: 1
+      sharedSceneCount: 1
+      temporalComposerCount: 1
+      temporalBridge: "three-taarenderpass-v1"
+      temporalSampleLevel: 0
+      accumulationFrames: 32
+      internalRenderWidth: 1458
+      internalRenderHeight: 486
+      presentationWidth: 1800
+      presentationHeight: 720
+      internalRenderScale: 0.81
+      historyPolicy: "invalidate-on-camera-motion-v1"
+      motionVectorsAvailable: false
+      motionReprojection: false
+      nativeWebgpuTaa: false
+      presentationBridge: true
+    }
+
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      fallbackAllowed: false
+      exactThreeNativeBundlesRequired: true
+      exactEightOcularGroupsPerBundleRequired: true
+      exactThreeFacialLandmarkReceiptsRequired: true
+      exactThreeGarmentReceiptsRequired: true
+      exactThreeClusteredGroomReceiptsRequired: true
+      strippedFacialLandmarkDeltaRequired: true
+      strippedGarmentDeltaRequired: true
+      strippedClusterDeltaRequired: true
+      repeatedCompileByteIdentityRequired: true
+    }
+  }
+
+  template "StormglassNativeCivicLandmarkPersona" {
+    @skeleton(rig: "humanoid_65")
+    @locomotion(mode: "idle", speed: 0)
+    @cloth_simulation(solver: "xpbd", fixed_step_hz: 120, iterations: 5, gravity: [0, -9.81, 0])
+    type: "native_civic_landmark_persona"
+  }
+
+  object "HearthKeeper" using "StormglassNativeCivicLandmarkPersona" {
+    @body(height: 1.82, build_scale: 1.09, shoulder_scale: 1.12, torso_scale: 0.96, skin_tone: "#B77963")
+    @face(topology: "neutral_anatomical_v2", radial_segments: 30, vertical_segments: 22, face_width: 0.94, face_length: 1.07, jaw_taper: 0.3, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.36, lid_opening: 0.46, canthal_tilt: 0.12, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.82, brow_height: 1.24, brow_thickness: 0.18, ear_scale: 1.04, mouth_depth: 0.88, ocular_profile: "layered_ocular_v1", iris_color: "#77A6A9", sclera_color: "#F0E6DF", iris_scale: 0.5, pupil_scale: 0.38, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#B77963", scatter_color: "#A45F56", microdetail_profile: "analytic_pore_v1", microdetail_scale: 94, microdetail_strength: 0.075)
+    @hair(style: "medium_wavy", color: "#4A2D26", groom_profile: "scalp_flow_v1", card_width: 0.0054, root_lift: 0.0028, tip_taper: 0.1, hairline_bias: 0.16, crown_whorl: 0.42, cluster_count: 14, cluster_spread: 0.42, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.84, edge_softness: 0.12, anisotropy_strength: 0.88, longitudinal_shift: 0.08)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#355F69")
+    @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 260, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 224, hair_cards_per_guide: 2, hair_segments: 8 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 128, hair_cards_per_guide: 2, hair_segments: 6 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 56, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "native_civic_landmark_persona"
+    personaId: "hearth_keeper"
+    civicRole: "host"
+    displayLabel: "Hearth Keeper"
+    eyeScale: 0.82
+    browHeight: 1.24
+    browThickness: 0.18
+    earScale: 1.04
+    mouthDepth: 0.88
+    clusterCount: 14
+    clusterSpread: 0.42
+    irisColor: "#77A6A9"
+    hairColor: "#4A2D26"
+    wardrobeColor: "#355F69"
+  }
+
+  object "PathTender" using "StormglassNativeCivicLandmarkPersona" {
+    @body(height: 1.86, build_scale: 1.05, shoulder_scale: 1.1, torso_scale: 0.94, skin_tone: "#8B6659")
+    @face(topology: "neutral_anatomical_v2", radial_segments: 28, vertical_segments: 20, face_width: 0.96, face_length: 1.05, jaw_taper: 0.28, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.34, lid_opening: 0.48, canthal_tilt: 0.1, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.84, brow_height: 1.16, brow_thickness: 0.17, ear_scale: 1, mouth_depth: 0.76, ocular_profile: "layered_ocular_v1", iris_color: "#A58B52", sclera_color: "#EDE5DE", iris_scale: 0.48, pupil_scale: 0.4, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#8B6659", scatter_color: "#765049", microdetail_profile: "analytic_pore_v1", microdetail_scale: 102, microdetail_strength: 0.085)
+    @hair(style: "short", color: "#303641", groom_profile: "scalp_flow_v1", card_width: 0.0058, root_lift: 0.002, tip_taper: 0.14, hairline_bias: 0.18, crown_whorl: -0.28, cluster_count: 12, cluster_spread: 0.36, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.8, edge_softness: 0.14, anisotropy_strength: 0.9, longitudinal_shift: 0.12)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#384A55")
+    @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 260, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 192, hair_cards_per_guide: 2, hair_segments: 7 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 112, hair_cards_per_guide: 2, hair_segments: 5 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 48, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "native_civic_landmark_persona"
+    personaId: "path_tender"
+    civicRole: "wayfinder"
+    displayLabel: "Path Tender"
+    eyeScale: 0.84
+    browHeight: 1.16
+    browThickness: 0.17
+    earScale: 1
+    mouthDepth: 0.76
+    clusterCount: 12
+    clusterSpread: 0.36
+    irisColor: "#A58B52"
+    hairColor: "#303641"
+    wardrobeColor: "#384A55"
+  }
+
+  object "RecordSteward" using "StormglassNativeCivicLandmarkPersona" {
+    @body(height: 1.78, build_scale: 1.08, shoulder_scale: 1.08, torso_scale: 0.97, skin_tone: "#D0A086")
+    @face(topology: "neutral_anatomical_v2", radial_segments: 30, vertical_segments: 22, face_width: 0.93, face_length: 1.08, jaw_taper: 0.32, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.38, lid_opening: 0.44, canthal_tilt: 0.16, facial_detail_profile: "civic_landmarks_v1", eye_scale: 0.8, brow_height: 1.3, brow_thickness: 0.2, ear_scale: 1.08, mouth_depth: 0.94, ocular_profile: "layered_ocular_v1", iris_color: "#526D91", sclera_color: "#F2EBE4", iris_scale: 0.52, pupil_scale: 0.36, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A", microdetail_profile: "analytic_pore_v1", microdetail_scale: 88, microdetail_strength: 0.065)
+    @hair(style: "medium_wavy", color: "#82563A", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.15, crown_whorl: 0.34, cluster_count: 16, cluster_spread: 0.48, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.86, edge_softness: 0.1, anisotropy_strength: 0.84, longitudinal_shift: 0.06)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#6B4A3D")
+    @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
+    @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 260, levels: [
+      { level: 0, distance: 0, garment_segments: 24, hair_guides: 240, hair_cards_per_guide: 2, hair_segments: 8 },
+      { level: 1, distance: 8, garment_segments: 14, hair_guides: 136, hair_cards_per_guide: 2, hair_segments: 6 },
+      { level: 2, distance: 20, garment_segments: 8, hair_guides: 60, hair_cards_per_guide: 1, hair_segments: 4 }
+    ])
+    type: "native_civic_landmark_persona"
+    personaId: "record_steward"
+    civicRole: "archivist"
+    displayLabel: "Record Steward"
+    eyeScale: 0.8
+    browHeight: 1.3
+    browThickness: 0.2
+    earScale: 1.08
+    mouthDepth: 0.94
+    clusterCount: 16
+    clusterSpread: 0.48
+    irisColor: "#526D91"
+    hairColor: "#82563A"
+    wardrobeColor: "#6B4A3D"
+  }
+}

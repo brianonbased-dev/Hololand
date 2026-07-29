@@ -1,0 +1,183 @@
+// Immutable witness manifest for Stormglass Character Appearance H3J.
+// H3J admits native civic facial landmarks, an open V garment, and clustered groom
+// controls. Its local materials and Three.js TAA remain bounded presentation bridges.
+// This manifest does not claim photorealism, production groom or skin, motion
+// reprojection, native WebGPU TAA, biometric likeness, or Quest frame pacing.
+
+composition "HoloLand Model Village Character Appearance H3J Manifest" {
+  metadata {
+    title: "Stormglass Character Appearance H3J Civic Landmark Witness"
+    version: "0.1.0"
+    date: "2026-07-28"
+    milestone: "MV_CHARACTER_APPEARANCE_H3J_CIVIC_LANDMARKS"
+    status: "pass"
+    authority: "read_only_witness"
+  }
+
+  state {
+    source: {
+      path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3j-civic-landmarks.holo"
+      sourceSha256: "88202f1b45eaf43f7031788be7e7988c0f695cd2f9c43cf2d00824e1f2ba4215"
+      parser: "HoloCompositionParser"
+    }
+    policy: {
+      path: "source/proofs/model-village-character-appearance-h3j-civic-landmarks-policy.hsplus"
+      policySha256: "2eeeab18b65b2bdbec0a49f0fc9396fd48ce16a8480b73bfb57bae019b983834"
+      parser: "HoloScriptPlusParser"
+    }
+    seed: {
+      path: "source/proofs/model-village-character-appearance-h3j-civic-landmarks-seed.hs"
+      seedSha256: "044baea3c0bf65641b6cf9bccfe382941d038c1c733ef64f0c1564617435a205"
+      parser: "HoloScriptCodeParser"
+    }
+    checker: {
+      path: "scripts/check-hololand-model-village-character-appearance-h3j.mjs"
+      checkerSha256: "57b5178cadc4acf9d0b49aa8edb583dd4cb588ee9505cddd711266318bb08891"
+    }
+    test: {
+      path: "scripts/__tests__/hololand-model-village-character-appearance-h3j.test.mjs"
+      testSha256: "45d24adfc0a117f763afd8443e41b0b2d33bef86952e5d5ac8acb33bd5cd1730"
+    }
+    report: {
+      path: "docs/reports/model-village-character-appearance-h3j-civic-landmarks-2026-07-28.md"
+      reportSha256: "ced3c9c406771bab384b2c6290fe0b7eb4ccf4b535f419e6df601dbb1ff7cf3b"
+    }
+    hero: {
+      path: "docs/assets/model-village/model-village-character-appearance-h3j-civic-landmarks-portraits-2026-07-28.png"
+      heroSha256: "b462da4e6d1d8eb10a990a57734ab4a01187c749839750c79f7d858cd12aede3"
+      width: 1800
+      height: 720
+      bytes: 344272
+      visuallyInspected: true
+      iterationAccepted: "source_driven_multi_pass"
+    }
+    upstream: {
+      holoScriptCommit: "1bc81ee7e02fade1095dc1c1548d7879e27a2800"
+      inheritedH3ISourceSha256: "921b20ada8843d047265cc591a4a9e94a036aaa9b034bb0c7c33a20ae8737f8a"
+      garmentBuilderSha256: "7feaa616776b15a63e101505d96ff4d55847069c1b08d28b48ce5a33341273d3"
+      groomBuilderSha256: "0c08b8ec5368a2f5b87efc6db3a0703c9d7039770db0e1be0c5edecd98e14a5d"
+      faceBuilderSha256: "63c9792c6df93e64f3be1980cedf9763dbd6fd48d2262928bd82eda5a9a11188"
+      characterHostSha256: "4d8466f75a804ffe0089ce45962b75144bb509c1da219a2ef25c883d4ef622c1"
+      compositionBridgeSha256: "47904743aab87756adf8f02d53ea15a08bc95c2dd681c557754871cc9f1ea69f"
+      nativeRendererSha256: "4a7101a7b63660b948c117ded57bdbbcf1bd1955af6bef91661879e606fd6d5f"
+      drawSpecSha256: "65c0dd26a77883b04b5f478ef6eb6dae9e088eeb50020d0375ecc542ab4949c8"
+      compilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+    }
+    nativeAdmission: {
+      compilerTarget: "character-webgpu"
+      outputFormat: "character-webgpu/drawspec"
+      facialLandmarkReceiptSchema: "holoscript.agent-avatar-facial-landmarks.v1"
+      garmentReceiptSchema: "holoscript.agent-avatar-garment-geometry.v1"
+      groomReceiptSchema: "holoscript.agent-avatar-groom-geometry.v1"
+      faceProfile: "civic-landmarks-v1"
+      garmentStyle: "stormglass_open_civic_tunic"
+      garmentFaceCoverage: "open-v-collar"
+      groomProfile: "scalp-flow-v1"
+      nativeBundleCount: 3
+      facialLandmarkReceiptCount: 3
+      garmentReceiptCount: 3
+      clusteredGroomReceiptCount: 3
+      ocularGroupsPerBundle: 8
+      clothVerticesPerBundle: 396
+      clothTrianglesPerBundle: 536
+      fallbackUsed: false
+      stubCount: 0
+      repeatedCompileByteIdentity: true
+      facialLandmarkRemovalChangesGeometry: true
+      openGarmentRemovalChangesGeometry: true
+      groomClusterRemovalChangesGeometry: true
+    }
+    presentation: {
+      rendererCount: 1
+      sharedSceneCount: 1
+      temporalComposerCount: 1
+      taaBridge: "three-taarenderpass-v1"
+      taaSampleLevel: 0
+      stableAccumulationFrames: 32
+      finalAccumulationIndex: 32
+      historyPolicy: "invalidate-on-camera-motion-v1"
+      historyInvalidationFrameCount: 8
+      internalRenderWidth: 1458
+      internalRenderHeight: 486
+      presentationWidth: 1800
+      presentationHeight: 720
+      internalRenderScale: 0.81
+      materialBridge: "local-procedural-skin-hair-cloth-v1"
+      wardrobeGeometryBridge: "none"
+      nativeTorsoClipPolicy: "none"
+      presentationShaderOverrideUsed: false
+      externalSkinTextureUsed: false
+      externalHairTextureUsed: false
+      externalWardrobeTextureUsed: false
+      stablePixelMeanAbsoluteChannelDelta: 0
+      stablePixelChangedChannelRatio: 0
+      stablePixelSampledChannelCount: 106290
+    }
+    profile: {
+      id: "native_civic_landmark_desktop_h3j"
+      browser: "Chrome 150.0.7871.182"
+      gpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+      api: "WebGL 2.0"
+      backend: "ANGLE Direct3D11 D3D11"
+      hardwareSampleCount: 4
+      antialias: true
+      gpuTimerExtension: "EXT_disjoint_timer_query_webgl2"
+      acceptedRunCount: 4
+      timerSamplesPerRun: 132
+    }
+    performance: {
+      stableGpuP95MinimumMilliseconds: 2.228224
+      stableGpuP95MaximumMilliseconds: 2.820096
+      invalidatedGpuP95MinimumMilliseconds: 1.027072
+      invalidatedGpuP95MaximumMilliseconds: 2.291712
+      renderSubmitP95MinimumMilliseconds: 1.4
+      renderSubmitP95MaximumMilliseconds: 1.9
+      frameIntervalP95MinimumMilliseconds: 17.1
+      frameIntervalP95MaximumMilliseconds: 17.7
+      gpuRenderWorkBudgetMilliseconds: 11.1
+      gpuRenderWorkUnderBudget: true
+      headsetFramePacingMeasured: false
+      vrPerformanceConvergenceClaimed: false
+    }
+    boundaries: {
+      nativeFacialLandmarkClaimed: true
+      nativeOpenGarmentClaimed: true
+      nativeGroomClusterClaimed: true
+      sharedRendererClaimed: true
+      sharedSceneClaimed: true
+      presentationMaterialBridgeUsed: true
+      presentationWardrobeBridgeUsed: false
+      presentationNativeTorsoClipUsed: false
+      presentationTaaBridgeUsed: true
+      taaHistoryInvalidationClaimed: true
+      motionReprojectionClaimed: false
+      nativeWebgpuTaaClaimed: false
+      productionSkinTexturingClaimed: false
+      productionGroomClaimed: false
+      photorealismClaimed: false
+      biometricLikenessClaimed: false
+      fullWorldConvergenceClaimed: false
+      liveResearchJoinAllowed: false
+      canonicalWritesAllowed: false
+      residentObservationWritesAllowed: false
+      modelCallsAllowed: false
+      externalNetworkRequests: 0
+    }
+    residuals: {
+      dominantVisualDefect: "block_built_upper_body_neck_seam_card_groom_and_analytic_materials"
+      nextCharacterLane: "coherent_production_shoulder_neck_torso_topology_and_pose_occlusion"
+      nextTextureLane: "owned_or_licensed_skin_maps_with_mips_compression_and_distance_response"
+      nextPerformanceLane: "native_webgpu_velocity_reactive_disocclusion_groom_lod_and_quest_webxr"
+      conceptArtParityOpen: true
+      productionUpperBodyLaneOpen: true
+      productionTextureLaneOpen: true
+      productionGroomLaneOpen: true
+      headsetPerformanceLaneOpen: true
+    }
+    receipt: {
+      algorithm: "sha256-canonical-json"
+      acceptedWitnessSha256: "6edc2213b41fc10797fc6c9e1b84c9dc885fad845a15a151eeacbf4921d862be"
+      ephemeralReceiptPath: ".tmp/hololand/model-village/character-appearance-h3j/final/character-appearance-h3j-witness.json"
+    }
+  }
+}
