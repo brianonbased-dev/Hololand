@@ -1,0 +1,46 @@
+// H3R immutable evidence bindings.
+
+composition "Stormglass Character Appearance H3R Posed Deformation Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-appearance-h3r-manifest.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3R_POSED_DEFORMATION"
+    date: "2026-07-29"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3r-posed-deformation.holo"
+    sourceSha256: "ecc1859746d3cbe4123fcf111f934934748cc62d984591faab6975fc092c2cad"
+    policy: "source/proofs/model-village-character-appearance-h3r-posed-deformation-policy.hsplus"
+    policySha256: "9b55a9f2cc4186d02db3750b9c20358e86f2d1b321eb1dd6ea9ec0e49606cbd2"
+    seed: "source/proofs/model-village-character-appearance-h3r-posed-deformation-seed.hs"
+    seedSha256: "4fb6ed981bcf989e6099104c89aadf3f2401bde681ad120b7cafa05e7906863d"
+    checker: "scripts/check-hololand-model-village-character-appearance-h3r.mjs"
+    checkerSha256: "cb72b335a53f917f5306c5d0bfb2cb4c128da9dcde1ed931a82fe107297cbedd"
+    test: "scripts/__tests__/hololand-model-village-character-appearance-h3r.test.mjs"
+    testSha256: "29c02b92f7dd6e646e2899640dbb9f36bb4b4f8aee0d2f1ad0905506586eb802"
+    report: "docs/reports/model-village-character-appearance-h3r-posed-deformation-2026-07-29.md"
+    reportSha256: "172b39cba7ec323198ad22a0edac31abe7b31a77042237464f19e087fadea8af"
+    hero: "docs/assets/model-village/model-village-character-appearance-h3r-posed-deformation-2026-07-29.png"
+    heroSha256: "2b3aa7274484c17189eb6d75cf928c901d4e5e83f774a58f905d216e721ea15f"
+    evidence: "docs/assets/model-village/model-village-character-appearance-h3r-posed-deformation-2026-07-29.json"
+    evidenceSha256: "641384ac55e569c2177efbd9b08a02d0234761f6f9a48835a5c0ba142e1779f6"
+    evidenceReceiptSha256: "50f706e40bab97f6ac8cc8d0c10f7b47a242d1ac651e2a286f114156322243f0"
+    upstreamHoloScriptCommit: "ad577ed2238d0e8a7302badd5656b7bf791aefc9"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    distinctSourcePoseCount: 4
+    compilerPoseReceiptCount: 4
+    compilerJointDeformationReceiptCount: 4
+    positiveSecondaryInfluenceCountPerResident: 1008
+    nativeGpuReadbackPlateCount: 4
+    primaryOnlyCounterfactualCount: 4
+    neutralPoseCounterfactualCount: 4
+    materialRoleCounterfactualCount: 12
+    fixedLightSharedAcrossResidents: true
+    runtimePoseMutationUsed: false
+    timestampQueryMeasured: false
+    freshRtxBenchmarkClaimed: false
+    measuredTissueModelClaimed: false
+    photorealismClaimed: false
+  }
+}

@@ -1,0 +1,77 @@
+// H3R source-pose and joint-deformation admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// independent policy enforced by the H3R checker.
+
+composition "Stormglass Character Appearance H3R Deformation Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3r-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3R_POSED_DEFORMATION"
+    source: "source/proofs/model-village-character-appearance-h3r-posed-deformation-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3r-posed-deformation.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3r-posed-deformation-seed.hs"
+    formatRole: "source_pose_dual_influence_native_gpu_admission_policy"
+    nativeHsplusActionExecutionClaimed: false
+    gpuTimestampRequired: false
+  }
+
+  state H3RDeformationState {
+    sourceCompiledResidentCount: 0
+    sourcePoseReceiptCount: 0
+    jointDeformationReceiptCount: 0
+    nativeGpuReadbackPlateCount: 0
+    admittedPrimaryOnlyCounterfactualCount: 0
+    admittedNeutralPoseCounterfactualCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+  }
+
+  template "SourcePoseDeformationAdmission" {
+    type: "source_pose_deformation_admission"
+    expectedBackend: "webgpu"
+    expectedProfile: "coherent-deforming-hands-v4"
+    expectedPoseSchema: "holoscript.character-source-pose.v1"
+    expectedDeformationSchema: "holoscript.agent-avatar-joint-deformation.v1"
+    expectedDeformationProfile: "dual-influence-upper-limb-v1"
+    expectedInfluencedVertexCount: 1008
+    expectedJointPairCount: 38
+    expectedMaxSecondaryWeight: 0.55
+  }
+
+  action admit_compiler_deformation(receipt, expected) {
+    if (receipt.pose.schemaVersion != expected.expectedPoseSchema) {
+      return { admitted: false, reason: "source_pose_receipt_missing" }
+    }
+    if (receipt.jointDeformation.schemaVersion != expected.expectedDeformationSchema) {
+      return { admitted: false, reason: "joint_deformation_receipt_missing" }
+    }
+    if (receipt.jointDeformation.influencedVertexCount != expected.expectedInfluencedVertexCount) {
+      return { admitted: false, reason: "secondary_influence_count_drifted" }
+    }
+    if (receipt.secondaryInfluenceArrayLength != receipt.vertexCount) {
+      return { admitted: false, reason: "secondary_influence_abi_drifted" }
+    }
+    return { admitted: true, reason: "source_pose_deformation_compiler_admitted" }
+  }
+
+  action admit_native_deformation_counterfactual(witness) {
+    if (witness.nativeGpuReadback != true) {
+      return { admitted: false, reason: "native_gpu_readback_missing" }
+    }
+    if (witness.primaryOnly.changedPixelCount <= 0) {
+      return { admitted: false, reason: "primary_only_counterfactual_no_pixel_delta" }
+    }
+    if (witness.neutralPose.changedPixelCount <= 0) {
+      return { admitted: false, reason: "neutral_pose_counterfactual_no_pixel_delta" }
+    }
+    if (witness.primaryOnly.changedGeometry != false) {
+      return { admitted: false, reason: "primary_only_counterfactual_changed_geometry" }
+    }
+    if (witness.neutralPose.testOnly != true) {
+      return { admitted: false, reason: "neutral_pose_counterfactual_not_test_only" }
+    }
+    return { admitted: true, reason: "native_gpu_deformation_counterfactuals_admitted" }
+  }
+}
