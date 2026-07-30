@@ -1,0 +1,100 @@
+// H4B immutable source, runtime, browser, temporal, and claim bindings.
+
+composition "Stormglass Character Realism H4B Micro Motion Timing Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-realism-h4b-manifest.v1"
+    milestone: "MV_CHARACTER_REALISM_H4B_MICRO_MOTION_TIMING"
+    date: "2026-07-30"
+    upstreamHoloScriptCommit: "1f295ee62e255883dc95394f5249700023bb39df"
+    upstreamHoloScriptCapsule: "sha256:b09ef0fb23344c85f74a9432356937ae0a9c8cfe6aba399ead03557265a7a4e5"
+    upstreamHoloScriptPromotionReceipt: "sha256:1e7faf86bb9cf8977833cee5ccc3c68588c8f2d257ecb6ba51c489d876c28caf"
+    evidenceReceiptSha256: "80d7def378d374beacef3b708e30c0270d9774e43015ebe8c487dc4fd448ab64"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    sourceCompiledResidentCount: 4
+    deterministicRepeatedCompileCount: 4
+    nativeBlinkReceiptCount: 4
+    blinkWeights: [1, 0.5, 0.206, 0.794]
+    minimumBlinkChangedVertexCount: 3099
+    sampledOnlyGazeReceiptCount: 4
+    sampledOnlyBreathReceiptCount: 4
+    sampledOnlyClothReceiptCount: 4
+    browserWebgpuMeasured: true
+    browserAdapterMeasured: true
+    browserDeviceMeasured: true
+    browserVendor: "nvidia"
+    browserArchitecture: "ampere"
+    externalNetworkRequestCount: 0
+    staticTaaConvergenceMeasured: true
+    staticTaaSampleCount: 8
+    staticTaaTerminalToFirstDeltaRatio: 0.364141
+    productionTaaIntegrated: false
+    motionVectorsIntegrated: false
+    timestampQuerySupported: true
+    gpuTimestampMeasured: false
+    wallClockUsedAsGpuTime: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    browserWebxrMeasured: false
+    photorealismClaimed: false
+    fullWorldPerformanceClaimed: false
+  }
+
+  object "PackageBinding" {
+    type: "immutable_artifact_binding"
+    path: "package.json"
+    sha256: "74d29be31b8566679771feb9e170bd10ea4428eabc1e47baeb625dcd18d30b99"
+  }
+
+  object "WorldSourceBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/layers/vr/frontier/model-village/model-village-character-realism-h4b-micro-motion-timing.holo"
+    sha256: "71cf3c61a98e25f78ea1be57035bceca74f156c14efbf3b5f8d1a77226206af6"
+  }
+
+  object "PolicyBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-realism-h4b-micro-motion-timing-policy.hsplus"
+    sha256: "c0c77485e6847ecdcb394bf685cfd6e79483f30d8e88d77f268f1a71a71851a6"
+  }
+
+  object "SeedBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-realism-h4b-micro-motion-timing-seed.hs"
+    sha256: "e1a7ca11cf2d85397e4668f9ac92bd0ca9418cb41af6177c39f6a1716595291f"
+  }
+
+  object "CheckerBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/check-hololand-model-village-character-realism-h4b.mjs"
+    sha256: "53461347b46c3a90d4f68879f6f69259e3cb62f2f2a0469800589a8061398217"
+  }
+
+  object "TestBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/__tests__/hololand-model-village-character-realism-h4b.test.mjs"
+    sha256: "ec2a40e02581cb7cca89ac0b9024d33d601716b5719793795a902f4079517583"
+  }
+
+  object "ReportBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/reports/model-village-character-realism-h4b-micro-motion-timing-2026-07-30.md"
+    sha256: "2e47205d30831b7fd5e5ee100272eb90deaf764aca637168e94d23579132ef2a"
+  }
+
+  object "HeroBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-realism-h4b-micro-motion-timing-2026-07-30.png"
+    sha256: "68e2af9b3bfa89f82cc28df711b1eef79cf2aa16a9c8771a84dcb72800eed1db"
+  }
+
+  object "EvidenceBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-realism-h4b-micro-motion-timing-2026-07-30.json"
+    sha256: "80d7def378d374beacef3b708e30c0270d9774e43015ebe8c487dc4fd448ab64"
+  }
+}

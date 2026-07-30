@@ -1,0 +1,78 @@
+// H4B deterministic micro-motion and temporal-convergence admission policy.
+//
+// Native hsplus action execution is not claimed. The checker parses this
+// contract and enforces the same fail-closed conditions over measured receipts.
+
+composition "Stormglass Character Realism H4B Micro Motion Timing Policy" {
+  config {
+    schema: "hololand.model-village.character-realism-h4b-policy.v1"
+    milestone: "MV_CHARACTER_REALISM_H4B_MICRO_MOTION_TIMING"
+    source: "source/proofs/model-village-character-realism-h4b-micro-motion-timing-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4b-micro-motion-timing.holo"
+    seedSource: "source/proofs/model-village-character-realism-h4b-micro-motion-timing-seed.hs"
+    formatRole: "typed_micro_motion_and_temporal_convergence_admission"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H4BMicroMotionAdmissionState {
+    sourceCompiledResidentCount: 0
+    deterministicReplayCount: 0
+    nativeBlinkReceiptCount: 0
+    sampledGazeReceiptCount: 0
+    sampledBreathReceiptCount: 0
+    sampledClothReceiptCount: 0
+    staticTaaConvergenceReceiptCount: 0
+    productionTaaReceiptCount: 0
+    gpuTimestampReceiptCount: 0
+    externalNetworkRequestCount: 0
+  }
+
+  template "MicroMotionTimingAdmission" {
+    type: "micro_motion_timing_admission"
+    expectedProfile: "human-presence-v1"
+    expectedResidentCount: 4
+    nativeBlinkRequired: true
+    nativeGazeTransformRequired: false
+    nativeBreathTransformRequired: false
+    nativeClothSimulationRequired: false
+    staticTaaConvergenceRequired: true
+    productionTaaRequired: false
+    motionVectorsRequired: false
+    gpuTimestampRequired: false
+  }
+
+  action admit_h4b_resident(resident, expected) {
+    if (resident.profile != expected.expectedProfile || resident.absoluteTime != true) {
+      return { admitted: false, reason: "wrong_micro_motion_profile" }
+    }
+    if (resident.repeatedSampleByteIdentity != true) {
+      return { admitted: false, reason: "micro_motion_replay_drifted" }
+    }
+    if (resident.nativeBlinkApplied != true || resident.blinkChangedVertexCount <= 0) {
+      return { admitted: false, reason: "native_blink_missing" }
+    }
+    if (resident.nativeGazeTransformApplied != false || resident.nativeBreathTransformApplied != false || resident.nativeClothSimulationApplied != false) {
+      return { admitted: false, reason: "sampled_channel_overclaimed" }
+    }
+    return { admitted: true, reason: "deterministic_micro_motion_receipted" }
+  }
+
+  action admit_h4b_witness(witness) {
+    if (witness.backend != "webgpu" || witness.browserDevicePresent != true) {
+      return { admitted: false, reason: "browser_webgpu_missing" }
+    }
+    if (witness.staticTaaConvergenceMeasured != true || witness.staticTaaPixelDelta <= 0) {
+      return { admitted: false, reason: "static_taa_convergence_missing" }
+    }
+    if (witness.productionTaaIntegrated != false || witness.motionVectorsIntegrated != false) {
+      return { admitted: false, reason: "temporal_pipeline_overclaimed" }
+    }
+    if (witness.wallClockUsedAsGpuTime != false) {
+      return { admitted: false, reason: "invalid_gpu_timing_source" }
+    }
+    if (witness.externalNetworkRequestCount != 0) {
+      return { admitted: false, reason: "external_dependency_detected" }
+    }
+    return { admitted: true, reason: "browser_webgpu_h4b_witness_receipted" }
+  }
+}

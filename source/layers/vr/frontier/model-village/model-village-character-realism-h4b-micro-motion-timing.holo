@@ -1,0 +1,80 @@
+// Stormglass Commons Character Realism H4B.
+//
+// This composition is a source overlay for the admitted H4A appearance world.
+// The browser witness transfers these four @micro_motion traits onto the H4A
+// resident AST before CharacterWebGPUCompiler and CharacterHost consume it.
+// Blink is native procedural-head deformation. Gaze, breath, and cloth remain
+// sampled channels until their renderer/skeleton/cloth bindings land.
+
+composition "Stormglass Character Realism H4B Micro Motion Timing" {
+  metadata {
+    title: "Stormglass Character Realism H4B - Micro Motion Timing"
+    version: "0.1.0"
+    date: "2026-07-30"
+    milestone: "MV_CHARACTER_REALISM_H4B_MICRO_MOTION_TIMING"
+    source: "source/layers/vr/frontier/model-village/model-village-character-realism-h4b-micro-motion-timing.holo"
+    inheritedWorldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h4a-facial-volume-garment-framing.holo"
+    policySource: "source/proofs/model-village-character-realism-h4b-micro-motion-timing-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-realism-h4b-micro-motion-timing-seed.hs"
+    upstreamHoloScriptCommit: "1f295ee62e255883dc95394f5249700023bb39df"
+    upstreamMicroMotionPath: "packages/engine/src/character-render/AgentAvatarMicroMotion.ts"
+    upstreamMicroMotionSha256: "5d61761599659fa4ee159bb41ffe671f096b5b55a78e4b1671f9af9e29748696"
+    upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
+    upstreamCharacterHostSha256: "eb0f40bacb1745ce2e3464b08f0470f7d6227274d6502841f95499e9978bafdf"
+    upstreamHostBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamHostBridgeSha256: "c7af37118977dccd585f6c4c616a3d8144e0b8a07c9ceb8c5e32c350d8bedfe9"
+    upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
+    upstreamCompilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "cinematic_stormglass_temporal_portrait_plate"
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H4B_MICRO_MOTION_TIMING"
+    inheritedResidentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    microMotionProfile: "human_presence_v1"
+    absoluteTimeSampling: true
+    deterministicReplayRequired: true
+    nativeBlinkApplied: true
+    nativeGazeTransformApplied: false
+    nativeBreathTransformApplied: false
+    nativeClothSimulationApplied: false
+    staticTaaConvergenceMeasured: true
+    productionTaaIntegrated: false
+    motionVectorsIntegrated: false
+    gpuTimestampMeasured: false
+    wallClockUsedAsGpuTime: false
+    freshRtxBenchmarkClaimed: false
+    photorealismClaimed: false
+  }
+
+  object "OpenAIResidentMotion" {
+    @micro_motion(profile: "human_presence_v1", seed: "stormglass-openai", blink_interval_seconds: 4.1, blink_duration_seconds: 0.16, saccade_interval_seconds: 1.38, saccade_settle_seconds: 0.075, saccade_yaw_degrees: 2.4, saccade_pitch_degrees: 1.3, breath_rate_hz: 0.205, breath_amplitude: 0.011, cloth_rate: 0.92, source_time_seconds: 2.940911)
+    type: "named_model_family_micro_motion_overlay"
+    targetObjectId: "OpenAIResident"
+    displayLabel: "OpenAI"
+  }
+
+  object "ClaudeResidentMotion" {
+    @micro_motion(profile: "human_presence_v1", seed: "stormglass-claude", blink_interval_seconds: 4.4, blink_duration_seconds: 0.18, saccade_interval_seconds: 1.58, saccade_settle_seconds: 0.082, saccade_yaw_degrees: 2.2, saccade_pitch_degrees: 1.25, breath_rate_hz: 0.19, breath_amplitude: 0.013, cloth_rate: 0.84, source_time_seconds: 1.50983)
+    type: "named_model_family_micro_motion_overlay"
+    targetObjectId: "ClaudeResident"
+    displayLabel: "Claude"
+  }
+
+  object "GeminiResidentMotion" {
+    @micro_motion(profile: "human_presence_v1", seed: "stormglass-gemini", blink_interval_seconds: 3.8, blink_duration_seconds: 0.17, saccade_interval_seconds: 1.24, saccade_settle_seconds: 0.07, saccade_yaw_degrees: 2.8, saccade_pitch_degrees: 1.55, breath_rate_hz: 0.225, breath_amplitude: 0.01, cloth_rate: 1.08, source_time_seconds: 0.896702)
+    type: "named_model_family_micro_motion_overlay"
+    targetObjectId: "GeminiResident"
+    displayLabel: "Gemini"
+  }
+
+  object "GrokResidentMotion" {
+    @micro_motion(profile: "human_presence_v1", seed: "stormglass-grok", blink_interval_seconds: 4.6, blink_duration_seconds: 0.19, saccade_interval_seconds: 1.12, saccade_settle_seconds: 0.065, saccade_yaw_degrees: 3.1, saccade_pitch_degrees: 1.7, breath_rate_hz: 0.235, breath_amplitude: 0.014, cloth_rate: 1.16, source_time_seconds: 3.434138)
+    type: "named_model_family_micro_motion_overlay"
+    targetObjectId: "GrokResident"
+    displayLabel: "Grok"
+  }
+}
