@@ -1,0 +1,91 @@
+// H3Y immutable source, proof, browser, and claim-boundary bindings.
+// Hashes bind the visually selected wider render and its native receipt.
+
+composition "Stormglass Character Appearance H3Y Constructed Soft Tissue Probe Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-appearance-h3y-manifest.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3Y_CONSTRUCTED_SOFT_TISSUE_PROBE"
+    date: "2026-07-29"
+    upstreamHoloScriptCommit: "293bd5f8e1b6bd4a4e4e8d9c970bbee545b0c898"
+    evidenceReceiptSha256: "48b91bed7d30f763175c545f903e89262dcf475acb93215265219374e10b1ddd"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    sourceCompiledResidentCount: 4
+    browserCharacterRenderCount: 16
+    browserWebgpuMeasured: true
+    browserAdapterMeasured: true
+    browserDeviceMeasured: true
+    constructedFieldcoatMeasured: true
+    constructedPanelCountPerResident: 4
+    connectedSoftTissueTopologyMeasured: true
+    anatomicalLidFoldMeasured: true
+    groomContainmentMeasured: true
+    maximumScalpPenetrationVertexCount: 0
+    directionalReflectionProbeMeasured: true
+    environmentCounterfactualMeasured: true
+    expressionNormalsRecomputed: true
+    expressionNormalCounterfactualMeasured: true
+    closeupFaceSegments: [44, 30]
+    distanceFaceSegments: [24, 16]
+    closeupLodCounterfactualMeasured: true
+    photographicHdriClaimed: false
+    gpuTimestampMeasured: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    browserWebxrMeasured: false
+    photorealismClaimed: false
+    fullWorldPerformanceClaimed: false
+  }
+
+  object "WorldSourceBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3y-constructed-soft-tissue-probe.holo"
+    sha256: "ffa3112a28b1083786fc27dcaaaa8f14c0453fa9a832af10af410a29eb917550"
+  }
+
+  object "PolicyBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-appearance-h3y-constructed-soft-tissue-probe-policy.hsplus"
+    sha256: "d109f2264e42775f697fee838975c773f5d981295db553ce406076b6a100eb71"
+  }
+
+  object "SeedBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-appearance-h3y-constructed-soft-tissue-probe-seed.hs"
+    sha256: "8ad290497594faab82563bdcc44da74ff8ccb112fbdb0d999d2bb2a8c0b79c1c"
+  }
+
+  object "CheckerBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/check-hololand-model-village-character-appearance-h3y.mjs"
+    sha256: "b998a588fd3c70880d38bbe5a67e8d6bf6118aa18c6e46b5a26d518e932c2afa"
+  }
+
+  object "TestBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/__tests__/hololand-model-village-character-appearance-h3y.test.mjs"
+    sha256: "6bdf8cbb3ddabb96955c01e51dbeabf11ab9ea6f579b4c065c8dceb40a182387"
+  }
+
+  object "ReportBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/reports/model-village-character-appearance-h3y-constructed-soft-tissue-probe-2026-07-29.md"
+    sha256: "162a0c0b57730a9b28be8f13a368179c9431ee6a40a0ba82739d209da0e5d950"
+  }
+
+  object "HeroBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-appearance-h3y-constructed-soft-tissue-probe-2026-07-29.png"
+    sha256: "4386d320bb4c7498cd07230d505189a665ce38a61ab6f492788590f979623503"
+  }
+
+  object "EvidenceBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-appearance-h3y-constructed-soft-tissue-probe-2026-07-29.json"
+    sha256: "928e9b5671792a58639fc01cc7abb20bbe25112047afb785627a193c8ade9516"
+  }
+}

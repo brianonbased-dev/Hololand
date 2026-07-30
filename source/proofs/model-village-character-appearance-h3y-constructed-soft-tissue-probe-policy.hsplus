@@ -1,0 +1,107 @@
+// H3Y constructed-soft-tissue-probe admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// fail-closed contract enforced by the H3Y checker.
+
+composition "Stormglass Character Appearance H3Y Constructed Soft Tissue Probe Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3y-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3Y_CONSTRUCTED_SOFT_TISSUE_PROBE"
+    source: "source/proofs/model-village-character-appearance-h3y-constructed-soft-tissue-probe-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3y-constructed-soft-tissue-probe.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3y-constructed-soft-tissue-probe-seed.hs"
+    formatRole: "typed_constructed_garment_soft_tissue_groom_and_probe_admission"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3YConstructedSoftTissueProbeAdmissionState {
+    sourceCompiledResidentCount: 0
+    garmentReceiptCount: 0
+    facialLandmarkReceiptCount: 0
+    orbitalReceiptCount: 0
+    groomContainmentReceiptCount: 0
+    environmentProbeReceiptCount: 0
+    sourceCounterfactualCount: 0
+    browserGpuDeviceCount: 0
+    browserRenderCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+  }
+
+  template "ConstructedSoftTissueProbeAdmission" {
+    type: "constructed_soft_tissue_probe_admission"
+    expectedBackend: "webgpu"
+    expectedUpperBodyProfile: "expressive-anatomy-v7"
+    expectedFaceProfile: "portrait-soft-tissue-v4"
+    expectedOrbitalProfile: "anatomical-lid-fold-v2"
+    expectedLipTopology: "connected-cupid-bow-ribbon-v1"
+    expectedGarmentStyle: "stormglass_tailored_fieldcoat"
+    expectedGarmentConstruction: "four-panel-fieldcoat-v1"
+    expectedConstructedPanelCount: 4
+    expectedSeamCount: 8
+    expectedShoulderYokeCount: 2
+    expectedGroomProfile: "scalp-flow-containment-v2"
+    expectedGroomContainment: "ellipsoidal-scalp-exterior-v1"
+    maximumScalpPenetrationVertexCount: 0
+    expectedEnvironmentProfile: "directional-reflection-probe-v1"
+    expectedEnvironmentResponse: "three-lobe-diffuse-specular-probe-v1"
+    photographicHdriRequired: false
+    gpuTimestampRequired: false
+    questHeadsetRequired: false
+  }
+
+  action admit_h3y_resident(resident, expected) {
+    if (resident.upperBodyProfile != expected.expectedUpperBodyProfile) {
+      return { admitted: false, reason: "wrong_upper_body_profile" }
+    }
+    if (resident.faceProfile != expected.expectedFaceProfile) {
+      return { admitted: false, reason: "wrong_face_profile" }
+    }
+    if (resident.orbitalProfile != expected.expectedOrbitalProfile) {
+      return { admitted: false, reason: "wrong_orbital_profile" }
+    }
+    if (resident.lipTopology != expected.expectedLipTopology) {
+      return { admitted: false, reason: "disconnected_lip_topology" }
+    }
+    if (resident.garmentStyle != expected.expectedGarmentStyle) {
+      return { admitted: false, reason: "wrong_garment_style" }
+    }
+    if (resident.constructedPanelCount != expected.expectedConstructedPanelCount) {
+      return { admitted: false, reason: "wrong_constructed_panel_count" }
+    }
+    if (resident.groomProfile != expected.expectedGroomProfile) {
+      return { admitted: false, reason: "wrong_groom_profile" }
+    }
+    if (resident.scalpPenetrationVertexCount > expected.maximumScalpPenetrationVertexCount) {
+      return { admitted: false, reason: "scalp_penetration_detected" }
+    }
+    if (resident.environmentProfile != expected.expectedEnvironmentProfile) {
+      return { admitted: false, reason: "wrong_environment_profile" }
+    }
+    if (resident.environmentResponse != expected.expectedEnvironmentResponse) {
+      return { admitted: false, reason: "wrong_environment_response" }
+    }
+    return { admitted: true, reason: "h3y_native_profiles_receipted" }
+  }
+
+  action admit_h3y_witness(witness) {
+    if (witness.backend != "webgpu") {
+      return { admitted: false, reason: "wrong_backend" }
+    }
+    if (witness.browserAdapterPresent != true || witness.browserDevicePresent != true) {
+      return { admitted: false, reason: "browser_gpu_missing" }
+    }
+    if (witness.externalNetworkRequestCount != 0 || witness.modelCallCount != 0) {
+      return { admitted: false, reason: "external_dependency_detected" }
+    }
+    if (witness.h3yCounterfactualPixelDifference <= 0) {
+      return { admitted: false, reason: "counterfactual_not_visible" }
+    }
+    if (witness.photographicHdriClaimed != false) {
+      return { admitted: false, reason: "unsupported_hdri_claim" }
+    }
+    return { admitted: true, reason: "browser_webgpu_h3y_witness_receipted" }
+  }
+}
