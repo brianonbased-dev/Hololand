@@ -1,0 +1,121 @@
+// H4A facial-volume/garment-framing admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// fail-closed contract enforced by the H4A checker.
+
+composition "Stormglass Character Appearance H4A Facial Volume Garment Framing Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h4a-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H4A_FACIAL_VOLUME_GARMENT_FRAMING"
+    source: "source/proofs/model-village-character-appearance-h4a-facial-volume-garment-framing-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h4a-facial-volume-garment-framing.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h4a-facial-volume-garment-framing-seed.hs"
+    formatRole: "typed_facial_volume_groom_ocular_and_full_fieldcoat_admission"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H4AFacialVolumeGarmentFramingAdmissionState {
+    sourceCompiledResidentCount: 0
+    facialVolumeReceiptCount: 0
+    fullFieldcoatReceiptCount: 0
+    browLashFramingReceiptCount: 0
+    calibratedOcularReceiptCount: 0
+    orbitalBlendReceiptCount: 0
+    roomBasisReceiptCount: 0
+    dualFrameBrowserRenderCount: 0
+    browserGpuDeviceCount: 0
+    browserRenderCount: 0
+    externalNetworkRequestCount: 0
+    modelCallCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+  }
+
+  template "FacialVolumeGarmentFramingAdmission" {
+    type: "facial_volume_garment_framing_admission"
+    expectedBackend: "webgpu"
+    expectedFacialDetailProfile: "portrait-facial-volume-v5"
+    expectedFacialVolumeProfile: "nasal-malar-mandibular-volume-v1"
+    expectedGarmentStyle: "stormglass_portrait_fieldcoat"
+    expectedGarmentConstruction: "portrait-full-fieldcoat-v3"
+    expectedShellThicknessM: 0.008
+    expectedClosureCount: 7
+    expectedCuffBandCount: 2
+    expectedFabricSurface: "stormglass-crossweave-normal-v1"
+    expectedGroomProfile: "scalp-flow-portrait-v4"
+    expectedFacialFramingProfile: "portrait-brow-lash-ribbons-v1"
+    expectedBrowRibbonCount: 2
+    expectedLashRibbonCount: 4
+    expectedGroomContainment: "ellipsoidal-scalp-exterior-v1"
+    expectedGroomBreakup: "contained-flyaway-breakup-v1"
+    expectedFlyawayGuideCount: 12
+    maximumScalpPenetrationVertexCount: 0
+    expectedOrbitalProfile: "anatomical-lid-blend-v3"
+    expectedLidTransition: "cubic-lid-blend-v1"
+    expectedLidTransitionRows: 4
+    expectedOcularProfile: "layered-ocular-calibrated-v3"
+    expectedOcularCalibration: "portrait-ocular-balance-v1"
+    expectedTearMeniscus: "lower-cornea-meniscus-v1"
+    expectedEnvironmentProfile: "stormglass-room-basis-v2"
+    expectedEnvironmentResponse: "source-authored-room-basis-v2"
+    photographicHdriRequired: false
+    gpuTimestampRequired: false
+    questHeadsetRequired: false
+  }
+
+  action admit_h4a_resident(resident, expected) {
+    if (resident.facialDetailProfile != expected.expectedFacialDetailProfile || resident.facialVolumeProfile != expected.expectedFacialVolumeProfile) {
+      return { admitted: false, reason: "wrong_facial_volume_profile" }
+    }
+    if (resident.garmentStyle != expected.expectedGarmentStyle) {
+      return { admitted: false, reason: "wrong_garment_style" }
+    }
+    if (resident.garmentConstruction != expected.expectedGarmentConstruction) {
+      return { admitted: false, reason: "wrong_garment_construction" }
+    }
+    if (resident.closureCount != expected.expectedClosureCount || resident.cuffBandCount != expected.expectedCuffBandCount) {
+      return { admitted: false, reason: "missing_full_fieldcoat_framing" }
+    }
+    if (resident.groomProfile != expected.expectedGroomProfile || resident.facialFramingProfile != expected.expectedFacialFramingProfile) {
+      return { admitted: false, reason: "wrong_brow_lash_framing" }
+    }
+    if (resident.browRibbonCount != expected.expectedBrowRibbonCount || resident.lashRibbonCount != expected.expectedLashRibbonCount) {
+      return { admitted: false, reason: "missing_brow_lash_ribbons" }
+    }
+    if (resident.scalpPenetrationVertexCount > expected.maximumScalpPenetrationVertexCount) {
+      return { admitted: false, reason: "scalp_penetration_detected" }
+    }
+    if (resident.orbitalProfile != expected.expectedOrbitalProfile || resident.lidTransitionRows != expected.expectedLidTransitionRows) {
+      return { admitted: false, reason: "wrong_lid_transition" }
+    }
+    if (resident.ocularProfile != expected.expectedOcularProfile || resident.ocularCalibration != expected.expectedOcularCalibration) {
+      return { admitted: false, reason: "wrong_ocular_calibration" }
+    }
+    if (resident.environmentProfile != expected.expectedEnvironmentProfile || resident.environmentResponse != expected.expectedEnvironmentResponse) {
+      return { admitted: false, reason: "wrong_room_response" }
+    }
+    return { admitted: true, reason: "h4a_native_profiles_receipted" }
+  }
+
+  action admit_h4a_witness(witness) {
+    if (witness.backend != "webgpu") {
+      return { admitted: false, reason: "wrong_backend" }
+    }
+    if (witness.browserAdapterPresent != true || witness.browserDevicePresent != true) {
+      return { admitted: false, reason: "browser_gpu_missing" }
+    }
+    if (witness.externalNetworkRequestCount != 0 || witness.modelCallCount != 0) {
+      return { admitted: false, reason: "external_dependency_detected" }
+    }
+    if (witness.roomCounterfactualPixelDifference <= 25) {
+      return { admitted: false, reason: "room_response_not_visible" }
+    }
+    if (witness.portraitPixelCount <= 5000 || witness.garmentFramePixelCount <= 3000) {
+      return { admitted: false, reason: "dual_frame_coverage_missing" }
+    }
+    if (witness.photographicHdriClaimed != false || witness.photorealismClaimed != false) {
+      return { admitted: false, reason: "unsupported_visual_claim" }
+    }
+    return { admitted: true, reason: "browser_webgpu_h4a_dual_frame_witness_receipted" }
+  }
+}

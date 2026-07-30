@@ -1,0 +1,112 @@
+// H4A immutable source, proof, browser, and claim-boundary bindings.
+// Hashes bind the visually selected dual-frame plate and native receipt.
+
+composition "Stormglass Character Appearance H4A Facial Volume Garment Framing Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-appearance-h4a-manifest.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H4A_FACIAL_VOLUME_GARMENT_FRAMING"
+    date: "2026-07-30"
+    upstreamHoloScriptCommit: "0e5b0a3b7745f4113ee8b9dd62f70be9fc63d8d2"
+    upstreamHoloScriptCapsule: "sha256:1bdbc7edb1bf50b7cae97919e3f53a8ff61c23f1acfe9738c21a816aed8cb793"
+    upstreamHoloScriptPromotionReceipt: "sha256:49a9767760ee8ea5aff6512d1fe408fa147a7a06bf8abdd68e81db55a743846f"
+    evidenceReceiptSha256: "574444d99dfcdb0af73f873559b616fcf441915fe050f42dd65e922f7ca21fbf"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    sourceCompiledResidentCount: 4
+    browserCharacterRenderCount: 20
+    browserWebgpuMeasured: true
+    browserAdapterMeasured: true
+    browserDeviceMeasured: true
+    facialVolumeMeasured: true
+    noseBridgeVertexCountPerResident: 255
+    philtrumVertexCountPerResident: 108
+    browArcSegmentCountPerResident: 22
+    browLashFramingMeasured: true
+    browRibbonCountPerResident: 2
+    lashRibbonCountPerResident: 4
+    maximumScalpPenetrationVertexCount: 0
+    calibratedOcularGeometryMeasured: true
+    sourceAuthoredIrisAndPupilScaleMeasured: true
+    ocularTearMeniscusMeasured: true
+    fullFieldcoatMeasured: true
+    closureCountPerResident: 7
+    cuffBandCountPerResident: 2
+    splitLowerHemMeasured: true
+    sourceDerivedPortraitFrameMeasured: true
+    sourceDerivedGarmentFrameMeasured: true
+    expressionNormalsRecomputed: true
+    expressionNormalCounterfactualMeasured: true
+    closeupFaceSegments: [44, 30]
+    distanceFaceSegments: [24, 16]
+    closeupLodCounterfactualMeasured: true
+    sourceAuthoredRoomBasisMeasured: true
+    environmentCounterfactualMeasured: true
+    externalNetworkRequestCount: 0
+    photographicHdriClaimed: false
+    taaConvergenceMeasured: false
+    gpuTimestampMeasured: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    browserWebxrMeasured: false
+    photorealismClaimed: false
+    fullWorldPerformanceClaimed: false
+  }
+
+  object "PackageBinding" {
+    type: "immutable_artifact_binding"
+    path: "package.json"
+    sha256: "6af7a8034658ce87146c34b5f252b8f3ef3a513973179ffcf561a3463cf0d89c"
+  }
+
+  object "WorldSourceBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h4a-facial-volume-garment-framing.holo"
+    sha256: "3aec44b41f45858a796c985e05ec23219dbf7bb2998b10dc174f0ca929a654c3"
+  }
+
+  object "PolicyBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-appearance-h4a-facial-volume-garment-framing-policy.hsplus"
+    sha256: "86dc3527e7e8c72bdb5536139aecabbff9ba4cd1598beae9a557f8c8fa163146"
+  }
+
+  object "SeedBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-appearance-h4a-facial-volume-garment-framing-seed.hs"
+    sha256: "e5ff671362259a1965e9b0de4891e6e42e0cb5887e24a9a879fbb28335df3067"
+  }
+
+  object "CheckerBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/check-hololand-model-village-character-appearance-h4a.mjs"
+    sha256: "1f890aa5b6ac0e7e238da8d5a059da1e1532c3c123221ee6132cf55fa7dc8df7"
+  }
+
+  object "TestBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/__tests__/hololand-model-village-character-appearance-h4a.test.mjs"
+    sha256: "922f2273a2d1991064266af2db04688ca71b23922e86f27856fc1a167becdb91"
+  }
+
+  object "ReportBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/reports/model-village-character-appearance-h4a-facial-volume-garment-framing-2026-07-30.md"
+    sha256: "a96e60e5620a54cbbb4367cb1346365f2e59d8257cd72ea46bc93575d69d9cda"
+  }
+
+  object "HeroBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-appearance-h4a-facial-volume-garment-framing-2026-07-30.png"
+    sha256: "f316cb078d3c5eefc08027e4da735bc07b6845fa222f93b4e7cf2bb6ae27103f"
+  }
+
+  object "EvidenceBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-appearance-h4a-facial-volume-garment-framing-2026-07-30.json"
+    sha256: "76e568ab3d975f480ba8e731090f7fced505aa2455c4b0354ee9f809a76516ee"
+  }
+}
