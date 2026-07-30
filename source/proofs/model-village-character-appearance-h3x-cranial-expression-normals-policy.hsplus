@@ -1,0 +1,134 @@
+// H3X cranial-expression-normal admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// fail-closed contract enforced by the H3X checker.
+
+composition "Stormglass Character Appearance H3X Cranial Expression Normals Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3x-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3X_CRANIAL_EXPRESSION_NORMALS"
+    source: "source/proofs/model-village-character-appearance-h3x-cranial-expression-normals-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3x-cranial-expression-normals.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3x-cranial-expression-normals-seed.hs"
+    formatRole: "typed_cranial_topology_expression_normal_and_closeup_lod_admission"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3XCranialExpressionNormalAdmissionState {
+    sourceCompiledResidentCount: 0
+    expressiveAnatomyReceiptCount: 0
+    expressionReceiptCount: 0
+    cranialNeckReceiptCount: 0
+    recomputedNormalReceiptCount: 0
+    closeupLodReceiptCount: 0
+    distanceLodReceiptCount: 0
+    expressionNormalCounterfactualCount: 0
+    closeupLodCounterfactualCount: 0
+    environmentLightReceiptCount: 0
+    environmentCounterfactualCount: 0
+    browserGpuDeviceCount: 0
+    browserRenderCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+  }
+
+  template "CranialExpressionNormalAdmission" {
+    type: "cranial_expression_normal_admission"
+    expectedBackend: "webgpu"
+    expectedUpperBodyProfile: "expressive-anatomy-v7"
+    expectedJointProfile: "expressive-cranial-neck-volume-v4"
+    expectedFaceProfile: "portrait-cranial-v3"
+    expectedCranialNeckProfile: "indexed-neck-cranium-stitch-v1"
+    expectedCranialBridgeTriangleCount: 68
+    maximumCranialSeamSampleGapM: 0.03
+    expectedCranialContinuityProfile: "dual-influence-neck-head-stitch-v1"
+    expectedExpressionNormalPolicy: "recompute-affected-v1"
+    expectedExpressionReceiptSchema: "holoscript.native-facial-morph.v3"
+    expectedCloseupFaceSegments: [44, 30]
+    expectedDistanceFaceSegments: [24, 16]
+    expectedNeckBlendRingCount: 4
+    expectedNeckInfluencedVertexCount: 96
+    expectedPoseName: "civic_conversation"
+    expectedPoseBoneCount: 5
+    minimumExpressionTargetCount: 5
+    expectedEnvironmentProfile: "analytic-three-point-v1"
+    gpuTimestampRequired: false
+    questHeadsetRequired: false
+  }
+
+  action admit_cranial_resident(resident, expected) {
+    if (resident.upperBodyProfile != expected.expectedUpperBodyProfile) {
+      return { admitted: false, reason: "wrong_upper_body_profile" }
+    }
+    if (resident.jointProfile != expected.expectedJointProfile) {
+      return { admitted: false, reason: "wrong_joint_profile" }
+    }
+    if (resident.neckBlendRingCount != expected.expectedNeckBlendRingCount) {
+      return { admitted: false, reason: "neck_blend_ring_drift" }
+    }
+    if (resident.neckInfluencedVertexCount != expected.expectedNeckInfluencedVertexCount) {
+      return { admitted: false, reason: "neck_influence_count_drift" }
+    }
+    if (resident.faceProfile != expected.expectedFaceProfile) {
+      return { admitted: false, reason: "wrong_face_profile" }
+    }
+    if (resident.cranialNeckProfile != expected.expectedCranialNeckProfile) {
+      return { admitted: false, reason: "cranial_neck_stitch_missing" }
+    }
+    if (resident.cranialBridgeTriangleCount != expected.expectedCranialBridgeTriangleCount) {
+      return { admitted: false, reason: "cranial_bridge_topology_drift" }
+    }
+    if (resident.cranialSeamSampleGapM > expected.maximumCranialSeamSampleGapM) {
+      return { admitted: false, reason: "cranial_seam_sample_gap_too_large" }
+    }
+    if (resident.cranialContinuityProfile != expected.expectedCranialContinuityProfile) {
+      return { admitted: false, reason: "cranial_neck_deformation_discontinuous" }
+    }
+    if (resident.expressionNormalPolicy != expected.expectedExpressionNormalPolicy) {
+      return { admitted: false, reason: "expression_normal_policy_missing" }
+    }
+    if (resident.expressionReceiptSchema != expected.expectedExpressionReceiptSchema) {
+      return { admitted: false, reason: "expression_normal_receipt_missing" }
+    }
+    if (resident.closeupFaceSegments != expected.expectedCloseupFaceSegments) {
+      return { admitted: false, reason: "closeup_face_lod_drift" }
+    }
+    if (resident.distanceFaceSegments != expected.expectedDistanceFaceSegments) {
+      return { admitted: false, reason: "distance_face_lod_drift" }
+    }
+    if (resident.poseBoneCount != expected.expectedPoseBoneCount) {
+      return { admitted: false, reason: "source_pose_missing" }
+    }
+    if (resident.expressionTargetCount < expected.minimumExpressionTargetCount) {
+      return { admitted: false, reason: "expression_targets_missing" }
+    }
+    if (resident.environmentProfile != expected.expectedEnvironmentProfile) {
+      return { admitted: false, reason: "environment_light_missing" }
+    }
+    if (resident.environmentPixelDiff <= 25) {
+      return { admitted: false, reason: "environment_counterfactual_too_small" }
+    }
+    if (resident.expressionNormalPixelDiff <= 25) {
+      return { admitted: false, reason: "expression_normal_counterfactual_too_small" }
+    }
+    if (resident.closeupLodPixelDiff <= 25) {
+      return { admitted: false, reason: "closeup_lod_counterfactual_too_small" }
+    }
+    return { admitted: true, reason: "cranial_expression_normal_resident_admitted" }
+  }
+
+  action admit_claim_boundary(receipt) {
+    if (receipt.gpuTimestampMeasured == true) {
+      return { admitted: false, reason: "gpu_timestamp_not_in_scope" }
+    }
+    if (receipt.questHeadsetMeasured == true) {
+      return { admitted: false, reason: "quest_headset_not_present" }
+    }
+    if (receipt.freshRtxBenchmarkClaimed == true) {
+      return { admitted: false, reason: "rtx_benchmark_not_measured" }
+    }
+    return { admitted: true, reason: "bounded_browser_cranial_expression_normal_claim_admitted" }
+  }
+}

@@ -1,0 +1,168 @@
+// Stormglass Commons Character Appearance H3X.
+//
+// Four symbolic model-family residents exercise HoloScript-native asymmetric
+// scapular/neck anatomy, denser close-up cranial topology, source-authored
+// expression with normal recomputation, and a controlled three-point environment.
+// The browser witness renders the H3X source and its bounded counterfactuals
+// through CharacterWebGPUCompiler and the native WebGPU renderer.
+
+composition "Stormglass Character Appearance H3X Cranial Expression Normals" {
+  metadata {
+    title: "Stormglass Character Appearance H3X - Cranial Expression Normals"
+    version: "0.1.0"
+    date: "2026-07-29"
+    milestone: "MV_CHARACTER_APPEARANCE_H3X_CRANIAL_EXPRESSION_NORMALS"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3x-cranial-expression-normals.holo"
+    policySource: "source/proofs/model-village-character-appearance-h3x-cranial-expression-normals-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-appearance-h3x-cranial-expression-normals-seed.hs"
+    inheritedH3WSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3w-expressive-lighting.holo"
+    upstreamHoloScriptCommit: "df6ebcd00b5e36fa6bc5fcc8ed8dde36dbd655c2"
+    upstreamAvatarMeshPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
+    upstreamAvatarMeshSha256: "0afeb2ae680dbd51fbc43c57e4e032cb096530a6713142a27bb394853c30aee2"
+    upstreamAvatarMorphPath: "packages/engine/src/character-render/AgentAvatarMorph.ts"
+    upstreamAvatarMorphSha256: "f021d0ff48f3c65584125bec6aa39a5c03017e35cc6168f0b512074700a48357"
+    upstreamHostBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+    upstreamHostBridgeSha256: "877e727e270652891f9bddb7445f3a7559ca23bb093d9112caf9674cd960c218"
+    upstreamRendererPath: "packages/engine/src/character-render/character-render.ts"
+    upstreamRendererSha256: "9c326be7dbb4e50648ebd0ededc12f5568a858b00905e363f904f60b2433cfd8"
+    projectionRole: "read_only_symbolic_model_family_cranial_expression_normal_witness"
+    architectureGuidance: "W.GOLD.002_sovereign_compiler_priority"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "cinematic_stormglass_closeup_portrait_counterfactual_grid"
+  }
+
+  environment {
+    mode: "browser_native_webgpu_controlled_portrait_look_development"
+    theme: "stormglass_commons"
+    backgroundColor: "#020811"
+    ambient_light: 0.09
+    shadows: true
+    externalNetworkAllowed: false
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H3X_CRANIAL_EXPRESSION_NORMALS"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    providerModelBinding: "absent"
+    adapterFamilyBinding: "absent"
+    canonicalWritesAllowed: false
+    modelCallsAllowed: false
+    networkFetchesAllowed: false
+
+    sourceCompilerEntrypoint: "CharacterWebGPUCompiler.compile"
+    browserRendererEntrypoint: "renderCharacter"
+    browserRendererBackend: "webgpu"
+    expressiveAnatomyProfile: "coherent_expressive_anatomy_v7"
+    jointDeformationProfile: "expressive_cranial_neck_volume_v4"
+    portraitCranialProfile: "portrait_cranial_v3"
+    cranialNeckProfile: "indexed_neck_cranium_stitch_v1"
+    expectedCranialBridgeTriangleCount: 68
+    maximumCranialSeamSampleGapM: 0.03
+    cranialNeckContinuityProfile: "dual_influence_neck_head_stitch_v1"
+    expressionNormalPolicy: "recompute_affected_v1"
+    expressionNormalReceiptSchema: "holoscript.native-facial-morph.v3"
+    expressionNormalCounterfactualRequired: true
+    closeupLodLevel: 0
+    closeupFaceRadialSegments: 44
+    closeupFaceVerticalSegments: 30
+    distanceLodLevel: 2
+    distanceFaceRadialSegments: 24
+    distanceFaceVerticalSegments: 16
+    closeupLodCounterfactualRequired: true
+    neckBlendRingCount: 4
+    neckInfluenceWeights: [0.08, 0.22, 0.45, 0.2]
+    expectedNeckInfluencedVertexCount: 96
+    poseName: "civic_conversation"
+    poseBoneCount: 5
+    expressionTraitRequired: true
+    minimumExpressionTargetCount: 5
+    asymmetricBlinkRequired: true
+    asymmetricBrowRequired: true
+    environmentLightProfile: "analytic_three_point_v1"
+    environmentLightReceiptRequired: true
+    environmentCounterfactualRequired: true
+    fixedLightSkinCalibrationRequired: true
+    analyticPoreMicrodetailRequired: true
+    browserWebgpuMeasured: true
+    browserAdapterRequired: true
+    browserDeviceRequired: true
+    sourcePoseApplied: true
+    gpuTimestampMeasured: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    browserWebxrMeasured: false
+    photorealismClaimed: false
+    physicallyCalibratedCameraClaimed: false
+    fullWorldPerformanceClaimed: false
+  }
+
+  template "StormglassH3XNamedModelResident" {
+    @skeleton(rig: "humanoid_65")
+    @locomotion(mode: "idle", speed: 0)
+    @lod(levels: [{ level: 0, distance: 0, garment_segments: 24, hair_guides: 192, hair_cards_per_guide: 2, hair_segments: 8, face_radial_segments: 44, face_vertical_segments: 30 }, { level: 1, distance: 7, garment_segments: 18, hair_guides: 112, hair_cards_per_guide: 2, hair_segments: 6, face_radial_segments: 32, face_vertical_segments: 22 }, { level: 2, distance: 16, garment_segments: 12, hair_guides: 56, hair_cards_per_guide: 1, hair_segments: 4, face_radial_segments: 24, face_vertical_segments: 16 }])
+    type: "named_model_family_cranial_expression_normal_resident"
+    providerBinding: "appearance_only_absent"
+  }
+
+  object "OpenAIResident" using "StormglassH3XNamedModelResident" {
+    @body(height: 1.82, build_scale: 1.07, shoulder_scale: 1.1, torso_scale: 0.96, upper_body_profile: "coherent_expressive_anatomy_v7", upper_body_radial_segments: 24, left_scapular_elevation: 0.18, right_scapular_elevation: -0.08, left_scapular_protraction: 0.12, right_scapular_protraction: -0.04, skin_tone: "#B9826F", nail_tone: "#E6BEB2", nail_roughness: 0.24, nail_bed_tone: "#C9827C", nail_bed_roughness: 0.36)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 28, vertical_segments: 20, face_width: 0.95, face_length: 1.06, jaw_taper: 0.29, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.29, lid_opening: 0.48, canthal_tilt: 0.11, facial_detail_profile: "portrait_cranial_v3", expression_normal_policy: "recompute_affected_v1", eye_scale: 0.98, brow_height: 1.08, brow_thickness: 0.16, ear_scale: 0.98, mouth_depth: 0.74, cheekbone_scale: 1.14, chin_projection: 1.1, temple_width: 0.95, ocular_profile: "layered_ocular_v1", iris_color: "#6B8C82", sclera_color: "#EEE9DF", iris_scale: 0.5, pupil_scale: 0.38, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#B9826F", scatter_color: "#A65D50", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 104, microdetail_strength: 0.09, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.052, roughness_variation_strength: 0.14, normal_microdetail_strength: 0.28)
+    @hair(style: "cropped_coils", color: "#2F2928", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.17, crown_whorl: 0.42, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.84, edge_softness: 0.12, anisotropy_strength: 0.86, longitudinal_shift: 0.08)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#176B5B")
+    @expression(blink_left: 0.04, blink_right: 0.1, brow_raise_left: 0.12, brow_raise_right: 0.2, smile: 0.22, jaw_open: 0.02)
+    @environment_light(profile: "analytic_three_point_v1", key_direction: [0.42, 0.74, 0.52], key_color: [1, 0.82, 0.68], key_intensity: 1.18, fill_direction: [-0.62, 0.18, 0.76], fill_color: [0.48, 0.64, 1], fill_intensity: 0.3, rim_direction: [0.68, 0.4, -0.62], rim_color: [1, 0.48, 0.28], rim_intensity: 0.66, exposure: 1.05)
+    @pose(name: "civic_conversation", bones: { neck: [0, 0, -0.039989, 0.9992], left_shoulder: [0, 0, -0.119712, 0.992809], left_upper_arm: [0, 0, -0.342898, 0.939373], right_shoulder: [0, 0, 0.079915, 0.996802], right_upper_arm: [0, 0, 0.342898, 0.939373] })
+    type: "named_model_family_cranial_expression_normal_resident"
+    modelFamilyId: "openai"
+    displayLabel: "OpenAI"
+    accentColor: "#62D9C0"
+  }
+
+  object "ClaudeResident" using "StormglassH3XNamedModelResident" {
+    @body(height: 1.86, build_scale: 1.05, shoulder_scale: 1.08, torso_scale: 0.95, upper_body_profile: "coherent_expressive_anatomy_v7", upper_body_radial_segments: 24, left_scapular_elevation: 0.48, right_scapular_elevation: -0.18, left_scapular_protraction: 0.26, right_scapular_protraction: -0.12, skin_tone: "#C58B70", nail_tone: "#EDC7B6", nail_roughness: 0.28, nail_bed_tone: "#D28A7C", nail_bed_roughness: 0.38)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 28, vertical_segments: 20, face_width: 0.94, face_length: 1.09, jaw_taper: 0.31, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.31, lid_opening: 0.46, canthal_tilt: 0.14, facial_detail_profile: "portrait_cranial_v3", expression_normal_policy: "recompute_affected_v1", eye_scale: 0.96, brow_height: 1.12, brow_thickness: 0.15, ear_scale: 1.02, mouth_depth: 0.8, cheekbone_scale: 1.08, chin_projection: 1.18, temple_width: 0.92, ocular_profile: "layered_ocular_v1", iris_color: "#7C604B", sclera_color: "#F0E8DE", iris_scale: 0.49, pupil_scale: 0.37, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#C58B70", scatter_color: "#AF6958", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 98, microdetail_strength: 0.084, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.048, roughness_variation_strength: 0.13, normal_microdetail_strength: 0.25)
+    @hair(style: "medium_wavy", color: "#6B4633", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.15, crown_whorl: 0.34, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.86, edge_softness: 0.1, anisotropy_strength: 0.84, longitudinal_shift: 0.06)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#A85F36")
+    @expression(blink_left: 0.08, blink_right: 0.16, brow_raise_left: 0.12, brow_raise_right: 0.32, smile: 0.18, jaw_open: 0.03)
+    @environment_light(profile: "analytic_three_point_v1", key_direction: [0.42, 0.74, 0.52], key_color: [1, 0.82, 0.68], key_intensity: 1.18, fill_direction: [-0.62, 0.18, 0.76], fill_color: [0.48, 0.64, 1], fill_intensity: 0.3, rim_direction: [0.68, 0.4, -0.62], rim_color: [1, 0.48, 0.28], rim_intensity: 0.66, exposure: 1.05)
+    @pose(name: "civic_conversation", bones: { neck: [0, 0, -0.069943, 0.997551], left_shoulder: [0, 0, -0.139543, 0.990216], left_upper_arm: [0, 0, -0.352274, 0.935897], right_shoulder: [0, 0, 0.059964, 0.998201], right_upper_arm: [0, 0, 0.333487, 0.942755] })
+    type: "named_model_family_cranial_expression_normal_resident"
+    modelFamilyId: "anthropic"
+    displayLabel: "Claude"
+    accentColor: "#E3A16F"
+  }
+
+  object "GeminiResident" using "StormglassH3XNamedModelResident" {
+    @body(height: 1.79, build_scale: 1.04, shoulder_scale: 1.06, torso_scale: 0.94, upper_body_profile: "coherent_expressive_anatomy_v7", upper_body_radial_segments: 24, left_scapular_elevation: -0.12, right_scapular_elevation: 0.28, left_scapular_protraction: -0.08, right_scapular_protraction: 0.18, skin_tone: "#8D695C", nail_tone: "#C9A094", nail_roughness: 0.31, nail_bed_tone: "#9E706B", nail_bed_roughness: 0.4)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 28, vertical_segments: 20, face_width: 0.97, face_length: 1.03, jaw_taper: 0.25, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.27, lid_opening: 0.5, canthal_tilt: 0.09, facial_detail_profile: "portrait_cranial_v3", expression_normal_policy: "recompute_affected_v1", eye_scale: 1.02, brow_height: 1.04, brow_thickness: 0.17, ear_scale: 0.96, mouth_depth: 0.7, cheekbone_scale: 1.18, chin_projection: 0.94, temple_width: 1.08, ocular_profile: "layered_ocular_v1", iris_color: "#526D91", sclera_color: "#F2EBE4", iris_scale: 0.52, pupil_scale: 0.36, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#8D695C", scatter_color: "#785147", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 112, microdetail_strength: 0.1, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.058, roughness_variation_strength: 0.16, normal_microdetail_strength: 0.3)
+    @hair(style: "short", color: "#303641", groom_profile: "scalp_flow_v1", card_width: 0.0058, root_lift: 0.002, tip_taper: 0.14, hairline_bias: 0.18, crown_whorl: -0.28, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.8, edge_softness: 0.14, anisotropy_strength: 0.9, longitudinal_shift: 0.12)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#3859A8")
+    @expression(blink_left: 0.12, blink_right: 0.05, brow_raise_left: 0.28, brow_raise_right: 0.14, smile: 0.16, jaw_open: 0.02)
+    @environment_light(profile: "analytic_three_point_v1", key_direction: [0.42, 0.74, 0.52], key_color: [1, 0.82, 0.68], key_intensity: 1.18, fill_direction: [-0.62, 0.18, 0.76], fill_color: [0.48, 0.64, 1], fill_intensity: 0.3, rim_direction: [0.68, 0.4, -0.62], rim_color: [1, 0.48, 0.28], rim_intensity: 0.66, exposure: 1.05)
+    @pose(name: "civic_conversation", bones: { neck: [0, 0, 0.049979, 0.99875], left_shoulder: [0, 0, -0.069943, 0.997551], left_upper_arm: [0, 0, -0.333487, 0.942755], right_shoulder: [0, 0, 0.129634, 0.991562], right_upper_arm: [0, 0, 0.352274, 0.935897] })
+    type: "named_model_family_cranial_expression_normal_resident"
+    modelFamilyId: "google"
+    displayLabel: "Gemini"
+    accentColor: "#829BFF"
+  }
+
+  object "GrokResident" using "StormglassH3XNamedModelResident" {
+    @body(height: 1.88, build_scale: 1.08, shoulder_scale: 1.13, torso_scale: 0.98, upper_body_profile: "coherent_expressive_anatomy_v7", upper_body_radial_segments: 24, left_scapular_elevation: 0.32, right_scapular_elevation: -0.24, left_scapular_protraction: 0.2, right_scapular_protraction: -0.14, skin_tone: "#D0A086", nail_tone: "#F1CCBB", nail_roughness: 0.22, nail_bed_tone: "#D99A8A", nail_bed_roughness: 0.34)
+    @face(topology: "neutral_anatomical_v2", radial_segments: 28, vertical_segments: 20, face_width: 1.01, face_length: 1.04, jaw_taper: 0.23, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.25, lid_opening: 0.52, canthal_tilt: 0.06, facial_detail_profile: "portrait_cranial_v3", expression_normal_policy: "recompute_affected_v1", eye_scale: 1, brow_height: 0.98, brow_thickness: 0.19, ear_scale: 1.04, mouth_depth: 0.68, cheekbone_scale: 1.04, chin_projection: 1.2, temple_width: 1.03, ocular_profile: "layered_ocular_v1", iris_color: "#768D59", sclera_color: "#EFE8DF", iris_scale: 0.48, pupil_scale: 0.4, cornea_ior: 1.376)
+    @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A", material_calibration_profile: "fixed_light_human_v1", microdetail_profile: "analytic_pore_v1", microdetail_scale: 92, microdetail_strength: 0.078, surface_response_profile: "calibrated_skin_surface_v1", albedo_variation_strength: 0.044, roughness_variation_strength: 0.12, normal_microdetail_strength: 0.23)
+    @hair(style: "swept_ridge", color: "#171D22", groom_profile: "scalp_flow_v1", card_width: 0.0056, root_lift: 0.0024, tip_taper: 0.11, hairline_bias: 0.16, crown_whorl: -0.18, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.82, edge_softness: 0.11, anisotropy_strength: 0.92, longitudinal_shift: 0.1)
+    @clothing(style: "stormglass_open_civic_tunic", color: "#263945")
+    @expression(blink_left: 0.05, blink_right: 0.2, brow_raise_left: 0.08, brow_raise_right: 0.3, smile: 0.28, jaw_open: 0.05)
+    @environment_light(profile: "analytic_three_point_v1", key_direction: [0.42, 0.74, 0.52], key_color: [1, 0.82, 0.68], key_intensity: 1.18, fill_direction: [-0.62, 0.18, 0.76], fill_color: [0.48, 0.64, 1], fill_intensity: 0.3, rim_direction: [0.68, 0.4, -0.62], rim_color: [1, 0.48, 0.28], rim_intensity: 0.66, exposure: 1.05)
+    @pose(name: "civic_conversation", bones: { neck: [0, 0, -0.059964, 0.998201], left_shoulder: [0, 0, -0.129634, 0.991562], left_upper_arm: [0, 0, -0.361615, 0.932327], right_shoulder: [0, 0, 0.069943, 0.997551], right_upper_arm: [0, 0, 0.323106, 0.946363] })
+    type: "named_model_family_cranial_expression_normal_resident"
+    modelFamilyId: "xai"
+    displayLabel: "Grok"
+    accentColor: "#65D8E7"
+  }
+}

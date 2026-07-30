@@ -1,0 +1,56 @@
+// H3X immutable source, proof, browser, and claim-boundary bindings.
+// Hashes bind the visually selected close-up render and its counterfactual receipt.
+
+composition "Stormglass Character Appearance H3X Cranial Expression Normals Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-appearance-h3x-manifest.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3X_CRANIAL_EXPRESSION_NORMALS"
+    date: "2026-07-29"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3x-cranial-expression-normals.holo"
+    sourceSha256: "8cf33295d8ef17b0b8901191b2536904a67cde4424fb8202ebb73435911fc86f"
+    policy: "source/proofs/model-village-character-appearance-h3x-cranial-expression-normals-policy.hsplus"
+    policySha256: "1edd9f07f3f016cea37c8c71eb4b110e7e33891b9b99529ab6a570e312eb122c"
+    seed: "source/proofs/model-village-character-appearance-h3x-cranial-expression-normals-seed.hs"
+    seedSha256: "1319c1a13d5bf104185b0dbab64330e134388583842cc451604581958b559235"
+    checker: "scripts/check-hololand-model-village-character-appearance-h3x.mjs"
+    checkerSha256: "9a995be9d77ecd00acb96c4130d5f8f8e6f5ba864d6553e7d3f77947f0490ead"
+    test: "scripts/__tests__/hololand-model-village-character-appearance-h3x.test.mjs"
+    testSha256: "0f41d320c06371f2acf0f072d737a73ae73c78d43bf3c0cb1ee6875db79ac123"
+    report: "docs/reports/model-village-character-appearance-h3x-cranial-expression-normals-2026-07-29.md"
+    reportSha256: "3b8bf66ca5e91befe264ee3d9d23efc7aab436b699808fd0ef880a1e157aaa80"
+    hero: "docs/assets/model-village/model-village-character-appearance-h3x-cranial-expression-normals-2026-07-29.png"
+    heroSha256: "ff026384517886d57a296b0f6aa57376a4c61914d28531dfe9e0c14883075a9c"
+    evidence: "docs/assets/model-village/model-village-character-appearance-h3x-cranial-expression-normals-2026-07-29.json"
+    evidenceSha256: "37b975d7f67912a5064e0e4559e5a5de51068ab3cf4d30a969173ff17cb6ef25"
+    evidenceReceiptSha256: "70b0043fed949bc8cbe12b1e0ddfe3ef10bea8ec9e9bbfc1071b1f7d437076b2"
+    upstreamHoloScriptCommit: "df6ebcd00b5e36fa6bc5fcc8ed8dde36dbd655c2"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    sourceCompiledResidentCount: 4
+    browserCharacterRenderCount: 16
+    browserWebgpuMeasured: true
+    browserAdapterMeasured: true
+    browserDeviceMeasured: true
+    sourcePoseApplied: true
+    expressiveCranialNeckVolumeMeasured: true
+    indexedCranialNeckStitchMeasured: true
+    sourceExpressionMeasured: true
+    expressionNormalsRecomputed: true
+    expressionNormalCounterfactualMeasured: true
+    portraitCranialGeometryMeasured: true
+    closeupFaceSegments: [44, 30]
+    distanceFaceSegments: [24, 16]
+    closeupLodCounterfactualMeasured: true
+    analyticThreePointEnvironmentMeasured: true
+    environmentCounterfactualMeasured: true
+    gpuTimestampMeasured: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    photorealismClaimed: false
+    fullWorldPerformanceClaimed: false
+  }
+}
