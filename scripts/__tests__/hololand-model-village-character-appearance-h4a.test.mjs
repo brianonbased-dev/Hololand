@@ -146,15 +146,3 @@ test('H4A typed policy and flat seed state the no-timing and no-photoreal bounda
   assert.match(seed, /freshRtxBenchmarkClaimed: false/);
   assert.match(seed, /photorealismClaimed: false/);
 });
-
-test('H4A package scripts expose the focused source and browser gates', () => {
-  const packageJson = JSON.parse(readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-  assert.equal(
-    packageJson.scripts['test:hololand-model-village-character-appearance-h4a'],
-    'node --test scripts/__tests__/hololand-model-village-character-appearance-h4a.test.mjs'
-  );
-  assert.equal(
-    packageJson.scripts['check:hololand-model-village-character-appearance-h4a'],
-    'node scripts/check-hololand-model-village-character-appearance-h4a.mjs'
-  );
-});

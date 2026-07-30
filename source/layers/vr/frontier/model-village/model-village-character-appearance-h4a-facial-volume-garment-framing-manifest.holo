@@ -59,7 +59,7 @@ composition "Stormglass Character Appearance H4A Facial Volume Garment Framing M
   object "PackageBinding" {
     type: "immutable_artifact_binding"
     path: "package.json"
-    sha256: "6af7a8034658ce87146c34b5f252b8f3ef3a513973179ffcf561a3463cf0d89c"
+    sha256: "74d29be31b8566679771feb9e170bd10ea4428eabc1e47baeb625dcd18d30b99"
   }
 
   object "WorldSourceBinding" {
@@ -89,7 +89,7 @@ composition "Stormglass Character Appearance H4A Facial Volume Garment Framing M
   object "TestBinding" {
     type: "immutable_artifact_binding"
     path: "scripts/__tests__/hololand-model-village-character-appearance-h4a.test.mjs"
-    sha256: "922f2273a2d1991064266af2db04688ca71b23922e86f27856fc1a167becdb91"
+    sha256: "794504d802140a74b07af2de19acd07efcfa78b5125b146bdf3a5aed973bc6c8"
   }
 
   object "ReportBinding" {
