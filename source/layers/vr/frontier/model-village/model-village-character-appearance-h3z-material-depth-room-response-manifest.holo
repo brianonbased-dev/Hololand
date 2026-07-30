@@ -1,0 +1,100 @@
+// H3Z immutable source, proof, browser, and claim-boundary bindings.
+// Hashes bind the visually selected material-depth render and native receipt.
+
+composition "Stormglass Character Appearance H3Z Material Depth Room Response Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-appearance-h3z-manifest.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3Z_MATERIAL_DEPTH_ROOM_RESPONSE"
+    date: "2026-07-29"
+    upstreamHoloScriptCommit: "3987bb2ba5e70a62c6c9b1aa65d4d55ad3fef989"
+    upstreamHoloScriptCapsule: "sha256:86229a6bd536cb6a89e85f0ac09d2eec9f67ad67f3b18469d260b54a0121fbb5"
+    upstreamHoloScriptPromotionReceipt: "sha256:ce32923b0f4618c2ec4a87f28aac43e8e8a0ba9b6c2dc0c1c20670f9e085d4f4"
+    evidenceReceiptSha256: "a1f19b9ed9cba3bb87045ea8598f5263306af936508c5bbce0460aafa9a01338"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    sourceCompiledResidentCount: 4
+    browserCharacterRenderCount: 16
+    browserWebgpuMeasured: true
+    browserAdapterMeasured: true
+    browserDeviceMeasured: true
+    structuredFieldcoatMeasured: true
+    constructedPanelCountPerResident: 4
+    closureCountPerResident: 5
+    cuffBandCountPerResident: 2
+    crossweaveMaterialTileMeasured: true
+    groomBreakupMeasured: true
+    flyawayGuideCountPerResident: 12
+    maximumScalpPenetrationVertexCount: 0
+    anatomicalLidBlendMeasured: true
+    lidTransitionRowCount: 4
+    ocularTearMeniscusMeasured: true
+    tearMeniscusIndexCountPerResident: 192
+    sourceAuthoredRoomBasisMeasured: true
+    environmentCounterfactualMeasured: true
+    expressionNormalsRecomputed: true
+    expressionNormalCounterfactualMeasured: true
+    closeupFaceSegments: [44, 30]
+    distanceFaceSegments: [24, 16]
+    closeupLodCounterfactualMeasured: true
+    externalNetworkRequestCount: 0
+    photographicHdriClaimed: false
+    gpuTimestampMeasured: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    browserWebxrMeasured: false
+    photorealismClaimed: false
+    fullWorldPerformanceClaimed: false
+  }
+
+  object "WorldSourceBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3z-material-depth-room-response.holo"
+    sha256: "0fee7a73cfe5506746e2de67af20859b0dada7e4fd69c35bf2483dd7e1b0fa58"
+  }
+
+  object "PolicyBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-appearance-h3z-material-depth-room-response-policy.hsplus"
+    sha256: "7cfec56b390955d9a24794ffe08c67583e4af4c923b46bd24bb44b8be384ff5c"
+  }
+
+  object "SeedBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-appearance-h3z-material-depth-room-response-seed.hs"
+    sha256: "0a984c509922d97175f87f9f01ac7a991b793b5f04af796bd44112fbea7b8286"
+  }
+
+  object "CheckerBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/check-hololand-model-village-character-appearance-h3z.mjs"
+    sha256: "be0d5f527ea746bf5404c707d1ca52e71f2ee5d55727d06d0fc860d91bff538c"
+  }
+
+  object "TestBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/__tests__/hololand-model-village-character-appearance-h3z.test.mjs"
+    sha256: "dea8b2ea8759208bb1885d398f998679d90472c6b56ff586e4a75884eb40464c"
+  }
+
+  object "ReportBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/reports/model-village-character-appearance-h3z-material-depth-room-response-2026-07-29.md"
+    sha256: "b9efe13d06e5d9eda589d6a25563b8f861aa54df034167ceaea41df931ffa79a"
+  }
+
+  object "HeroBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-appearance-h3z-material-depth-room-response-2026-07-29.png"
+    sha256: "c5f79a538aac26dee1c52315eb3af732b360c4188f75ea9e5e899f9eef929e37"
+  }
+
+  object "EvidenceBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-appearance-h3z-material-depth-room-response-2026-07-29.json"
+    sha256: "b16af652c799c5d89a772fcc42e99697638fcb91023bfee25ebc0ba33024cd24"
+  }
+}

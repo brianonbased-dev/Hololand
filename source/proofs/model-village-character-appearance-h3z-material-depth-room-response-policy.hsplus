@@ -1,0 +1,104 @@
+// H3Z material-depth/room-response admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// fail-closed contract enforced by the H3Z checker.
+
+composition "Stormglass Character Appearance H3Z Material Depth Room Response Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3z-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3Z_MATERIAL_DEPTH_ROOM_RESPONSE"
+    source: "source/proofs/model-village-character-appearance-h3z-material-depth-room-response-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3z-material-depth-room-response.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3z-material-depth-room-response-seed.hs"
+    formatRole: "typed_material_depth_groom_ocular_and_room_response_admission"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3ZMaterialDepthRoomResponseAdmissionState {
+    sourceCompiledResidentCount: 0
+    structuredGarmentReceiptCount: 0
+    groomBreakupReceiptCount: 0
+    ocularWetlineReceiptCount: 0
+    orbitalBlendReceiptCount: 0
+    roomBasisReceiptCount: 0
+    browserGpuDeviceCount: 0
+    browserRenderCount: 0
+    externalNetworkRequestCount: 0
+    modelCallCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+  }
+
+  template "MaterialDepthRoomResponseAdmission" {
+    type: "material_depth_room_response_admission"
+    expectedBackend: "webgpu"
+    expectedGarmentStyle: "stormglass_structured_fieldcoat"
+    expectedGarmentConstruction: "structured-fieldcoat-shell-v2"
+    expectedShellThicknessM: 0.008
+    expectedClosureCount: 5
+    expectedCuffBandCount: 2
+    expectedFabricSurface: "stormglass-crossweave-normal-v1"
+    expectedGroomProfile: "scalp-flow-breakup-v3"
+    expectedGroomContainment: "ellipsoidal-scalp-exterior-v1"
+    expectedGroomBreakup: "contained-flyaway-breakup-v1"
+    expectedFlyawayGuideCount: 12
+    maximumScalpPenetrationVertexCount: 0
+    expectedOrbitalProfile: "anatomical-lid-blend-v3"
+    expectedLidTransition: "cubic-lid-blend-v1"
+    expectedLidTransitionRows: 4
+    expectedOcularProfile: "layered-ocular-tearfilm-v2"
+    expectedTearMeniscus: "lower-cornea-meniscus-v1"
+    expectedEnvironmentProfile: "stormglass-room-basis-v2"
+    expectedEnvironmentResponse: "source-authored-room-basis-v2"
+    photographicHdriRequired: false
+    gpuTimestampRequired: false
+    questHeadsetRequired: false
+  }
+
+  action admit_h3z_resident(resident, expected) {
+    if (resident.garmentStyle != expected.expectedGarmentStyle) {
+      return { admitted: false, reason: "wrong_garment_style" }
+    }
+    if (resident.garmentConstruction != expected.expectedGarmentConstruction) {
+      return { admitted: false, reason: "wrong_garment_construction" }
+    }
+    if (resident.closureCount != expected.expectedClosureCount || resident.cuffBandCount != expected.expectedCuffBandCount) {
+      return { admitted: false, reason: "missing_structured_closures" }
+    }
+    if (resident.groomProfile != expected.expectedGroomProfile || resident.groomBreakup != expected.expectedGroomBreakup) {
+      return { admitted: false, reason: "wrong_groom_breakup" }
+    }
+    if (resident.scalpPenetrationVertexCount > expected.maximumScalpPenetrationVertexCount) {
+      return { admitted: false, reason: "scalp_penetration_detected" }
+    }
+    if (resident.orbitalProfile != expected.expectedOrbitalProfile || resident.lidTransitionRows != expected.expectedLidTransitionRows) {
+      return { admitted: false, reason: "wrong_lid_transition" }
+    }
+    if (resident.ocularProfile != expected.expectedOcularProfile || resident.tearMeniscus != expected.expectedTearMeniscus) {
+      return { admitted: false, reason: "wrong_ocular_wetline" }
+    }
+    if (resident.environmentProfile != expected.expectedEnvironmentProfile || resident.environmentResponse != expected.expectedEnvironmentResponse) {
+      return { admitted: false, reason: "wrong_room_response" }
+    }
+    return { admitted: true, reason: "h3z_native_profiles_receipted" }
+  }
+
+  action admit_h3z_witness(witness) {
+    if (witness.backend != "webgpu") {
+      return { admitted: false, reason: "wrong_backend" }
+    }
+    if (witness.browserAdapterPresent != true || witness.browserDevicePresent != true) {
+      return { admitted: false, reason: "browser_gpu_missing" }
+    }
+    if (witness.externalNetworkRequestCount != 0 || witness.modelCallCount != 0) {
+      return { admitted: false, reason: "external_dependency_detected" }
+    }
+    if (witness.roomCounterfactualPixelDifference <= 25) {
+      return { admitted: false, reason: "room_response_not_visible" }
+    }
+    if (witness.photographicHdriClaimed != false || witness.photorealismClaimed != false) {
+      return { admitted: false, reason: "unsupported_visual_claim" }
+    }
+    return { admitted: true, reason: "browser_webgpu_h3z_witness_receipted" }
+  }
+}
