@@ -1,0 +1,90 @@
+// H4C native gaze, breathing, and multi-frame admission policy.
+//
+// Native hsplus action execution is not claimed. The checker parses this
+// typed contract and enforces the same fail-closed conditions over measured
+// compiler, geometry-application, and browser/WebGPU receipts.
+
+composition "Stormglass Character Realism H4C Native Gaze Breathing Policy" {
+  config {
+    schema: "hololand.model-village.character-realism-h4c-policy.v1"
+    milestone: "MV_CHARACTER_REALISM_H4C_NATIVE_GAZE_BREATHING"
+    source: "source/proofs/model-village-character-realism-h4c-native-gaze-breathing-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4c-native-gaze-breathing.holo"
+    seedSource: "source/proofs/model-village-character-realism-h4c-native-gaze-breathing-seed.hs"
+    formatRole: "typed_native_presence_and_multiframe_admission"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H4CNativePresenceAdmissionState {
+    sourceCompiledResidentCount: 0
+    deterministicReplayCount: 0
+    nativeBlinkReceiptCount: 0
+    nativeGazeReceiptCount: 0
+    nativeBreathReceiptCount: 0
+    sampledClothReceiptCount: 0
+    measuredBrowserFrameCount: 0
+    residentRegionMotionReceiptCount: 0
+    productionTaaReceiptCount: 0
+    gpuTimestampReceiptCount: 0
+    externalNetworkRequestCount: 0
+  }
+
+  template "NativePresenceAdmission" {
+    type: "native_character_presence_admission"
+    expectedProfile: "human-presence-v1"
+    expectedResidentCount: 4
+    expectedMeasuredFrameCount: 3
+    nativeBlinkRequired: true
+    nativeGazeTransformRequired: true
+    nativeBreathTransformRequired: true
+    nativeClothSimulationRequired: false
+    residentRegionMotionRequired: true
+    productionTaaRequired: false
+    motionVectorsRequired: false
+    gpuTimestampRequired: false
+  }
+
+  action admit_h4c_resident(resident, expected) {
+    if (resident.profile != expected.expectedProfile || resident.absoluteTime != true) {
+      return { admitted: false, reason: "wrong_micro_motion_profile" }
+    }
+    if (resident.repeatedCompileByteIdentity != true) {
+      return { admitted: false, reason: "micro_motion_replay_drifted" }
+    }
+    if (resident.nativeBlinkApplied != true || resident.facialChangedVertexCount <= 0) {
+      return { admitted: false, reason: "native_blink_missing" }
+    }
+    if (resident.nativeGazeApplied != true || resident.gazeChangedVertexCount <= 0) {
+      return { admitted: false, reason: "native_ocular_rotation_missing" }
+    }
+    if (resident.nativeBreathApplied != true || resident.breathChangedVertexCount <= 0) {
+      return { admitted: false, reason: "native_upper_chest_deformation_missing" }
+    }
+    if (resident.nativeClothSimulationApplied != false) {
+      return { admitted: false, reason: "cloth_binding_overclaimed" }
+    }
+    return { admitted: true, reason: "native_presence_receipted" }
+  }
+
+  action admit_h4c_witness(witness, expected) {
+    if (witness.backend != "webgpu" || witness.browserDevicePresent != true) {
+      return { admitted: false, reason: "browser_webgpu_missing" }
+    }
+    if (witness.measuredFrameCount != expected.expectedMeasuredFrameCount) {
+      return { admitted: false, reason: "multiframe_witness_incomplete" }
+    }
+    if (witness.residentRegionMotionReceiptCount < 8) {
+      return { admitted: false, reason: "resident_region_motion_missing" }
+    }
+    if (witness.productionTaaIntegrated != false || witness.motionVectorsIntegrated != false) {
+      return { admitted: false, reason: "temporal_pipeline_overclaimed" }
+    }
+    if (witness.gpuTimestampMeasured != false || witness.wallClockUsedAsGpuTime != false) {
+      return { admitted: false, reason: "invalid_gpu_timing_claim" }
+    }
+    if (witness.externalNetworkRequestCount != 0) {
+      return { admitted: false, reason: "external_dependency_detected" }
+    }
+    return { admitted: true, reason: "browser_webgpu_h4c_witness_receipted" }
+  }
+}

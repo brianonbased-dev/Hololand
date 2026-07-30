@@ -1,0 +1,108 @@
+// H4C immutable source, runtime, browser, temporal, and claim bindings.
+
+composition "Stormglass Character Realism H4C Native Gaze Breathing Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-realism-h4c-manifest.v1"
+    milestone: "MV_CHARACTER_REALISM_H4C_NATIVE_GAZE_BREATHING"
+    date: "2026-07-30"
+    upstreamHoloScriptCommit: "c96c6bf7314be5d8849c6da256e92464f461b846"
+    upstreamHoloScriptCapsule: "sha256:b111a92cd061f44e7a3e22d18d1b67cdbca318c2b04ea6d171a23a0c7e57f52a"
+    upstreamHoloScriptPromotionReceipt: "sha256:6b7297a4e712388c252de81fdde9fbf8b9007dc5637ed03a718303c43ec9772a"
+    evidenceReceiptSha256: "db90e37da34185a3f849815c5a34098427ae3d6d36a7d7146a9dc5f34996951f"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    measuredBrowserFrameCount: 3
+    measuredFrameOffsetsSeconds: [0, 0.84, 1.68]
+    sourceCompiledResidentCount: 12
+    deterministicRepeatedCompileCount: 12
+    nativeBlinkReceiptCount: 12
+    nativeGazeReceiptCount: 12
+    nativeBreathReceiptCount: 12
+    sampledOnlyClothReceiptCount: 12
+    minimumGazeChangedVertexCount: 1148
+    minimumBreathChangedVertexCount: 544
+    minimumResidentRegionChangedPixelCount: 2128
+    residentRegionMotionReceiptCount: 8
+    browserWebgpuMeasured: true
+    browserAdapterMeasured: true
+    browserDeviceMeasured: true
+    browserProduct: "Chrome/151.0.7922.71"
+    browserVendor: "nvidia"
+    browserArchitecture: "ampere"
+    externalNetworkRequestCount: 0
+    hostGpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+    hostDriverReadback: "610.88"
+    hostGpuMemoryMiB: 6144
+    staticTaaConvergenceMeasured: true
+    staticTaaSampleCount: 8
+    staticTaaTerminalToFirstDeltaRatio: 0.363784
+    productionTaaIntegrated: false
+    motionVectorsIntegrated: false
+    timestampQuerySupported: true
+    gpuTimestampMeasured: false
+    wallClockUsedAsGpuTime: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    browserWebxrMeasured: false
+    photorealismClaimed: false
+    fullWorldPerformanceClaimed: false
+  }
+
+  object "PackageBinding" {
+    type: "immutable_artifact_binding"
+    path: "package.json"
+    sha256: "74d29be31b8566679771feb9e170bd10ea4428eabc1e47baeb625dcd18d30b99"
+  }
+
+  object "WorldSourceBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/layers/vr/frontier/model-village/model-village-character-realism-h4c-native-gaze-breathing.holo"
+    sha256: "ffd18894e659405cb88c8e9bb01a7d1d9493ac3db56cc68cd4fd6b19cb16570c"
+  }
+
+  object "PolicyBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-realism-h4c-native-gaze-breathing-policy.hsplus"
+    sha256: "8771e8e33d3bee51b6f1a89ba16c675b00f3e9d14591a8a8562b831552f1f539"
+  }
+
+  object "SeedBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-realism-h4c-native-gaze-breathing-seed.hs"
+    sha256: "b2c86e69f587d1790dcef7600dc5d4dc78609a096f38e7647e665230f80bf05d"
+  }
+
+  object "CheckerBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/check-hololand-model-village-character-realism-h4c.mjs"
+    sha256: "0497def97a799cd0ae0768b0a2b57e4e672039b53e06ad1ad48978cc13b33088"
+  }
+
+  object "TestBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/__tests__/hololand-model-village-character-realism-h4c.test.mjs"
+    sha256: "e5e8d3c18820c67de185f70b6d7719becff836714cb262462a1e61861d341d7f"
+  }
+
+  object "ReportBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/reports/model-village-character-realism-h4c-native-gaze-breathing-2026-07-30.md"
+    sha256: "0a65186a44ebf75530c0f39379bfdf97135469d66df17c4b6f4cdee8464110fe"
+  }
+
+  object "HeroBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-realism-h4c-native-gaze-breathing-2026-07-30.png"
+    sha256: "50911cf1a4e2a69ab8adbed8fcca4eb14e819abb9c0b6997bfbb188f182fa0db"
+  }
+
+  object "EvidenceBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-realism-h4c-native-gaze-breathing-2026-07-30.json"
+    sha256: "db90e37da34185a3f849815c5a34098427ae3d6d36a7d7146a9dc5f34996951f"
+  }
+}

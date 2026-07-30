@@ -1,0 +1,1165 @@
+{
+  "schema": "hololand.model-village.character-realism-h4c-native-gaze-breathing-witness.v1",
+  "capturedAt": "2026-07-30T14:31:01.364Z",
+  "status": "pass",
+  "milestone": "MV_CHARACTER_REALISM_H4C_NATIVE_GAZE_BREATHING",
+  "sourceAdmission": {
+    "holoScriptCommit": "c96c6bf7314be5d8849c6da256e92464f461b846",
+    "inheritedH4ASourceSha256": "3aec44b41f45858a796c985e05ec23219dbf7bb2998b10dc174f0ca929a654c3",
+    "sourceSha256": "ffd18894e659405cb88c8e9bb01a7d1d9493ac3db56cc68cd4fd6b19cb16570c",
+    "policySha256": "8771e8e33d3bee51b6f1a89ba16c675b00f3e9d14591a8a8562b831552f1f539",
+    "seedSha256": "b2c86e69f587d1790dcef7600dc5d4dc78609a096f38e7647e665230f80bf05d",
+    "residentNames": [
+      "OpenAI",
+      "Claude",
+      "Gemini",
+      "Grok"
+    ],
+    "measuredFrameOffsetsSeconds": [
+      0,
+      0.84,
+      1.68
+    ]
+  },
+  "compilerAdmission": {
+    "profile": "human-presence-v1",
+    "absoluteTimeSampling": true,
+    "measuredFrameCount": 3,
+    "sourceCompiledResidentCount": 12,
+    "deterministicReplayCount": 12,
+    "nativeBlinkReceiptCount": 12,
+    "nativeGazeReceiptCount": 12,
+    "nativeBreathReceiptCount": 12,
+    "sampledOnlyClothReceiptCount": 12
+  },
+  "frames": [
+    {
+      "frameIndex": 0,
+      "timeOffsetSeconds": 0,
+      "screenshotSha256": "44267e4ddf8a98e73e2930db666fcc985a263233c14fd1a0c08a7bb8ac3bf2da",
+      "screenshotBytes": 699374,
+      "browserHtmlSha256": "53c312438c19ef728897bc74b5990e726e679ea786e87b2bcf17058a366d7811",
+      "browser": {
+        "executable": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+        "product": "Chrome/151.0.7922.71",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+        "jsVersion": "15.1.206.10",
+        "launchFlags": [
+          "--headless=new",
+          "--use-angle=d3d11",
+          "--ignore-gpu-blocklist",
+          "--enable-gpu",
+          "--enable-unsafe-webgpu",
+          "--remote-debugging-port=27793",
+          "--user-data-dir=C:\\Users\\josep\\AppData\\Local\\Temp\\hololand-h4a-38852-1785421851467",
+          "--window-size=1400,900",
+          "--no-first-run",
+          "--no-default-browser-check",
+          "--disable-background-networking",
+          "--disable-dev-shm-usage",
+          "--disable-features=Translate,MediaRouter",
+          "about:blank"
+        ]
+      },
+      "gpu": {
+        "navigatorGpu": true,
+        "adapterAcquired": true,
+        "deviceCreated": true,
+        "vendor": "nvidia",
+        "architecture": "ampere",
+        "device": "",
+        "description": "",
+        "adapterFeatures": [
+          "bgra8unorm-storage",
+          "chromium-experimental-multi-draw-indirect",
+          "chromium-experimental-timestamp-query-inside-passes",
+          "clip-distances",
+          "core-features-and-limits",
+          "depth-clip-control",
+          "depth32float-stencil8",
+          "dual-source-blending",
+          "float32-blendable",
+          "float32-filterable",
+          "indirect-first-instance",
+          "primitive-index",
+          "rg11b10ufloat-renderable",
+          "shader-f16",
+          "subgroup-size-control",
+          "subgroups",
+          "texture-component-swizzle",
+          "texture-compression-bc",
+          "texture-compression-bc-sliced-3d",
+          "texture-formats-tier1",
+          "texture-formats-tier2",
+          "timestamp-query"
+        ],
+        "timestampQuerySupported": true,
+        "verifiedDeviceMethods": [
+          "createShaderModule",
+          "createRenderPipeline",
+          "createTexture",
+          "createBuffer",
+          "createCommandEncoder"
+        ]
+      },
+      "network": {
+        "loopbackRequestCount": 2,
+        "observedRequestCount": 2,
+        "externalRequestCount": 0
+      },
+      "compilerAdmission": {
+        "residentCount": 4,
+        "nativeBlinkReceiptCount": 4,
+        "nativeGazeReceiptCount": 4,
+        "nativeBreathReceiptCount": 4,
+        "sampledOnlyClothReceiptCount": 4,
+        "records": [
+          {
+            "objectId": "OpenAIResident",
+            "displayLabel": "OpenAI",
+            "outputSha256": "5f01f835c3f6eea8f4c6fb11c6cbbb9950504028919eab6295443942d1f379de",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 2.940911,
+            "configDigest": "fnv1a32:9d54902a",
+            "sampleDigest": "fnv1a32:57d4e32e",
+            "gaze": {
+              "eventIndex": 4,
+              "settle01": 1,
+              "yawRadians": 0.04792547997621188,
+              "pitchRadians": 0.027393050590868856
+            },
+            "breath": {
+              "phase01": 0.36306329250259806,
+              "scale": 1.0242592843217937
+            },
+            "cloth": {
+              "phase01": 0.2925054654008221,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0.9999999999892044,
+              "breathChangedVertexCount": 544,
+              "breathScale": 1.0242592843217937,
+              "changedVertexCount": 3125,
+              "facialChangedVertexCount": 3099,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.027393050590868856,
+              "gazeYawRadians": 0.04792547997621188,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:998fa42c",
+              "positionDigest": "fnv1a32:6da4b7c7",
+              "sampleDigest": "fnv1a32:57d4e32e",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          },
+          {
+            "objectId": "ClaudeResident",
+            "displayLabel": "Claude",
+            "outputSha256": "495e63b7d2a9bd69442696503547559c9fff809cccd3c935c3ce11baa9596696",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 1.50983,
+            "configDigest": "fnv1a32:176f6c0c",
+            "sampleDigest": "fnv1a32:fe3a8455",
+            "gaze": {
+              "eventIndex": 2,
+              "settle01": 1,
+              "yawRadians": -0.023857678071767457,
+              "pitchRadians": 0.0667501176284592
+            },
+            "breath": {
+              "phase01": 0.12913525142264715,
+              "scale": 1.0246581084589614
+            },
+            "cloth": {
+              "phase01": 0.11630583921554027,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0.4999926965230989,
+              "breathChangedVertexCount": 544,
+              "breathScale": 1.0246581084589614,
+              "changedVertexCount": 3125,
+              "facialChangedVertexCount": 3099,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.0667501176284592,
+              "gazeYawRadians": -0.023857678071767457,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:f2c3cc81",
+              "positionDigest": "fnv1a32:8e84aefc",
+              "sampleDigest": "fnv1a32:fe3a8455",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          },
+          {
+            "objectId": "GeminiResident",
+            "displayLabel": "Gemini",
+            "outputSha256": "223690169ad90288c1863f7261c6f2e254c01dd3bae95c22edd003d35f309d5a",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 0.896702,
+            "configDigest": "fnv1a32:09e927f7",
+            "sampleDigest": "fnv1a32:497ebb4f",
+            "gaze": {
+              "eventIndex": 1,
+              "settle01": 1,
+              "yawRadians": 0.02054589652723365,
+              "pitchRadians": 0.07305011486579376
+            },
+            "breath": {
+              "phase01": 0.4464870638220413,
+              "scale": 1.010227896495846
+            },
+            "cloth": {
+              "phase01": 0.5368615407419481,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0.20611799066193656,
+              "breathChangedVertexCount": 544,
+              "breathScale": 1.010227896495846,
+              "changedVertexCount": 3127,
+              "facialChangedVertexCount": 3101,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.07305011486579376,
+              "gazeYawRadians": 0.02054589652723365,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:64f602ac",
+              "positionDigest": "fnv1a32:2f7c4904",
+              "sampleDigest": "fnv1a32:497ebb4f",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          },
+          {
+            "objectId": "GrokResident",
+            "displayLabel": "Grok",
+            "outputSha256": "939873545548f9cff5003454fe7b11721c1515f30fa83cf51dd6f2010d092ea6",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 3.434138,
+            "configDigest": "fnv1a32:0989cbde",
+            "sampleDigest": "fnv1a32:9c43d94a",
+            "gaze": {
+              "eventIndex": 4,
+              "settle01": 1,
+              "yawRadians": -0.07358872294621237,
+              "pitchRadians": 0.08161064964270717
+            },
+            "breath": {
+              "phase01": 0.10751155677459634,
+              "scale": 1.0225107756769083
+            },
+            "cloth": {
+              "phase01": 0.6223845203830312,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0.7938964159043953,
+              "breathChangedVertexCount": 544,
+              "breathScale": 1.0225107756769083,
+              "changedVertexCount": 3122,
+              "facialChangedVertexCount": 3099,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.08161064964270717,
+              "gazeYawRadians": -0.07358872294621237,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:a9919ad7",
+              "positionDigest": "fnv1a32:9a77c6db",
+              "sampleDigest": "fnv1a32:9c43d94a",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          }
+        ]
+      },
+      "hostHardwareReadback": {
+        "command": "nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader,nounits",
+        "status": "pass",
+        "stdout": "NVIDIA GeForce RTX 3060 Laptop GPU, 610.88, 6144",
+        "stderr": ""
+      }
+    },
+    {
+      "frameIndex": 1,
+      "timeOffsetSeconds": 0.84,
+      "screenshotSha256": "2f98eaeccdcf73792cd49e1f706d12a79aec5f3a9dc783ce7bfbca764750f0bc",
+      "screenshotBytes": 700539,
+      "browserHtmlSha256": "dbdd4c6da0dddcbe1b31c6253af7b9814c83f311d4350eb25f56757be9ef002c",
+      "browser": {
+        "executable": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+        "product": "Chrome/151.0.7922.71",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+        "jsVersion": "15.1.206.10",
+        "launchFlags": [
+          "--headless=new",
+          "--use-angle=d3d11",
+          "--ignore-gpu-blocklist",
+          "--enable-gpu",
+          "--enable-unsafe-webgpu",
+          "--remote-debugging-port=25220",
+          "--user-data-dir=C:\\Users\\josep\\AppData\\Local\\Temp\\hololand-h4a-38852-1785421855334",
+          "--window-size=1400,900",
+          "--no-first-run",
+          "--no-default-browser-check",
+          "--disable-background-networking",
+          "--disable-dev-shm-usage",
+          "--disable-features=Translate,MediaRouter",
+          "about:blank"
+        ]
+      },
+      "gpu": {
+        "navigatorGpu": true,
+        "adapterAcquired": true,
+        "deviceCreated": true,
+        "vendor": "nvidia",
+        "architecture": "ampere",
+        "device": "",
+        "description": "",
+        "adapterFeatures": [
+          "bgra8unorm-storage",
+          "chromium-experimental-multi-draw-indirect",
+          "chromium-experimental-timestamp-query-inside-passes",
+          "clip-distances",
+          "core-features-and-limits",
+          "depth-clip-control",
+          "depth32float-stencil8",
+          "dual-source-blending",
+          "float32-blendable",
+          "float32-filterable",
+          "indirect-first-instance",
+          "primitive-index",
+          "rg11b10ufloat-renderable",
+          "shader-f16",
+          "subgroup-size-control",
+          "subgroups",
+          "texture-component-swizzle",
+          "texture-compression-bc",
+          "texture-compression-bc-sliced-3d",
+          "texture-formats-tier1",
+          "texture-formats-tier2",
+          "timestamp-query"
+        ],
+        "timestampQuerySupported": true,
+        "verifiedDeviceMethods": [
+          "createShaderModule",
+          "createRenderPipeline",
+          "createTexture",
+          "createBuffer",
+          "createCommandEncoder"
+        ]
+      },
+      "network": {
+        "loopbackRequestCount": 2,
+        "observedRequestCount": 2,
+        "externalRequestCount": 0
+      },
+      "compilerAdmission": {
+        "residentCount": 4,
+        "nativeBlinkReceiptCount": 4,
+        "nativeGazeReceiptCount": 4,
+        "nativeBreathReceiptCount": 4,
+        "sampledOnlyClothReceiptCount": 4,
+        "records": [
+          {
+            "objectId": "OpenAIResident",
+            "displayLabel": "OpenAI",
+            "outputSha256": "b49c696fd6cf5a29196cce26bdfa594b752439ed70b2583f879d586133d95f32",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 3.780911,
+            "configDigest": "fnv1a32:9d54902a",
+            "sampleDigest": "fnv1a32:304f793f",
+            "gaze": {
+              "eventIndex": 5,
+              "settle01": 1,
+              "yawRadians": 0.04887997983829574,
+              "pitchRadians": 0.026874893522880475
+            },
+            "breath": {
+              "phase01": 0.5352632925025982,
+              "scale": 0.9929677626731157
+            },
+            "cloth": {
+              "phase01": 0.06530546540082227,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0,
+              "breathChangedVertexCount": 544,
+              "breathScale": 0.9929677626731157,
+              "changedVertexCount": 3125,
+              "facialChangedVertexCount": 3099,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.026874893522880475,
+              "gazeYawRadians": 0.04887997983829574,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:94022402",
+              "positionDigest": "fnv1a32:8f27a71d",
+              "sampleDigest": "fnv1a32:304f793f",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          },
+          {
+            "objectId": "ClaudeResident",
+            "displayLabel": "Claude",
+            "outputSha256": "0ea0b960214ce63bea38201b94f062162f9a3f09562c44de2d7ebdd907954bfa",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 2.34983,
+            "configDigest": "fnv1a32:176f6c0c",
+            "sampleDigest": "fnv1a32:e9d44fa7",
+            "gaze": {
+              "eventIndex": 3,
+              "settle01": 1,
+              "yawRadians": -0.022971356771261015,
+              "pitchRadians": 0.06619105342352437
+            },
+            "breath": {
+              "phase01": 0.2887352514226471,
+              "scale": 1.0329979795147017
+            },
+            "cloth": {
+              "phase01": 0.8219058392155407,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0,
+              "breathChangedVertexCount": 544,
+              "breathScale": 1.0329979795147017,
+              "changedVertexCount": 3125,
+              "facialChangedVertexCount": 3099,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.06619105342352437,
+              "gazeYawRadians": -0.022971356771261015,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:bb11afc2",
+              "positionDigest": "fnv1a32:cc85e025",
+              "sampleDigest": "fnv1a32:e9d44fa7",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          },
+          {
+            "objectId": "GeminiResident",
+            "displayLabel": "Gemini",
+            "outputSha256": "3611ec7560ed7cef692c99939af2afac4f6380167807dae02b06f84049c1b55f",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 1.736702,
+            "configDigest": "fnv1a32:09e927f7",
+            "sampleDigest": "fnv1a32:bd77e8f2",
+            "gaze": {
+              "eventIndex": 2,
+              "settle01": 1,
+              "yawRadians": 0.019536853815887826,
+              "pitchRadians": 0.07366372191999052
+            },
+            "breath": {
+              "phase01": 0.6354870638220413,
+              "scale": 0.9766839273846055
+            },
+            "cloth": {
+              "phase01": 0.4440615407419486,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0,
+              "breathChangedVertexCount": 544,
+              "breathScale": 0.9766839273846055,
+              "changedVertexCount": 3127,
+              "facialChangedVertexCount": 3101,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.07366372191999052,
+              "gazeYawRadians": 0.019536853815887826,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:fc2e07bc",
+              "positionDigest": "fnv1a32:983a13cb",
+              "sampleDigest": "fnv1a32:bd77e8f2",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          },
+          {
+            "objectId": "GrokResident",
+            "displayLabel": "Grok",
+            "outputSha256": "c93efa3312dea628b5b5c1656f5f2b70b6a75feb36b167bd2a4266a73f7b6ce6",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 4.274138,
+            "configDigest": "fnv1a32:0989cbde",
+            "sampleDigest": "fnv1a32:21db1c07",
+            "gaze": {
+              "eventIndex": 5,
+              "settle01": 1,
+              "yawRadians": -0.07465230850682011,
+              "pitchRadians": 0.08226516383385038
+            },
+            "breath": {
+              "phase01": 0.30491155677459636,
+              "scale": 1.0338784790350135
+            },
+            "cloth": {
+              "phase01": 0.5967845203830322,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0,
+              "breathChangedVertexCount": 544,
+              "breathScale": 1.0338784790350135,
+              "changedVertexCount": 3122,
+              "facialChangedVertexCount": 3099,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.08226516383385038,
+              "gazeYawRadians": -0.07465230850682011,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:87654875",
+              "positionDigest": "fnv1a32:cfa0a89b",
+              "sampleDigest": "fnv1a32:21db1c07",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          }
+        ]
+      },
+      "hostHardwareReadback": {
+        "command": "nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader,nounits",
+        "status": "pass",
+        "stdout": "NVIDIA GeForce RTX 3060 Laptop GPU, 610.88, 6144",
+        "stderr": ""
+      }
+    },
+    {
+      "frameIndex": 2,
+      "timeOffsetSeconds": 1.68,
+      "screenshotSha256": "826936033c1d28a80ee3393a633b7ca24a7a56c9681b58b7115e5e615a497af8",
+      "screenshotBytes": 700695,
+      "browserHtmlSha256": "8d08295f2d97b1ecf4825525e7a7571fde6c784acc040d826149ffa1cb076955",
+      "browser": {
+        "executable": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+        "product": "Chrome/151.0.7922.71",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+        "jsVersion": "15.1.206.10",
+        "launchFlags": [
+          "--headless=new",
+          "--use-angle=d3d11",
+          "--ignore-gpu-blocklist",
+          "--enable-gpu",
+          "--enable-unsafe-webgpu",
+          "--remote-debugging-port=23213",
+          "--user-data-dir=C:\\Users\\josep\\AppData\\Local\\Temp\\hololand-h4a-38852-1785421858430",
+          "--window-size=1400,900",
+          "--no-first-run",
+          "--no-default-browser-check",
+          "--disable-background-networking",
+          "--disable-dev-shm-usage",
+          "--disable-features=Translate,MediaRouter",
+          "about:blank"
+        ]
+      },
+      "gpu": {
+        "navigatorGpu": true,
+        "adapterAcquired": true,
+        "deviceCreated": true,
+        "vendor": "nvidia",
+        "architecture": "ampere",
+        "device": "",
+        "description": "",
+        "adapterFeatures": [
+          "bgra8unorm-storage",
+          "chromium-experimental-multi-draw-indirect",
+          "chromium-experimental-timestamp-query-inside-passes",
+          "clip-distances",
+          "core-features-and-limits",
+          "depth-clip-control",
+          "depth32float-stencil8",
+          "dual-source-blending",
+          "float32-blendable",
+          "float32-filterable",
+          "indirect-first-instance",
+          "primitive-index",
+          "rg11b10ufloat-renderable",
+          "shader-f16",
+          "subgroup-size-control",
+          "subgroups",
+          "texture-component-swizzle",
+          "texture-compression-bc",
+          "texture-compression-bc-sliced-3d",
+          "texture-formats-tier1",
+          "texture-formats-tier2",
+          "timestamp-query"
+        ],
+        "timestampQuerySupported": true,
+        "verifiedDeviceMethods": [
+          "createShaderModule",
+          "createRenderPipeline",
+          "createTexture",
+          "createBuffer",
+          "createCommandEncoder"
+        ]
+      },
+      "network": {
+        "loopbackRequestCount": 2,
+        "observedRequestCount": 2,
+        "externalRequestCount": 0
+      },
+      "compilerAdmission": {
+        "residentCount": 4,
+        "nativeBlinkReceiptCount": 4,
+        "nativeGazeReceiptCount": 4,
+        "nativeBreathReceiptCount": 4,
+        "sampledOnlyClothReceiptCount": 4,
+        "records": [
+          {
+            "objectId": "OpenAIResident",
+            "displayLabel": "OpenAI",
+            "outputSha256": "72afa6c50066a9a0052e7fe3abf3c7f48e2bb152bb86291bb33703588940a7a7",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 4.620911,
+            "configDigest": "fnv1a32:9d54902a",
+            "sampleDigest": "fnv1a32:af74f96d",
+            "gaze": {
+              "eventIndex": 6,
+              "settle01": 1,
+              "yawRadians": 0.046016480252044134,
+              "pitchRadians": 0.028429364726845634
+            },
+            "breath": {
+              "phase01": 0.7074632925025983,
+              "scale": 0.9691361109401226
+            },
+            "cloth": {
+              "phase01": 0.8381054654008233,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0,
+              "breathChangedVertexCount": 544,
+              "breathScale": 0.9691361109401226,
+              "changedVertexCount": 3125,
+              "facialChangedVertexCount": 3099,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.028429364726845634,
+              "gazeYawRadians": 0.046016480252044134,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:be28f5af",
+              "positionDigest": "fnv1a32:6c4bbec9",
+              "sampleDigest": "fnv1a32:af74f96d",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          },
+          {
+            "objectId": "ClaudeResident",
+            "displayLabel": "Claude",
+            "outputSha256": "6ac3d474bda561b10e6126d5acf78d864e038865d0217ee24224fa1c8fa8b881",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 3.18983,
+            "configDigest": "fnv1a32:176f6c0c",
+            "sampleDigest": "fnv1a32:6159d752",
+            "gaze": {
+              "eventIndex": 4,
+              "settle01": 1,
+              "yawRadians": -0.025630320672780354,
+              "pitchRadians": 0.06786824603832887
+            },
+            "breath": {
+              "phase01": 0.4483352514226471,
+              "scale": 1.010844228159507
+            },
+            "cloth": {
+              "phase01": 0.5275058392155403,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0,
+              "breathChangedVertexCount": 544,
+              "breathScale": 1.010844228159507,
+              "changedVertexCount": 3125,
+              "facialChangedVertexCount": 3099,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.06786824603832887,
+              "gazeYawRadians": -0.025630320672780354,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:3b52f1cc",
+              "positionDigest": "fnv1a32:3729b0b5",
+              "sampleDigest": "fnv1a32:6159d752",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          },
+          {
+            "objectId": "GeminiResident",
+            "displayLabel": "Gemini",
+            "outputSha256": "0b2fc004e33ac084baf7afd083ea3d6a22093bfe0dd80d7a72fcbeab71ad8474",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 2.576702,
+            "configDigest": "fnv1a32:09e927f7",
+            "sampleDigest": "fnv1a32:d872dbb0",
+            "gaze": {
+              "eventIndex": 3,
+              "settle01": 1,
+              "yawRadians": 0.01852781110454203,
+              "pitchRadians": 0.07427732897418729
+            },
+            "breath": {
+              "phase01": 0.8244870638220414,
+              "scale": 0.9723335835117984
+            },
+            "cloth": {
+              "phase01": 0.35126154074194815,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0,
+              "breathChangedVertexCount": 544,
+              "breathScale": 0.9723335835117984,
+              "changedVertexCount": 3127,
+              "facialChangedVertexCount": 3101,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.07427732897418729,
+              "gazeYawRadians": 0.01852781110454203,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:d54788ae",
+              "positionDigest": "fnv1a32:8161a709",
+              "sampleDigest": "fnv1a32:d872dbb0",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          },
+          {
+            "objectId": "GrokResident",
+            "displayLabel": "Grok",
+            "outputSha256": "b938ee2f56e7e066e1888422d78fdb1e61bbb4da4b50e565cfae46cceb0502ea",
+            "repeatedCompileByteIdentity": true,
+            "sourceTimeSeconds": 5.114138,
+            "configDigest": "fnv1a32:0989cbde",
+            "sampleDigest": "fnv1a32:e203de12",
+            "gaze": {
+              "eventIndex": 6,
+              "settle01": 1,
+              "yawRadians": -0.07571589406742785,
+              "pitchRadians": 0.0829196780249936
+            },
+            "breath": {
+              "phase01": 0.5023115567745962,
+              "scale": 0.9994771565580424
+            },
+            "cloth": {
+              "phase01": 0.5711845203830315,
+              "nativeSimulationApplied": false
+            },
+            "application": {
+              "blinkWeight": 0,
+              "breathChangedVertexCount": 544,
+              "breathScale": 0.9994771565580424,
+              "changedVertexCount": 3122,
+              "facialChangedVertexCount": 3099,
+              "gazeChangedVertexCount": 1148,
+              "gazePitchRadians": 0.0829196780249936,
+              "gazeYawRadians": -0.07571589406742785,
+              "nativeBlinkApplied": true,
+              "nativeBreathApplied": true,
+              "nativeGazeApplied": true,
+              "normalDigest": "fnv1a32:a3dbe4c6",
+              "positionDigest": "fnv1a32:09d03c2b",
+              "sampleDigest": "fnv1a32:e203de12",
+              "schemaVersion": "holoscript.character-micro-motion-application.v2"
+            },
+            "bindings": {
+              "blink": "native-procedural-head-morph",
+              "breath": "native-upper-chest-deformation",
+              "cloth": "sampled-channel-only",
+              "gaze": "native-ocular-globe-rotation"
+            }
+          }
+        ]
+      },
+      "hostHardwareReadback": {
+        "command": "nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader,nounits",
+        "status": "pass",
+        "stdout": "NVIDIA GeForce RTX 3060 Laptop GPU, 610.88, 6144",
+        "stderr": ""
+      }
+    }
+  ],
+  "temporalPixelAdmission": {
+    "framePairDifferences": [
+      {
+        "schema": "hololand.character-presence-frame-pair-difference.v1",
+        "fromFrameIndex": 0,
+        "toFrameIndex": 1,
+        "residentRegions": [
+          {
+            "displayLabel": "OpenAI",
+            "region": {
+              "x": 49,
+              "y": 188,
+              "width": 313,
+              "height": 294
+            },
+            "changedPixelCount": 5792,
+            "absoluteChannelDifference": 255157,
+            "maximumPixelDifference": 558
+          },
+          {
+            "displayLabel": "Claude",
+            "region": {
+              "x": 707,
+              "y": 188,
+              "width": 313,
+              "height": 294
+            },
+            "changedPixelCount": 3393,
+            "absoluteChannelDifference": 132639,
+            "maximumPixelDifference": 538
+          },
+          {
+            "displayLabel": "Gemini",
+            "region": {
+              "x": 49,
+              "y": 498,
+              "width": 313,
+              "height": 292
+            },
+            "changedPixelCount": 5939,
+            "absoluteChannelDifference": 241934,
+            "maximumPixelDifference": 536
+          },
+          {
+            "displayLabel": "Grok",
+            "region": {
+              "x": 707,
+              "y": 498,
+              "width": 313,
+              "height": 292
+            },
+            "changedPixelCount": 3343,
+            "absoluteChannelDifference": 141839,
+            "maximumPixelDifference": 554
+          }
+        ]
+      },
+      {
+        "schema": "hololand.character-presence-frame-pair-difference.v1",
+        "fromFrameIndex": 1,
+        "toFrameIndex": 2,
+        "residentRegions": [
+          {
+            "displayLabel": "OpenAI",
+            "region": {
+              "x": 49,
+              "y": 188,
+              "width": 313,
+              "height": 294
+            },
+            "changedPixelCount": 4837,
+            "absoluteChannelDifference": 186626,
+            "maximumPixelDifference": 329
+          },
+          {
+            "displayLabel": "Claude",
+            "region": {
+              "x": 707,
+              "y": 188,
+              "width": 313,
+              "height": 294
+            },
+            "changedPixelCount": 4612,
+            "absoluteChannelDifference": 171052,
+            "maximumPixelDifference": 265
+          },
+          {
+            "displayLabel": "Gemini",
+            "region": {
+              "x": 49,
+              "y": 498,
+              "width": 313,
+              "height": 292
+            },
+            "changedPixelCount": 2128,
+            "absoluteChannelDifference": 63393,
+            "maximumPixelDifference": 113
+          },
+          {
+            "displayLabel": "Grok",
+            "region": {
+              "x": 707,
+              "y": 498,
+              "width": 313,
+              "height": 292
+            },
+            "changedPixelCount": 5077,
+            "absoluteChannelDifference": 208353,
+            "maximumPixelDifference": 325
+          }
+        ]
+      }
+    ],
+    "residentRegionMotionReceiptCount": 8,
+    "everyResidentChangedAcrossEveryPair": true,
+    "contactSheet": {
+      "width": 2400,
+      "height": 624,
+      "bytes": 592632,
+      "sha256": "50911cf1a4e2a69ab8adbed8fcca4eb14e819abb9c0b6997bfbb188f182fa0db"
+    }
+  },
+  "browserWebgpuAdmission": {
+    "runtime": {
+      "renderer": "HoloScript CharacterRender.renderCharacter",
+      "backend": "browser_native_webgpu",
+      "browserUsed": true,
+      "threeJsUsed": false,
+      "r3fUsed": false
+    },
+    "measuredFrameCount": 3,
+    "browser": {
+      "executable": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+      "product": "Chrome/151.0.7922.71",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+      "jsVersion": "15.1.206.10",
+      "launchFlags": [
+        "--headless=new",
+        "--use-angle=d3d11",
+        "--ignore-gpu-blocklist",
+        "--enable-gpu",
+        "--enable-unsafe-webgpu",
+        "--remote-debugging-port=27793",
+        "--user-data-dir=C:\\Users\\josep\\AppData\\Local\\Temp\\hololand-h4a-38852-1785421851467",
+        "--window-size=1400,900",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-dev-shm-usage",
+        "--disable-features=Translate,MediaRouter",
+        "about:blank"
+      ]
+    },
+    "gpu": {
+      "navigatorGpu": true,
+      "adapterAcquired": true,
+      "deviceCreated": true,
+      "vendor": "nvidia",
+      "architecture": "ampere",
+      "device": "",
+      "description": "",
+      "adapterFeatures": [
+        "bgra8unorm-storage",
+        "chromium-experimental-multi-draw-indirect",
+        "chromium-experimental-timestamp-query-inside-passes",
+        "clip-distances",
+        "core-features-and-limits",
+        "depth-clip-control",
+        "depth32float-stencil8",
+        "dual-source-blending",
+        "float32-blendable",
+        "float32-filterable",
+        "indirect-first-instance",
+        "primitive-index",
+        "rg11b10ufloat-renderable",
+        "shader-f16",
+        "subgroup-size-control",
+        "subgroups",
+        "texture-component-swizzle",
+        "texture-compression-bc",
+        "texture-compression-bc-sliced-3d",
+        "texture-formats-tier1",
+        "texture-formats-tier2",
+        "timestamp-query"
+      ],
+      "timestampQuerySupported": true,
+      "verifiedDeviceMethods": [
+        "createShaderModule",
+        "createRenderPipeline",
+        "createTexture",
+        "createBuffer",
+        "createCommandEncoder"
+      ]
+    },
+    "externalNetworkRequestCount": 0
+  },
+  "staticTaaConvergence": {
+    "schema": "hololand.static-presentation-taa-convergence.v1",
+    "mode": "deterministic_image_space_jitter_history_reference",
+    "sampleCount": 8,
+    "jitterPixels": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        -1,
+        0
+      ],
+      [
+        0,
+        -1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        -1,
+        1
+      ],
+      [
+        1,
+        -1
+      ]
+    ],
+    "firstHistoryMeanAbsoluteDelta": 1.2520779761904761,
+    "terminalHistoryMeanAbsoluteDelta": 0.4554865079365079,
+    "terminalToFirstDeltaRatio": 0.36378445799546244,
+    "finalVsFirstChangedPixelCount": 172576,
+    "finalVsFirstAbsoluteChannelDifference": 11404486,
+    "historySettled": true,
+    "productionRendererIntegrated": false,
+    "motionVectorsIntegrated": false
+  },
+  "gpuTimingAdmission": {
+    "timestampQuerySupported": true,
+    "adapterFeatures": [
+      "bgra8unorm-storage",
+      "chromium-experimental-multi-draw-indirect",
+      "chromium-experimental-timestamp-query-inside-passes",
+      "clip-distances",
+      "core-features-and-limits",
+      "depth-clip-control",
+      "depth32float-stencil8",
+      "dual-source-blending",
+      "float32-blendable",
+      "float32-filterable",
+      "indirect-first-instance",
+      "primitive-index",
+      "rg11b10ufloat-renderable",
+      "shader-f16",
+      "subgroup-size-control",
+      "subgroups",
+      "texture-component-swizzle",
+      "texture-compression-bc",
+      "texture-compression-bc-sliced-3d",
+      "texture-formats-tier1",
+      "texture-formats-tier2",
+      "timestamp-query"
+    ],
+    "gpuTimestampMeasured": false,
+    "wallClockUsedAsGpuTime": false,
+    "reason": "timestamp queries are not integrated into this character witness"
+  },
+  "hostHardwareReadback": {
+    "command": "nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader,nounits",
+    "status": "pass",
+    "stdout": "NVIDIA GeForce RTX 3060 Laptop GPU, 610.88, 6144",
+    "stderr": ""
+  },
+  "boundaries": {
+    "inheritedH4AAppearanceAdmissionPreserved": true,
+    "browserNativeWebgpuMeasured": true,
+    "sourceAuthoredMicroMotionCompiled": true,
+    "absoluteTimeSamplingMeasured": true,
+    "deterministicRepeatedCompileMeasured": true,
+    "nativeBlinkApplied": true,
+    "nativeGazeTransformApplied": true,
+    "nativeBreathTransformApplied": true,
+    "nativeClothSimulationApplied": false,
+    "multiFrameBrowserWitnessMeasured": true,
+    "residentRegionPixelMotionMeasured": true,
+    "staticTaaConvergenceMeasured": true,
+    "staticTaaMode": "deterministic_image_space_jitter_history_reference",
+    "productionTaaIntegrated": false,
+    "motionVectorsIntegrated": false,
+    "gpuTimestampMeasured": false,
+    "wallClockUsedAsGpuTime": false,
+    "freshRtxBenchmarkClaimed": false,
+    "questHeadsetMeasured": false,
+    "browserWebxrMeasured": false,
+    "photorealismClaimed": false,
+    "fullWorldPerformanceClaimed": false
+  },
+  "integrity": {
+    "canonicalSha256": "08d729fbb1f009a95fd317e2b3e5c3a4511af85bd8b4f181f567acd44f957018"
+  }
+}
