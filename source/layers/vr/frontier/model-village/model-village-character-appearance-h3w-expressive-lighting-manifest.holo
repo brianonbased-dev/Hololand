@@ -1,0 +1,50 @@
+// H3W immutable source, proof, browser, and claim-boundary bindings.
+// Hashes bind the visually selected browser render and its admission receipt.
+
+composition "Stormglass Character Appearance H3W Expressive Lighting Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-appearance-h3w-manifest.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3W_EXPRESSIVE_LIGHTING"
+    date: "2026-07-29"
+    source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3w-expressive-lighting.holo"
+    sourceSha256: "bd804be3d8573b2a1b13907bfb12576777499bd9154da867b5e7549e71ea390d"
+    policy: "source/proofs/model-village-character-appearance-h3w-expressive-lighting-policy.hsplus"
+    policySha256: "d57cfea4985ef0041fc53f288ce6b9e65839955ff7f96bb7e6983ab5a05725f1"
+    seed: "source/proofs/model-village-character-appearance-h3w-expressive-lighting-seed.hs"
+    seedSha256: "9b7fa54b38b794a4bc5c7b5f03f05daa4b61d3b687f8253c55a50b8934f24d0c"
+    checker: "scripts/check-hololand-model-village-character-appearance-h3w.mjs"
+    checkerSha256: "05b011c3ffc1eee7afb59f4af92c5f2bfbb1007fa17a77b1fb269249604d1932"
+    test: "scripts/__tests__/hololand-model-village-character-appearance-h3w.test.mjs"
+    testSha256: "82e644f424c856b0f0e31130f65ecf52e5ff78787c4ab06c916674cd1e48ec0f"
+    report: "docs/reports/model-village-character-appearance-h3w-expressive-lighting-2026-07-29.md"
+    reportSha256: "1e6a87d84731adb48b0f5627c7c313e093a968b8d957ee997cc0819d6d880cc3"
+    hero: "docs/assets/model-village/model-village-character-appearance-h3w-expressive-lighting-2026-07-29.png"
+    heroSha256: "4774212f1c2d6cb2e5babb7722a5083266a9b27246383236786522bdcf518e27"
+    evidence: "docs/assets/model-village/model-village-character-appearance-h3w-expressive-lighting-2026-07-29.json"
+    evidenceSha256: "5150be1b23e4e0be2a37f20ea8c8460421857245be79b1911790d1a384bf8de4"
+    evidenceReceiptSha256: "bf48227ae795a6139fd5701364051a93b872244872db0c4a0bb5526c45425f96"
+    upstreamHoloScriptCommit: "09fe4773d58122927eabb9787c9fc2fcb4e486ba"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    sourceCompiledResidentCount: 4
+    browserCharacterRenderCount: 4
+    browserWebgpuMeasured: true
+    browserAdapterMeasured: true
+    browserDeviceMeasured: true
+    sourcePoseApplied: true
+    expressiveNeckScapularVolumeMeasured: true
+    sourceExpressionMeasured: true
+    portraitFaceSilhouetteMeasured: true
+    analyticThreePointEnvironmentMeasured: true
+    environmentCounterfactualMeasured: true
+    gpuTimestampMeasured: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    photorealismClaimed: false
+    fullWorldPerformanceClaimed: false
+  }
+}

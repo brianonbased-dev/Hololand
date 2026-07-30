@@ -1,0 +1,90 @@
+// H3W expressive-lighting admission policy.
+//
+// Native hsplus action execution is not claimed. Parsed actions define the
+// fail-closed contract enforced by the H3W checker.
+
+composition "Stormglass Character Appearance H3W Expressive Lighting Policy" {
+  config {
+    schema: "hololand.model-village.character-appearance-h3w-policy.v1"
+    milestone: "MV_CHARACTER_APPEARANCE_H3W_EXPRESSIVE_LIGHTING"
+    source: "source/proofs/model-village-character-appearance-h3w-expressive-lighting-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3w-expressive-lighting.holo"
+    seedSource: "source/proofs/model-village-character-appearance-h3w-expressive-lighting-seed.hs"
+    formatRole: "expressive_lighting_deformation_and_browser_lookdev_admission"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H3WExpressiveLightingAdmissionState {
+    sourceCompiledResidentCount: 0
+    expressiveAnatomyReceiptCount: 0
+    expressionReceiptCount: 0
+    environmentLightReceiptCount: 0
+    environmentCounterfactualCount: 0
+    browserGpuDeviceCount: 0
+    browserRenderCount: 0
+    modelCallCount: 0
+    networkFetchCount: 0
+    gpuTimestampReceiptCount: 0
+    rtxBenchmarkReceiptCount: 0
+  }
+
+  template "ExpressiveLightingAdmission" {
+    type: "expressive_lighting_admission"
+    expectedBackend: "webgpu"
+    expectedUpperBodyProfile: "expressive-anatomy-v7"
+    expectedJointProfile: "expressive-neck-scapular-volume-v3"
+    expectedFaceProfile: "portrait-silhouette-v2"
+    expectedNeckBlendRingCount: 4
+    expectedNeckInfluencedVertexCount: 96
+    expectedPoseName: "civic_conversation"
+    expectedPoseBoneCount: 5
+    minimumExpressionTargetCount: 5
+    expectedEnvironmentProfile: "analytic-three-point-v1"
+    gpuTimestampRequired: false
+    questHeadsetRequired: false
+  }
+
+  action admit_expressive_resident(resident, expected) {
+    if (resident.upperBodyProfile != expected.expectedUpperBodyProfile) {
+      return { admitted: false, reason: "wrong_upper_body_profile" }
+    }
+    if (resident.jointProfile != expected.expectedJointProfile) {
+      return { admitted: false, reason: "wrong_joint_profile" }
+    }
+    if (resident.neckBlendRingCount != expected.expectedNeckBlendRingCount) {
+      return { admitted: false, reason: "neck_blend_ring_drift" }
+    }
+    if (resident.neckInfluencedVertexCount != expected.expectedNeckInfluencedVertexCount) {
+      return { admitted: false, reason: "neck_influence_count_drift" }
+    }
+    if (resident.faceProfile != expected.expectedFaceProfile) {
+      return { admitted: false, reason: "wrong_face_profile" }
+    }
+    if (resident.poseBoneCount != expected.expectedPoseBoneCount) {
+      return { admitted: false, reason: "source_pose_missing" }
+    }
+    if (resident.expressionTargetCount < expected.minimumExpressionTargetCount) {
+      return { admitted: false, reason: "expression_targets_missing" }
+    }
+    if (resident.environmentProfile != expected.expectedEnvironmentProfile) {
+      return { admitted: false, reason: "environment_light_missing" }
+    }
+    if (resident.environmentPixelDiff <= 25) {
+      return { admitted: false, reason: "environment_counterfactual_too_small" }
+    }
+    return { admitted: true, reason: "expressive_resident_admitted" }
+  }
+
+  action admit_claim_boundary(receipt) {
+    if (receipt.gpuTimestampMeasured == true) {
+      return { admitted: false, reason: "gpu_timestamp_not_in_scope" }
+    }
+    if (receipt.questHeadsetMeasured == true) {
+      return { admitted: false, reason: "quest_headset_not_present" }
+    }
+    if (receipt.freshRtxBenchmarkClaimed == true) {
+      return { admitted: false, reason: "rtx_benchmark_not_measured" }
+    }
+    return { admitted: true, reason: "bounded_browser_expressive_lighting_claim_admitted" }
+  }
+}

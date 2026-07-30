@@ -1,0 +1,988 @@
+{
+  "schema": "hololand.model-village.character-appearance-h3w-witness.v1",
+  "capturedAt": "2026-07-30T00:17:01.178Z",
+  "status": "pass",
+  "milestone": "MV_CHARACTER_APPEARANCE_H3W_EXPRESSIVE_LIGHTING",
+  "sourceAdmission": {
+    "holoScriptCommit": "09fe4773d58122927eabb9787c9fc2fcb4e486ba",
+    "sourceSha256": "bd804be3d8573b2a1b13907bfb12576777499bd9154da867b5e7549e71ea390d",
+    "policySha256": "d57cfea4985ef0041fc53f288ce6b9e65839955ff7f96bb7e6983ab5a05725f1",
+    "seedSha256": "9b7fa54b38b794a4bc5c7b5f03f05daa4b61d3b687f8253c55a50b8934f24d0c",
+    "residentNames": [
+      "OpenAI",
+      "Claude",
+      "Gemini",
+      "Grok"
+    ]
+  },
+  "compilerAdmission": {
+    "target": "character-webgpu",
+    "residentCount": 4,
+    "repeatedCompileByteIdentity": true,
+    "secondaryJointWeightsSerialized": true,
+    "records": [
+      {
+        "objectId": "OpenAIResident",
+        "displayLabel": "OpenAI",
+        "modelFamilyId": "openai",
+        "outputSha256": "14bc1d14803a517f15c9c9909f4a18a7ea609774d0b995db8776644676de988b",
+        "byteLength": 2056207,
+        "repeatedCompileByteIdentity": true,
+        "vertexCount": 10436,
+        "indexCount": 47352,
+        "materialGroupCount": 43,
+        "upperBodyProfile": "expressive-anatomy-v7",
+        "jointDeformation": {
+          "expressiveAsymmetry": {
+            "neckBlendRingCount": 4,
+            "neckInfluenceWeights": [
+              0.08,
+              0.22,
+              0.45,
+              0.2
+            ],
+            "profile": "source-asymmetric-neck-scapula-v1",
+            "scapularElevation": {
+              "left": 0.18,
+              "right": -0.08
+            },
+            "scapularProtraction": {
+              "left": 0.12,
+              "right": -0.04
+            }
+          },
+          "influencedVertexCount": 1296,
+          "jointPairCount": 39,
+          "maxSecondaryWeight": 0.55,
+          "maxWeightSumError": 0,
+          "profile": "expressive-neck-scapular-volume-v3",
+          "regionVertexCounts": {
+            "digitRoot": 240,
+            "elbow": 96,
+            "fingerJoint": 480,
+            "neck": 96,
+            "shoulder": 288,
+            "wrist": 96
+          },
+          "schemaVersion": "holoscript.agent-avatar-joint-deformation.v3",
+          "shoulderVolume": {
+            "blendRingCount": 6,
+            "influenceWeights": [
+              0.12,
+              0.15,
+              0.18,
+              0.4,
+              0.22,
+              0.08
+            ],
+            "minimumAuthoredRadiusRatio": 0.7,
+            "rootOverlapDepth": 0.048963
+          }
+        },
+        "facialLandmarks": {
+          "browHeight": 1.08,
+          "browThickness": 0.16,
+          "cheekboneScale": 1.14,
+          "chinProjection": 1.1,
+          "earScale": 0.98,
+          "eyeScale": 0.98,
+          "indexRange": {
+            "indexCount": 2268,
+            "indexStart": 31752
+          },
+          "mouthDepth": 0.74,
+          "profile": "portrait-silhouette-v2",
+          "radialSegments": 28,
+          "schemaVersion": "holoscript.agent-avatar-facial-landmarks.v2",
+          "templeWidth": 0.95,
+          "vertexRange": {
+            "vertexCount": 514,
+            "vertexStart": 5827
+          },
+          "verticalSegments": 20
+        },
+        "expression": {
+          "appliedTargets": [
+            {
+              "target": "blink_left",
+              "weight": 0.04
+            },
+            {
+              "target": "blink_right",
+              "weight": 0.1
+            },
+            {
+              "target": "brow_raise_left",
+              "weight": 0.12
+            },
+            {
+              "target": "brow_raise_right",
+              "weight": 0.2
+            },
+            {
+              "target": "smile",
+              "weight": 0.22
+            },
+            {
+              "target": "jaw_open",
+              "weight": 0.02
+            }
+          ],
+          "changedVertexCount": 1721,
+          "ignoredTargets": [],
+          "normalsRecomputed": false,
+          "positionDigest": "fnv1a32:3ed249cb",
+          "schemaVersion": "holoscript.native-facial-morph.v2",
+          "topology": "neutral-anatomical-v2"
+        },
+        "environmentLight": {
+          "exposure": 1.05,
+          "fill": {
+            "color": [
+              0.48,
+              0.64,
+              1
+            ],
+            "direction": [
+              -0.62174332539317,
+              0.18050612672704935,
+              0.7621369795142084
+            ],
+            "intensity": 0.3
+          },
+          "key": {
+            "color": [
+              1,
+              0.82,
+              0.68
+            ],
+            "direction": [
+              0.4211809623631152,
+              0.742080743211203,
+              0.5214621438781426
+            ],
+            "intensity": 1.18
+          },
+          "profile": "analytic-three-point-v1",
+          "rim": {
+            "color": [
+              1,
+              0.48,
+              0.28
+            ],
+            "direction": [
+              0.677699724778342,
+              0.3986468969284364,
+              -0.6179026902390764
+            ],
+            "intensity": 0.66
+          },
+          "schemaVersion": "holoscript.character-environment-light.v1"
+        },
+        "pose": {
+          "boneCount": 5,
+          "boneNames": [
+            "left_shoulder",
+            "left_upper_arm",
+            "neck",
+            "right_shoulder",
+            "right_upper_arm"
+          ],
+          "name": "civic_conversation",
+          "normalizedQuaternionCount": 0,
+          "quaternionOrder": "xyzw",
+          "schemaVersion": "holoscript.character-source-pose.v1",
+          "space": "local-bone"
+        },
+        "skinMaterial": {
+          "albedoVariationStrength": 0.052,
+          "ambient": 0.09,
+          "calibrationProfile": "fixed-light-human-v1",
+          "color": 12157551,
+          "microdetailProfile": "analytic-pore-v1",
+          "microdetailScale": 104,
+          "microdetailStrength": 0.09,
+          "normalMicrodetailStrength": 0.28,
+          "roughness": 0.5,
+          "roughnessVariationStrength": 0.14,
+          "scatterColor": [
+            0.6509803921568628,
+            0.36470588235294116,
+            0.3137254901960784
+          ],
+          "scatterRadii": [
+            3.67,
+            1.37,
+            0.68
+          ],
+          "schemaVersion": "holoscript.agent-avatar-skin-material.v3",
+          "shadingModel": "skin-sss",
+          "specularF0": 0.028,
+          "surfaceResponseProfile": "calibrated-skin-surface-v1",
+          "thickness": 0.24,
+          "transmitStrength": 0.32
+        }
+      },
+      {
+        "objectId": "ClaudeResident",
+        "displayLabel": "Claude",
+        "modelFamilyId": "anthropic",
+        "outputSha256": "69a9d475279c69bdcb1f35cdc71eeb1f786fe5920f95b8d8b14d2ca42c3992cb",
+        "byteLength": 1889207,
+        "repeatedCompileByteIdentity": true,
+        "vertexCount": 9680,
+        "indexCount": 45264,
+        "materialGroupCount": 43,
+        "upperBodyProfile": "expressive-anatomy-v7",
+        "jointDeformation": {
+          "expressiveAsymmetry": {
+            "neckBlendRingCount": 4,
+            "neckInfluenceWeights": [
+              0.08,
+              0.22,
+              0.45,
+              0.2
+            ],
+            "profile": "source-asymmetric-neck-scapula-v1",
+            "scapularElevation": {
+              "left": 0.48,
+              "right": -0.18
+            },
+            "scapularProtraction": {
+              "left": 0.26,
+              "right": -0.12
+            }
+          },
+          "influencedVertexCount": 1296,
+          "jointPairCount": 39,
+          "maxSecondaryWeight": 0.55,
+          "maxWeightSumError": 0,
+          "profile": "expressive-neck-scapular-volume-v3",
+          "regionVertexCounts": {
+            "digitRoot": 240,
+            "elbow": 96,
+            "fingerJoint": 480,
+            "neck": 96,
+            "shoulder": 288,
+            "wrist": 96
+          },
+          "schemaVersion": "holoscript.agent-avatar-joint-deformation.v3",
+          "shoulderVolume": {
+            "blendRingCount": 6,
+            "influenceWeights": [
+              0.12,
+              0.15,
+              0.18,
+              0.4,
+              0.22,
+              0.08
+            ],
+            "minimumAuthoredRadiusRatio": 0.7,
+            "rootOverlapDepth": 0.048211
+          }
+        },
+        "facialLandmarks": {
+          "browHeight": 1.12,
+          "browThickness": 0.15,
+          "cheekboneScale": 1.08,
+          "chinProjection": 1.18,
+          "earScale": 1.02,
+          "eyeScale": 0.96,
+          "indexRange": {
+            "indexCount": 2268,
+            "indexStart": 31752
+          },
+          "mouthDepth": 0.8,
+          "profile": "portrait-silhouette-v2",
+          "radialSegments": 28,
+          "schemaVersion": "holoscript.agent-avatar-facial-landmarks.v2",
+          "templeWidth": 0.92,
+          "vertexRange": {
+            "vertexCount": 514,
+            "vertexStart": 5827
+          },
+          "verticalSegments": 20
+        },
+        "expression": {
+          "appliedTargets": [
+            {
+              "target": "blink_left",
+              "weight": 0.08
+            },
+            {
+              "target": "blink_right",
+              "weight": 0.16
+            },
+            {
+              "target": "brow_raise_left",
+              "weight": 0.12
+            },
+            {
+              "target": "brow_raise_right",
+              "weight": 0.32
+            },
+            {
+              "target": "smile",
+              "weight": 0.18
+            },
+            {
+              "target": "jaw_open",
+              "weight": 0.03
+            }
+          ],
+          "changedVertexCount": 1729,
+          "ignoredTargets": [],
+          "normalsRecomputed": false,
+          "positionDigest": "fnv1a32:05dc1088",
+          "schemaVersion": "holoscript.native-facial-morph.v2",
+          "topology": "neutral-anatomical-v2"
+        },
+        "environmentLight": {
+          "exposure": 1.05,
+          "fill": {
+            "color": [
+              0.48,
+              0.64,
+              1
+            ],
+            "direction": [
+              -0.62174332539317,
+              0.18050612672704935,
+              0.7621369795142084
+            ],
+            "intensity": 0.3
+          },
+          "key": {
+            "color": [
+              1,
+              0.82,
+              0.68
+            ],
+            "direction": [
+              0.4211809623631152,
+              0.742080743211203,
+              0.5214621438781426
+            ],
+            "intensity": 1.18
+          },
+          "profile": "analytic-three-point-v1",
+          "rim": {
+            "color": [
+              1,
+              0.48,
+              0.28
+            ],
+            "direction": [
+              0.677699724778342,
+              0.3986468969284364,
+              -0.6179026902390764
+            ],
+            "intensity": 0.66
+          },
+          "schemaVersion": "holoscript.character-environment-light.v1"
+        },
+        "pose": {
+          "boneCount": 5,
+          "boneNames": [
+            "left_shoulder",
+            "left_upper_arm",
+            "neck",
+            "right_shoulder",
+            "right_upper_arm"
+          ],
+          "name": "civic_conversation",
+          "normalizedQuaternionCount": 0,
+          "quaternionOrder": "xyzw",
+          "schemaVersion": "holoscript.character-source-pose.v1",
+          "space": "local-bone"
+        },
+        "skinMaterial": {
+          "albedoVariationStrength": 0.048,
+          "ambient": 0.09,
+          "calibrationProfile": "fixed-light-human-v1",
+          "color": 12946288,
+          "microdetailProfile": "analytic-pore-v1",
+          "microdetailScale": 98,
+          "microdetailStrength": 0.084,
+          "normalMicrodetailStrength": 0.25,
+          "roughness": 0.5,
+          "roughnessVariationStrength": 0.13,
+          "scatterColor": [
+            0.6862745098039216,
+            0.4117647058823529,
+            0.34509803921568627
+          ],
+          "scatterRadii": [
+            3.67,
+            1.37,
+            0.68
+          ],
+          "schemaVersion": "holoscript.agent-avatar-skin-material.v3",
+          "shadingModel": "skin-sss",
+          "specularF0": 0.028,
+          "surfaceResponseProfile": "calibrated-skin-surface-v1",
+          "thickness": 0.24,
+          "transmitStrength": 0.32
+        }
+      },
+      {
+        "objectId": "GeminiResident",
+        "displayLabel": "Gemini",
+        "modelFamilyId": "google",
+        "outputSha256": "2af12728197f6c07e8abe49a7b1b0aebcc5d06419e1ad678428866b6605f9b75",
+        "byteLength": 1660441,
+        "repeatedCompileByteIdentity": true,
+        "vertexCount": 8720,
+        "indexCount": 42600,
+        "materialGroupCount": 43,
+        "upperBodyProfile": "expressive-anatomy-v7",
+        "jointDeformation": {
+          "expressiveAsymmetry": {
+            "neckBlendRingCount": 4,
+            "neckInfluenceWeights": [
+              0.08,
+              0.22,
+              0.45,
+              0.2
+            ],
+            "profile": "source-asymmetric-neck-scapula-v1",
+            "scapularElevation": {
+              "left": -0.12,
+              "right": 0.28
+            },
+            "scapularProtraction": {
+              "left": -0.08,
+              "right": 0.18
+            }
+          },
+          "influencedVertexCount": 1296,
+          "jointPairCount": 39,
+          "maxSecondaryWeight": 0.55,
+          "maxWeightSumError": 0,
+          "profile": "expressive-neck-scapular-volume-v3",
+          "regionVertexCounts": {
+            "digitRoot": 240,
+            "elbow": 96,
+            "fingerJoint": 480,
+            "neck": 96,
+            "shoulder": 288,
+            "wrist": 96
+          },
+          "schemaVersion": "holoscript.agent-avatar-joint-deformation.v3",
+          "shoulderVolume": {
+            "blendRingCount": 6,
+            "influenceWeights": [
+              0.12,
+              0.15,
+              0.18,
+              0.4,
+              0.22,
+              0.08
+            ],
+            "minimumAuthoredRadiusRatio": 0.7,
+            "rootOverlapDepth": 0.045104
+          }
+        },
+        "facialLandmarks": {
+          "browHeight": 1.04,
+          "browThickness": 0.17,
+          "cheekboneScale": 1.18,
+          "chinProjection": 0.94,
+          "earScale": 0.96,
+          "eyeScale": 1.02,
+          "indexRange": {
+            "indexCount": 2268,
+            "indexStart": 31752
+          },
+          "mouthDepth": 0.7,
+          "profile": "portrait-silhouette-v2",
+          "radialSegments": 28,
+          "schemaVersion": "holoscript.agent-avatar-facial-landmarks.v2",
+          "templeWidth": 1.08,
+          "vertexRange": {
+            "vertexCount": 514,
+            "vertexStart": 5827
+          },
+          "verticalSegments": 20
+        },
+        "expression": {
+          "appliedTargets": [
+            {
+              "target": "blink_left",
+              "weight": 0.12
+            },
+            {
+              "target": "blink_right",
+              "weight": 0.05
+            },
+            {
+              "target": "brow_raise_left",
+              "weight": 0.28
+            },
+            {
+              "target": "brow_raise_right",
+              "weight": 0.14
+            },
+            {
+              "target": "smile",
+              "weight": 0.16
+            },
+            {
+              "target": "jaw_open",
+              "weight": 0.02
+            }
+          ],
+          "changedVertexCount": 1721,
+          "ignoredTargets": [],
+          "normalsRecomputed": false,
+          "positionDigest": "fnv1a32:946105a8",
+          "schemaVersion": "holoscript.native-facial-morph.v2",
+          "topology": "neutral-anatomical-v2"
+        },
+        "environmentLight": {
+          "exposure": 1.05,
+          "fill": {
+            "color": [
+              0.48,
+              0.64,
+              1
+            ],
+            "direction": [
+              -0.62174332539317,
+              0.18050612672704935,
+              0.7621369795142084
+            ],
+            "intensity": 0.3
+          },
+          "key": {
+            "color": [
+              1,
+              0.82,
+              0.68
+            ],
+            "direction": [
+              0.4211809623631152,
+              0.742080743211203,
+              0.5214621438781426
+            ],
+            "intensity": 1.18
+          },
+          "profile": "analytic-three-point-v1",
+          "rim": {
+            "color": [
+              1,
+              0.48,
+              0.28
+            ],
+            "direction": [
+              0.677699724778342,
+              0.3986468969284364,
+              -0.6179026902390764
+            ],
+            "intensity": 0.66
+          },
+          "schemaVersion": "holoscript.character-environment-light.v1"
+        },
+        "pose": {
+          "boneCount": 5,
+          "boneNames": [
+            "left_shoulder",
+            "left_upper_arm",
+            "neck",
+            "right_shoulder",
+            "right_upper_arm"
+          ],
+          "name": "civic_conversation",
+          "normalizedQuaternionCount": 0,
+          "quaternionOrder": "xyzw",
+          "schemaVersion": "holoscript.character-source-pose.v1",
+          "space": "local-bone"
+        },
+        "skinMaterial": {
+          "albedoVariationStrength": 0.058,
+          "ambient": 0.09,
+          "calibrationProfile": "fixed-light-human-v1",
+          "color": 9267548,
+          "microdetailProfile": "analytic-pore-v1",
+          "microdetailScale": 112,
+          "microdetailStrength": 0.1,
+          "normalMicrodetailStrength": 0.3,
+          "roughness": 0.5,
+          "roughnessVariationStrength": 0.16,
+          "scatterColor": [
+            0.47058823529411764,
+            0.3176470588235294,
+            0.2784313725490196
+          ],
+          "scatterRadii": [
+            3.67,
+            1.37,
+            0.68
+          ],
+          "schemaVersion": "holoscript.agent-avatar-skin-material.v3",
+          "shadingModel": "skin-sss",
+          "specularF0": 0.028,
+          "surfaceResponseProfile": "calibrated-skin-surface-v1",
+          "thickness": 0.24,
+          "transmitStrength": 0.32
+        }
+      },
+      {
+        "objectId": "GrokResident",
+        "displayLabel": "Grok",
+        "modelFamilyId": "xai",
+        "outputSha256": "51b78762f96dc6d483a517e14ef7451061922768615d6f42dc4af1e97e371008",
+        "byteLength": 1842839,
+        "repeatedCompileByteIdentity": true,
+        "vertexCount": 9488,
+        "indexCount": 44784,
+        "materialGroupCount": 43,
+        "upperBodyProfile": "expressive-anatomy-v7",
+        "jointDeformation": {
+          "expressiveAsymmetry": {
+            "neckBlendRingCount": 4,
+            "neckInfluenceWeights": [
+              0.08,
+              0.22,
+              0.45,
+              0.2
+            ],
+            "profile": "source-asymmetric-neck-scapula-v1",
+            "scapularElevation": {
+              "left": 0.32,
+              "right": -0.24
+            },
+            "scapularProtraction": {
+              "left": 0.2,
+              "right": -0.14
+            }
+          },
+          "influencedVertexCount": 1296,
+          "jointPairCount": 39,
+          "maxSecondaryWeight": 0.55,
+          "maxWeightSumError": 0,
+          "profile": "expressive-neck-scapular-volume-v3",
+          "regionVertexCounts": {
+            "digitRoot": 240,
+            "elbow": 96,
+            "fingerJoint": 480,
+            "neck": 96,
+            "shoulder": 288,
+            "wrist": 96
+          },
+          "schemaVersion": "holoscript.agent-avatar-joint-deformation.v3",
+          "shoulderVolume": {
+            "blendRingCount": 6,
+            "influenceWeights": [
+              0.12,
+              0.15,
+              0.18,
+              0.4,
+              0.22,
+              0.08
+            ],
+            "minimumAuthoredRadiusRatio": 0.7,
+            "rootOverlapDepth": 0.052442
+          }
+        },
+        "facialLandmarks": {
+          "browHeight": 0.98,
+          "browThickness": 0.19,
+          "cheekboneScale": 1.04,
+          "chinProjection": 1.2,
+          "earScale": 1.04,
+          "eyeScale": 1,
+          "indexRange": {
+            "indexCount": 2268,
+            "indexStart": 31752
+          },
+          "mouthDepth": 0.68,
+          "profile": "portrait-silhouette-v2",
+          "radialSegments": 28,
+          "schemaVersion": "holoscript.agent-avatar-facial-landmarks.v2",
+          "templeWidth": 1.03,
+          "vertexRange": {
+            "vertexCount": 514,
+            "vertexStart": 5827
+          },
+          "verticalSegments": 20
+        },
+        "expression": {
+          "appliedTargets": [
+            {
+              "target": "blink_left",
+              "weight": 0.05
+            },
+            {
+              "target": "blink_right",
+              "weight": 0.2
+            },
+            {
+              "target": "brow_raise_left",
+              "weight": 0.08
+            },
+            {
+              "target": "brow_raise_right",
+              "weight": 0.3
+            },
+            {
+              "target": "smile",
+              "weight": 0.28
+            },
+            {
+              "target": "jaw_open",
+              "weight": 0.05
+            }
+          ],
+          "changedVertexCount": 1729,
+          "ignoredTargets": [],
+          "normalsRecomputed": false,
+          "positionDigest": "fnv1a32:190aa078",
+          "schemaVersion": "holoscript.native-facial-morph.v2",
+          "topology": "neutral-anatomical-v2"
+        },
+        "environmentLight": {
+          "exposure": 1.05,
+          "fill": {
+            "color": [
+              0.48,
+              0.64,
+              1
+            ],
+            "direction": [
+              -0.62174332539317,
+              0.18050612672704935,
+              0.7621369795142084
+            ],
+            "intensity": 0.3
+          },
+          "key": {
+            "color": [
+              1,
+              0.82,
+              0.68
+            ],
+            "direction": [
+              0.4211809623631152,
+              0.742080743211203,
+              0.5214621438781426
+            ],
+            "intensity": 1.18
+          },
+          "profile": "analytic-three-point-v1",
+          "rim": {
+            "color": [
+              1,
+              0.48,
+              0.28
+            ],
+            "direction": [
+              0.677699724778342,
+              0.3986468969284364,
+              -0.6179026902390764
+            ],
+            "intensity": 0.66
+          },
+          "schemaVersion": "holoscript.character-environment-light.v1"
+        },
+        "pose": {
+          "boneCount": 5,
+          "boneNames": [
+            "left_shoulder",
+            "left_upper_arm",
+            "neck",
+            "right_shoulder",
+            "right_upper_arm"
+          ],
+          "name": "civic_conversation",
+          "normalizedQuaternionCount": 0,
+          "quaternionOrder": "xyzw",
+          "schemaVersion": "holoscript.character-source-pose.v1",
+          "space": "local-bone"
+        },
+        "skinMaterial": {
+          "albedoVariationStrength": 0.044,
+          "ambient": 0.09,
+          "calibrationProfile": "fixed-light-human-v1",
+          "color": 13672582,
+          "microdetailProfile": "analytic-pore-v1",
+          "microdetailScale": 92,
+          "microdetailStrength": 0.078,
+          "normalMicrodetailStrength": 0.23,
+          "roughness": 0.5,
+          "roughnessVariationStrength": 0.12,
+          "scatterColor": [
+            0.7686274509803922,
+            0.49411764705882355,
+            0.41568627450980394
+          ],
+          "scatterRadii": [
+            3.67,
+            1.37,
+            0.68
+          ],
+          "schemaVersion": "holoscript.agent-avatar-skin-material.v3",
+          "shadingModel": "skin-sss",
+          "specularF0": 0.028,
+          "surfaceResponseProfile": "calibrated-skin-surface-v1",
+          "thickness": 0.24,
+          "transmitStrength": 0.32
+        }
+      }
+    ]
+  },
+  "browserWebgpuAdmission": {
+    "runtime": {
+      "renderer": "HoloScript CharacterRender.renderCharacter",
+      "backend": "browser_native_webgpu",
+      "browserUsed": true,
+      "threeJsUsed": false,
+      "r3fUsed": false
+    },
+    "browser": {
+      "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "product": "Chrome/150.0.7871.187",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+      "jsVersion": "15.0.245.21",
+      "launchFlags": [
+        "--headless=new",
+        "--use-angle=d3d11",
+        "--ignore-gpu-blocklist",
+        "--enable-gpu",
+        "--enable-unsafe-webgpu",
+        "--remote-debugging-port=34411",
+        "--user-data-dir=C:\\Users\\josep\\AppData\\Local\\Temp\\hololand-h3w-31064-1785370618937",
+        "--window-size=1400,900",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-dev-shm-usage",
+        "--disable-features=Translate,MediaRouter",
+        "about:blank"
+      ]
+    },
+    "gpu": {
+      "navigatorGpu": true,
+      "adapterAcquired": true,
+      "deviceCreated": true,
+      "vendor": "nvidia",
+      "architecture": "ampere",
+      "device": "",
+      "description": "",
+      "verifiedDeviceMethods": [
+        "createShaderModule",
+        "createRenderPipeline",
+        "createTexture",
+        "createBuffer",
+        "createCommandEncoder"
+      ]
+    },
+    "residents": [
+      {
+        "displayLabel": "OpenAI",
+        "pixelSha256": "cd244e310be3ecd3cc70538f858739802065745fd17773fe2c1ef40ba3c42ad6",
+        "renderSize": 512,
+        "metrics": {
+          "nonBackgroundPixelCount": 132109,
+          "minimumLuminance": 1.0722,
+          "maximumLuminance": 236.50839999999997,
+          "luminanceRange": 235.43619999999996,
+          "meanLuminance": 56.65022430265877
+        },
+        "environmentDifference": {
+          "changedPixelCount": 125935,
+          "absoluteChannelDifference": 4676696
+        },
+        "secondaryJointWeightsConsumed": true
+      },
+      {
+        "displayLabel": "Claude",
+        "pixelSha256": "ad5dd0cd49a2a8c9866885849d6a31999d5f263e9b0d47526eb689f5c2aecb01",
+        "renderSize": 512,
+        "metrics": {
+          "nonBackgroundPixelCount": 132850,
+          "minimumLuminance": 1.0722,
+          "maximumLuminance": 230.1594,
+          "luminanceRange": 229.0872,
+          "meanLuminance": 63.04131661571392
+        },
+        "environmentDifference": {
+          "changedPixelCount": 132848,
+          "absoluteChannelDifference": 4974107
+        },
+        "secondaryJointWeightsConsumed": true
+      },
+      {
+        "displayLabel": "Gemini",
+        "pixelSha256": "87addacb1d35b20ff4a6ee1c43502b231a30254041fdfde9b6e6a1351890a9e9",
+        "renderSize": 512,
+        "metrics": {
+          "nonBackgroundPixelCount": 123205,
+          "minimumLuminance": 1.0722,
+          "maximumLuminance": 253.12279999999998,
+          "luminanceRange": 252.05059999999997,
+          "meanLuminance": 52.95856733411785
+        },
+        "environmentDifference": {
+          "changedPixelCount": 121077,
+          "absoluteChannelDifference": 4519618
+        },
+        "secondaryJointWeightsConsumed": true
+      },
+      {
+        "displayLabel": "Grok",
+        "pixelSha256": "7d24c88ff88b96668b4faf276d66ced78b21e3172566297812f840a28d93b118",
+        "renderSize": 512,
+        "metrics": {
+          "nonBackgroundPixelCount": 142114,
+          "minimumLuminance": 1.0722,
+          "maximumLuminance": 230.35359999999997,
+          "luminanceRange": 229.28139999999996,
+          "meanLuminance": 53.187203823717695
+        },
+        "environmentDifference": {
+          "changedPixelCount": 137083,
+          "absoluteChannelDifference": 4838698
+        },
+        "secondaryJointWeightsConsumed": true
+      }
+    ],
+    "network": {
+      "loopbackRequestCount": 2,
+      "observedRequestCount": 2,
+      "externalRequestCount": 0
+    },
+    "screenshot": {
+      "width": 1400,
+      "height": 900,
+      "bytes": 677234,
+      "sha256": "4774212f1c2d6cb2e5babb7722a5083266a9b27246383236786522bdcf518e27"
+    }
+  },
+  "hostHardwareReadback": {
+    "command": "nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader,nounits",
+    "status": "pass",
+    "stdout": "NVIDIA GeForce RTX 3060 Laptop GPU, 610.88, 6144",
+    "stderr": ""
+  },
+  "boundaries": {
+    "browserWebgpuMeasured": true,
+    "browserAdapterAndDeviceMeasured": true,
+    "sourcePoseApplied": true,
+    "expressiveNeckScapularVolumeReceipted": true,
+    "sourceExpressionApplied": true,
+    "portraitFaceSilhouetteReceipted": true,
+    "analyticThreePointEnvironmentReceipted": true,
+    "environmentCounterfactualRendered": true,
+    "gpuTimestampMeasured": false,
+    "freshRtxBenchmarkClaimed": false,
+    "questHeadsetMeasured": false,
+    "browserWebxrMeasured": false,
+    "physicallyCalibratedCameraClaimed": false,
+    "photorealismClaimed": false,
+    "fullWorldPerformanceClaimed": false
+  },
+  "integrity": {
+    "canonicalSha256": "bf48227ae795a6139fd5701364051a93b872244872db0c4a0bb5526c45425f96"
+  }
+}
