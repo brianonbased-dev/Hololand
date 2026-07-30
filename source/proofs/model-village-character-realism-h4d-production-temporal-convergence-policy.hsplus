@@ -1,0 +1,82 @@
+// H4D typed temporal admission policy.
+//
+// Native hsplus action execution is not claimed. The checker parses this
+// contract and enforces these fail-closed conditions over measured compiler
+// and browser/WebGPU receipts.
+
+composition "Stormglass Character Realism H4D Production Temporal Policy" {
+  config {
+    schema: "hololand.model-village.character-realism-h4d-policy.v1"
+    milestone: "MV_CHARACTER_REALISM_H4D_PRODUCTION_TEMPORAL_CONVERGENCE"
+    source: "source/proofs/model-village-character-realism-h4d-production-temporal-convergence-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4d-production-temporal-convergence.holo"
+    seedSource: "source/proofs/model-village-character-realism-h4d-production-temporal-convergence-seed.hs"
+    formatRole: "typed_motion_reprojection_and_history_admission"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H4DTemporalAdmissionState {
+    sourceCompiledResidentStateCount: 0
+    motionVectorFrameReceiptCount: 0
+    gpuMotionRasterReceiptCount: 0
+    gpuTemporalResolveReceiptCount: 0
+    motionReprojectedResidentCount: 0
+    depthDisocclusionInputCount: 0
+    reactiveMaskInputCount: 0
+    gpuTimestampReceiptCount: 0
+    externalNetworkRequestCount: 0
+  }
+
+  template "TemporalResidentAdmission" {
+    type: "native_character_temporal_admission"
+    expectedResidentCount: 4
+    expectedCompiledStateCount: 8
+    expectedMotionVectorSpace: "current-minus-previous-pixels"
+    motionVectorsRequired: true
+    depthDisocclusionRequired: true
+    neighborhoodClampingRequired: true
+    reactiveMaskRequired: true
+    gpuTimestampRequired: false
+  }
+
+  action admit_h4d_resident(resident, expected) {
+    if (resident.motionVectorSpace != expected.expectedMotionVectorSpace) {
+      return { admitted: false, reason: "wrong_motion_vector_space" }
+    }
+    if (resident.motionVectorDeviceExecutionMeasured != true || resident.movingPixelCount <= 0) {
+      return { admitted: false, reason: "native_motion_raster_missing" }
+    }
+    if (resident.temporalDeviceExecutionMeasured != true || resident.motionVectorsConsumed != true) {
+      return { admitted: false, reason: "motion_reprojection_missing" }
+    }
+    if (resident.neighborhoodClamping != true || resident.disocclusionInputConsumed != true) {
+      return { admitted: false, reason: "history_rejection_missing" }
+    }
+    if (resident.reactiveMaskConsumed != true) {
+      return { admitted: false, reason: "reactive_mask_missing" }
+    }
+    if (resident.gpuTimestampMeasured != false) {
+      return { admitted: false, reason: "gpu_timing_overclaimed" }
+    }
+    return { admitted: true, reason: "native_temporal_resident_receipted" }
+  }
+
+  action admit_h4d_witness(witness, expected) {
+    if (witness.backend != "webgpu" || witness.browserDevicePresent != true) {
+      return { admitted: false, reason: "browser_webgpu_missing" }
+    }
+    if (witness.residentCount != expected.expectedResidentCount) {
+      return { admitted: false, reason: "resident_count_drifted" }
+    }
+    if (witness.compiledStateCount != expected.expectedCompiledStateCount) {
+      return { admitted: false, reason: "compiled_state_count_drifted" }
+    }
+    if (witness.externalNetworkRequestCount != 0) {
+      return { admitted: false, reason: "external_dependency_detected" }
+    }
+    if (witness.zeroCopyFrameGraphMeasured != false || witness.gpuTimestampMeasured != false) {
+      return { admitted: false, reason: "performance_boundary_overclaimed" }
+    }
+    return { admitted: true, reason: "browser_webgpu_h4d_witness_receipted" }
+  }
+}

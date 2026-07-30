@@ -1,0 +1,104 @@
+// H4D immutable source, runtime, browser, temporal, visual, and claim bindings.
+
+composition "Stormglass Character Realism H4D Production Temporal Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-realism-h4d-manifest.v1"
+    milestone: "MV_CHARACTER_REALISM_H4D_PRODUCTION_TEMPORAL_CONVERGENCE"
+    date: "2026-07-30"
+    upstreamHoloScriptCommit: "623b2bf3c6f4e7ba0fa4ed62ce20061796664c28"
+    upstreamHoloScriptCapsule: "sha256:5bd5864f7f5e246231cd561ddc226a34b96679a739b3bde1a46c6bf8994b183e"
+    upstreamHoloScriptPromotionReceipt: "sha256:988dd6d2d284abcdd2ad03e2bf06142997af9ce0091d1f2e181746c7ebcd06dd"
+    evidenceReceiptSha256: "0da73bbb4d005a0e38bd563bd455afe918d6db25829a843b7a69dc653c0a9cd7"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    measuredFrameOffsetsSeconds: [0, 0.84]
+    sourceCompiledStateCount: 8
+    motionVectorFrameReceiptCount: 4
+    gpuMotionRasterReceiptCount: 4
+    gpuTemporalResolveReceiptCount: 4
+    motionReprojectedResidentCount: 4
+    depthDisocclusionInputCount: 4
+    reactiveMaskInputCount: 4
+    minimumMovingPixelCount: 67479
+    minimumAccumulatedChangedPixelCount: 9884
+    browserWebgpuMeasured: true
+    browserAdapterMeasured: true
+    browserDeviceMeasured: true
+    browserProduct: "Chrome/151.0.7922.71"
+    browserVendor: "nvidia"
+    browserArchitecture: "ampere"
+    externalNetworkRequestCount: 0
+    hostGpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+    hostDriverReadback: "32.0.16.1088"
+    hostGpuMemoryMiB: 6144
+    productionTemporalEntrypointsIntegrated: true
+    motionVectorsIntegrated: true
+    depthDisocclusionIntegrated: true
+    neighborhoodClampingIntegrated: true
+    reactiveMaskIntegrated: true
+    readbackBackedVerification: true
+    zeroCopyFrameGraphMeasured: false
+    productionFrameTimeMeasured: false
+    timestampQuerySupported: true
+    gpuTimestampMeasured: false
+    wallClockUsedAsGpuTime: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    browserWebxrMeasured: false
+    photorealismClaimed: false
+    fullWorldPerformanceClaimed: false
+    nativeClothSimulationApplied: false
+  }
+
+  object "WorldSourceBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/layers/vr/frontier/model-village/model-village-character-realism-h4d-production-temporal-convergence.holo"
+    sha256: "170d04673d277e9787df02499a8a235dcd9bdd8cd24dca9ab7348a485c049a6d"
+  }
+
+  object "PolicyBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-realism-h4d-production-temporal-convergence-policy.hsplus"
+    sha256: "98247740903c97ed0eca77666dd096b65b143690508d69c6cdef41a2cabb3f5b"
+  }
+
+  object "SeedBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-realism-h4d-production-temporal-convergence-seed.hs"
+    sha256: "efefbf111d5253b188e9f6e7119bec3d9748b165524f3d85aec1cbe81a2ddb30"
+  }
+
+  object "CheckerBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/check-hololand-model-village-character-realism-h4d.mjs"
+    sha256: "6919837c3159a61600e55a8dbcd1c1be9afcc64b8d8f24595dcd7f886e3b1c70"
+  }
+
+  object "TestBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/__tests__/hololand-model-village-character-realism-h4d.test.mjs"
+    sha256: "fcd107197505ada66733270a9bc0b0ce97d59f713a885e38b4c4c32b3d46e6bf"
+  }
+
+  object "ReportBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/reports/model-village-character-realism-h4d-production-temporal-convergence-2026-07-30.md"
+    sha256: "16ae7bdaba3fd8b9755288df93898a6873b02de30d8c0ef469ab6f973ed9c11f"
+  }
+
+  object "HeroBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-realism-h4d-production-temporal-convergence-2026-07-30.png"
+    sha256: "7355653304de428f9cfd3bcf7110fb80f3ce0574a4dd4ad1cc17bb8314b10b85"
+  }
+
+  object "EvidenceBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-realism-h4d-production-temporal-convergence-2026-07-30.json"
+    sha256: "0da73bbb4d005a0e38bd563bd455afe918d6db25829a843b7a69dc653c0a9cd7"
+  }
+}

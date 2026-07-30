@@ -1,0 +1,83 @@
+// Stormglass Commons Character Realism H4D.
+//
+// This source overlay advances the admitted H4C native gaze and breathing
+// residents onto HoloScript's motion-reprojected WebGPU temporal path. The
+// temporal contract is authored here; the checker compiles two absolute-time
+// character states and consumes their real velocity, depth, and reactive data.
+
+composition "Stormglass Character Realism H4D Production Temporal Convergence" {
+  metadata {
+    title: "Stormglass Character Realism H4D - Production Temporal Convergence"
+    version: "0.1.0"
+    date: "2026-07-30"
+    milestone: "MV_CHARACTER_REALISM_H4D_PRODUCTION_TEMPORAL_CONVERGENCE"
+    source: "source/layers/vr/frontier/model-village/model-village-character-realism-h4d-production-temporal-convergence.holo"
+    inheritedWorldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4c-native-gaze-breathing.holo"
+    policySource: "source/proofs/model-village-character-realism-h4d-production-temporal-convergence-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-realism-h4d-production-temporal-convergence-seed.hs"
+    upstreamHoloScriptCommit: "623b2bf3c6f4e7ba0fa4ed62ce20061796664c28"
+    upstreamHoloScriptCapsule: "sha256:5bd5864f7f5e246231cd561ddc226a34b96679a739b3bde1a46c6bf8994b183e"
+    upstreamHoloScriptPromotion: "sha256:988dd6d2d284abcdd2ad03e2bf06142997af9ce0091d1f2e181746c7ebcd06dd"
+    upstreamMotionVectorPath: "packages/engine/src/character-render/CharacterMotionVectors.ts"
+    upstreamMotionVectorSha256: "b21581f573f446a39bb4f95432b306280876d69ae3107a1475f9a15d2d95d570"
+    upstreamTemporalResolvePath: "packages/engine/src/rendering/webgpu/TemporalConvergence.ts"
+    upstreamTemporalResolveSha256: "944a9d0d89819771bd1f1b11e3c7e221b9bfec39a9edcd44ec2327f91749ab7e"
+    upstreamTemporalInputsPath: "packages/engine/src/rendering/webgpu/TemporalInputs.ts"
+    upstreamTemporalInputsSha256: "9800e1d05fcd05b1ac3f7c10855bb94fb216098a1481d9a9a9343a2d8855bb14"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "cinematic_stormglass_motion_reprojected_resident_plate"
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H4D_PRODUCTION_TEMPORAL_CONVERGENCE"
+    inheritedResidentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    previousFrameOffsetSeconds: 0
+    currentFrameOffsetSeconds: 0.84
+    sampleCount: 8
+    feedbackCeiling: 0.875
+    motionVectorSpace: "current_minus_previous_pixels"
+    neighborhoodClampingRequired: true
+    depthDisocclusionRequired: true
+    disocclusionDepthThreshold: 0.01
+    reactiveMaskRequired: true
+    browserNativeWebgpuMeasured: true
+    productionTemporalEntrypointsIntegrated: true
+    readbackBackedVerification: true
+    zeroCopyFrameGraphMeasured: false
+    gpuTimestampMeasured: false
+    wallClockUsedAsGpuTime: false
+    freshRtxBenchmarkClaimed: false
+    questHeadsetMeasured: false
+    photorealismClaimed: false
+  }
+
+  object "OpenAIResidentTemporal" {
+    @temporal_accumulation(profile: "character_motion_reprojection_v1", sample_count: 8, feedback_ceiling: 0.875, motion_vector_space: "current_minus_previous_pixels", disocclusion_depth_threshold: 0.01, neighborhood_clamping: true, reactive_mask: true)
+    type: "named_model_family_temporal_overlay"
+    targetObjectId: "OpenAIResident"
+    displayLabel: "OpenAI"
+  }
+
+  object "ClaudeResidentTemporal" {
+    @temporal_accumulation(profile: "character_motion_reprojection_v1", sample_count: 8, feedback_ceiling: 0.875, motion_vector_space: "current_minus_previous_pixels", disocclusion_depth_threshold: 0.01, neighborhood_clamping: true, reactive_mask: true)
+    type: "named_model_family_temporal_overlay"
+    targetObjectId: "ClaudeResident"
+    displayLabel: "Claude"
+  }
+
+  object "GeminiResidentTemporal" {
+    @temporal_accumulation(profile: "character_motion_reprojection_v1", sample_count: 8, feedback_ceiling: 0.875, motion_vector_space: "current_minus_previous_pixels", disocclusion_depth_threshold: 0.01, neighborhood_clamping: true, reactive_mask: true)
+    type: "named_model_family_temporal_overlay"
+    targetObjectId: "GeminiResident"
+    displayLabel: "Gemini"
+  }
+
+  object "GrokResidentTemporal" {
+    @temporal_accumulation(profile: "character_motion_reprojection_v1", sample_count: 8, feedback_ceiling: 0.875, motion_vector_space: "current_minus_previous_pixels", disocclusion_depth_threshold: 0.01, neighborhood_clamping: true, reactive_mask: true)
+    type: "named_model_family_temporal_overlay"
+    targetObjectId: "GrokResident"
+    displayLabel: "Grok"
+  }
+}
