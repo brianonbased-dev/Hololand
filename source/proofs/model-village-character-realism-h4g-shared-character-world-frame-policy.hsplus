@@ -1,0 +1,80 @@
+// H4G typed shared world-frame admission policy.
+// The checker parses this contract and enforces it over live WebGPU receipts;
+// native hsplus action execution is not claimed by this milestone.
+
+composition "Stormglass Character Realism H4G Shared World Frame Policy" {
+  config {
+    schema: "hololand.model-village.character-realism-h4g-policy.v1"
+    milestone: "MV_CHARACTER_REALISM_H4G_SHARED_CHARACTER_WORLD_FRAME"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4g-shared-character-world-frame.holo"
+    seedSource: "source/proofs/model-village-character-realism-h4g-shared-character-world-frame-seed.hs"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H4GAdmissionState {
+    residentCount: 0
+    measuredSharedFrameCount: 0
+    timestampMeasuredSharedFrameCount: 0
+    zeroCopyCompositeFrameCount: 0
+    singleSubmissionSharedFrameCount: 0
+    externalNetworkRequestCount: 0
+  }
+
+  template "H4GSharedWorldFrameExpectation" {
+    type: "native_shared_character_world_frame_admission"
+    expectedResidentCount: 4
+    expectedTileWidth: 512
+    expectedTileHeight: 512
+    expectedOutputWidth: 1024
+    expectedOutputHeight: 1024
+    expectedLayout: "two-by-two"
+    expectedTimedScope: "four-character-color-motion-depth-temporal-through-composite-gpu-scope"
+    expectedIntermediateFrameReadbackCount: 0
+    timestampQueryRequired: true
+    persistentGpuResourcesRequired: true
+    fixedTopologyRequired: true
+    sharedCommandBufferCountRequired: 1
+    sharedQueueSubmissionCountRequired: 1
+  }
+
+  action admit_h4g_shared_world_frame(frame, expected) {
+    if (frame.residentCount != expected.expectedResidentCount || frame.tileWidth != expected.expectedTileWidth || frame.tileHeight != expected.expectedTileHeight) {
+      return { admitted: false, reason: "resident_or_tile_contract_drifted" }
+    }
+    if (frame.outputWidth != expected.expectedOutputWidth || frame.outputHeight != expected.expectedOutputHeight || frame.layout != expected.expectedLayout) {
+      return { admitted: false, reason: "shared_composite_contract_drifted" }
+    }
+    if (frame.fixedTopology != true || frame.persistentGpuResources != true || frame.residentReceiptsShareCommandBuffer != true) {
+      return { admitted: false, reason: "persistent_shared_topology_contract_missing" }
+    }
+    if (frame.composite.zeroCopyResidentTextureInputs != true || frame.composite.inputTextureCount != 4) {
+      return { admitted: false, reason: "resident_output_left_gpu_before_composite" }
+    }
+    if (frame.intermediateFrameReadbackCount != expected.expectedIntermediateFrameReadbackCount) {
+      return { admitted: false, reason: "intermediate_frame_readback_detected" }
+    }
+    if (frame.commandBufferCount != expected.sharedCommandBufferCountRequired || frame.queueSubmissionCount != expected.sharedQueueSubmissionCountRequired) {
+      return { admitted: false, reason: "shared_submission_count_drifted" }
+    }
+    if (frame.gpuTimestampMeasured != true || frame.aggregateNanoseconds <= 0 || frame.compositeNanoseconds <= 0) {
+      return { admitted: false, reason: "shared_gpu_timestamp_missing" }
+    }
+    if (frame.timedScope != expected.expectedTimedScope) {
+      return { admitted: false, reason: "shared_gpu_timestamp_scope_drifted" }
+    }
+    return { admitted: true, reason: "h4g_shared_world_frame_admitted" }
+  }
+
+  action admit_h4g_witness(witness) {
+    if (witness.residentCount != 4 || witness.measuredSharedFrameCount != 32) {
+      return { admitted: false, reason: "resident_or_shared_sample_count_drifted" }
+    }
+    if (witness.externalNetworkRequestCount != 0) {
+      return { admitted: false, reason: "external_dependency_detected" }
+    }
+    if (witness.fullHoloLandWorldFrameClaimed != false || witness.productionWholeFrameTimeClaimed != false || witness.photorealismClaimed != false) {
+      return { admitted: false, reason: "shared_benchmark_scope_overclaimed" }
+    }
+    return { admitted: true, reason: "bounded_h4g_browser_witness_receipted" }
+  }
+}

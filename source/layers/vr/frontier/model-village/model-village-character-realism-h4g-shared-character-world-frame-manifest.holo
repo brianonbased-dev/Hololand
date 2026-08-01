@@ -1,0 +1,42 @@
+// Portable SHA-256 bindings for the admitted H4G shared-world-frame witness.
+
+composition "Stormglass Character Realism H4G Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-realism-h4g-manifest.v1"
+    milestone: "MV_CHARACTER_REALISM_H4G_SHARED_CHARACTER_WORLD_FRAME"
+    hashPolicy: "sha256_lf_normalized_for_text_raw_bytes_for_png"
+  }
+
+  object "H4GWorldSource" {
+    path: "source/layers/vr/frontier/model-village/model-village-character-realism-h4g-shared-character-world-frame.holo"
+    sha256: "5f414eabe1f5ea26406c10339e1bbd61df345e67fe80e3b635a4faaf11883e08"
+  }
+  object "H4GPolicy" {
+    path: "source/proofs/model-village-character-realism-h4g-shared-character-world-frame-policy.hsplus"
+    sha256: "fdf3a248339986e28b4bf78cd7a58e9bc76a04dcf1fe0a2d869907e945925404"
+  }
+  object "H4GSeed" {
+    path: "source/proofs/model-village-character-realism-h4g-shared-character-world-frame-seed.hs"
+    sha256: "6482e8245f5a76fb8eb6022287115736fd369650119fbb4abaca8a02e2d5f498"
+  }
+  object "H4GChecker" {
+    path: "scripts/check-hololand-model-village-character-realism-h4g.mjs"
+    sha256: "e8878463a75bf6c8d55b512a5022c23352d2759a8a60348a79a98d251005a0b5"
+  }
+  object "H4GTests" {
+    path: "scripts/__tests__/hololand-model-village-character-realism-h4g.test.mjs"
+    sha256: "0ae0a35024f06638a7faad8aba3ad4fb0569abb649572421e3e9d8348af9739f"
+  }
+  object "H4GReport" {
+    path: "docs/reports/model-village-character-realism-h4g-shared-character-world-frame-2026-08-01.md"
+    sha256: "aeb38c54e9b0b078b56528bdcac0adf90c138c18a7770f03ffb428b81fe28d50"
+  }
+  object "H4GHero" {
+    path: "docs/assets/model-village/model-village-character-realism-h4g-shared-character-world-frame-2026-08-01.png"
+    sha256: "87b5084f28b0deb11e634209342fd83bf26154a40a65987d4fade0dd158ac3b2"
+  }
+  object "H4GEvidence" {
+    path: "docs/assets/model-village/model-village-character-realism-h4g-shared-character-world-frame-2026-08-01.json"
+    sha256: "ac1b24dc784c406721d513386f923e94cde7c1d22c19e5be0ea31c9ce3297bfd"
+  }
+}

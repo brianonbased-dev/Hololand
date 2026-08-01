@@ -1,0 +1,112 @@
+// Stormglass Commons Character Realism H4G.
+//
+// H4G advances the named model-family residents from four independent H4F
+// submissions into one shared WebGPU world-frame command stream. All resident
+// color, motion/depth, and temporal passes feed a zero-copy 2x2 composite before
+// one command-buffer submission. Twenty-six GPU timestamps expose every stage.
+
+composition "Stormglass Character Realism H4G Shared Character World Frame" {
+  metadata {
+    title: "Stormglass Character Realism H4G - Shared Character World Frame"
+    version: "0.1.0"
+    date: "2026-08-01"
+    milestone: "MV_CHARACTER_REALISM_H4G_SHARED_CHARACTER_WORLD_FRAME"
+    upstreamHoloScriptCommit: "7a09fa27ba78694ad0751eabf9befea08aa973e3"
+    artStyle: "hearthlight_biorealism"
+    worldTheme: "stormglass_commons_model_village"
+    visualTarget: "four_source_compiled_model_family_residents_in_one_shared_temporal_tableau"
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H4G_SHARED_CHARACTER_WORLD_FRAME"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    tileWidth: 512
+    tileHeight: 512
+    compositeWidth: 1024
+    compositeHeight: 1024
+    compositeLayout: "two_by_two"
+    warmupSharedFrames: 4
+    measuredSharedFrames: 32
+    totalMeasuredSamples: 32
+    fixedTopologyRequired: true
+    persistentGpuResourcesRequired: true
+    sharedCommandBufferCountRequired: 1
+    sharedQueueSubmissionCountRequired: 1
+    zeroCopyResidentOutputsToCompositeRequired: true
+    intermediateFrameReadbackCountRequired: 0
+    finalEvidenceFrameReadbackCount: 1
+    timestampMetadataReadbackCount: 1
+    gpuTimestampQueryRequired: true
+    timestampQueryCount: 26
+    timedScope: "four_character_color_motion_depth_temporal_through_composite_gpu_scope"
+    cpuMotionDerivationExcludedFromTimedScope: true
+    cpuToGpuUploadsExcludedFromTimedScope: true
+    historyCopiesExcludedFromTimedScope: true
+    evidenceAndTimestampReadbackExcludedFromTimedScope: true
+    boundedSharedCharacterCompositeRtxBenchmarkClaimed: true
+    fullHoloLandWorldFrameClaimed: false
+    productionWholeFrameTimeClaimed: false
+    questHeadsetMeasured: false
+    photorealismClaimed: false
+  }
+
+  object "H4GSharedCharacterWorldFrame" {
+    type: "browser_webgpu_shared_character_world_frame_benchmark"
+    temporalProfile: "character_world_frame_graph_v1"
+    temporalSampleCount: 8
+    temporalFeedbackCeiling: 0.875
+    disocclusionDepthThreshold: 0.01
+    neighborhoodClamping: true
+    reactiveMask: false
+    residentTileResolution: [512, 512]
+    compositeResolution: [1024, 1024]
+    compositeLayout: "two_by_two"
+    warmupSharedFrames: 4
+    measuredSharedFrames: 32
+    residentFrameGraphCount: 4
+    timestampScope: "four-character-color-motion-depth-temporal-through-composite-gpu-scope"
+    timestampStages: ["resident_character_color", "resident_motion_depth", "resident_temporal_resolve", "resident_aggregate", "composite", "shared_aggregate"]
+  }
+
+  object "OpenAIResident" {
+    type: "named_model_family_resident"
+    displayLabel: "OpenAI"
+    modelFamily: "OpenAI"
+    sourceObjectId: "OpenAIResident"
+    microMotionSeed: "stormglass-openai"
+    accentColor: "#7dd3fc"
+    compositeTile: "north_west"
+  }
+
+  object "ClaudeResident" {
+    type: "named_model_family_resident"
+    displayLabel: "Claude"
+    modelFamily: "Claude"
+    sourceObjectId: "ClaudeResident"
+    microMotionSeed: "stormglass-claude"
+    accentColor: "#f59e7a"
+    compositeTile: "north_east"
+  }
+
+  object "GeminiResident" {
+    type: "named_model_family_resident"
+    displayLabel: "Gemini"
+    modelFamily: "Gemini"
+    sourceObjectId: "GeminiResident"
+    microMotionSeed: "stormglass-gemini"
+    accentColor: "#a7f3d0"
+    compositeTile: "south_west"
+  }
+
+  object "GrokResident" {
+    type: "named_model_family_resident"
+    displayLabel: "Grok"
+    modelFamily: "Grok"
+    sourceObjectId: "GrokResident"
+    microMotionSeed: "stormglass-grok"
+    accentColor: "#fcd34d"
+    compositeTile: "south_east"
+  }
+}
