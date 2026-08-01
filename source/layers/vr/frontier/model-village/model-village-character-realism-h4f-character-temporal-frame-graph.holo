@@ -1,0 +1,93 @@
+// Stormglass Commons Character Realism H4F.
+//
+// H4F advances the four named resident portraits from separate render/readback
+// witnesses into a persistent per-character WebGPU graph. Character color,
+// motion/depth raster, and temporal resolve share one command buffer and one
+// queue submission. Six GPU timestamps expose the three stages and aggregate.
+
+composition "Stormglass Character Realism H4F Character Temporal Frame Graph" {
+  metadata {
+    title: "Stormglass Character Realism H4F - Character Temporal Frame Graph"
+    version: "0.1.0"
+    date: "2026-07-31"
+    milestone: "MV_CHARACTER_REALISM_H4F_CHARACTER_TEMPORAL_FRAME_GRAPH"
+    upstreamHoloScriptCommit: "345b85c87ef5a97bcad11cd39be8ece59358a319"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "four_source_compiled_stormglass_residents_with_live_stage_telemetry"
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H4F_CHARACTER_TEMPORAL_FRAME_GRAPH"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    characterTargetWidth: 512
+    characterTargetHeight: 512
+    warmupFramesPerResident: 4
+    measuredFramesPerResident: 16
+    totalMeasuredSamples: 64
+    fixedTopologyRequired: true
+    persistentGpuResourcesRequired: true
+    singleCommandBufferPerCharacterFrameRequired: true
+    singleQueueSubmissionPerCharacterFrameRequired: true
+    zeroCopyColorToTemporalRequired: true
+    zeroCopyMotionDepthToTemporalRequired: true
+    zeroCopyResolveToHistoryRequired: true
+    intermediateFrameReadbackCountRequired: 0
+    gpuTimestampQueryRequired: true
+    timestampQueryCount: 6
+    timedScope: "character_color_through_temporal_resolve_gpu_scope"
+    cpuMotionDerivationExcludedFromTimedScope: true
+    cpuToGpuUploadsExcludedFromTimedScope: true
+    historyCopiesExcludedFromTimedScope: true
+    evidenceAndTimestampReadbackExcludedFromTimedScope: true
+    boundedPerCharacterRtxBenchmarkClaimed: true
+    fourCharactersInOneSubmissionClaimed: false
+    productionWholeFrameTimeClaimed: false
+    questHeadsetMeasured: false
+    photorealismClaimed: false
+  }
+
+  object "H4FCharacterTemporalBenchmark" {
+    @temporal_accumulation(profile: "character_texture_frame_graph_v2", sample_count: 8, feedback_ceiling: 0.875, disocclusion_depth_threshold: 0.01, neighborhood_clamping: true, reactive_mask: false)
+    type: "browser_webgpu_per_character_frame_graph_benchmark"
+    resolution: [512, 512]
+    warmupFramesPerResident: 4
+    measuredFramesPerResident: 16
+    residentFrameGraphCount: 4
+    timestampScope: "character-color-through-temporal-resolve-gpu-scope"
+    timestampStages: ["character_color", "motion_depth", "temporal_resolve", "aggregate"]
+  }
+
+  object "OpenAIResidentCharacterGraph" {
+    type: "named_model_family_character_temporal_graph"
+    displayLabel: "OpenAI"
+    sourceObjectId: "OpenAIResident"
+    microMotionSeed: "stormglass-openai"
+    accentColor: "#7dd3fc"
+  }
+
+  object "ClaudeResidentCharacterGraph" {
+    type: "named_model_family_character_temporal_graph"
+    displayLabel: "Claude"
+    sourceObjectId: "ClaudeResident"
+    microMotionSeed: "stormglass-claude"
+    accentColor: "#f59e7a"
+  }
+
+  object "GeminiResidentCharacterGraph" {
+    type: "named_model_family_character_temporal_graph"
+    displayLabel: "Gemini"
+    sourceObjectId: "GeminiResident"
+    microMotionSeed: "stormglass-gemini"
+    accentColor: "#a7f3d0"
+  }
+
+  object "GrokResidentCharacterGraph" {
+    type: "named_model_family_character_temporal_graph"
+    displayLabel: "Grok"
+    sourceObjectId: "GrokResident"
+    microMotionSeed: "stormglass-grok"
+    accentColor: "#fcd34d"
+  }
+}

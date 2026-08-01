@@ -1,0 +1,194 @@
+{
+  "schema": "hololand.model-village.character-realism-h4f-character-temporal-witness.v1",
+  "capturedAt": "2026-08-01T08:10:59.377Z",
+  "status": "pass",
+  "milestone": "MV_CHARACTER_REALISM_H4F_CHARACTER_TEMPORAL_FRAME_GRAPH",
+  "sourceAdmission": {
+    "holoScriptCommit": "345b85c87ef5a97bcad11cd39be8ece59358a319",
+    "sourceSha256": "25ff7bdb6ec106b303372537570fa71b4e0b276ea5762a5611d0b58fa67f5969",
+    "policySha256": "beb11a8db1e49876f5871678f5544b99174e02ee2b1c6a7e89ac3ba7ca32483e",
+    "seedSha256": "99f7c18e87f3fefe554a14d2661cea1d7f376eedd4ccd46e42407ffb9f0083a8",
+    "residentNames": [
+      "OpenAI",
+      "Claude",
+      "Gemini",
+      "Grok"
+    ],
+    "sourceFrameOffsetsSeconds": [
+      0,
+      0.84
+    ],
+    "parsedFormats": {
+      "holoObjectCount": 5,
+      "hsplusObjectCount": 0,
+      "hsObjectCount": 0
+    },
+    "runtimeHashBindings": {
+      "packages/engine/src/rendering/webgpu/CharacterTemporalFrameGraph.ts": "a4c636c38cf120c131cb1cc77a1e8f76b2200c33a4068f880887089cc0fea486",
+      "packages/engine/src/character-render/CharacterTextureRenderer.ts": "b3d3d7046420fcbf892e9f5179bff29e5fc369e46b5a5c6636bd5adcdab2a73c",
+      "packages/engine/src/character-render/CharacterMotionTextureRasterizer.ts": "67813392d1365c875cd8a1bc6811cc69592802b8dc2b799d102621e0d98ff354"
+    }
+  },
+  "compilerAdmission": {
+    "target": "character-webgpu",
+    "sourceCompiledStateCount": 8,
+    "residentCount": 4,
+    "repeatedCompileByteIdentity": true
+  },
+  "browserWebgpuAdmission": {
+    "runtime": {
+      "characterTemporalFrameGraph": "HoloScript CharacterTemporalFrameGraph",
+      "backend": "browser_native_webgpu",
+      "browserUsed": true,
+      "threeJsUsed": false,
+      "r3fUsed": false
+    },
+    "browser": {
+      "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "product": "Chrome/151.0.7922.71",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+      "launchArgs": [
+        "--use-angle=d3d11",
+        "--ignore-gpu-blocklist",
+        "--enable-gpu",
+        "--enable-unsafe-webgpu",
+        "--enable-dawn-features=allow_unsafe_apis",
+        "--disable-background-networking",
+        "--disable-features=Translate,MediaRouter"
+      ]
+    },
+    "gpu": {
+      "navigatorGpu": true,
+      "adapterAcquired": true,
+      "deviceCreated": true,
+      "vendor": "nvidia",
+      "architecture": "ampere",
+      "device": "",
+      "description": "",
+      "adapterFeatures": [
+        "bgra8unorm-storage",
+        "chromium-experimental-multi-draw-indirect",
+        "chromium-experimental-timestamp-query-inside-passes",
+        "clip-distances",
+        "core-features-and-limits",
+        "depth-clip-control",
+        "depth32float-stencil8",
+        "dual-source-blending",
+        "float32-blendable",
+        "float32-filterable",
+        "indirect-first-instance",
+        "primitive-index",
+        "rg11b10ufloat-renderable",
+        "shader-f16",
+        "subgroup-size-control",
+        "subgroups",
+        "texture-component-swizzle",
+        "texture-compression-bc",
+        "texture-compression-bc-sliced-3d",
+        "texture-formats-tier1",
+        "texture-formats-tier2",
+        "timestamp-query"
+      ],
+      "deviceFeatures": [
+        "core-features-and-limits",
+        "timestamp-query"
+      ],
+      "timestampQuerySupported": true,
+      "timestampQueryEnabled": true
+    },
+    "network": {
+      "loopbackRequestCount": 1,
+      "observedRequestCount": 1,
+      "externalRequestCount": 0
+    },
+    "screenshot": {
+      "width": 1400,
+      "height": 900,
+      "bytes": 306089,
+      "sha256": "86ffd2adce5bf89b54a317d9a7bfae55d62c764c60b6b70d3a81a63510c953b8"
+    },
+    "residentOutputDigests": {
+      "OpenAI": "a293b26fe52c159619972e405d8d8afff43162efa9ed7a0ec26140cff8644839",
+      "Claude": "4a04020dcd4f2193044b737c8391f967f01106db166b65c9ef5110593c5b1bed",
+      "Gemini": "a141e206c2f03282b06b34d21b54ae1b7c95b18c27cca2f8ebbe90a508d4c33b",
+      "Grok": "1185ed24527dfd96188bd1103c86fd01e357cf5cd358834424ad893c831cc189"
+    }
+  },
+  "characterFrameGraphAdmission": {
+    "width": 512,
+    "height": 512,
+    "residentCount": 4,
+    "warmupFramesPerResident": 4,
+    "measuredFramesPerResident": 16,
+    "totalMeasuredSampleCount": 64,
+    "fixedTopologySampleCount": 64,
+    "persistentGpuResourceSampleCount": 64,
+    "zeroCopyStageSampleCount": 64,
+    "singleCommandAndSubmissionSampleCount": 64,
+    "intermediateFrameReadbackCount": 0,
+    "measuredFrameEvidenceReadbackCount": 0,
+    "finalEvidenceReadbackCount": 4,
+    "submissionScope": "one-command-buffer-and-one-submission-per-resident-character-frame"
+  },
+  "gpuTimestampAdmission": {
+    "classification": "gpu-timestamp-query",
+    "queryCountPerSample": 6,
+    "timedScope": "character-color-through-temporal-resolve-gpu-scope",
+    "sampleCount": 64,
+    "stageTimingStatistics": {
+      "characterColorNanoseconds": {
+        "unit": "nanoseconds",
+        "sampleCount": 64,
+        "minimum": 50176,
+        "median": 52224,
+        "mean": 52064,
+        "p95": 54272,
+        "maximum": 54272
+      },
+      "motionDepthNanoseconds": {
+        "unit": "nanoseconds",
+        "sampleCount": 64,
+        "minimum": 26624,
+        "median": 28672,
+        "mean": 28240,
+        "p95": 28672,
+        "maximum": 29696
+      },
+      "temporalResolveNanoseconds": {
+        "unit": "nanoseconds",
+        "sampleCount": 64,
+        "minimum": 38912,
+        "median": 39936,
+        "mean": 40256,
+        "p95": 40960,
+        "maximum": 55296
+      },
+      "aggregateNanoseconds": {
+        "unit": "nanoseconds",
+        "sampleCount": 64,
+        "minimum": 137216,
+        "median": 140288,
+        "mean": 140704,
+        "p95": 142336,
+        "maximum": 154624
+      }
+    },
+    "exclusions": [
+      "cpu-motion-derivation",
+      "cpu-to-gpu-uploads",
+      "history-copies-after-q5",
+      "timestamp-query-mapping",
+      "final-evidence-readback",
+      "html-composition",
+      "screenshot-capture"
+    ]
+  },
+  "boundaries": {
+    "boundedPerCharacterRtxBenchmarkClaimed": true,
+    "fourCharactersInOneSubmissionClaimed": false,
+    "productionWholeFrameTimeClaimed": false,
+    "wallClockUsedAsGpuTime": false,
+    "questHeadsetMeasured": false,
+    "photorealismClaimed": false
+  }
+}

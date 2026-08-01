@@ -1,0 +1,42 @@
+// Portable SHA-256 bindings for the admitted H4F witness.
+
+composition "Stormglass Character Realism H4F Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-realism-h4f-manifest.v1"
+    milestone: "MV_CHARACTER_REALISM_H4F_CHARACTER_TEMPORAL_FRAME_GRAPH"
+    hashPolicy: "sha256_lf_normalized_for_text_raw_bytes_for_png"
+  }
+
+  object "H4FWorldSource" {
+    path: "source/layers/vr/frontier/model-village/model-village-character-realism-h4f-character-temporal-frame-graph.holo"
+    sha256: "25ff7bdb6ec106b303372537570fa71b4e0b276ea5762a5611d0b58fa67f5969"
+  }
+  object "H4FPolicy" {
+    path: "source/proofs/model-village-character-realism-h4f-character-temporal-frame-graph-policy.hsplus"
+    sha256: "beb11a8db1e49876f5871678f5544b99174e02ee2b1c6a7e89ac3ba7ca32483e"
+  }
+  object "H4FSeed" {
+    path: "source/proofs/model-village-character-realism-h4f-character-temporal-frame-graph-seed.hs"
+    sha256: "99f7c18e87f3fefe554a14d2661cea1d7f376eedd4ccd46e42407ffb9f0083a8"
+  }
+  object "H4FChecker" {
+    path: "scripts/check-hololand-model-village-character-realism-h4f.mjs"
+    sha256: "a187457a732406b089bc24a7526006f351ad3710bae9ff799c995656c8bc53c0"
+  }
+  object "H4FTests" {
+    path: "scripts/__tests__/hololand-model-village-character-realism-h4f.test.mjs"
+    sha256: "c82b41b1cfd8eab9f787a6e31fc6d1a56de1bf2b77d9fc3611aebbeb6f7164a2"
+  }
+  object "H4FReport" {
+    path: "docs/reports/model-village-character-realism-h4f-character-temporal-frame-graph-2026-07-31.md"
+    sha256: "80b5d36b97f0380db74deab7c18f17668db638d0ad497102a3b079a236a25523"
+  }
+  object "H4FHero" {
+    path: "docs/assets/model-village/model-village-character-realism-h4f-character-temporal-frame-graph-2026-07-31.png"
+    sha256: "86ffd2adce5bf89b54a317d9a7bfae55d62c764c60b6b70d3a81a63510c953b8"
+  }
+  object "H4FEvidence" {
+    path: "docs/assets/model-village/model-village-character-realism-h4f-character-temporal-frame-graph-2026-07-31.json"
+    sha256: "870a474ae66ad2d458e499869783f02ccf6a7336a02c602dac41b709d6377cf7"
+  }
+}

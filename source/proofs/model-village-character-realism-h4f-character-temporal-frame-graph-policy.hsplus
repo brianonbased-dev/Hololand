@@ -1,0 +1,73 @@
+// H4F typed per-character frame-graph admission policy.
+// The checker parses this contract and enforces it over live WebGPU receipts;
+// native hsplus action execution is not claimed by this milestone.
+
+composition "Stormglass Character Realism H4F Frame Graph Policy" {
+  config {
+    schema: "hololand.model-village.character-realism-h4f-policy.v1"
+    milestone: "MV_CHARACTER_REALISM_H4F_CHARACTER_TEMPORAL_FRAME_GRAPH"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4f-character-temporal-frame-graph.holo"
+    seedSource: "source/proofs/model-village-character-realism-h4f-character-temporal-frame-graph-seed.hs"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H4FAdmissionState {
+    residentCount: 0
+    measuredSampleCount: 0
+    timestampMeasuredSampleCount: 0
+    zeroCopySampleCount: 0
+    singleSubmissionSampleCount: 0
+    externalNetworkRequestCount: 0
+  }
+
+  template "H4FCharacterFrameExpectation" {
+    type: "native_character_temporal_frame_graph_admission"
+    expectedWidth: 512
+    expectedHeight: 512
+    expectedTimedScope: "character-color-through-temporal-resolve-gpu-scope"
+    expectedIntermediateFrameReadbackCount: 0
+    timestampQueryRequired: true
+    persistentGpuResourcesRequired: true
+    fixedTopologyRequired: true
+    singleCommandBufferRequired: true
+    singleQueueSubmissionRequired: true
+  }
+
+  action admit_h4f_character_frame(frame, expected) {
+    if (frame.width != expected.expectedWidth || frame.height != expected.expectedHeight) {
+      return { admitted: false, reason: "character_target_resolution_drifted" }
+    }
+    if (frame.fixedTopology != true || frame.persistentGpuResources != true) {
+      return { admitted: false, reason: "persistent_fixed_topology_contract_missing" }
+    }
+    if (frame.zeroCopyColorToTemporalResolve != true || frame.zeroCopyMotionDepthToTemporalResolve != true || frame.zeroCopyResolveToHistory != true) {
+      return { admitted: false, reason: "character_stage_left_gpu" }
+    }
+    if (frame.intermediateFrameReadbackCount != expected.expectedIntermediateFrameReadbackCount) {
+      return { admitted: false, reason: "intermediate_frame_readback_detected" }
+    }
+    if (frame.commandBufferCount != 1 || frame.queueSubmissionCount != 1) {
+      return { admitted: false, reason: "per_character_submission_count_drifted" }
+    }
+    if (frame.gpuTimestampMeasured != true || frame.aggregateNanoseconds <= 0) {
+      return { admitted: false, reason: "aggregate_gpu_timestamp_missing" }
+    }
+    if (frame.timedScope != expected.expectedTimedScope) {
+      return { admitted: false, reason: "gpu_timestamp_scope_drifted" }
+    }
+    return { admitted: true, reason: "h4f_character_frame_admitted" }
+  }
+
+  action admit_h4f_witness(witness) {
+    if (witness.residentCount != 4 || witness.measuredSampleCount != 64) {
+      return { admitted: false, reason: "resident_or_sample_count_drifted" }
+    }
+    if (witness.externalNetworkRequestCount != 0) {
+      return { admitted: false, reason: "external_dependency_detected" }
+    }
+    if (witness.fourCharactersInOneSubmissionClaimed != false || witness.productionWholeFrameTimeClaimed != false) {
+      return { admitted: false, reason: "benchmark_scope_overclaimed" }
+    }
+    return { admitted: true, reason: "bounded_h4f_browser_witness_receipted" }
+  }
+}
