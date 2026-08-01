@@ -1,0 +1,59 @@
+// H4H typed material-identity admission policy.
+// The checker executes these conditions over source-compiled records and live
+// WebGPU receipts; native hsplus action execution is not claimed by this lane.
+
+composition "Stormglass Character Realism H4H Material Identity Policy" {
+  config {
+    schema: "hololand.model-village.character-realism-h4h-policy.v1"
+    milestone: "MV_CHARACTER_REALISM_H4H_MATERIAL_MODEL_FAMILY_IDENTITY_CONVERGENCE"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4h-material-model-family-identity-convergence.holo"
+    seedSource: "source/proofs/model-village-character-realism-h4h-material-model-family-identity-convergence-seed.hs"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H4HAdmissionState {
+    residentCount: 0
+    sourceColorRetainedCount: 0
+    v2HairMaterialReceiptCount: 0
+    distinctSourceHairColorCount: 0
+    measuredSharedFrameCount: 0
+  }
+
+  template "H4HMaterialIdentityExpectation" {
+    type: "native_material_model_family_identity_admission"
+    expectedResidentCount: 4
+    expectedHairMaterialSchema: "holoscript.agent-avatar-hair-material.v2"
+    expectedSourceColorWeight: 0.55
+    expectedDistinctSourceHairColorCount: 4
+    expectedMeasuredSharedFrames: 32
+    expectedCommandBufferCount: 1
+    expectedQueueSubmissionCount: 1
+    expectedTimestampQueryCount: 26
+  }
+
+  action admit_h4h_resident_material(resident, expected) {
+    if (resident.sourceColorRetained != true || resident.materialSchema != expected.expectedHairMaterialSchema) {
+      return { admitted: false, reason: "source_hair_chroma_not_operative" }
+    }
+    if (resident.drawSpecColor != resident.sourceColor || resident.sourceColorWeight != expected.expectedSourceColorWeight) {
+      return { admitted: false, reason: "source_hair_color_binding_drifted" }
+    }
+    return { admitted: true, reason: "h4h_resident_material_identity_admitted" }
+  }
+
+  action admit_h4h_shared_witness(witness, expected) {
+    if (witness.residentCount != expected.expectedResidentCount || witness.distinctSourceHairColorCount != expected.expectedDistinctSourceHairColorCount) {
+      return { admitted: false, reason: "model_family_identity_count_drifted" }
+    }
+    if (witness.commandBufferCount != expected.expectedCommandBufferCount || witness.queueSubmissionCount != expected.expectedQueueSubmissionCount) {
+      return { admitted: false, reason: "shared_submission_contract_drifted" }
+    }
+    if (witness.measuredSharedFrames != expected.expectedMeasuredSharedFrames || witness.timestampQueryCount != expected.expectedTimestampQueryCount) {
+      return { admitted: false, reason: "measured_shared_frame_contract_drifted" }
+    }
+    if (witness.fullHoloLandWorldFrameClaimed != false || witness.productionWholeFrameTimeClaimed != false || witness.photorealismClaimed != false) {
+      return { admitted: false, reason: "h4h_scope_overclaimed" }
+    }
+    return { admitted: true, reason: "bounded_h4h_shared_identity_witness_admitted" }
+  }
+}

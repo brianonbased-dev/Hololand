@@ -1,0 +1,438 @@
+{
+  "schema": "hololand.model-village.character-realism-h4h-material-model-family-identity-witness.v1",
+  "capturedAt": "2026-08-01T10:58:26.206Z",
+  "status": "pass",
+  "milestone": "MV_CHARACTER_REALISM_H4H_MATERIAL_MODEL_FAMILY_IDENTITY_CONVERGENCE",
+  "sourceAdmission": {
+    "holoScriptCommit": "712698cf465b15c8552c3c5e545800543b929c78",
+    "sourceSha256": "31342ac8522ea320f050447877ff1cf9457852fd3fdfd292c1ec0059533e83b1",
+    "policySha256": "42f5f7c2ca45317405b5a29b25ecd235505f595231dee0e616ade08015ac80db",
+    "seedSha256": "208507838b64fc79d0dcfb36dc3a314453a547427685d16223df6c8d74ffc25a",
+    "residentNames": [
+      "OpenAI",
+      "Claude",
+      "Gemini",
+      "Grok"
+    ],
+    "sourceFrameOffsetsSeconds": [
+      0,
+      0.84
+    ],
+    "parsedFormats": {
+      "holoObjectCount": 4,
+      "hsplusObjectCount": 0,
+      "hsObjectCount": 0
+    },
+    "runtimeHashBindings": {
+      "packages/engine/src/rendering/webgpu/CharacterWorldFrameGraph.ts": "fb2d81013309c36950da29ef685aeea954f0b79397392ba0e05595e67622a4f9",
+      "packages/engine/src/rendering/webgpu/CharacterTemporalFrameGraph.ts": "860101d4692b4763a3b60840d0d271c2b7df6120788821ee2d988f3b9ec679e3",
+      "packages/engine/src/character-render/CharacterTextureRenderer.ts": "b3d3d7046420fcbf892e9f5179bff29e5fc369e46b5a5c6636bd5adcdab2a73c",
+      "packages/engine/src/character-render/CharacterMotionTextureRasterizer.ts": "67813392d1365c875cd8a1bc6811cc69592802b8dc2b799d102621e0d98ff354"
+    },
+    "operativeAppearanceSource": "source/layers/vr/frontier/model-village/model-village-character-appearance-h4a-facial-volume-garment-framing.holo",
+    "materialRuntimeHashBindings": {
+      "packages/engine/src/native-render/draw-spec.ts": "346f6e8be79a9a27d8e644ead9a7c6dd6b87044464def8994baf1a62a9a00d9b",
+      "packages/engine/src/character-render/AgentAvatarHair.ts": "3cf398e760067f18e03c6940a2c6d11c9bc1bcb964fe0e7b298cc1c6f83fd090",
+      "packages/engine/src/character-render/CharacterHost.ts": "1252aa436237a79efda7c67e5dbc731bcd1a3e7c00bef8b28085679aaf720b80",
+      "packages/engine/src/character-render/CharacterHostFromComposition.ts": "b61487173803bcaffbf1fa04468497900d6c42a67f82729da6c9e7c482718219",
+      "packages/engine/src/character-render/character-render.ts": "a4342c713adfc43abbcec4c9dd44c04444955638cfb007dfc6a78d3f93b37beb",
+      "packages/engine/src/rendering/webgpu/shaders/skin-skinning.wgsl": "c5b24531e4958ec42b7c9caf1463904c8bbb920c4175cba6cdc3178e80900d84"
+    }
+  },
+  "compilerAdmission": {
+    "target": "character-webgpu",
+    "sourceCompiledStateCount": 8,
+    "residentCount": 4,
+    "repeatedCompileByteIdentity": true
+  },
+  "browserWebgpuAdmission": {
+    "runtime": {
+      "characterWorldFrameGraph": "HoloScript CharacterWorldFrameGraph",
+      "backend": "browser_native_webgpu",
+      "browserUsed": true,
+      "threeJsUsed": false,
+      "r3fUsed": false
+    },
+    "browser": {
+      "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "product": "Chrome/151.0.7922.71",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+      "launchArgs": [
+        "--use-angle=d3d11",
+        "--ignore-gpu-blocklist",
+        "--enable-gpu",
+        "--enable-unsafe-webgpu",
+        "--enable-dawn-features=allow_unsafe_apis",
+        "--disable-background-networking",
+        "--disable-features=Translate,MediaRouter"
+      ]
+    },
+    "gpu": {
+      "navigatorGpu": true,
+      "adapterAcquired": true,
+      "deviceCreated": true,
+      "vendor": "nvidia",
+      "architecture": "ampere",
+      "device": "",
+      "description": "",
+      "adapterFeatures": [
+        "bgra8unorm-storage",
+        "chromium-experimental-multi-draw-indirect",
+        "chromium-experimental-timestamp-query-inside-passes",
+        "clip-distances",
+        "core-features-and-limits",
+        "depth-clip-control",
+        "depth32float-stencil8",
+        "dual-source-blending",
+        "float32-blendable",
+        "float32-filterable",
+        "indirect-first-instance",
+        "primitive-index",
+        "rg11b10ufloat-renderable",
+        "shader-f16",
+        "subgroup-size-control",
+        "subgroups",
+        "texture-component-swizzle",
+        "texture-compression-bc",
+        "texture-compression-bc-sliced-3d",
+        "texture-formats-tier1",
+        "texture-formats-tier2",
+        "timestamp-query"
+      ],
+      "deviceFeatures": [
+        "core-features-and-limits",
+        "timestamp-query"
+      ],
+      "timestampQuerySupported": true,
+      "timestampQueryEnabled": true
+    },
+    "network": {
+      "loopbackRequestCount": 2,
+      "observedRequestCount": 1,
+      "externalRequestCount": 0
+    },
+    "screenshot": {
+      "width": 1400,
+      "height": 900,
+      "bytes": 314019,
+      "sha256": "7c32bba2dbbf33dbdf213fac31e2cfe91be4794f76766024eb057dc02bd251c1"
+    },
+    "sharedCompositeOutputDigest": "8e0bf1c0710408e278e89d786ab39505f418785b7b26253f3773758e2700b5d7"
+  },
+  "sharedWorldFrameGraphAdmission": {
+    "tileWidth": 512,
+    "tileHeight": 512,
+    "outputWidth": 1024,
+    "outputHeight": 1024,
+    "layout": "two-by-two",
+    "residentCount": 4,
+    "warmupSharedFrames": 4,
+    "measuredSharedFrames": 32,
+    "totalMeasuredSampleCount": 32,
+    "fixedTopologySampleCount": 32,
+    "persistentGpuResourceSampleCount": 32,
+    "zeroCopyCompositeSampleCount": 32,
+    "sharedCommandAndSubmissionSampleCount": 32,
+    "intermediateFrameReadbackCount": 0,
+    "measuredFrameEvidenceReadbackCount": 0,
+    "finalCompositeEvidenceReadbackCount": 1,
+    "submissionScope": "one-command-buffer-and-one-submission-for-four-residents-and-composite"
+  },
+  "gpuTimestampAdmission": {
+    "classification": "gpu-timestamp-query",
+    "queryCountPerSample": 26,
+    "timedScope": "four-character-color-motion-depth-temporal-through-composite-gpu-scope",
+    "sampleCount": 32,
+    "sharedStageTimingStatistics": {
+      "compositeNanoseconds": {
+        "unit": "nanoseconds",
+        "sampleCount": 32,
+        "minimum": 45056,
+        "median": 46080,
+        "mean": 45664,
+        "p95": 46080,
+        "maximum": 47104
+      },
+      "aggregateNanoseconds": {
+        "unit": "nanoseconds",
+        "sampleCount": 32,
+        "minimum": 617472,
+        "median": 623616,
+        "mean": 624576,
+        "p95": 635904,
+        "maximum": 648192
+      }
+    },
+    "residentStageTimingStatistics": {
+      "OpenAI": {
+        "characterColorNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 51200,
+          "median": 52224,
+          "mean": 52128,
+          "p95": 53248,
+          "maximum": 53248
+        },
+        "motionDepthNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 27648,
+          "median": 27648,
+          "mean": 28096,
+          "p95": 28672,
+          "maximum": 28672
+        },
+        "temporalResolveNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 38912,
+          "median": 39936,
+          "mean": 40384,
+          "p95": 40960,
+          "maximum": 57344
+        },
+        "aggregateNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 138240,
+          "median": 140288,
+          "mean": 140800,
+          "p95": 142336,
+          "maximum": 156672
+        }
+      },
+      "Claude": {
+        "characterColorNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 50176,
+          "median": 51200,
+          "mean": 51520,
+          "p95": 52224,
+          "maximum": 52224
+        },
+        "motionDepthNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 26624,
+          "median": 27648,
+          "mean": 27712,
+          "p95": 28672,
+          "maximum": 28672
+        },
+        "temporalResolveNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 37888,
+          "median": 38912,
+          "mean": 39008,
+          "p95": 39936,
+          "maximum": 44032
+        },
+        "aggregateNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 135168,
+          "median": 137216,
+          "mean": 137344,
+          "p95": 138240,
+          "maximum": 142336
+        }
+      },
+      "Gemini": {
+        "characterColorNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 52224,
+          "median": 53248,
+          "mean": 53632,
+          "p95": 54272,
+          "maximum": 55296
+        },
+        "motionDepthNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 27648,
+          "median": 28160,
+          "mean": 28160,
+          "p95": 28672,
+          "maximum": 28672
+        },
+        "temporalResolveNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 36864,
+          "median": 37888,
+          "mean": 38592,
+          "p95": 41984,
+          "maximum": 44032
+        },
+        "aggregateNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 137216,
+          "median": 139264,
+          "mean": 139360,
+          "p95": 143360,
+          "maximum": 143360
+        }
+      },
+      "Grok": {
+        "characterColorNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 51200,
+          "median": 52224,
+          "mean": 52416,
+          "p95": 53248,
+          "maximum": 53248
+        },
+        "motionDepthNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 27648,
+          "median": 28672,
+          "mean": 28352,
+          "p95": 28672,
+          "maximum": 29696
+        },
+        "temporalResolveNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 36864,
+          "median": 37888,
+          "mean": 38304,
+          "p95": 39936,
+          "maximum": 44032
+        },
+        "aggregateNanoseconds": {
+          "unit": "nanoseconds",
+          "sampleCount": 32,
+          "minimum": 135168,
+          "median": 137216,
+          "mean": 137856,
+          "p95": 141312,
+          "maximum": 144384
+        }
+      }
+    },
+    "combinedResidentStageTimingStatistics": {
+      "characterColorNanoseconds": {
+        "unit": "nanoseconds",
+        "sampleCount": 128,
+        "minimum": 50176,
+        "median": 52224,
+        "mean": 52424,
+        "p95": 54272,
+        "maximum": 55296
+      },
+      "motionDepthNanoseconds": {
+        "unit": "nanoseconds",
+        "sampleCount": 128,
+        "minimum": 26624,
+        "median": 27648,
+        "mean": 28080,
+        "p95": 28672,
+        "maximum": 29696
+      },
+      "temporalResolveNanoseconds": {
+        "unit": "nanoseconds",
+        "sampleCount": 128,
+        "minimum": 36864,
+        "median": 38912,
+        "mean": 39072,
+        "p95": 40960,
+        "maximum": 57344
+      },
+      "aggregateNanoseconds": {
+        "unit": "nanoseconds",
+        "sampleCount": 128,
+        "minimum": 135168,
+        "median": 138240,
+        "mean": 138840,
+        "p95": 142336,
+        "maximum": 156672
+      }
+    },
+    "exclusions": [
+      "cpu-motion-derivation",
+      "cpu-to-gpu-uploads",
+      "history-copies-after-q25",
+      "timestamp-query-mapping",
+      "final-evidence-readback",
+      "html-composition",
+      "screenshot-capture"
+    ]
+  },
+  "boundaries": {
+    "boundedSharedCharacterCompositeRtxBenchmarkClaimed": true,
+    "fullHoloLandWorldFrameClaimed": false,
+    "productionWholeFrameTimeClaimed": false,
+    "wallClockUsedAsGpuTime": false,
+    "questHeadsetMeasured": false,
+    "photorealismClaimed": false
+  },
+  "identityAdmission": {
+    "status": "pass",
+    "errors": [],
+    "schema": "hololand.model-village.character-realism-h4h-identity-admission.v1",
+    "sourceColorWeight": 0.55,
+    "distinctSourceHairColorCount": 4,
+    "distinctGeometryPayloadCount": 4,
+    "residents": [
+      {
+        "displayLabel": "OpenAI",
+        "modelFamilyId": "openai",
+        "sourceColor": "#2F2928",
+        "sourceColorPackedRgb": 3090728,
+        "drawSpecColorPackedRgb": 3090728,
+        "sourceColorWeight": 0.55,
+        "materialSchema": "holoscript.agent-avatar-hair-material.v2",
+        "sourceColorRetained": true,
+        "faceProfile": "portrait-facial-volume-v5",
+        "groomProfile": "scalp-flow-portrait-v4",
+        "positionSha256": "0356bbac29c805736ea19f8a99455adf26e22d7ec4210c836b1bde5883498088"
+      },
+      {
+        "displayLabel": "Claude",
+        "modelFamilyId": "anthropic",
+        "sourceColor": "#6B4633",
+        "sourceColorPackedRgb": 7030323,
+        "drawSpecColorPackedRgb": 7030323,
+        "sourceColorWeight": 0.55,
+        "materialSchema": "holoscript.agent-avatar-hair-material.v2",
+        "sourceColorRetained": true,
+        "faceProfile": "portrait-facial-volume-v5",
+        "groomProfile": "scalp-flow-portrait-v4",
+        "positionSha256": "c2fb9c81d321df112adf7725bb9d44ce3e2bed302a1a106f369438e2ff3dbc50"
+      },
+      {
+        "displayLabel": "Gemini",
+        "modelFamilyId": "google",
+        "sourceColor": "#303641",
+        "sourceColorPackedRgb": 3159617,
+        "drawSpecColorPackedRgb": 3159617,
+        "sourceColorWeight": 0.55,
+        "materialSchema": "holoscript.agent-avatar-hair-material.v2",
+        "sourceColorRetained": true,
+        "faceProfile": "portrait-facial-volume-v5",
+        "groomProfile": "scalp-flow-portrait-v4",
+        "positionSha256": "1475656d4b8249078d0aaf6564168ff26d068094f96c6386f143f1712449a862"
+      },
+      {
+        "displayLabel": "Grok",
+        "modelFamilyId": "xai",
+        "sourceColor": "#171D22",
+        "sourceColorPackedRgb": 1514786,
+        "drawSpecColorPackedRgb": 1514786,
+        "sourceColorWeight": 0.55,
+        "materialSchema": "holoscript.agent-avatar-hair-material.v2",
+        "sourceColorRetained": true,
+        "faceProfile": "portrait-facial-volume-v5",
+        "groomProfile": "scalp-flow-portrait-v4",
+        "positionSha256": "f7ef9c65b33855a091e63181188ec37d22b6decc92f485c315704992a1ede0de"
+      }
+    ]
+  }
+}

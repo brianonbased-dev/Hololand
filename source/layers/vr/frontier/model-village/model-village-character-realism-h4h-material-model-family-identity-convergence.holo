@@ -1,0 +1,94 @@
+// Stormglass Commons Character Realism H4H.
+//
+// H4H keeps the promoted H4G one-submit frame graph and makes source-authored
+// model-family hair chroma materially operative. The resident appearance remains
+// authored by the admitted H4A .holo composition; this contract binds its exact
+// @hair(color) values to native v2 material receipts and shared-frame pixels.
+
+composition "Stormglass Character Realism H4H Material Model Family Identity Convergence" {
+  metadata {
+    title: "Stormglass Character Realism H4H - Material and Model Family Identity"
+    version: "0.1.0"
+    date: "2026-08-01"
+    milestone: "MV_CHARACTER_REALISM_H4H_MATERIAL_MODEL_FAMILY_IDENTITY_CONVERGENCE"
+    upstreamHoloScriptCommit: "712698cf465b15c8552c3c5e545800543b929c78"
+    operativeAppearanceSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h4a-facial-volume-garment-framing.holo"
+    temporalFrameSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4g-shared-character-world-frame.holo"
+    artStyle: "hearthlight_biorealism"
+    worldTheme: "stormglass_commons_model_village"
+    visualTarget: "source_distinct_hair_eye_skin_face_and_wardrobe_identity_in_one_shared_frame"
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H4H_MATERIAL_MODEL_FAMILY_IDENTITY"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    sourceHairColorRetentionRequired: true
+    hairMaterialReceiptRequired: "holoscript.agent-avatar-hair-material.v2"
+    sourceColorWeightRequired: 0.55
+    distinctSourceHairColorCountRequired: 4
+    sharedCommandBufferCountRequired: 1
+    sharedQueueSubmissionCountRequired: 1
+    timestampQueryCount: 26
+    measuredSharedFrames: 32
+    intermediateFrameReadbackCountRequired: 0
+    boundedSharedCharacterCompositeRtxBenchmarkClaimed: true
+    fullHoloLandWorldFrameClaimed: false
+    productionWholeFrameTimeClaimed: false
+    questHeadsetMeasured: false
+    photorealismClaimed: false
+  }
+
+  object "OpenAIResidentIdentity" {
+    type: "source_compiled_model_family_material_identity"
+    displayLabel: "OpenAI"
+    modelFamilyId: "openai"
+    sourceObjectId: "OpenAIResident"
+    hairStyle: "cropped_coils"
+    sourceHairColor: "#2F2928"
+    irisColor: "#6B8C82"
+    skinColor: "#B9826F"
+    garmentColor: "#176B5B"
+    sourceColorWeight: 0.55
+  }
+
+  object "ClaudeResidentIdentity" {
+    type: "source_compiled_model_family_material_identity"
+    displayLabel: "Claude"
+    modelFamilyId: "anthropic"
+    sourceObjectId: "ClaudeResident"
+    hairStyle: "medium_wavy"
+    sourceHairColor: "#6B4633"
+    irisColor: "#7C604B"
+    skinColor: "#C58B70"
+    garmentColor: "#A85F36"
+    sourceColorWeight: 0.55
+  }
+
+  object "GeminiResidentIdentity" {
+    type: "source_compiled_model_family_material_identity"
+    displayLabel: "Gemini"
+    modelFamilyId: "google"
+    sourceObjectId: "GeminiResident"
+    hairStyle: "short"
+    sourceHairColor: "#303641"
+    irisColor: "#526D91"
+    skinColor: "#8D695C"
+    garmentColor: "#3859A8"
+    sourceColorWeight: 0.55
+  }
+
+  object "GrokResidentIdentity" {
+    type: "source_compiled_model_family_material_identity"
+    displayLabel: "Grok"
+    modelFamilyId: "xai"
+    sourceObjectId: "GrokResident"
+    hairStyle: "swept_ridge"
+    sourceHairColor: "#171D22"
+    irisColor: "#768D59"
+    skinColor: "#D0A086"
+    garmentColor: "#263945"
+    sourceColorWeight: 0.55
+  }
+}

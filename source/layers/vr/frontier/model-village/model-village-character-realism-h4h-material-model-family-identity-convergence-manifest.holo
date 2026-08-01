@@ -1,0 +1,43 @@
+// Portable SHA-256 bindings for the H4H material-identity witness.
+// Hashes are filled after the live RTX artifact pass and then checked read-only.
+
+composition "Stormglass Character Realism H4H Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-realism-h4h-manifest.v1"
+    milestone: "MV_CHARACTER_REALISM_H4H_MATERIAL_MODEL_FAMILY_IDENTITY_CONVERGENCE"
+    hashPolicy: "sha256_lf_normalized_for_text_raw_bytes_for_png"
+  }
+
+  object "H4HWorldSource" {
+    path: "source/layers/vr/frontier/model-village/model-village-character-realism-h4h-material-model-family-identity-convergence.holo"
+    sha256: "31342ac8522ea320f050447877ff1cf9457852fd3fdfd292c1ec0059533e83b1"
+  }
+  object "H4HPolicy" {
+    path: "source/proofs/model-village-character-realism-h4h-material-model-family-identity-convergence-policy.hsplus"
+    sha256: "42f5f7c2ca45317405b5a29b25ecd235505f595231dee0e616ade08015ac80db"
+  }
+  object "H4HSeed" {
+    path: "source/proofs/model-village-character-realism-h4h-material-model-family-identity-convergence-seed.hs"
+    sha256: "208507838b64fc79d0dcfb36dc3a314453a547427685d16223df6c8d74ffc25a"
+  }
+  object "H4HChecker" {
+    path: "scripts/check-hololand-model-village-character-realism-h4h.mjs"
+    sha256: "624052f63c2e0b06b2b7e78ae533d3ee0d866f1e3a878286918752e64be93474"
+  }
+  object "H4HTests" {
+    path: "scripts/__tests__/hololand-model-village-character-realism-h4h.test.mjs"
+    sha256: "ee551df7a48cb37b34fd967b1d6b6910fdc7b3a11b15e834f05504b570543d53"
+  }
+  object "H4HReport" {
+    path: "docs/reports/model-village-character-realism-h4h-material-model-family-identity-convergence-2026-08-01.md"
+    sha256: "07e3928160dcb60472e06730b7837d8fee3aea27cadc4347f3019783c59d1228"
+  }
+  object "H4HHero" {
+    path: "docs/assets/model-village/model-village-character-realism-h4h-material-model-family-identity-convergence-2026-08-01.png"
+    sha256: "7c32bba2dbbf33dbdf213fac31e2cfe91be4794f76766024eb057dc02bd251c1"
+  }
+  object "H4HEvidence" {
+    path: "docs/assets/model-village/model-village-character-realism-h4h-material-model-family-identity-convergence-2026-08-01.json"
+    sha256: "20b77b591726bf7e8c9097c6ae87c2837e1bf2036a2c2970b5f81e2683931b3c"
+  }
+}
