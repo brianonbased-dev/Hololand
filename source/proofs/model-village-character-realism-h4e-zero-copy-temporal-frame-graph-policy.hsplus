@@ -1,0 +1,93 @@
+// H4E typed frame-graph and GPU timestamp admission policy.
+//
+// Native hsplus action execution is not claimed. The browser checker parses
+// this contract and enforces its fail-closed conditions over live WebGPU
+// receipts produced by the HoloScript engine.
+
+composition "Stormglass Character Realism H4E Frame Graph Policy" {
+  config {
+    schema: "hololand.model-village.character-realism-h4e-policy.v1"
+    milestone: "MV_CHARACTER_REALISM_H4E_ZERO_COPY_TEMPORAL_FRAME_GRAPH"
+    source: "source/proofs/model-village-character-realism-h4e-zero-copy-temporal-frame-graph-policy.hsplus"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4e-zero-copy-temporal-frame-graph.holo"
+    seedSource: "source/proofs/model-village-character-realism-h4e-zero-copy-temporal-frame-graph-seed.hs"
+    formatRole: "typed_zero_copy_timestamp_and_lod_history_admission"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H4EFrameGraphAdmissionState {
+    measuredTemporalFrameCount: 0
+    timestampMeasuredFrameCount: 0
+    zeroCopyFrameCount: 0
+    singleSubmissionFrameCount: 0
+    lodChangeCount: 0
+    lodHistoryRejectedCount: 0
+    externalNetworkRequestCount: 0
+  }
+
+  template "H4EFrameGraphExpectation" {
+    type: "native_temporal_frame_graph_admission"
+    expectedWidth: 1400
+    expectedHeight: 900
+    expectedMeasuredFrameCount: 40
+    expectedLodStressFrameCount: 24
+    expectedTimedScope: "temporal-resolve-compute-pass"
+    expectedIntermediateFrameReadbackCount: 0
+    timestampQueryRequired: true
+    persistentPipelineRequired: true
+    singleCommandBufferRequired: true
+    singleQueueSubmissionRequired: true
+    lodChangeHistoryRejectionRequired: true
+  }
+
+  action admit_h4e_measured_frame(frame, expected) {
+    if (frame.width != expected.expectedWidth || frame.height != expected.expectedHeight) {
+      return { admitted: false, reason: "benchmark_resolution_drifted" }
+    }
+    if (frame.zeroCopyTextureInputs != true || frame.zeroCopyHistory != true) {
+      return { admitted: false, reason: "texture_history_left_gpu" }
+    }
+    if (frame.intermediateFrameReadbackCount != expected.expectedIntermediateFrameReadbackCount) {
+      return { admitted: false, reason: "intermediate_frame_readback_detected" }
+    }
+    if (frame.commandBufferCount != 1 || frame.queueSubmissionCount != 1) {
+      return { admitted: false, reason: "frame_submission_count_drifted" }
+    }
+    if (frame.persistentPipelineConsumed != true) {
+      return { admitted: false, reason: "persistent_pipeline_missing" }
+    }
+    if (frame.gpuTimestampMeasured != true || frame.resolveDurationNanoseconds <= 0) {
+      return { admitted: false, reason: "gpu_timestamp_missing" }
+    }
+    if (frame.timedScope != expected.expectedTimedScope || frame.readbackExcludedFromTimedScope != true) {
+      return { admitted: false, reason: "gpu_timestamp_scope_drifted" }
+    }
+    return { admitted: true, reason: "h4e_gpu_frame_admitted" }
+  }
+
+  action admit_h4e_lod_transition(transition) {
+    if (transition.invalidationReason != "lod-change") {
+      return { admitted: false, reason: "lod_invalidation_missing" }
+    }
+    if (transition.historyConsumed != false) {
+      return { admitted: false, reason: "stale_lod_history_consumed" }
+    }
+    return { admitted: true, reason: "lod_history_rejected" }
+  }
+
+  action admit_h4e_witness(witness, expected) {
+    if (witness.browserDevicePresent != true || witness.timestampQueryEnabled != true) {
+      return { admitted: false, reason: "timestamp_capable_browser_device_missing" }
+    }
+    if (witness.measuredFrameCount != expected.expectedMeasuredFrameCount) {
+      return { admitted: false, reason: "measured_frame_count_drifted" }
+    }
+    if (witness.externalNetworkRequestCount != 0) {
+      return { admitted: false, reason: "external_dependency_detected" }
+    }
+    if (witness.generalRtxPerformanceClaimed != false || witness.productionFrameTimeClaimed != false) {
+      return { admitted: false, reason: "benchmark_scope_overclaimed" }
+    }
+    return { admitted: true, reason: "bounded_h4e_browser_witness_receipted" }
+  }
+}

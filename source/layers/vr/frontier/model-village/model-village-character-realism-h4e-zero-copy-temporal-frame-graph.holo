@@ -1,0 +1,100 @@
+// Stormglass Commons Character Realism H4E.
+//
+// H4E inherits the admitted H4D motion-reprojected resident plate and moves
+// temporal color and depth history into one persistent WebGPU frame graph.
+// Exact GPU timestamps cover only the temporal resolve compute pass. The
+// benchmark is deliberately bounded to this source-authored visual workload.
+
+composition "Stormglass Character Realism H4E Zero Copy Temporal Frame Graph" {
+  metadata {
+    title: "Stormglass Character Realism H4E - Zero Copy Temporal Frame Graph"
+    version: "0.1.0"
+    date: "2026-07-31"
+    milestone: "MV_CHARACTER_REALISM_H4E_ZERO_COPY_TEMPORAL_FRAME_GRAPH"
+    source: "source/layers/vr/frontier/model-village/model-village-character-realism-h4e-zero-copy-temporal-frame-graph.holo"
+    inheritedWorldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4d-production-temporal-convergence.holo"
+    inheritedVisualReceipt: "docs/assets/model-village/model-village-character-realism-h4d-production-temporal-convergence-2026-07-30.png"
+    policySource: "source/proofs/model-village-character-realism-h4e-zero-copy-temporal-frame-graph-policy.hsplus"
+    seedSource: "source/proofs/model-village-character-realism-h4e-zero-copy-temporal-frame-graph-seed.hs"
+    upstreamHoloScriptCommit: "b72544464b2054797c7a73a0de2150da45621b1a"
+    upstreamFrameGraphPath: "packages/engine/src/rendering/webgpu/TemporalFrameGraph.ts"
+    upstreamTextureResolvePath: "packages/engine/src/rendering/webgpu/TemporalConvergence.ts"
+    artStyle: "hearthlight_biorealism"
+    visualTarget: "cinematic_stormglass_resident_plate_with_measured_temporal_instrumentation"
+  }
+
+  state {
+    authority: "read_only"
+    gateLevel: "H4E_ZERO_COPY_TEMPORAL_FRAME_GRAPH"
+    inheritedResidentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    benchmarkWidth: 1400
+    benchmarkHeight: 900
+    temporalWarmupFrameCount: 8
+    temporalMeasuredFrameCount: 40
+    lodHistoryStressFrameCount: 24
+    stressLodLevels: [0, 2]
+    temporalProfile: "browser_balanced"
+    sampleCount: 8
+    feedbackCeiling: 0.875
+    neighborhoodClampingRequired: true
+    depthDisocclusionRequired: true
+    disocclusionDepthThreshold: 0.01
+    persistentPipelineRequired: true
+    persistentColorHistoryRequired: true
+    persistentDepthHistoryRequired: true
+    singleCommandBufferPerFrameRequired: true
+    singleQueueSubmissionPerFrameRequired: true
+    intermediateFrameReadbackCountRequired: 0
+    gpuTimestampQueryRequired: true
+    timedScope: "temporal_resolve_compute_pass"
+    readbackExcludedFromTimedScope: true
+    lodChangeHistoryRejectionRequired: true
+    browserNativeWebgpuMeasured: true
+    boundedRtxTemporalKernelBenchmarkClaimed: true
+    generalRtxPerformanceClaimed: false
+    productionFrameTimeClaimed: false
+    questHeadsetMeasured: false
+    photorealismClaimed: false
+  }
+
+  object "H4ETemporalFrameGraphBenchmark" {
+    @temporal_accumulation(profile: "character_texture_frame_graph_v1", sample_count: 8, feedback_ceiling: 0.875, disocclusion_depth_threshold: 0.01, neighborhood_clamping: true, reactive_mask: true)
+    type: "browser_webgpu_temporal_frame_graph_benchmark"
+    resolution: [1400, 900]
+    warmupFrameCount: 8
+    measuredFrameCount: 40
+    lodStressFrameCount: 24
+    timestampScope: "temporal_resolve_compute_pass"
+    historyPolicy: "reject_on_lod_change"
+    copyPolicy: "gpu_texture_history_only"
+  }
+
+  object "OpenAIResidentFrameGraphBinding" {
+    type: "named_model_family_frame_graph_binding"
+    targetObjectId: "OpenAIResidentTemporal"
+    displayLabel: "OpenAI"
+    lodLevels: [0, 2]
+  }
+
+  object "ClaudeResidentFrameGraphBinding" {
+    type: "named_model_family_frame_graph_binding"
+    targetObjectId: "ClaudeResidentTemporal"
+    displayLabel: "Claude"
+    lodLevels: [0, 2]
+  }
+
+  object "GeminiResidentFrameGraphBinding" {
+    type: "named_model_family_frame_graph_binding"
+    targetObjectId: "GeminiResidentTemporal"
+    displayLabel: "Gemini"
+    lodLevels: [0, 2]
+  }
+
+  object "GrokResidentFrameGraphBinding" {
+    type: "named_model_family_frame_graph_binding"
+    targetObjectId: "GrokResidentTemporal"
+    displayLabel: "Grok"
+    lodLevels: [0, 2]
+  }
+}

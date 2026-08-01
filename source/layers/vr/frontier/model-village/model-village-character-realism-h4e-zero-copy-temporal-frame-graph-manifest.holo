@@ -1,0 +1,115 @@
+// H4E immutable source, runtime, browser, timestamp, stress, visual, and claim bindings.
+
+composition "Stormglass Character Realism H4E Zero Copy Temporal Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-realism-h4e-manifest.v1"
+    milestone: "MV_CHARACTER_REALISM_H4E_ZERO_COPY_TEMPORAL_FRAME_GRAPH"
+    date: "2026-07-31"
+    upstreamHoloScriptCommit: "b72544464b2054797c7a73a0de2150da45621b1a"
+    upstreamHoloScriptCapsule: "sha256:e0565547f04c25ca8a60f8daad887200059830eaed76524e527f60ea41e5d04e"
+    upstreamHoloScriptPromotionReceipt: "sha256:ba2832315bc9d5e32a140d030ce3b1ac4ddc7cd04598d1460fad7b255724ea8e"
+    evidenceReceiptSha256: "5e263204d35e6779c2235c08eda04ebb373df5af94b84c6c616fa50d5866c13c"
+  }
+
+  state {
+    status: "pass"
+    residentCount: 4
+    residentNames: ["OpenAI", "Claude", "Gemini", "Grok"]
+    benchmarkWidth: 1400
+    benchmarkHeight: 900
+    warmupFrameCount: 8
+    measuredFrameCount: 40
+    lodStressFrameCount: 24
+    lodTransitionCount: 7
+    lodHistoryRejectedCount: 7
+    persistentPipelineFrameCount: 40
+    zeroCopyMeasuredFrameCount: 40
+    singleCommandAndSubmissionFrameCount: 40
+    intermediateFrameReadbackCount: 0
+    measuredFrameEvidenceReadbackCount: 0
+    finalEvidenceReadbackCount: 1
+    browserWebgpuMeasured: true
+    browserProduct: "Chrome/151.0.7922.71"
+    browserVendor: "nvidia"
+    browserArchitecture: "ampere"
+    timestampQuerySupported: true
+    timestampQueryEnabled: true
+    timestampMeasuredFrameCount: 40
+    timedScope: "temporal-resolve-compute-pass"
+    minimumResolveNanoseconds: 98304
+    medianResolveNanoseconds: 99328
+    meanResolveNanoseconds: 99737.6
+    p95ResolveNanoseconds: 100352
+    maximumResolveNanoseconds: 101376
+    externalNetworkRequestCount: 0
+    hostGpu: "NVIDIA GeForce RTX 3060 Laptop GPU"
+    nvidiaDriver: "610.88"
+    windowsDriverReadback: "32.0.16.1088"
+    hostGpuMemoryMiB: 6144
+    zeroCopyTextureInputsMeasured: true
+    persistentGpuColorAndDepthHistoryMeasured: true
+    oneCommandBufferAndQueueSubmissionPerResolveMeasured: true
+    gpuTimestampQueryMeasured: true
+    wallClockUsedAsGpuTime: false
+    uploadMeasured: false
+    timestampMappingMeasured: false
+    evidenceReadbackMeasured: false
+    screenshotCaptureMeasured: false
+    characterRasterMeasuredInThisBenchmark: false
+    motionRasterMeasuredInThisBenchmark: false
+    fullWorldPerformanceMeasured: false
+    generalRtxPerformanceClaimed: false
+    productionFrameTimeClaimed: false
+    questHeadsetMeasured: false
+    browserWebxrMeasured: false
+    photorealismClaimed: false
+  }
+
+  object "WorldSourceBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/layers/vr/frontier/model-village/model-village-character-realism-h4e-zero-copy-temporal-frame-graph.holo"
+    sha256: "fb473a98af807f932f8297d0764d6cabaa05f447b65210a9efbe65dea00adbc7"
+  }
+
+  object "PolicyBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-realism-h4e-zero-copy-temporal-frame-graph-policy.hsplus"
+    sha256: "fa9be7ffd59fa161e4c7c5c9732ed769f41c3cef2f750e91efd93db2eca199bb"
+  }
+
+  object "SeedBinding" {
+    type: "immutable_artifact_binding"
+    path: "source/proofs/model-village-character-realism-h4e-zero-copy-temporal-frame-graph-seed.hs"
+    sha256: "f5cb072072a62e4d77091c33c433cc526c41ceabdf0332a19985fbae08c8f5df"
+  }
+
+  object "CheckerBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/check-hololand-model-village-character-realism-h4e.mjs"
+    sha256: "aa579e8c355515262bda94980c49a55a652028e1a56d5b27881e394f09f39630"
+  }
+
+  object "TestBinding" {
+    type: "immutable_artifact_binding"
+    path: "scripts/__tests__/hololand-model-village-character-realism-h4e.test.mjs"
+    sha256: "3c0d9aa6ada73a6f1ec634c768a587e61c653e9cd4eaed3870d2959cfe436cb3"
+  }
+
+  object "ReportBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/reports/model-village-character-realism-h4e-zero-copy-temporal-frame-graph-2026-07-31.md"
+    sha256: "123629a2e353918907ffaeb8fe3072b5f1a1978fd8b9323f25bc23fd37661333"
+  }
+
+  object "HeroBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-realism-h4e-zero-copy-temporal-frame-graph-2026-07-31.png"
+    sha256: "c5af02d0503e16754047243284400aba0974e1b476ef60243930a70c23e93985"
+  }
+
+  object "EvidenceBinding" {
+    type: "immutable_artifact_binding"
+    path: "docs/assets/model-village/model-village-character-realism-h4e-zero-copy-temporal-frame-graph-2026-07-31.json"
+    sha256: "5e263204d35e6779c2235c08eda04ebb373df5af94b84c6c616fa50d5866c13c"
+  }
+}

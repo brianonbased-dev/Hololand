@@ -1,0 +1,208 @@
+{
+  "schema": "hololand.model-village.character-realism-h4e-zero-copy-temporal-witness.v1",
+  "capturedAt": "2026-08-01T06:45:11.386Z",
+  "status": "pass",
+  "milestone": "MV_CHARACTER_REALISM_H4E_ZERO_COPY_TEMPORAL_FRAME_GRAPH",
+  "sourceAdmission": {
+    "holoScriptCommit": "b72544464b2054797c7a73a0de2150da45621b1a",
+    "sourceSha256": "fb473a98af807f932f8297d0764d6cabaa05f447b65210a9efbe65dea00adbc7",
+    "policySha256": "fa9be7ffd59fa161e4c7c5c9732ed769f41c3cef2f750e91efd93db2eca199bb",
+    "seedSha256": "f5cb072072a62e4d77091c33c433cc526c41ceabdf0332a19985fbae08c8f5df",
+    "inheritedVisualPath": "docs/assets/model-village/model-village-character-realism-h4d-production-temporal-convergence-2026-07-30.png",
+    "inheritedVisualSha256": "7355653304de428f9cfd3bcf7110fb80f3ce0574a4dd4ad1cc17bb8314b10b85",
+    "residentNames": [
+      "OpenAI",
+      "Claude",
+      "Gemini",
+      "Grok"
+    ],
+    "parsedFormats": {
+      "holoObjectCount": 5,
+      "hsplusObjectCount": 0,
+      "hsObjectCount": 0
+    },
+    "runtimeHashBindings": {
+      "packages/engine/src/rendering/webgpu/TemporalFrameGraph.ts": "9e6c9851a952720efbf465347902214fdabc497b7baca69f6c914544d0394afa",
+      "packages/engine/src/rendering/webgpu/TemporalConvergence.ts": "d6eff9ce826a095ccdb6563f38200db571ee2f2d1e64d76d352a190db11ec61d",
+      "packages/engine/src/rendering/webgpu/index.ts": "f60574d1d06c6f02ef2b6e011fc0e49233c8bbff9bf84d6333da475fe6d49bf7"
+    }
+  },
+  "browserWebgpuAdmission": {
+    "runtime": {
+      "temporalFrameGraph": "HoloScript TemporalFrameGraph",
+      "convergenceController": "HoloScript TemporalConvergenceController",
+      "backend": "browser_native_webgpu",
+      "browserUsed": true,
+      "threeJsUsed": false,
+      "r3fUsed": false
+    },
+    "browser": {
+      "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "product": "Chrome/151.0.7922.71",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+      "launchArgs": [
+        "--use-angle=d3d11",
+        "--ignore-gpu-blocklist",
+        "--enable-gpu",
+        "--enable-unsafe-webgpu",
+        "--enable-dawn-features=allow_unsafe_apis",
+        "--disable-background-networking",
+        "--disable-features=Translate,MediaRouter"
+      ]
+    },
+    "gpu": {
+      "navigatorGpu": true,
+      "adapterAcquired": true,
+      "deviceCreated": true,
+      "vendor": "nvidia",
+      "architecture": "ampere",
+      "device": "",
+      "description": "",
+      "adapterFeatures": [
+        "bgra8unorm-storage",
+        "chromium-experimental-multi-draw-indirect",
+        "chromium-experimental-timestamp-query-inside-passes",
+        "clip-distances",
+        "core-features-and-limits",
+        "depth-clip-control",
+        "depth32float-stencil8",
+        "dual-source-blending",
+        "float32-blendable",
+        "float32-filterable",
+        "indirect-first-instance",
+        "primitive-index",
+        "rg11b10ufloat-renderable",
+        "shader-f16",
+        "subgroup-size-control",
+        "subgroups",
+        "texture-component-swizzle",
+        "texture-compression-bc",
+        "texture-compression-bc-sliced-3d",
+        "texture-formats-tier1",
+        "texture-formats-tier2",
+        "timestamp-query"
+      ],
+      "deviceFeatures": [
+        "core-features-and-limits",
+        "timestamp-query"
+      ],
+      "timestampQuerySupported": true,
+      "timestampQueryEnabled": true
+    },
+    "network": {
+      "loopbackRequestCount": 2,
+      "observedRequestCount": 1,
+      "externalRequestCount": 0
+    },
+    "screenshot": {
+      "width": 1400,
+      "height": 900,
+      "bytes": 543839,
+      "sha256": "c5af02d0503e16754047243284400aba0974e1b476ef60243930a70c23e93985"
+    },
+    "outputDigest": "31102e66b5c1bcc6c85257ae9dced4eda9de6f50560585ae03f17b0c682a8360"
+  },
+  "temporalFrameGraphAdmission": {
+    "width": 1400,
+    "height": 900,
+    "warmupFrameCount": 8,
+    "measuredFrameCount": 40,
+    "lodStressFrameCount": 24,
+    "lodTransitionCount": 7,
+    "lodHistoryRejectedCount": 7,
+    "persistentPipelineFrameCount": 40,
+    "zeroCopyMeasuredFrameCount": 40,
+    "singleCommandAndSubmissionFrameCount": 40,
+    "intermediateFrameReadbackCount": 0,
+    "measuredFrameEvidenceReadbackCount": 0,
+    "finalEvidenceReadbackCount": 1,
+    "sampleCount": 8,
+    "feedbackCeiling": 0.875,
+    "disocclusionDepthThreshold": 0.01
+  },
+  "gpuTimestampAdmission": {
+    "classification": "gpu-timestamp-query",
+    "timedScope": "temporal-resolve-compute-pass",
+    "timestampQuerySupported": true,
+    "timestampQueryEnabled": true,
+    "timestampMeasuredFrameCount": 40,
+    "readbackExcludedFromTimedScope": true,
+    "wallClockUsedAsGpuTime": false,
+    "statistics": {
+      "unit": "nanoseconds",
+      "sampleCount": 40,
+      "minimum": 98304,
+      "median": 99328,
+      "mean": 99737.6,
+      "p95": 100352,
+      "maximum": 101376
+    },
+    "measuredDurationsNanoseconds": [
+      99328,
+      99328,
+      99328,
+      99328,
+      99328,
+      98304,
+      99328,
+      99328,
+      99328,
+      101376,
+      100352,
+      100352,
+      99328,
+      99328,
+      100352,
+      98304,
+      100352,
+      100352,
+      100352,
+      99328,
+      100352,
+      100352,
+      99328,
+      99328,
+      99328,
+      100352,
+      100352,
+      99328,
+      100352,
+      99328,
+      100352,
+      99328,
+      100352,
+      99328,
+      100352,
+      99328,
+      100352,
+      100352,
+      99328,
+      99328
+    ]
+  },
+  "boundaries": {
+    "inheritedH4DVisualPlatePreserved": true,
+    "browserNativeWebgpuMeasured": true,
+    "zeroCopyTextureInputsMeasured": true,
+    "persistentGpuColorAndDepthHistoryMeasured": true,
+    "oneCommandBufferAndQueueSubmissionPerResolveMeasured": true,
+    "gpuTimestampQueryMeasured": true,
+    "exactTimedScope": "temporal-resolve-compute-pass",
+    "uploadMeasured": false,
+    "timestampMappingMeasured": false,
+    "evidenceReadbackMeasured": false,
+    "screenshotCaptureMeasured": false,
+    "characterRasterMeasuredInThisBenchmark": false,
+    "motionRasterMeasuredInThisBenchmark": false,
+    "fullWorldPerformanceMeasured": false,
+    "generalRtxPerformanceClaimed": false,
+    "productionFrameTimeClaimed": false,
+    "wallClockUsedAsGpuTime": false,
+    "questHeadsetMeasured": false,
+    "browserWebxrMeasured": false,
+    "photorealismClaimed": false
+  },
+  "integrity": {
+    "canonicalSha256": "c710964158f549f9286757734dd989e797a28b933b69ab79743b07c764ae6232"
+  }
+}
