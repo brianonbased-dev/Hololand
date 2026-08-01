@@ -1,0 +1,64 @@
+// H4I typed portrait-realism admission policy.
+// The checker executes these conditions over source-compiled records and live
+// WebGPU receipts; native hsplus action execution is not claimed by this lane.
+
+composition "Stormglass Character Realism H4I Portrait Policy" {
+  config {
+    schema: "hololand.model-village.character-realism-h4i-policy.v1"
+    milestone: "MV_CHARACTER_REALISM_H4I_PORTRAIT_REALISM_CONVERGENCE"
+    worldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4i-portrait-realism-convergence.holo"
+    seedSource: "source/proofs/model-village-character-realism-h4i-portrait-realism-convergence-seed.hs"
+    nativeHsplusActionExecutionClaimed: false
+  }
+
+  state H4IPortraitAdmissionState {
+    residentCount: 0
+    complexionResidentCount: 0
+    massedGroomResidentCount: 0
+    measuredSharedFrameCount: 0
+  }
+
+  template "H4IPortraitExpectation" {
+    type: "native_portrait_realism_admission"
+    expectedResidentCount: 4
+    expectedSkinMaterialSchema: "holoscript.agent-avatar-skin-material.v4"
+    expectedComplexionProfile: "anatomical-complexion-v1"
+    minimumComplexionStrength: 0.5
+    expectedGroomSchema: "holoscript.agent-avatar-groom-geometry.v5"
+    expectedGroomProfile: "scalp-flow-volume-v5"
+    expectedSilhouetteProfile: "massed-silhouette-clumps-v1"
+    expectedMeasuredSharedFrames: 32
+    expectedCommandBufferCount: 1
+    expectedQueueSubmissionCount: 1
+    expectedTimestampQueryCount: 26
+  }
+
+  action admit_h4i_portrait_resident(resident, expected) {
+    if (resident.skinSchema != expected.expectedSkinMaterialSchema || resident.complexionProfile != expected.expectedComplexionProfile || resident.complexionStrength < expected.minimumComplexionStrength) {
+      return { admitted: false, reason: "anatomical_complexion_not_operative" }
+    }
+    if (resident.groomSchema != expected.expectedGroomSchema || resident.groomProfile != expected.expectedGroomProfile || resident.silhouetteProfile != expected.expectedSilhouetteProfile) {
+      return { admitted: false, reason: "massed_hair_silhouette_not_operative" }
+    }
+    if (resident.massGuideCount <= 0 || resident.massCardCount != resident.massGuideCount * 2 || resident.scalpPenetrationVertexCount != 0) {
+      return { admitted: false, reason: "massed_groom_geometry_drifted" }
+    }
+    return { admitted: true, reason: "h4i_portrait_resident_admitted" }
+  }
+
+  action admit_h4i_shared_witness(witness, expected) {
+    if (witness.residentCount != expected.expectedResidentCount || witness.complexionResidentCount != expected.expectedResidentCount || witness.massedGroomResidentCount != expected.expectedResidentCount) {
+      return { admitted: false, reason: "portrait_resident_count_drifted" }
+    }
+    if (witness.commandBufferCount != expected.expectedCommandBufferCount || witness.queueSubmissionCount != expected.expectedQueueSubmissionCount) {
+      return { admitted: false, reason: "shared_submission_contract_drifted" }
+    }
+    if (witness.measuredSharedFrames != expected.expectedMeasuredSharedFrames || witness.timestampQueryCount != expected.expectedTimestampQueryCount) {
+      return { admitted: false, reason: "measured_shared_frame_contract_drifted" }
+    }
+    if (witness.fullHoloLandWorldFrameClaimed != false || witness.productionWholeFrameTimeClaimed != false || witness.photorealismClaimed != false) {
+      return { admitted: false, reason: "h4i_scope_overclaimed" }
+    }
+    return { admitted: true, reason: "bounded_h4i_shared_portrait_witness_admitted" }
+  }
+}

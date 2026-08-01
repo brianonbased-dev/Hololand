@@ -1,0 +1,43 @@
+// Portable SHA-256 bindings for the H4I portrait-realism witness.
+// Hashes are filled after the live RTX artifact pass and checked read-only.
+
+composition "Stormglass Character Realism H4I Manifest" {
+  metadata {
+    schema: "hololand.model-village.character-realism-h4i-manifest.v1"
+    milestone: "MV_CHARACTER_REALISM_H4I_PORTRAIT_REALISM_CONVERGENCE"
+    hashPolicy: "sha256_lf_normalized_for_text_raw_bytes_for_png"
+  }
+
+  object "H4IWorldSource" {
+    path: "source/layers/vr/frontier/model-village/model-village-character-realism-h4i-portrait-realism-convergence.holo"
+    sha256: "babf52153e2218c04caa0ea4fd50108e230147ead1dc8b8cc9bcfbddad4230e3"
+  }
+  object "H4IPolicy" {
+    path: "source/proofs/model-village-character-realism-h4i-portrait-realism-convergence-policy.hsplus"
+    sha256: "39be7bda3a73a40c052e571b52259e70b69a6d041b1aba6dee4ca7e8d3db777c"
+  }
+  object "H4ISeed" {
+    path: "source/proofs/model-village-character-realism-h4i-portrait-realism-convergence-seed.hs"
+    sha256: "3f1d35be859c3712fc08c72688fb49133a588f05575ecf3b2e2b98cbd16b7660"
+  }
+  object "H4IChecker" {
+    path: "scripts/check-hololand-model-village-character-realism-h4i.mjs"
+    sha256: "14e060131f754a8f9bb8978d44111d776ef9fdfe9e78c15c15c6ec835ad07687"
+  }
+  object "H4ITests" {
+    path: "scripts/__tests__/hololand-model-village-character-realism-h4i.test.mjs"
+    sha256: "73fed4efa1c541f70d62a12b03d8dbd03af3cbf95bbcac3965fec33b4d58392c"
+  }
+  object "H4IReport" {
+    path: "docs/reports/model-village-character-realism-h4i-portrait-realism-convergence-2026-08-01.md"
+    sha256: "b84fc4a43e923c1d0e2fa24aa03064b61b1843f00129716afd6b152d5bcb1fff"
+  }
+  object "H4IHero" {
+    path: "docs/assets/model-village/model-village-character-realism-h4i-portrait-realism-convergence-2026-08-01.png"
+    sha256: "0292df51755c259773d6e39e30f60549f7bfb612248f691bc75c3a442f2ac6cf"
+  }
+  object "H4IEvidence" {
+    path: "docs/assets/model-village/model-village-character-realism-h4i-portrait-realism-convergence-2026-08-01.json"
+    sha256: "9eafef8a51d055e8d442bbe01ce30098be726661a869809710fe88ff8fed7277"
+  }
+}
