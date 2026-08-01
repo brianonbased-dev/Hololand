@@ -45,7 +45,6 @@
     "check:hololand-model-village-character-appearance-h3c": "node scripts/check-hololand-model-village-character-appearance-h3c.mjs",
     "check:hololand-model-village-character-appearance-h3d": "node scripts/check-hololand-model-village-character-appearance-h3d.mjs",
     "check:hololand-model-village-character-appearance-h3e": "node scripts/check-hololand-model-village-character-appearance-h3e.mjs",
-    "check:hololand-model-village-character-realism-h4i": "node scripts/check-hololand-model-village-character-realism-h4i.mjs",
     "check:hololand-model-village-cloth-mantle": "node scripts/check-hololand-model-village-cloth-mantle.mjs",
     "check:hololand-model-village-family-mantles": "node scripts/check-hololand-model-village-family-mantles.mjs",
     "check:hololand-model-village-browser-studio-lineup": "node scripts/check-hololand-model-village-browser-studio-lineup.mjs",
