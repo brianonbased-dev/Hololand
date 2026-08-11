@@ -4,7 +4,7 @@
  * HoloScript library management service for templates, assets,
  * and code snippets.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

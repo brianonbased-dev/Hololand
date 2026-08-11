@@ -103,7 +103,7 @@ const { state, api } = createARRuntime();
 
 ## Architecture Decision
 
-This package was created to consolidate AR runtime code that was previously in `@hololand/core`.
+This package was created to consolidate AR runtime code that was previously in `@hololand/platform-runtime`.
 
 **Why the separation?**
 

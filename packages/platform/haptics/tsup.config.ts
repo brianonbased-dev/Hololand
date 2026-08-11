@@ -7,5 +7,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@holoscript/core', '@hololand/core', 'three'],
+  external: ['@holoscript/core', '@hololand/platform-runtime', 'three'],
 });

@@ -4,7 +4,7 @@
  * Multi-provider AI service module supporting Brittney, OpenAI,
  * Claude, and Ollama for code generation and chat.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

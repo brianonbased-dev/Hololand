@@ -5,7 +5,7 @@
  * This example shows how to create interactive 3D objects with traits.
  */
 
-import { createHoloScriptBridge, parseExpectSuccess } from "@hololand/core"
+import { createHoloScriptBridge, parseExpectSuccess } from "@hololand/platform-runtime"
 import { createAnimationSystem, createSkeleton } from "@hololand/animation"
 import { createGLBAssetLibrary, LODLevel, Priority } from "@hololand/spatial"
 

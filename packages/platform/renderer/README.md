@@ -325,7 +325,7 @@ import type { RendererConfig, LightingConfig, MaterialConfig } from '@hololand/r
 ## Related Packages
 
 - [@hololand/world](../world) - VR world runtime with physics
-- [@hololand/core](../core) - HoloScript language engine
+- [@hololand/platform-runtime](../core) - HoloScript language engine
 - [@hololand/ai-bridge](../ai-bridge) - Natural language → HoloScript translation
 
 ## License

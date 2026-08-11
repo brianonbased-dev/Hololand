@@ -3,7 +3,7 @@
   "manifestVersion": "1.0.0",
   "date": "2026-05-12",
   "status": "architecture-manifest",
-  "sourcePackage": "@hololand/mcp-server",
+  "sourcePackage": "@hololand/world-mcp",
   "sourcePackageVersion": "1.0.0",
   "compatibilityAliases": {
     "rationale": "Twin Universe is canonical product vocabulary. twin_earth and twin-earth remain legacy wire identifiers so existing MCP callers, receipts, and persisted manifests keep verifying.",

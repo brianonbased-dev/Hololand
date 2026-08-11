@@ -14,7 +14,7 @@
  * - EventLog: Filterable event stream display
  * - ArenaStats: Summary statistics panel
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

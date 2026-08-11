@@ -1,8 +1,8 @@
-// HOSL: @hololand/library Master Index
+// HOSL: @hololand/component-library Master Index
 // Standard Library for HoloScript - Reusable Components & Traits
 
 /* 
- * @hololand/library
+ * @hololand/component-library
  * =================
  * 
  * This package provides pre-built, production-ready components for
@@ -17,9 +17,9 @@
  * ## Usage
  * 
  * ```hsplus
- * import { BrittneyToolbar } from "@hololand/library/UI"
- * import { SmartLight } from "@hololand/library/Interactive"
- * import { BasicShapes } from "@hololand/library/Core"
+ * import { BrittneyToolbar } from "@hololand/component-library/UI"
+ * import { SmartLight } from "@hololand/component-library/Interactive"
+ * import { BasicShapes } from "@hololand/component-library/Core"
  * ```
  */
 

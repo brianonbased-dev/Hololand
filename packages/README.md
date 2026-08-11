@@ -5,7 +5,7 @@ All packages in this directory are licensed under **Elastic License 2.0** - sour
 ## Available Packages
 
 ### Platform Core (`platform/`)
-- **[@hololand/core](./platform/core)** - Core VR/AR engine and runtime
+- **[@hololand/platform-runtime](./platform/core)** - Core VR/AR engine and runtime
 - **[@hololand/renderer](./platform/renderer)** - WebGL/WebGPU rendering engine
 - **[@hololand/world](./platform/world)** - World building and management utilities
 - **[@hololand/network](./platform/network)** - Multiplayer + CRDT state sync + WebRTC
@@ -26,7 +26,7 @@ All packages in this directory are licensed under **Elastic License 2.0** - sour
 - **[@hololand/streaming](./platform/streaming)** - Asset streaming, caching
 - **[@hololand/holofilter](./platform/holofilter)** - VRR scanning + AR filters
 - **[@hololand/agents](./platform/agents)** - AI agent framework
-- **[@hololand/library](./platform/library)** - Asset library
+- **[@hololand/component-library](./platform/library)** - Asset library
 - **[@hololand/logger](./platform/logger)** - Error tracking
 - **[@hololand/commerce](./platform/commerce)** - E-commerce integration
 
@@ -49,7 +49,7 @@ All packages in this directory are licensed under **Elastic License 2.0** - sour
 - **[@hololand/brittney-service](./brittney/service)** - AI world builder
 - **[@hololand/brittney-toolkit](./brittney/toolkit)** - Self-modification tools
 - **[@hololand/brittney-models](./brittney/models)** - Model definitions
-- **[@hololand/mcp-server](./brittney/mcp-server)** - Model Context Protocol
+- **[@hololand/world-mcp](./brittney/mcp-server)** - Model Context Protocol
 - **[@hololand/ai-bridge](./brittney/ai-bridge)** - AI agent integration
 - **[@hololand/iot-digital-twins](./brittney/iot-digital-twins)** - IoT digital twin generation
 

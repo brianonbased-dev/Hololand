@@ -44,7 +44,7 @@
   "author": "Hololand",
   "license": "MIT",
   "dependencies": {
-    "@hololand/core": "workspace:*",
+    "@hololand/platform-runtime": "workspace:*",
     "@hololand/network": "workspace:*",
     "@hololand/logger": "workspace:*"
   },
@@ -55,6 +55,6 @@
     "vitest": "^1.1.0"
   },
   "peerDependencies": {
-    "@hololand/core": "workspace:*"
+    "@hololand/platform-runtime": "workspace:*"
   }
 }

@@ -14,7 +14,7 @@ function check(condition, message) {
 }
 
 check(manifest.schemaVersion === 'hololand.mcp.sovereign-manifest.v1', 'schemaVersion must be hololand.mcp.sovereign-manifest.v1');
-check(manifest.sourcePackage === '@hololand/mcp-server', 'sourcePackage must be @hololand/mcp-server');
+check(manifest.sourcePackage === '@hololand/world-mcp', 'sourcePackage must be @hololand/world-mcp');
 
 const validBuckets = ['keep', 'rename', 'delegate', 'deprecate', 'test'];
 const dispositions = manifest.existingToolDisposition || {};

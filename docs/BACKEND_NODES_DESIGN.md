@@ -48,7 +48,7 @@ We need a unified way to define backend services that integrates seamlessly with
 
 ```
 @hololand/backend
-├── depends on: @hololand/core (types, events)
+├── depends on: @hololand/platform-runtime (types, events)
 ├── depends on: @hololand/network (WebSocket integration)
 ├── depends on: @hololand/auth (authentication)
 └── peer deps: express | fastify, prisma | drizzle, ioredis

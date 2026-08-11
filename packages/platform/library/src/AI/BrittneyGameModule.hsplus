@@ -4,7 +4,7 @@
  * Brittney AI game integration module for generating NPCs,
  * dialogues, quests, abilities, and scenes using AI.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

@@ -219,9 +219,9 @@ This receipt format is the bridge between HoloScript source truth, Orchestrator 
 
 ## Existing MCP Server Disposition
 
-The current `@hololand/mcp-server` is a valid ancestor, not the final sovereign interface. It already exposes live browser context, world CRUD, HoloScript execution, audit logging, memory, spatial, dataset, and Brittney tools. The legacy tool names still reflect an older "VR world CRUD and debugging" product shape.
+The current `@hololand/world-mcp` is a valid ancestor, not the final sovereign interface. It already exposes live browser context, world CRUD, HoloScript execution, audit logging, memory, spatial, dataset, and Brittney tools. The legacy tool names still reflect an older "VR world CRUD and debugging" product shape.
 
-The versioned manifest lives at [hololand-mcp-sovereign-manifest.v1.json](hololand-mcp-sovereign-manifest.v1.json). It classifies each registered `@hololand/mcp-server` tool into:
+The versioned manifest lives at [hololand-mcp-sovereign-manifest.v1.json](hololand-mcp-sovereign-manifest.v1.json). It classifies each registered `@hololand/world-mcp` tool into:
 
 - Keep as product-critical HoloLand operation.
 - Rename behind a HoloLand-prefixed sovereign tool.

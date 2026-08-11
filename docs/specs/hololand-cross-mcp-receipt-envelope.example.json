@@ -13,7 +13,7 @@
     "traceId": "trace_1778617298562_54ao",
     "toolName": "hololand_create_shard_from_source",
     "toolFamily": "shard_world",
-    "mcpServer": "@hololand/mcp-server",
+    "mcpServer": "@hololand/world-mcp",
     "orchestratorTaskId": "task_1778617298562_54ao",
     "argumentsHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "startedAt": "2026-05-12T21:16:30.000Z",

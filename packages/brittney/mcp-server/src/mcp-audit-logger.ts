@@ -1,5 +1,5 @@
 /**
- * @hololand/mcp-server -- MCP Tool-Call Audit Logger
+ * @hololand/world-mcp -- MCP Tool-Call Audit Logger
  *
  * Comprehensive audit logging for ALL MCP tool calls across the 8 core
  * HoloLand MCP tools plus extended tools (Brittney, HoloScript, etc.).

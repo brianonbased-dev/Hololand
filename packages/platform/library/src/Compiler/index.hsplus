@@ -4,7 +4,7 @@
  * Self-hosting HoloScript+ compiler.
  * Provides lexing, parsing, code generation, and transpilation.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

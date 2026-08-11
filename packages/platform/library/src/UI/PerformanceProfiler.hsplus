@@ -12,7 +12,7 @@
  * - HistoryTable: Tabular view of historical performance data
  * - ProfilerToolbar: Controls for chart/table toggle
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

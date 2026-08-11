@@ -4,7 +4,7 @@
  * Displays real-time 3D rendering of HoloScript worlds with
  * performance metrics, object selection, and camera controls.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @category UI
  */
 

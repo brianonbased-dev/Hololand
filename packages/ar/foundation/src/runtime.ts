@@ -4,7 +4,7 @@
  * Connects HoloScript AR module to @hololand/ar-* packages.
  * This is the bridge between HoloScript AR declarations and actual AR implementations.
  *
- * Moved from @hololand/core to @hololand/ar-foundation for clean separation.
+ * Moved from @hololand/platform-runtime to @hololand/ar-foundation for clean separation.
  */
 
 // =============================================================================

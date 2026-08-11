@@ -1,7 +1,7 @@
 /**
  * AccessibilityBridge (Phase 3)
  *
- * Implements AccessibilityProvider from @hololand/core TraitContextFactory,
+ * Implements AccessibilityProvider from @hololand/platform-runtime TraitContextFactory,
  * connecting HoloScript's 9 accessibility trait handlers to Hololand's
  * W3C XR accessibility runtime.
  *
@@ -18,7 +18,7 @@
  *   - screenReaderHandler     (screen reader integration)
  */
 
-import type { AccessibilityProvider } from '@hololand/core';
+import type { AccessibilityProvider } from '@hololand/platform-runtime';
 
 // ---------------------------------------------------------------------------
 // W3C XR Accessibility types

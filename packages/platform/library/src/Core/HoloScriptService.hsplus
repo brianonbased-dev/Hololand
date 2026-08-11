@@ -4,7 +4,7 @@
  * Core HoloScript parsing, compilation, and execution service.
  * Integrates with @holoscript/core parser.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

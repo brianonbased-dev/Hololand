@@ -314,7 +314,7 @@ import {
   BrittneyChat,
   PerformanceProfiler,
   ErrorVisualizer
-} from "@hololand/library/UI"
+} from "@hololand/component-library/UI"
 
 composition "HoloScript Playground" {
   @state {

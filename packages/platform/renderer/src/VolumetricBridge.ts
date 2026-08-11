@@ -1,7 +1,7 @@
 /**
  * VolumetricBridge (Phase 4 & 5)
  *
- * Implements RendererProvider from @hololand/core TraitContextFactory,
+ * Implements RendererProvider from @hololand/platform-runtime TraitContextFactory,
  * connecting HoloScript's volumetric and compute trait handlers to
  * Hololand's renderer runtime.
  *

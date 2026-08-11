@@ -51,7 +51,7 @@ ownership model. Broadly:
   ("create a coffee shop") into HoloScript code, including a voice pipeline
   (`VoiceMCPPipeline.ts`) for in-VR authoring. See
   [`packages/brittney/ai-bridge/src/NaturalLanguageTranslator.ts`](../packages/brittney/ai-bridge/src/NaturalLanguageTranslator.ts).
-- **Live world tooling for agents** — `@hololand/mcp-server` exposes the
+- **Live world tooling for agents** — `@hololand/world-mcp` exposes the
   premium MCP toolset (live browser context, debugging, one-shot inject, world
   CRUD, object manipulation). Free `holo_*` / `hs_*` graph and IDE tools live
   on `@holoscript/mcp-server`; the HoloLand server keeps deprecated aliases

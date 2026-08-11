@@ -273,7 +273,7 @@ Example: `feat(renderer): add VR controller support`
 
 ## 📦 Package-Specific Guidelines
 
-### @hololand/core
+### @hololand/platform-runtime
 
 - Keep zero dependencies
 - Maintain backward compatibility

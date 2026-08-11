@@ -1,5 +1,5 @@
 {
-  "name": "@hololand/core",
+  "name": "@hololand/platform-runtime",
   "version": "1.0.0",
   "description": "Hololand platform core - extends @holoscript/core with platform features",
   "main": "./dist/index.js",

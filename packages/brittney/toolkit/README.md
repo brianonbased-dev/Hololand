@@ -140,7 +140,7 @@ import type {
 ## Related
 
 - [@hololand/brittney-service](../brittney-service/) - Server-side service
-- [@hololand/mcp-server](../mcp-server/) - MCP protocol integration
+- [@hololand/world-mcp](../mcp-server/) - MCP protocol integration
 
 ## License
 

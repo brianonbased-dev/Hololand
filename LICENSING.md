@@ -46,7 +46,7 @@ The HoloScript programming language and toolchain are completely free and open:
 Core rendering, physics, and utilities are completely open:
 
 **Includes:**
-- `@hololand/core` - Core VR/AR engine
+- `@hololand/platform-runtime` - Core VR/AR engine
 - `@hololand/renderer` - WebGL/WebGPU renderer
 - `@hololand/physics` - Physics simulation
 - `@hololand/world` - World building utilities
@@ -238,7 +238,7 @@ Need to offer Hololand as a service? We offer flexible commercial licenses:
 ### For Developers
 ```bash
 # Install core packages (MIT - completely free)
-npm install @hololand/core @hololand/renderer @hololand/react-three
+npm install @hololand/platform-runtime @hololand/renderer @hololand/react-three
 
 # Build your VR app - no restrictions!
 ```

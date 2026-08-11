@@ -37,7 +37,7 @@
     "@hololand/logger": "workspace:*"
   },
   "peerDependencies": {
-    "@hololand/core": "workspace:*"
+    "@hololand/platform-runtime": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.10.6",

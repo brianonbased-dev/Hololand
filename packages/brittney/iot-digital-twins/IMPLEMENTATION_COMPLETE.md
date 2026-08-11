@@ -158,7 +158,7 @@ Status: PASSED (connection requires running broker)
 - Added `ChatMessage`, `InferenceRequest`, `InferenceResponse` types
 - **Result:** Full TypeScript support
 
-### 3. @hololand/mcp-server
+### 3. @hololand/world-mcp
 - Added `Tool` type annotation to `agentTools` array
 - Added `as const` to all `inputSchema.type` declarations
 - Added type casts for `fetchSafe` results

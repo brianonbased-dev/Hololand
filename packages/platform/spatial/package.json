@@ -36,7 +36,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hololand/core": "workspace:*",
+    "@hololand/platform-runtime": "workspace:*",
     "@hololand/logger": "workspace:*"
   },
   "devDependencies": {

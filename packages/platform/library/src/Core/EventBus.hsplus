@@ -4,7 +4,7 @@
  * Central event bus for HoloScript application communication.
  * Provides pub/sub, typed events, wildcards, and event history.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

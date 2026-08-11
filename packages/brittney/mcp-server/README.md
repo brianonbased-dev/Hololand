@@ -1,4 +1,4 @@
-# @hololand/mcp-server
+# @hololand/world-mcp
 
 **Premium MCP server for Hololand** - Live browser context, AI-powered debugging, one-shot creation, and VR/AR world management for AI agents.
 
@@ -6,7 +6,7 @@
 
 ## What's Premium vs Free?
 
-| Capability | Free (@holoscript/mcp-server) | Premium (@hololand/mcp-server) |
+| Capability | Free (@holoscript/mcp-server) | Premium (@hololand/world-mcp) |
 | --- | --- | --- |
 | Parsing, validation, generation | 15 core tools | - |
 | Graph understanding (`.holo` visualization) | 6 tools (`holo_*`) | Deprecated aliases |

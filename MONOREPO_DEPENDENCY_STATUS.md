@@ -67,7 +67,7 @@ The HoloLand backend is **fully operational** for core features (auth, worlds, p
 // - import holoscriptRoutes from './holoscript.routes';
 // - import infinityAssistantRoutes from './infinity-assistant.routes';
 
-// These routes require @hololand/core to be built
+// These routes require @hololand/platform-runtime to be built
 ```
 
 **Impact**: AI endpoints, HoloScript execution, and Infinity Assistant unavailable until monorepo packages are built.
@@ -79,7 +79,7 @@ The HoloLand backend is **fully operational** for core features (auth, worlds, p
 ### The Build Order Challenge
 
 ```
-@hololand/core (needed by backend routes)
+@hololand/platform-runtime (needed by backend routes)
   ↓
   ├── @holoscript/core ✅ (BUILT - 3.42.0)
   ├── @hololand/ar-foundation ❌ (not built)
@@ -99,9 +99,9 @@ Many platform packages depend on each other, creating a complex build order requ
 
 ## Build Attempts Made
 
-### 1. Build @hololand/core Directly ❌
+### 1. Build @hololand/platform-runtime Directly ❌
 ```bash
-pnpm --filter @hololand/core build
+pnpm --filter @hololand/platform-runtime build
 ```
 **Result**: Failed - Missing dependencies (@hololand/audio, @hololand/world, etc.)
 
@@ -126,7 +126,7 @@ pnpm -r --filter "./packages/platform/*" build
 
 ### 1. Import/Export Mismatches with @holoscript/core
 ```typescript
-// @hololand/core/src/index.ts trying to import:
+// @hololand/platform-runtime/src/index.ts trying to import:
 import {
   HOLOSCRIPT_DEMO_SCRIPTS,  // ❌ Not exported
   createHoloScriptEnvironment,  // ❌ Not exported
@@ -141,7 +141,7 @@ import {
 
 ### 2. Missing ./holoscript Directory
 ```typescript
-// @hololand/core/src/index.ts:96
+// @hololand/platform-runtime/src/index.ts:96
 export * from './holoscript';
 ```
 
@@ -154,7 +154,7 @@ Many packages depend on each other within the `@hololand/*` namespace, requiring
 
 ## Workaround Implemented ✅
 
-**Approach**: Disable routes requiring @hololand/core
+**Approach**: Disable routes requiring @hololand/platform-runtime
 
 **File Modified**: `platform/backend/src/routes/index.ts`
 
@@ -204,7 +204,7 @@ Keep routes disabled and use core functionality only.
    node -p "Object.keys(require('./dist/index.cjs'))"
    ```
 
-2. **Update @hololand/core imports** to match actual exports
+2. **Update @hololand/platform-runtime imports** to match actual exports
    ```typescript
    // Instead of named imports:
    import { OrbNode } from '@holoscript/core';
@@ -253,7 +253,7 @@ export const executeHoloScript = async (code: string) => {
 };
 ```
 
-Update routes to use stubs instead of @hololand/core.
+Update routes to use stubs instead of @hololand/platform-runtime.
 
 **Timeline**: 30 minutes
 
@@ -292,7 +292,7 @@ The core platform functionality is fully operational, allowing you to:
 ### Build Failed ❌
 | Package | Status | Blocker | Priority |
 |---------|--------|---------|----------|
-| @hololand/core | ❌ Failed | Import mismatches + missing deps | **HIGH** |
+| @hololand/platform-runtime | ❌ Failed | Import mismatches + missing deps | **HIGH** |
 | @hololand/haptics | ❌ Failed | Missing dependencies | Medium |
 | @hololand/navigation | ❌ Failed | Missing dependencies | Medium |
 | @hololand/network | ❌ Failed | Missing dependencies | Medium |
@@ -316,7 +316,7 @@ The core platform functionality is fully operational, allowing you to:
 ---
 
 ### 2. Missing ./holoscript Directory
-**Issue**: @hololand/core exports from non-existent directory
+**Issue**: @hololand/platform-runtime exports from non-existent directory
 
 **Resolution**: Either:
 - Create the directory with proper code
@@ -344,7 +344,7 @@ The core platform functionality is fully operational, allowing you to:
 
 ### Short-term (This Week)
 1. Audit @holoscript/core actual exports
-2. Fix import statements in @hololand/core
+2. Fix import statements in @hololand/platform-runtime
 3. Create or remove ./holoscript directory
 4. Re-enable AI routes
 
@@ -417,10 +417,10 @@ The HoloLand platform is **production-ready for core functionality** but require
 
 **Recommended approach**:
 1. Continue development with current workaround ✅
-2. Fix @hololand/core imports in next session ⏭️
+2. Fix @hololand/platform-runtime imports in next session ⏭️
 3. Build full monorepo for production deployment
 
-**Current blocker**: Import/export mismatches between @hololand/core and @holoscript/core
+**Current blocker**: Import/export mismatches between @hololand/platform-runtime and @holoscript/core
 **Severity**: Medium (doesn't block core development)
 **Timeline to fix**: 2-4 hours of focused refactoring
 

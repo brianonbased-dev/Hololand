@@ -27,7 +27,7 @@ Closes #
 
 <!-- Mark all packages affected by this PR -->
 
-- [ ] @hololand/core
+- [ ] @hololand/platform-runtime
 - [ ] @hololand/world
 - [ ] @hololand/renderer
 - [ ] @hololand/react-three

@@ -16,7 +16,7 @@ Hololand consumes [HoloScript](https://github.com/brianonbased-dev/HoloScript) a
 ```
 HoloScript (Language Repo)              Hololand (Platform Repo)
 ─────────────────────────               ─────────────────────────
-@holoscript/core (parser)         →     @hololand/core (runtime bridge)
+@holoscript/core (parser)         →     @hololand/platform-runtime (runtime bridge)
 @holoscript/runtime (engine)      →     @hololand/react-three (R3F renderer)
 @holoscript/traits (1,800+)       →     @hololand/world (physics/scene graph)
 @holoscript/compiler (R3F/Unity)  →     @hololand/renderer (Three.js/WebGPU)

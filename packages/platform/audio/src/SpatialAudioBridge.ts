@@ -1,7 +1,7 @@
 /**
  * SpatialAudioBridge (Phase 8)
  *
- * Implements AudioProvider from @hololand/core TraitContextFactory,
+ * Implements AudioProvider from @hololand/platform-runtime TraitContextFactory,
  * connecting HoloScript's 7 spatial audio trait handlers to
  * Hololand's SpatialAudioEngine runtime.
  *
@@ -15,7 +15,7 @@
  *   - headTrackedAudioHandler (head-locked vs world-space)
  */
 
-import type { AudioProvider } from '@hololand/core';
+import type { AudioProvider } from '@hololand/platform-runtime';
 import type { SpatialAudioEngine } from './SpatialAudioEngine';
 import type { Vector3 } from './types';
 

@@ -1,5 +1,5 @@
 /**
- * @hololand/mcp-server
+ * @hololand/world-mcp
  * 
  * Hololand MCP Server - Model Context Protocol server for AI agent integration.
  * Enables AI agents to create and manage VR/AR worlds, execute HoloScript,
@@ -10,7 +10,7 @@
  * - Brittney IDE Agent Integration (browser context visibility for coding agents)
  * - HoloScript Graph Understanding Tools (helps agents understand .holo as visual graphs)
  * 
- * @package @hololand/mcp-server
+ * @package @hololand/world-mcp
  * @version 2.0.0
  * @author Hololand Team
  * @license MIT

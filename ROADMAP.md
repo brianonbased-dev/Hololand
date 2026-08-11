@@ -170,7 +170,7 @@ This section outlines the platform experience for players and creators. Technica
 **Status**: Released v1.0.0-alpha.1
 
 ### Completed
-- [x] **@hololand/core** - HoloScript language engine with voice support
+- [x] **@hololand/platform-runtime** - HoloScript language engine with voice support
 - [x] **@hololand/ai-bridge** - Natural language → code translation
 - [x] **@hololand/world** - VR world runtime with physics simulation
 - [x] **@hololand/renderer** - Three.js rendering with WebXR support

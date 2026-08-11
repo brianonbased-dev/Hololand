@@ -7,7 +7,7 @@
  * This component provides an interface that can bind to Monaco, CodeMirror,
  * or other editor backends via the native binding system.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @category UI
  */
 

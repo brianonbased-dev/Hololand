@@ -85,7 +85,7 @@ See [`BRITTNEY_CONTEXT.md`](./BRITTNEY_CONTEXT.md). Quick links:
 | `@hololand/brittney-toolkit` | Bundled local model + chat widget. |
 | `@hololand/ai-bridge` | NL → HoloScript translator + voice MCP pipeline. |
 | `@hololand/iot-digital-twins` | IoT discovery → HoloScript twin generation. See [`IOT_DIGITAL_TWINS_SHOWCASE.md`](./IOT_DIGITAL_TWINS_SHOWCASE.md). |
-| `@hololand/mcp-server` | Premium MCP toolset for live world ops. |
+| `@hololand/world-mcp` | Premium MCP toolset for live world ops. |
 | `@hololand/brittney-models` | Model registry + downloader. |
 | `@hololand/inference` | Unified inference layer; Brittney sits on top. Lives in [`packages/shared/inference/`](../packages/shared/inference/). |
 | `@hololand/brittney-service` | **Deprecated**. Use `@hololand/inference`. |

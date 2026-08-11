@@ -13,7 +13,7 @@
  * - Host reads from stdin, writes to stdout
  * - Extension connects via chrome.runtime.connectNative()
  * 
- * @package @hololand/mcp-server
+ * @package @hololand/world-mcp
  * @version 2.0.0
  */
 

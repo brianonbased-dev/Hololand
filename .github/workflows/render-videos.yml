@@ -79,9 +79,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # ── Build @hololand/core (video-tutorials depends on it) ─────────────────
-      - name: Build @hololand/core
-        run: pnpm --filter @hololand/core run build
+      # ── Build @hololand/platform-runtime (video-tutorials depends on it) ─────────────────
+      - name: Build @hololand/platform-runtime
+        run: pnpm --filter @hololand/platform-runtime run build
 
       # ── Render: specific composition ─────────────────────────────────────────
       - name: Render specific composition

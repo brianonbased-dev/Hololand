@@ -1,15 +1,15 @@
-# @hololand/core
+# @hololand/platform-runtime
 
 Core HoloScript engine - Parser, Runtime, and Types for VR spatial programming.
 
 ## Installation
 
 ```bash
-npm install @hololand/core
+npm install @hololand/platform-runtime
 # or
-pnpm add @hololand/core
+pnpm add @hololand/platform-runtime
 # or
-yarn add @hololand/core
+yarn add @hololand/platform-runtime
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ import {
   type VoiceCommand,
   type GestureData,
   type ExecutionResult
-} from '@hololand/core';
+} from '@hololand/platform-runtime';
 
 // Option 1: Use helper function
 const { parser, runtime, version } = createHoloScriptEnvironment();
@@ -106,7 +106,7 @@ runtime.reset();
 By default, HoloScript uses a no-op logger. You can provide your own:
 
 ```typescript
-import { setHoloScriptLogger } from '@hololand/core';
+import { setHoloScriptLogger } from '@hololand/platform-runtime';
 
 setHoloScriptLogger({
   info: (message, meta) => console.log(message, meta),

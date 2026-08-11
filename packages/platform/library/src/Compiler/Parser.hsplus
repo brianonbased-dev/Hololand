@@ -4,7 +4,7 @@
  * Self-hosting HoloScript+ parser - builds AST from tokens.
  * This is the second stage of the compilation pipeline.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

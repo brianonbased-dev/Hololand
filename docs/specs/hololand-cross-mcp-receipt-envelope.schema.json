@@ -109,7 +109,7 @@
         },
         "mcpServer": {
           "type": "string",
-          "enum": ["@hololand/mcp-server", "@holoscript/mcp-server", "mcp-orchestrator"]
+          "enum": ["@hololand/world-mcp", "@holoscript/mcp-server", "mcp-orchestrator"]
         },
         "orchestratorTaskId": {
           "type": "string"

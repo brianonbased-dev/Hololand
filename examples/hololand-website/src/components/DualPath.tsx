@@ -217,7 +217,7 @@ export function DualPath() {
             <div className="text-3xl mb-2">📦</div>
             <h4 className="font-semibold mb-1">NPM Packages</h4>
             <p className="text-sm text-gray-300">
-              @hololand/core, @hololand/world
+              @hololand/platform-runtime, @hololand/world
             </p>
           </div>
 
@@ -232,7 +232,7 @@ export function DualPath() {
 
         <div className="bg-gray-900/50 rounded-lg p-4 mb-6">
           <pre className="text-sm text-gray-300 overflow-x-auto">
-            <code>{`import { World, Entity } from '@hololand/core';
+            <code>{`import { World, Entity } from '@hololand/platform-runtime';
 
 <World>
   <Entity position={[0, 0, 0]}>

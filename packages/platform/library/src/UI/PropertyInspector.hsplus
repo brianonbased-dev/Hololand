@@ -5,7 +5,7 @@
  * with support for various property types including vectors, colors,
  * numbers, and enums.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @category UI
  */
 

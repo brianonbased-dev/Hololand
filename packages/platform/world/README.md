@@ -315,11 +315,11 @@ The world emits these events:
 
 ## Integration Examples
 
-### With @hololand/core (HoloScript)
+### With @hololand/platform-runtime (HoloScript)
 
 ```typescript
 import { HololandWorld } from '@hololand/world';
-import { HoloScriptRuntime, HoloScriptParser } from '@hololand/core';
+import { HoloScriptRuntime, HoloScriptParser } from '@hololand/platform-runtime';
 
 const world = new HololandWorld({ name: 'holoscript-world' });
 const runtime = new HoloScriptRuntime();
@@ -374,7 +374,7 @@ See the [full API documentation](../../docs/api/world.md) for complete details.
 
 ## Related Packages
 
-- [@hololand/core](../core) - HoloScript language core
+- [@hololand/platform-runtime](../core) - HoloScript language core
 - [@hololand/ai-bridge](../ai-bridge) - Natural language → HoloScript
 - [@hololand/commerce](../commerce) - Shop systems (coming soon)
 - [@hololand/social](../social) - Avatars & presence (coming soon)

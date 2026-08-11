@@ -2,13 +2,13 @@
  * PhysicsExpansionBridge (Phase 13)
  *
  * Implements the PhysicsProvider contract expected by
- * @hololand/core's TraitContextFactory, connecting HoloScript's
+ * @hololand/platform-runtime's TraitContextFactory, connecting HoloScript's
  * 8 physics expansion trait handlers to the @hololand/world
  * PhysicsEngine runtime.
  *
  * The PhysicsProvider interface is duplicated here (4 methods) to
  * avoid a circular dependency between @hololand/world and
- * @hololand/core.  Both copies are identical; keep them in sync.
+ * @hololand/platform-runtime.  Both copies are identical; keep them in sync.
  *
  * Wired handlers:
  *   - clothHandler        (cloth simulation with PBD)
@@ -25,7 +25,7 @@ import type { PhysicsEngine } from './PhysicsEngine';
 import type { Vector3 } from './types';
 
 // ---------------------------------------------------------------------------
-// PhysicsProvider interface (mirrors @hololand/core TraitContextFactory)
+// PhysicsProvider interface (mirrors @hololand/platform-runtime TraitContextFactory)
 // ---------------------------------------------------------------------------
 
 /**

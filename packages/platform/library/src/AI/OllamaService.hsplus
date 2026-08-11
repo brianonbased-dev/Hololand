@@ -4,7 +4,7 @@
  * Local Ollama integration for HoloScript code generation.
  * Provides streaming chat and embedding capabilities.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

@@ -1,5 +1,5 @@
 {
-  "name": "@hololand/mcp-server",
+  "name": "@hololand/world-mcp",
   "version": "1.0.0",
   "description": "Model Context Protocol server for Hololand - enables AI agents to create and manage VR worlds",
   "type": "module",

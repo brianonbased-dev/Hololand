@@ -3,7 +3,7 @@
  * 
  * Exports all AI-related modules for HoloScript development.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

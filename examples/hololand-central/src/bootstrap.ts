@@ -8,7 +8,7 @@
  *   3. Starts the render loop
  */
 import { createRuntime } from '@holoscript/core/runtime';
-import { loadComposition } from '@hololand/core';
+import { loadComposition } from '@hololand/platform-runtime';
 
 async function main() {
   // Load the root composition — all game logic, zones, systems defined in HoloScript

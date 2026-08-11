@@ -4,7 +4,7 @@
  * Main orchestrator for the HoloScript+ compilation pipeline.
  * Combines Lexer, Parser, and CodeGenerator into a unified API.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

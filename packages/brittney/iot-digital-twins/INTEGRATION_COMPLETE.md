@@ -202,7 +202,7 @@ Hololand/
 ### ✅ Uses Existing Infrastructure
 - `@holoscript/core` - HoloScript parser and AST
 - `@hololand/world` - World management
-- `@hololand/mcp-server` - MCP tools for AI agents
+- `@hololand/world-mcp` - MCP tools for AI agents
 - `pnpm workspaces` - Monorepo structure
 
 ### ✅ Follows Hololand Patterns

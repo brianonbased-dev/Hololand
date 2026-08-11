@@ -15,10 +15,10 @@ COPY packages/brittney/mcp-server ./packages/brittney/mcp-server
 COPY packages/shared/inference ./packages/shared/inference
 
 # Install dependencies ONLY for the MCP server package
-RUN pnpm --filter @hololand/mcp-server... install --no-frozen-lockfile --ignore-scripts --config.auto-install-peers=false
+RUN pnpm --filter @hololand/world-mcp... install --no-frozen-lockfile --ignore-scripts --config.auto-install-peers=false
 
 # Build MCP server and its local workspace dependencies
-RUN pnpm --filter @hololand/mcp-server... build
+RUN pnpm --filter @hololand/world-mcp... build
 
 # Copy startup script and make it executable
 COPY packages/brittney/mcp-server/scripts/railway-start.sh /app/railway-start.sh

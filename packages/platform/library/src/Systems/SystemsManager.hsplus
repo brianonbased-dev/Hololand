@@ -5,7 +5,7 @@
  * subsystems: networking, physics, procedural generation, marketplace,
  * version control, party, analytics, achievements, and more.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

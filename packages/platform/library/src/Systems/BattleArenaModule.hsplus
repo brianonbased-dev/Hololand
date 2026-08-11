@@ -4,7 +4,7 @@
  * Battle arena game system module for managing NPCs, combat,
  * projectiles, and real-time battle state.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

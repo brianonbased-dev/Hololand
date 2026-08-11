@@ -1,142 +1,18 @@
 /**
- * @hololand/core
+ * @hololand/platform-runtime
  *
- * Hololand platform core - extends @holoscript/core with platform features.
+ * HoloLand platform runtime: the frame loop, trait wiring, physics safety
+ * envelope, hot reload, and cross-validation that turn HoloScript-authored
+ * worlds into a running HoloLand.
  *
- * The HoloScript parser and runtime come from the open-source @holoscript/core package (MIT).
- * This package adds Hololand-specific features under the Elastic License 2.0.
+ * This package deliberately does NOT re-export the HoloScript language surface.
+ * Parsers, the runtime, the validator, the debugger and the trait registry all
+ * come from @holoscript/core (MIT) - import them from there directly. HoloLand
+ * is a consumer of HoloScript, not a gateway to it, and anyone can build their
+ * own platform on the same public language packages.
+ *
+ * Platform code here is Elastic License 2.0.
  */
-
-// =============================================================================
-// Re-exports from @holoscript/core v3.43.0 (MIT licensed)
-// =============================================================================
-
-// Parsers
-export {
-  HoloScriptParser,
-  HoloScript2DParser,
-  HoloScriptPlusParser,
-  createParser,
-  parseHoloScriptPlus,
-  HoloCompositionParser,
-  parseHolo,
-  parseHoloStrict,
-} from '@holoscript/core';
-
-// Validator & Code Parser
-export { HoloScriptValidator, type ValidationError } from '@holoscript/core';
-export { HoloScriptCodeParser } from '@holoscript/core';
-
-// Runtime
-export { HoloScriptRuntime, HoloScriptPlusRuntimeImpl, createRuntime } from '@holoscript/core';
-
-// Debugger
-export {
-  HoloScriptDebugger,
-  createDebugger,
-  type Breakpoint,
-  type StackFrame,
-  type DebugState,
-  type DebugEvent,
-  type StepMode,
-} from '@holoscript/core';
-
-// Logger
-export {
-  setHoloScriptLogger,
-  enableConsoleLogging,
-  resetLogger,
-  NoOpLogger,
-  ConsoleLogger,
-  type HoloScriptLogger,
-} from '@holoscript/core';
-
-// Environment & Capabilities
-export {
-  createHoloScriptEnvironment,
-  isHoloScriptSupported,
-  HOLOSCRIPT_VERSION,
-  HOLOSCRIPT_DEMO_SCRIPTS,
-  HOLOSCRIPT_SUPPORTED_PLATFORMS,
-  HOLOSCRIPT_VOICE_COMMANDS,
-  HOLOSCRIPT_GESTURES,
-} from '@holoscript/core';
-
-// VR Traits
-export { VRTraitRegistry, vrTraitRegistry } from '@holoscript/core';
-
-// Core Types
-export type {
-  // Spatial
-  SpatialPosition,
-  Position2D,
-  Size2D,
-
-  // Hologram
-  HologramProperties,
-
-  // Input
-  VoiceCommand,
-  GestureData,
-
-  // AST Nodes
-  ASTNode,
-  OrbNode,
-  MethodNode,
-  ParameterNode,
-  ConnectionNode,
-  GateNode,
-  StreamNode,
-  TransformationNode,
-
-  // 2D UI
-  UIElementType,
-  UI2DNode,
-  UIStyle,
-
-  // Runtime
-  RuntimeContext,
-  ExecutionResult,
-  ParticleSystem,
-} from '@holoscript/core';
-
-// Composition Types
-export type {
-  HoloComposition,
-  HoloEnvironment,
-  HoloState,
-  HoloTemplate,
-  HoloObjectDecl,
-  HoloSpatialGroup,
-  HoloLogic,
-  HoloAction,
-  HoloImport,
-  HoloParseResult,
-  HoloParseError,
-} from '@holoscript/core';
-
-// Compilers
-export {
-  R3FCompiler,
-  UnityCompiler,
-  GodotCompiler,
-  VisionOSCompiler,
-  VRChatCompiler,
-  UnrealCompiler,
-} from '@holoscript/core';
-
-// R3F Types (used by renderers in @hololand/react-three and @holoscript/r3f-renderer)
-export type { R3FNode, HSPlusAST } from '@holoscript/core';
-
-// Material System
-export { MATERIAL_PRESETS } from '@holoscript/core';
-export type { MaterialDefinition, HoloMaterialType } from '@holoscript/core';
-
-// Shader System
-export { ShaderTrait, SHADER_PRESETS, createShaderTrait } from '@holoscript/core';
-
-// State Management
-export { ReactiveState, createState, reactive, effect, computed, bind } from '@holoscript/core';
 
 // =============================================================================
 // Hololand Platform (Elastic License 2.0)

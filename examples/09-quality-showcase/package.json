@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hololand/core": "workspace:*",
+    "@hololand/platform-runtime": "workspace:*",
     "@hololand/renderer": "workspace:*",
     "three": "^0.161.0"
   },

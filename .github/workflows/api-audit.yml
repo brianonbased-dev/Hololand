@@ -40,7 +40,7 @@ jobs:
             echo "  - @holoscript/multiplayer → @hololand/network"
             echo "  - @holoscript/gestures → @hololand/gestures"
             echo "  - @holoscript/navigation → @hololand/navigation"
-            echo "  - @holoscript/loader → @hololand/core"
+            echo "  - @holoscript/loader → @hololand/platform-runtime"
             exit 1
           fi
 

@@ -158,7 +158,7 @@ module PhysicsPlayground {
 
   @action async start() {
     // Initialize and run physics scene
-    const { createHoloScriptBridge, parseExpectSuccess } = await import("@hololand/core")
+    const { createHoloScriptBridge, parseExpectSuccess } = await import("@hololand/platform-runtime")
     
     self.bridge = createHoloScriptBridge({ worldId: "physics-playground" })
     await self.bridge.connect()

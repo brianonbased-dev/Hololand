@@ -4,7 +4,7 @@
  * Self-hosting HoloScript+ lexer - tokenizes .hsplus source code.
  * This is the first stage of the compilation pipeline.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

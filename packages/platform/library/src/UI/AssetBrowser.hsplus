@@ -4,7 +4,7 @@
  * Displays the HoloScript Standard Library, templates, and assets
  * with category filtering and code insertion capabilities.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @category UI
  */
 

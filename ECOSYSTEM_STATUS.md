@@ -12,7 +12,7 @@
 
 | Package | What It Does | Status |
 | ------- | ------------ | ------ |
-| [@hololand/core](./packages/platform/core) | The brain - runs HoloScript code | Ready |
+| [@hololand/platform-runtime](./packages/platform/core) | The brain - runs HoloScript code | Ready |
 | [@hololand/ai-bridge](./packages/brittney/ai-bridge) | Talk to AI, get VR code | Ready |
 | [@hololand/world](./packages/platform/world) | Physics, gravity, collisions | Ready |
 | [@hololand/renderer](./packages/platform/renderer) | Draws 3D graphics | Ready |
@@ -71,7 +71,7 @@
 | [@hololand/brittney-service](./packages/brittney/service) | AI world builder | Ready |
 | [@hololand/brittney-toolkit](./packages/brittney/toolkit) | Self-modification tools | Ready |
 | [@hololand/brittney-models](./packages/brittney/models) | Brittney model definitions | Ready |
-| [@hololand/mcp-server](./packages/brittney/mcp-server) | Model Context Protocol | Ready |
+| [@hololand/world-mcp](./packages/brittney/mcp-server) | Model Context Protocol | Ready |
 | [@hololand/inference](./packages/shared/inference) | Unified AI - HoloLLama local compatibility + BYOK Cloud | Ready |
 | [@hololand/iot-digital-twins](./packages/brittney/iot-digital-twins) | IoT digital twin generation | Ready |
 | [@hololand/brittney-cloud-api](./packages/brittney-cloud-api) | Cloud API for Brittney | Ready |
@@ -85,7 +85,7 @@
 | [@hololand/shared-ui](./packages/shared/ui) | Shared UI component library | Ready |
 | [@hololand/logger](./packages/platform/logger) | Error tracking | Ready |
 | [@hololand/spatial](./packages/platform/spatial) | Spatial computing | Ready |
-| [@hololand/library](./packages/platform/library) | Asset library | Ready |
+| [@hololand/component-library](./packages/platform/library) | Asset library | Ready |
 | @hololand/backend | API server | Proprietary |
 
 ### Developer Tools
@@ -176,7 +176,7 @@ Your App
    |      +-- @hololand/renderer <-- Draws graphics
    |      +-- @hololand/world <-- Physics engine
    |             |
-   |             +-- @hololand/core <-- HoloScript brain
+   |             +-- @hololand/platform-runtime <-- HoloScript brain
    |
    +-- @hololand/ai-bridge <-- Natural language
    |

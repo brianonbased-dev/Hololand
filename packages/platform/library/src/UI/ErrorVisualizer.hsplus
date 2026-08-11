@@ -13,7 +13,7 @@
  * - ErrorTips: Contextual help and tips
  * - StackTrace: Expandable stack trace viewer
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

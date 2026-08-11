@@ -13,5 +13,5 @@ export default defineConfig({
   sourcemap: true,
   splitting: false,
   treeshake: true,
-  external: ['@hololand/core', '@hololand/network', '@hololand/logger'],
+  external: ['@hololand/platform-runtime', '@hololand/network', '@hololand/logger'],
 });

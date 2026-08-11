@@ -451,6 +451,6 @@ Using Hololand Central for your project? Let us know!
 
 **Built with ❤️ by the Hololand Community**
 
-*Powered by @hololand/core | Enhanced with React Three Fiber | Open to Everyone*
+*Powered by @hololand/platform-runtime | Enhanced with React Three Fiber | Open to Everyone*
 
 🌐 **Where Everyone Can Build in VR - And Beyond** ✨

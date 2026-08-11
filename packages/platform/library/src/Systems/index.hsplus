@@ -3,7 +3,7 @@
  * 
  * Exports all game systems for HoloScript worlds.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

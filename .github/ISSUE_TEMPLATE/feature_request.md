@@ -53,7 +53,7 @@ If applicable, add mockups, diagrams, or sketches.
 
 Which Hololand packages would this feature affect?
 
-- [ ] @hololand/core
+- [ ] @hololand/platform-runtime
 - [ ] @hololand/world
 - [ ] @hololand/renderer
 - [ ] @hololand/react-three

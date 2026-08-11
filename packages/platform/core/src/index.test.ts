@@ -1,5 +1,5 @@
 /**
- * @hololand/core - Test Suite
+ * @hololand/platform-runtime - Test Suite
  *
  * Tests for HoloScriptBridge and core exports
  */

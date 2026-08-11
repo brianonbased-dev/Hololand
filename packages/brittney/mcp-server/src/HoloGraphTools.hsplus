@@ -10,7 +10,7 @@
  * - Understand connections between objects
  * - Generate graph-first before code
  * 
- * @package @hololand/mcp-server
+ * @package @hololand/world-mcp
  * @version 2.0.0
  */
 

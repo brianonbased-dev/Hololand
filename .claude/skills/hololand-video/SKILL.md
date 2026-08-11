@@ -45,7 +45,7 @@ scene EnchantedForest {
 
 **2. .hsplus (full programming language with logic)**
 ```hsplus
-import { Scene, Physics } from "@hololand/core"
+import { Scene, Physics } from "@hololand/platform-runtime"
 scene PhysicsPlayground extends Scene {
   state { selectedObject: string | null = null }
   on click(obj) { this.state.selectedObject = obj.id }
@@ -58,7 +58,7 @@ scene PhysicsPlayground extends Scene {
 
 | Package | What it does | Video priority |
 |---------|-------------|----------------|
-| `@hololand/core` | Runs HoloScript code, coordinates all subsystems | HIGH |
+| `@hololand/platform-runtime` | Runs HoloScript code, coordinates all subsystems | HIGH |
 | `@hololand/world` | Physics engine (gravity, collisions, rigid bodies) | HIGH |
 | `@hololand/renderer` | 3D graphics via adapters | HIGH |
 | `@hololand/babylon-adapter` | Babylon.js rendering backend | MEDIUM |
@@ -117,7 +117,7 @@ Use one of two approaches:
 
 **Option A** (Recommended): Create `packages/devtools/video-tutorials/` in HoloLand
 - Follows existing devtools pattern
-- Can reference `@hololand/core` and `@hololand/playground` directly
+- Can reference `@hololand/platform-runtime` and `@hololand/playground` directly
 
 **Option B**: Use HoloScript's `packages/video-tutorials/` with cross-repo imports
 - Avoids duplication

@@ -4,7 +4,7 @@
  * 3D preview rendering service for HoloScript code.
  * Manages scene creation, object rendering, and camera controls.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @version 2.0.0
  */
 

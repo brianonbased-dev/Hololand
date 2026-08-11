@@ -4,7 +4,7 @@
  * Complete chat interface with streaming, provider selection,
  * code block rendering, and message history.
  * 
- * @package @hololand/library
+ * @package @hololand/component-library
  * @category UI
  */
 

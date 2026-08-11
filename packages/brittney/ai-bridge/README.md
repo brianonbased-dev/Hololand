@@ -16,7 +16,7 @@
 ## Installation
 
 ```bash
-npm install @hololand/ai-bridge @hololand/core
+npm install @hololand/ai-bridge @hololand/platform-runtime
 ```
 
 ## Quick Start
@@ -357,7 +357,7 @@ MIT License - see [LICENSE](../../LICENSE) for details.
 
 ## Related Packages
 
-- [@hololand/core](../core) - Core HoloScript engine
+- [@hololand/platform-runtime](../core) - Core HoloScript engine
 - [@hololand/world](../world) - VR world runtime (coming soon)
 - [@hololand/builder](../builder) - Visual building tools (coming soon)
 
