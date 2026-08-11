@@ -12,7 +12,10 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --external react --external react/jsx-runtime --external @react-three/fiber --external @react-three/drei --external three --external socket.io-client",
     "dev": "tsup src/index.ts --format esm --dts --external react --external react/jsx-runtime --external @react-three/fiber --external @react-three/drei --external three --external socket.io-client --watch",
@@ -20,7 +23,6 @@
   },
   "dependencies": {
     "@hololand/ar-anchors": "workspace:*",
-    "@hololand/ar-detection": "workspace:*",
     "@hololand/ar-foundation": "workspace:*"
   },
   "peerDependencies": {
@@ -31,10 +33,18 @@
     "socket.io-client": "^4.0.0"
   },
   "peerDependenciesMeta": {
-    "@react-three/fiber": { "optional": true },
-    "@react-three/drei": { "optional": true },
-    "three": { "optional": true },
-    "socket.io-client": { "optional": true }
+    "@react-three/fiber": {
+      "optional": true
+    },
+    "@react-three/drei": {
+      "optional": true
+    },
+    "three": {
+      "optional": true
+    },
+    "socket.io-client": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -44,6 +54,14 @@
     "tsup": "^8.0.1",
     "typescript": "^5.3.2"
   },
-  "keywords": ["ar", "hooks", "react", "pose-detection", "geofencing", "multi-user", "hololand"],
+  "keywords": [
+    "ar",
+    "hooks",
+    "react",
+    "pose-detection",
+    "geofencing",
+    "multi-user",
+    "hololand"
+  ],
   "license": "MIT"
 }

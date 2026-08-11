@@ -12,5 +12,5 @@ export default defineConfig({
   clean: true,
   splitting: false,
   treeshake: true,
-  external: ['@hololand/three-adapter', '@holoscript/core'],
+  external: ['@holoscript/core'],
 });

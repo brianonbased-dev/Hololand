@@ -39,7 +39,6 @@
   },
   "peerDependencies": {
     "@hololand/ar-anchors": "workspace:*",
-    "@hololand/ar-detection": "workspace:*",
     "@hololand/ar-foundation": "workspace:*",
     "@hololand/ar-tracking": "workspace:*",
     "react": ">=18.0.0",

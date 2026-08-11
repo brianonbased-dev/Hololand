@@ -33,7 +33,6 @@
   "license": "MIT",
   "dependencies": {
     "@hololand/ar-anchors": "workspace:*",
-    "@hololand/ar-detection": "workspace:*",
     "@hololand/ar-tracking": "workspace:*",
     "@hololand/logger": "workspace:*"
   },

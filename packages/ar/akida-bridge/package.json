@@ -23,14 +23,19 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@hololand/ar-detection": "workspace:*",
     "@hololand/ar-tracking": "workspace:*",
     "@hololand/ar-foundation": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@hololand/ar-detection": { "optional": true },
-    "@hololand/ar-tracking": { "optional": true },
-    "@hololand/ar-foundation": { "optional": true }
+    "@hololand/ar-detection": {
+      "optional": true
+    },
+    "@hololand/ar-tracking": {
+      "optional": true
+    },
+    "@hololand/ar-foundation": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

@@ -27,7 +27,11 @@ import {
 import { SplatRenderer } from './spatial/SplatRenderer';
 import { NeRFRenderer } from './spatial/NeRFRenderer';
 import { VolumetricPlayer } from './spatial/VolumetricPlayer';
-import { traitRegistry } from '@hololand/traits';
+
+// Traits are matched in both bare (`rotate`) and prefixed (`@rotate`) form.
+// The prefixed form is what HoloScript source emits.
+const hasTrait = (traits: string[] | undefined, name: string): boolean =>
+  !!traits && (traits.includes(name) || traits.includes(`@${name}`));
 
 // --- Static Helpers Moved to AssetRegistry ---
 const assetRegistry = AssetRegistry.getInstance();
@@ -79,23 +83,6 @@ const useTraits = (
   const [collected, setCollected] = useState(false);
   const [nearPlayer, setNearPlayer] = useState(false);
   const preloadedRef = useRef(false);
-  const traitsAppliedRef = useRef(false);
-
-  // Apply traits when mesh is available
-  useEffect(() => {
-    if (!meshRef.current || traitsAppliedRef.current || !entity.traits) return;
-
-    // Apply all traits from the trait registry
-    entity.traits.forEach((trait) => {
-      // Map legacy trait names to new @-prefixed names
-      const traitName = trait.startsWith('@') ? trait : `@${trait}`;
-
-      // Apply trait with entity properties
-      traitRegistry.apply(meshRef.current!, traitName, entity.properties);
-    });
-
-    traitsAppliedRef.current = true;
-  }, [meshRef.current, entity.traits, entity.properties]);
 
   useFrame((state, delta) => {
     if (!meshRef.current || collected) return;
@@ -108,7 +95,7 @@ const useTraits = (
     }
 
     // PHASE 6: Proximity Preloading
-    if (entity.traits?.includes('portal-gate') && !preloadedRef.current) {
+    if (hasTrait(entity.traits, 'portal-gate') && !preloadedRef.current) {
       const dist = meshRef.current.position.distanceTo(state.camera.position);
       if (dist < 15) {
         const dest = entity.properties?.destination as string;
@@ -120,26 +107,22 @@ const useTraits = (
       }
     }
 
-    // Update all active traits via trait registry
-    traitRegistry.update(delta);
-
-    // Legacy fallback: Handle traits not yet in registry
-    if (entity.traits?.includes('rotate') && !entity.traits.includes('@rotate')) {
+    if (hasTrait(entity.traits, 'rotate')) {
       meshRef.current.rotation.y += delta * 0.5;
     }
 
-    if (entity.traits?.includes('float') && !entity.traits.includes('@float')) {
+    if (hasTrait(entity.traits, 'float')) {
       meshRef.current.position.y = entity.position[1] + Math.sin(state.clock.elapsedTime) * 0.2;
     }
 
     // Custom grabbable behavior with active state
-    if (entity.traits?.includes('grabbable') && active && playerPosition) {
+    if (hasTrait(entity.traits, 'grabbable') && active && playerPosition) {
       const targetPos = playerPosition.clone().add(new Vector3(0, 0.5, -2));
       meshRef.current.position.lerp(targetPos, 0.1);
     }
 
     // Custom lookAtPlayer behavior
-    if (entity.traits?.includes('lookAtPlayer') && playerPosition) {
+    if (hasTrait(entity.traits, 'lookAtPlayer') && playerPosition) {
       meshRef.current.lookAt(playerPosition);
     }
   });
@@ -150,35 +133,35 @@ const useTraits = (
       if (collected) return;
       setActive(!active);
       
-      if (entity.traits?.includes('collectible')) {
+      if (hasTrait(entity.traits, 'collectible')) {
         setCollected(true);
         const currentBits = (runtime.getVariable('bitsCollected') as number) || 0;
         runtime.setVariable('bitsCollected', currentBits + 1);
         console.log(`COLLECTED: ${entity.id}. Total Bits: ${runtime.getVariable('bitsCollected')}`);
       }
 
-      if (entity.traits?.includes('portal-gate')) {
+      if (hasTrait(entity.traits, 'portal-gate')) {
         const dest = entity.properties?.destination as string;
         if (dest === 'legends') window.location.href = '/legends';
         console.log(`PORTAL ACTIVATED: ${dest}`);
       }
 
-      if (entity.traits?.includes('settings')) {
+      if (hasTrait(entity.traits, 'settings')) {
         runtime.emit('show-settings');
         console.log('SETTINGS TRAIT ACTIVATED');
       }
 
-      if (entity.traits?.includes('chat')) {
+      if (hasTrait(entity.traits, 'chat')) {
         runtime.emit('show-chat');
         console.log('CHAT TRAIT ACTIVATED');
       }
 
-      if (entity.traits?.includes('talkable')) {
+      if (hasTrait(entity.traits, 'talkable')) {
         console.log(`DIALOGUE: ${entity.properties?.dialogue || 'Hello traveler.'}`);
       }
     };
 
-    if (!entity.interactive && !entity.traits?.includes('interactive')) return { triggerAction };
+    if (!entity.interactive && !hasTrait(entity.traits, 'interactive')) return { triggerAction };
 
     return {
       onClick: (e: { stopPropagation: () => void }) => {
@@ -406,7 +389,7 @@ const HoloEntity: React.FC<HoloEntityProps> = ({ entity, runtime, playerPosition
       )}
 
       {/* Holographic Dialogue Box for AI NPCs */}
-      {active && entity.traits?.includes('talkable') && (
+      {active && hasTrait(entity.traits, 'talkable') && (
         <group position={[0, 2.5, 0]}>
           <mesh>
             <planeGeometry args={[4, 1.5]} />

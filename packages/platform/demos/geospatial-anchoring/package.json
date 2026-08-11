@@ -9,8 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hololand/ar-anchors": "workspace:*",
-    "@hololand/platform": "workspace:*"
+    "@hololand/ar-anchors": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.3.3",
