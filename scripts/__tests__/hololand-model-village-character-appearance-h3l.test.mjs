@@ -19,7 +19,7 @@ test('H3L parses .holo, .hsplus, and .hs and binds the four symbolic model famil
   assert.equal(validation.status, 'pass', validation.errors.join('\n'));
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    '7d7ebaefb1dcfe7bba15525d6f261cc216aab793'
+    '721b4608da5d3752956d978108fa852cb2740b6d'
   );
   assert.deepEqual(
     validation.plan.residents.map((resident) => resident.displayLabel),

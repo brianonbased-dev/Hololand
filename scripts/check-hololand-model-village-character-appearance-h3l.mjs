@@ -31,7 +31,7 @@ const MANIFEST_REL =
 const REPORT_REL =
   'docs/reports/model-village-character-appearance-h3l-upper-limb-2026-07-28.md';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3l';
-const EXPECTED_COMMIT = '7d7ebaefb1dcfe7bba15525d6f261cc216aab793';
+const EXPECTED_COMMIT = '721b4608da5d3752956d978108fa852cb2740b6d';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const EXPECTED_GPU = 'NVIDIA GeForce RTX 3060 Laptop GPU';
 const HASH_BINDINGS = [
