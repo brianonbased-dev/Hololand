@@ -56,6 +56,7 @@ test('H3M compiles 40 articulated digit receipts through the native character ta
       assert.equal(record.digitTopology.length, 10);
       assert.ok(record.digitTopology.every((digit) => digit.connectedVertexCount === 41));
       assert.ok(record.digitTopology.every((digit) => digit.uniqueJointCount >= 3));
+      assert.ok(record.digitTopology.every((digit) => digit.palmAttachmentMeters <= 0.04));
       assert.equal(record.comparisons.strippedAnatomy.geometryChanged, true);
     }
   } finally {
@@ -78,6 +79,8 @@ test('H3M proves pose-safe tailoring for all 12 resident and pose pairs', async 
   assert.equal(receipt.admission.triangleIntersectionCount, 0);
   assert.ok(receipt.admission.minimumClearanceMeters >= 0.015);
   assert.ok(receipt.admission.minimumCoveredRayRatio >= 0.95);
+  assert.ok(receipt.admission.minimumDigitUniqueJointCount >= 3);
+  assert.ok(receipt.admission.maximumDigitPalmAttachmentMeters <= 0.04);
 });
 
 test('H3M fails closed on profile, topology, and capability-claim drift', async () => {

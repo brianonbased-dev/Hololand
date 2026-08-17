@@ -27,11 +27,49 @@ const REPORT_REL = 'docs/reports/model-village-character-appearance-h3e-orbital-
 const HERO_REL =
   'docs/assets/model-village/model-village-character-appearance-h3e-orbital-fit-portraits-2026-07-28.png';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3e';
-const EXPECTED_COMMIT = '444d39491600856ac4cb305ad40680a212ed2a06';
+const EXPECTED_COMMIT = 'b3d031dd47e112021efe97863794abe3e5c16807';
 const EXPECTED_PERSONAS = ['hearth_keeper', 'path_tender', 'record_steward'];
 const EXPECTED_REGIONS = ['sclera', 'iris', 'pupil', 'cornea'];
 const EXPECTED_ORBITAL_VERTEX_DELTA = 76;
 const EXPECTED_ORBITAL_TRIANGLE_DELTA = 76;
+const EXPECTED_ORBITAL_PROFILE = 'recessed-lids-v1';
+// H3E's "legacy tearline comparison" is a comparison against a NAMED upstream profile, not
+// against "whatever the builder does when the keys are missing". Asserting the name keeps the
+// +76/+76 delta meaningful if the default ever moves.
+const EXPECTED_LEGACY_COMPARISON_PROFILE = 'tearline-rim-v1';
+// H4J-era upstream (b5d9c7588, cc254a641) grew the lid catalog from the two profiles that existed
+// when H3E was authored to five. H3E stays on recessed-lids-v1 deliberately; the newer profiles are
+// admitted BY NAME so that a SIXTH one is a decision someone has to make, not a silent inheritance.
+const ADMITTED_ORBITAL_PROFILE_CATALOG = [
+  'tearline-rim-v1',
+  'recessed-lids-v1',
+  'anatomical-lid-fold-v2',
+  'anatomical-lid-blend-v3',
+  'integrated-lid-rim-v4',
+];
+// Refinements that belong to the newer profiles. H3E claims a v1 construction, so seeing any of
+// these on its own receipt means the authored selection was silently upgraded underneath it.
+const REFUSED_LID_REFINEMENTS = [
+  'lidFoldProfile',
+  'lidTransitionProfile',
+  'lidTransitionRows',
+  'integratedLidProfile',
+  'integratedLidVertexCount',
+  'headStitchTriangleCount',
+  'headSurfaceVertexRange',
+];
+const EXPECTED_ORBITAL_VERTICES_PER_PERSONA = 152;
+const EXPECTED_ORBITAL_INDICES_PER_PERSONA = 432;
+const EXPECTED_LEGACY_ORBITAL_VERTICES_PER_PERSONA = 76;
+const EXPECTED_LEGACY_ORBITAL_INDICES_PER_PERSONA = 204;
+// The contract claims the three authored parameters are OPERATIVE. A value that round-trips into
+// the receipt proves only that it was recorded. Each probe perturbs exactly one parameter, inside
+// the upstream clamp so the value survives unmodified, and requires the emitted mesh to move.
+const OPERATIVE_ORBITAL_PROBES = [
+  { key: 'eye_recess', receiptKey: 'eyeRecess', perturbed: 0.4 },
+  { key: 'lid_opening', receiptKey: 'lidOpening', perturbed: 0.6 },
+  { key: 'canthal_tilt', receiptKey: 'canthalTilt', perturbed: 0.22 },
+];
 const HASH_BINDINGS = [
   ['inheritedH3DSource', 'inheritedH3DSourceSha256', 'hololand'],
   ['upstreamFaceBuilderPath', 'upstreamFaceBuilderSha256', 'holoscript'],
@@ -77,6 +115,45 @@ function gitHasCommit(root, commit) {
 
 async function loadCore(holoScriptRoot) {
   return import(pathToFileURL(path.join(holoScriptRoot, 'packages/core/dist/index.js')).href);
+}
+
+/**
+ * The character-render bridge H3E already pins by path and sha256
+ * (`upstreamCompositionBridgePath`). It is the surface that CONSTRUCTS the orbital geometry, and
+ * since holoscript cc254a641 it returns the exact construction receipt. The character-webgpu
+ * drawspec does not carry that receipt forward (see the report), so witnessing the pinned bridge
+ * is the only way to read the numbers H3E's contract states.
+ */
+async function loadEngine(holoScriptRoot) {
+  return import(pathToFileURL(path.join(holoScriptRoot, 'packages/engine/dist/index.js')).href);
+}
+
+/** The subset of the parsed composition the character-render bridge reads. */
+function bridgeObject(object) {
+  return {
+    id: object.id,
+    name: object.name,
+    position: object.position
+      ? { x: object.position.x, y: object.position.y, z: object.position.z }
+      : undefined,
+    template: object.template,
+    traits: (object.traits || []).map((trait) => ({ name: trait.name, config: trait.config })),
+    children: (object.children || []).map(bridgeObject),
+  };
+}
+
+function bridgeComposition(ast) {
+  return {
+    name: ast.name,
+    objects: (ast.objects || []).map(bridgeObject),
+    templates: (ast.templates || []).map((template) => ({
+      name: template.name,
+      traits: (template.traits || []).map((trait) => ({ name: trait.name, config: trait.config })),
+    })),
+    spatialGroups: (ast.spatialGroups || []).map((group) => ({
+      objects: (group.objects || []).map(bridgeObject),
+    })),
+  };
 }
 
 export async function parseH3EStack(root = ROOT, holoScriptRoot = DEFAULT_HOLOSCRIPT_ROOT) {
@@ -189,6 +266,15 @@ export function validateH3EContract(stack, root = ROOT, holoScriptRoot = DEFAULT
     'orbital foundation truth boundary drifted'
   );
   expect(
+    JSON.stringify(state.orbitalFoundation?.admittedOrbitalProfileCatalog) ===
+      JSON.stringify(ADMITTED_ORBITAL_PROFILE_CATALOG) &&
+      state.orbitalFoundation?.authoredProfileSelection === EXPECTED_ORBITAL_PROFILE &&
+      state.orbitalFoundation?.legacyComparisonProfile === EXPECTED_LEGACY_COMPARISON_PROFILE &&
+      JSON.stringify(state.orbitalFoundation?.refusedLidRefinements) ===
+        JSON.stringify(REFUSED_LID_REFINEMENTS),
+    'admitted orbital profile catalog drifted'
+  );
+  expect(
     state.nativeAdmission?.compilerTarget === 'character-webgpu' &&
       state.nativeAdmission?.fallbackAllowed === false &&
       state.nativeAdmission?.exactNineNativeBundlesRequired === true &&
@@ -197,7 +283,9 @@ export function validateH3EContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       state.nativeAdmission?.legacyTearlineComparisonRequired === true &&
       state.nativeAdmission?.authoredEyeRecessOperative === true &&
       state.nativeAdmission?.authoredLidOpeningOperative === true &&
-      state.nativeAdmission?.authoredCanthalTiltOperative === true,
+      state.nativeAdmission?.authoredCanthalTiltOperative === true &&
+      state.nativeAdmission?.orbitalGeometryReceiptWitnessRequired === true &&
+      state.nativeAdmission?.authoredParameterPerturbationProofRequired === true,
     'native orbital admission drifted'
   );
   const plan = buildH3EPlan(stack.contract);
@@ -270,6 +358,219 @@ function ocularGroups(bundle) {
   return bundle.materialGroups.filter((group) => group.material.shadingModel === 'refractive-eye');
 }
 
+function withFaceOverride(ast, objectId, key, value) {
+  const copy = structuredClone(ast);
+  const object = (copy.objects || []).find((candidate) => candidate.name === objectId);
+  const face = object?.traits?.find((trait) => trait.name === 'face');
+  if (!face) throw new Error(`${objectId} has no @face trait to perturb`);
+  face.config[key] = value;
+  return copy;
+}
+
+function positionDigest(bundle) {
+  return sha256(JSON.stringify(bundle.mesh.positions));
+}
+
+/**
+ * Digest of only the vertices the orbital construction owns. Whole-mesh comparison is too coarse to
+ * carry `authoredEyeRecessOperative`: the eye globe moves for other reasons, so a build in which the
+ * authored recess reached the eyeball but NOT the lid shells would still look like it moved.
+ */
+function orbitalPositionDigest(bundle, range) {
+  return sha256(
+    JSON.stringify(
+      bundle.mesh.positions.slice(range.vertexStart * 3, (range.vertexStart + range.vertexCount) * 3)
+    )
+  );
+}
+
+/**
+ * Witness the orbital construction ITSELF, not just its echo.
+ *
+ * Before this, `dedicatedOrbitalVerticesPerPersona: 152` / `dedicatedOrbitalIndicesPerPersona: 432`
+ * were prose: they appeared in the .holo, the .hsplus and the .hs and were read by nothing. The
+ * pinned bridge reports both, so they become load-bearing here - and they also DERIVE the pinned
+ * +76/+76 mesh delta from the named legacy profile, instead of the delta being a magic number.
+ */
+export async function witnessH3EOrbitalGeometry(
+  stack,
+  plan,
+  holoScriptRoot = DEFAULT_HOLOSCRIPT_ROOT
+) {
+  const engine = await loadEngine(holoScriptRoot);
+  const catalog = [...engine.CharacterRender.AGENT_AVATAR_ORBITAL_PROFILES];
+  if (JSON.stringify(catalog) !== JSON.stringify(ADMITTED_ORBITAL_PROFILE_CATALOG)) {
+    throw new Error(
+      `upstream orbital profile catalog drifted: admitted ${JSON.stringify(
+        ADMITTED_ORBITAL_PROFILE_CATALOG
+      )} but upstream now offers ${JSON.stringify(catalog)} - a new lid profile has to be ` +
+        `admitted by name before H3E can claim its v1 selection is still the deliberate one`
+    );
+  }
+  const composition = bridgeComposition(stack.source.ast);
+  const build = (projected, objectId, lodLevel) =>
+    engine.CharacterRender.buildCharacterHostFromComposition(projected, {
+      entityId: `model-village-h3e-${objectId.toLowerCase()}`,
+      objectId,
+      lodLevel,
+    });
+  const receipts = [];
+  for (const persona of plan.personas) {
+    for (const level of [0, 1, 2]) {
+      const orbital = build(composition, persona.objectId, level).orbital;
+      if (!orbital) {
+        throw new Error(
+          `${persona.personaId} LOD${level} emitted no orbital geometry receipt: the authored ` +
+            `@face(orbital_profile) did not reach a native orbital construction`
+        );
+      }
+      const upgraded = REFUSED_LID_REFINEMENTS.filter((key) => key in orbital);
+      if (
+        orbital.profile !== EXPECTED_ORBITAL_PROFILE ||
+        orbital.eyeRecess !== persona.eyeRecess ||
+        orbital.lidOpening !== persona.lidOpening ||
+        orbital.canthalTilt !== persona.canthalTilt ||
+        orbital.vertexRange?.vertexCount !== EXPECTED_ORBITAL_VERTICES_PER_PERSONA ||
+        orbital.indexRange?.indexCount !== EXPECTED_ORBITAL_INDICES_PER_PERSONA ||
+        upgraded.length !== 0
+      ) {
+        throw new Error(
+          `${persona.personaId} LOD${level} orbital construction drifted: ` +
+            `profile=${orbital.profile} recess=${orbital.eyeRecess} opening=${orbital.lidOpening} ` +
+            `tilt=${orbital.canthalTilt} vertices=${orbital.vertexRange?.vertexCount} ` +
+            `indices=${orbital.indexRange?.indexCount} ` +
+            `silentlyUpgraded=${JSON.stringify(upgraded)}`
+        );
+      }
+      receipts.push({
+        personaId: persona.personaId,
+        level,
+        profile: orbital.profile,
+        eyeRecess: orbital.eyeRecess,
+        lidOpening: orbital.lidOpening,
+        canthalTilt: orbital.canthalTilt,
+        dedicatedVertexStart: orbital.vertexRange.vertexStart,
+        dedicatedVertexCount: orbital.vertexRange.vertexCount,
+        dedicatedIndexCount: orbital.indexRange.indexCount,
+      });
+    }
+  }
+  // The legacy comparison is against a NAMED profile. Authoring it explicitly (rather than reading
+  // whatever the builder falls back to) is what lets the +76/+76 delta be derived rather than
+  // asserted, and it pins the fallback identity: dropping @face(orbital_profile) has to keep
+  // landing on tearline-rim-v1, which is the baseline compileH3EOrbitalBundles measures against.
+  const legacy = build(
+    bridgeComposition(
+      withFaceOverride(
+        stack.source.ast,
+        plan.personas[0].objectId,
+        'orbital_profile',
+        EXPECTED_LEGACY_COMPARISON_PROFILE.replaceAll('-', '_')
+      )
+    ),
+    plan.personas[0].objectId,
+    0
+  ).orbital;
+  if (
+    legacy?.profile !== EXPECTED_LEGACY_COMPARISON_PROFILE ||
+    legacy?.vertexRange?.vertexCount !== EXPECTED_LEGACY_ORBITAL_VERTICES_PER_PERSONA ||
+    legacy?.indexRange?.indexCount !== EXPECTED_LEGACY_ORBITAL_INDICES_PER_PERSONA
+  ) {
+    throw new Error(
+      `legacy tearline baseline drifted: profile=${legacy?.profile} ` +
+        `vertices=${legacy?.vertexRange?.vertexCount} indices=${legacy?.indexRange?.indexCount}`
+    );
+  }
+  const derivedVertexDelta =
+    EXPECTED_ORBITAL_VERTICES_PER_PERSONA - EXPECTED_LEGACY_ORBITAL_VERTICES_PER_PERSONA;
+  const derivedTriangleDelta =
+    (EXPECTED_ORBITAL_INDICES_PER_PERSONA - EXPECTED_LEGACY_ORBITAL_INDICES_PER_PERSONA) / 3;
+  if (
+    derivedVertexDelta !== EXPECTED_ORBITAL_VERTEX_DELTA ||
+    derivedTriangleDelta !== EXPECTED_ORBITAL_TRIANGLE_DELTA
+  ) {
+    throw new Error(
+      `dedicated orbital counts no longer explain the pinned mesh delta: ` +
+        `derived vertices=${derivedVertexDelta} triangles=${derivedTriangleDelta}`
+    );
+  }
+  return {
+    catalog,
+    admittedCatalog: ADMITTED_ORBITAL_PROFILE_CATALOG,
+    authoredProfile: EXPECTED_ORBITAL_PROFILE,
+    legacyComparisonProfile: legacy.profile,
+    legacyDedicatedVertexCount: legacy.vertexRange.vertexCount,
+    legacyDedicatedIndexCount: legacy.indexRange.indexCount,
+    derivedVertexDelta,
+    derivedTriangleDelta,
+    receipts,
+  };
+}
+
+/**
+ * `authoredEyeRecessOperative` / `authoredLidOpeningOperative` / `authoredCanthalTiltOperative` were
+ * three booleans the contract asserted about ITSELF. Perturb one authored parameter at a time and
+ * require the emitted mesh to move: the value has to reach geometry, not just the receipt.
+ */
+export async function proveAuthoredOrbitalParametersOperative(stack, plan, orbitalRange) {
+  const objectId = plan.personas[0].objectId;
+  const range = {
+    vertexStart: orbitalRange.dedicatedVertexStart,
+    vertexCount: orbitalRange.dedicatedVertexCount,
+  };
+  const baseline = await exportBundle(stack.core, stack.source.ast, objectId, 0);
+  if (!baseline.success || baseline.usedFallback) {
+    throw new Error('operativeness baseline compile failed');
+  }
+  const baseBundle = JSON.parse(baseline.output);
+  const baseDigest = orbitalPositionDigest(baseBundle, range);
+  const proofs = [];
+  for (const probe of OPERATIVE_ORBITAL_PROBES) {
+    const authored = baseBundle.face?.[probe.receiptKey];
+    if (authored === probe.perturbed) {
+      throw new Error(`${probe.key} probe is degenerate: authored value equals the perturbation`);
+    }
+    const result = await exportBundle(
+      stack.core,
+      withFaceOverride(stack.source.ast, objectId, probe.key, probe.perturbed),
+      objectId,
+      0
+    );
+    if (!result.success || result.usedFallback) {
+      throw new Error(`${probe.key} perturbation compile failed`);
+    }
+    const bundle = JSON.parse(result.output);
+    if (bundle.face?.[probe.receiptKey] !== probe.perturbed) {
+      throw new Error(
+        `${probe.key} was clamped or ignored before the receipt: authored ${probe.perturbed}, ` +
+          `received ${bundle.face?.[probe.receiptKey]}`
+      );
+    }
+    if (bundle.vertexCount !== baseBundle.vertexCount) {
+      throw new Error(
+        `${probe.key} changed orbital TOPOLOGY (${baseBundle.vertexCount} -> ` +
+          `${bundle.vertexCount}); H3E authors a fit, not a resolution`
+      );
+    }
+    if (orbitalPositionDigest(bundle, range) === baseDigest) {
+      throw new Error(
+        `${probe.key} is inert on the orbital construction: the authored value round-trips into ` +
+          `the receipt but moves none of the ${range.vertexCount} dedicated orbital vertices, so ` +
+          `H3E's authoredOperative claim is false`
+      );
+    }
+    proofs.push({
+      parameter: probe.key,
+      authored,
+      perturbed: probe.perturbed,
+      vertexCountHeld: bundle.vertexCount,
+      orbitalVertexRange: range,
+      orbitalPositionsMoved: true,
+    });
+  }
+  return proofs;
+}
+
 export async function compileH3EOrbitalBundles(stack, plan) {
   const native = await compileH3BNativeBundles(stack.core, stack.source.ast, plan);
   for (const record of native.records) {
@@ -313,6 +614,35 @@ export async function compileH3EOrbitalBundles(stack, plan) {
   );
   if (!legacy.success || legacy.usedFallback) {
     throw new Error('legacy tearline comparison compile failed');
+  }
+  // "Legacy" is a named profile, not "whatever happens when the keys are missing". If upstream ever
+  // changes what an unauthored orbital profile falls back to, the delta below would quietly start
+  // measuring something else; this makes that a red instead.
+  const namedLegacy = await exportBundle(
+    stack.core,
+    withFaceOverride(
+      stack.source.ast,
+      plan.personas[0].objectId,
+      'orbital_profile',
+      EXPECTED_LEGACY_COMPARISON_PROFILE.replaceAll('-', '_')
+    ),
+    plan.personas[0].objectId,
+    0
+  );
+  const namedLegacyBundle = namedLegacy.success ? JSON.parse(namedLegacy.output) : null;
+  const strippedLegacyBundle = JSON.parse(legacy.output);
+  if (
+    !namedLegacy.success ||
+    namedLegacy.usedFallback ||
+    namedLegacyBundle.face?.orbitalProfile !== EXPECTED_LEGACY_COMPARISON_PROFILE ||
+    namedLegacyBundle.vertexCount !== strippedLegacyBundle.vertexCount ||
+    namedLegacyBundle.mesh.indices.length !== strippedLegacyBundle.mesh.indices.length ||
+    positionDigest(namedLegacyBundle) !== positionDigest(strippedLegacyBundle)
+  ) {
+    throw new Error(
+      `unauthored orbital profile no longer falls back to ${EXPECTED_LEGACY_COMPARISON_PROFILE} ` +
+        `geometry (named=${namedLegacyBundle?.vertexCount} stripped=${strippedLegacyBundle.vertexCount})`
+    );
   }
   const legacyBundle = JSON.parse(legacy.output);
   const nativeBundle = native.records[0].tiers[0].bundle;
@@ -851,6 +1181,16 @@ export async function runCharacterAppearanceH3E(options = parseArgs([])) {
   const validation = validateH3EContract(stack, options.root, options.holoScriptRoot);
   if (validation.status !== 'pass') throw new Error(validation.errors.join('\n'));
   const orbital = await compileH3EOrbitalBundles(stack, validation.plan);
+  const orbitalGeometry = await witnessH3EOrbitalGeometry(
+    stack,
+    validation.plan,
+    options.holoScriptRoot
+  );
+  const operativeProof = await proveAuthoredOrbitalParametersOperative(
+    stack,
+    validation.plan,
+    orbitalGeometry.receipts[0]
+  );
   let visual = null;
   let surface = null;
   if (!options.compileOnly) {
@@ -886,6 +1226,8 @@ export async function runCharacterAppearanceH3E(options = parseArgs([])) {
       dedicatedOrbitalIndicesPerBundle: 432,
       orbitalVertexDelta: orbital.orbitalVertexDelta,
       orbitalTriangleDelta: orbital.orbitalTriangleDelta,
+      orbitalGeometry,
+      authoredParameterOperativeProof: operativeProof,
       legacyVertexCount: orbital.legacyVertexCount,
       fittedVertexCount: orbital.fittedVertexCount,
       visualHairLod: 2,

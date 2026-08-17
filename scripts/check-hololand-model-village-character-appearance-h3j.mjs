@@ -26,6 +26,17 @@ const HERO_REL =
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3j';
 const EXPECTED_COMMIT = '1bc81ee7e02fade1095dc1c1548d7879e27a2800';
 const EXPECTED_PERSONAS = ['hearth_keeper', 'path_tender', 'record_steward'];
+// H4J widened the hair receipt to holoscript.agent-avatar-hair-material.v2, which discloses
+// sourceColorWeight: the share of the AUTHORED hair colour that survives the melanin response.
+// Upstream used to impose DEFAULT_HAIR_SOURCE_COLOR_WEIGHT on every bundle - HoloLand chose the
+// colour, the engine chose how much of it survived, and nothing in this composition authored or
+// witnessed that. HoloScript b3d031dd4 made it authorable as @hair(source_color_weight), so H3J
+// now AUTHORS three distinct weights, none equal to the upstream default, and requires each to
+// round-trip into the receipt AND to appear in the compiler's mapped report. A weight equal to
+// the default would pass by coincidence even if upstream silently discarded the key, so the
+// distinctness and non-default checks below are what make this assertion mean anything.
+const UPSTREAM_DEFAULT_HAIR_SOURCE_COLOR_WEIGHT = 0.55;
+const EXPECTED_HAIR_RECEIPT_SCHEMA = 'holoscript.agent-avatar-hair-material.v2';
 const HASH_BINDINGS = [
   ['inheritedH3ISource', 'inheritedH3ISourceSha256', 'hololand'],
   ['upstreamGarmentBuilderPath', 'upstreamGarmentBuilderSha256', 'holoscript'],
@@ -134,6 +145,7 @@ export function buildH3JPlan(contract) {
         mouthDepth: persona.mouthDepth,
         clusterCount: persona.clusterCount,
         clusterSpread: persona.clusterSpread,
+        hairSourceColorWeight: persona.hairSourceColorWeight,
         irisColor: persona.irisColor,
         hairColor: persona.hairColor,
         wardrobeColor: persona.wardrobeColor,
@@ -219,11 +231,26 @@ export function validateH3JContract(stack, root = ROOT, holoScriptRoot = DEFAULT
         JSON.stringify([12, 16]) &&
       JSON.stringify(state.civicLandmarkFoundation?.clusterSpreadRange) ===
         JSON.stringify([0.36, 0.48]) &&
+      JSON.stringify(state.civicLandmarkFoundation?.hairSourceColorWeightRange) ===
+        JSON.stringify([0.44, 0.68]) &&
       state.civicLandmarkFoundation?.openFaceRequired === true &&
       state.civicLandmarkFoundation?.nativeWardrobeRequired === true &&
       state.civicLandmarkFoundation?.presentationWardrobeBridge === false &&
       state.civicLandmarkFoundation?.nativeTorsoClip === false,
     'civic landmark foundation drifted'
+  );
+  // nativeLodTransitionReceiptClaimed has been true since H3J was authored, but nothing read
+  // bundle.lod.transition. An authored claim with no witness is not a proof, so the authored
+  // @lod(fade_mode/fade_duration_ms/hysteresis/mode) controls are now named here and required
+  // to round-trip into the native receipt below.
+  expect(
+    state.lodTransitionFoundation?.receiptSchema === 'holoscript.character-lod-transition.v1' &&
+      state.lodTransitionFoundation?.selectionMode === 'distance' &&
+      state.lodTransitionFoundation?.fadeMode === 'dither' &&
+      state.lodTransitionFoundation?.fadeDurationSeconds === 0.26 &&
+      state.lodTransitionFoundation?.fadeDurationMilliseconds === 260 &&
+      state.lodTransitionFoundation?.hysteresisBand === 0.65,
+    'lod transition foundation drifted'
   );
   expect(
     state.temporalPresentationFoundation?.sharedRendererCount === 1 &&
@@ -253,6 +280,8 @@ export function validateH3JContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       state.nativeAdmission?.exactThreeFacialLandmarkReceiptsRequired === true &&
       state.nativeAdmission?.exactThreeGarmentReceiptsRequired === true &&
       state.nativeAdmission?.exactThreeClusteredGroomReceiptsRequired === true &&
+      state.nativeAdmission?.exactThreeAuthoredHairChromaWeightsRequired === true &&
+      state.nativeAdmission?.exactThreeLodTransitionReceiptsRequired === true &&
       state.nativeAdmission?.strippedFacialLandmarkDeltaRequired === true &&
       state.nativeAdmission?.strippedGarmentDeltaRequired === true &&
       state.nativeAdmission?.strippedClusterDeltaRequired === true &&
@@ -273,6 +302,7 @@ export function validateH3JContract(stack, root = ROOT, holoScriptRoot = DEFAULT
     const face = object?.traits?.find((trait) => trait.name === 'face');
     const hair = object?.traits?.find((trait) => trait.name === 'hair');
     const clothing = object?.traits?.find((trait) => trait.name === 'clothing');
+    const lod = object?.traits?.find((trait) => trait.name === 'lod');
     expect(
       face?.config?.facial_detail_profile === 'civic_landmarks_v1' &&
         face?.config?.eye_scale === persona.eyeScale &&
@@ -293,7 +323,31 @@ export function validateH3JContract(stack, root = ROOT, holoScriptRoot = DEFAULT
         clothing?.config?.color === persona.wardrobeColor,
       `${persona.personaId} source-authored open garment drifted`
     );
+    const chromaRange = state.civicLandmarkFoundation?.hairSourceColorWeightRange || [];
+    expect(
+      hair?.config?.source_color_weight === persona.hairSourceColorWeight &&
+        typeof persona.hairSourceColorWeight === 'number' &&
+        persona.hairSourceColorWeight >= chromaRange[0] &&
+        persona.hairSourceColorWeight <= chromaRange[1] &&
+        persona.hairSourceColorWeight !== UPSTREAM_DEFAULT_HAIR_SOURCE_COLOR_WEIGHT,
+      `${persona.personaId} source-authored hair chroma weight drifted`
+    );
+    expect(
+      lod?.config?.mode === state.lodTransitionFoundation?.selectionMode &&
+        lod?.config?.fade_mode === state.lodTransitionFoundation?.fadeMode &&
+        lod?.config?.fade_duration_ms === state.lodTransitionFoundation?.fadeDurationMilliseconds &&
+        lod?.config?.hysteresis === state.lodTransitionFoundation?.hysteresisBand,
+      `${persona.personaId} source-authored lod transition drifted`
+    );
   }
+  // Three DISTINCT weights: if upstream ever reverts to imposing one value, or silently drops the
+  // authored key, at least two personas disagree with their own source and the compile check below
+  // fails. A single shared weight - or one equal to the upstream default - could not do that.
+  expect(
+    new Set(plan.personas.map((persona) => persona.hairSourceColorWeight)).size ===
+      plan.personas.length,
+    'authored hair chroma weights are not distinct per persona'
+  );
   for (const [pathKey, hashKey, owner] of HASH_BINDINGS) {
     const base = owner === 'hololand' ? root : holoScriptRoot;
     const relative = metadata[pathKey];
@@ -365,6 +419,7 @@ function meshSha(bundle) {
 
 export async function compileH3JCivicBundles(stack, plan) {
   const records = [];
+  const lodFoundation = stack.contract.state.lodTransitionFoundation;
   for (const persona of plan.personas) {
     const authoredResult = await exportBundle(stack.core, stack.source.ast, persona.objectId);
     const repeatResult = await exportBundle(stack.core, stack.source.ast, persona.objectId);
@@ -429,6 +484,17 @@ export async function compileH3JCivicBundles(stack, plan) {
       bundle.groom?.profile !== 'scalp-flow-v1' ||
       bundle.groom?.clusterCount !== persona.clusterCount ||
       bundle.groom?.clusterSpread !== persona.clusterSpread ||
+      bundle.groom?.material?.schemaVersion !== EXPECTED_HAIR_RECEIPT_SCHEMA ||
+      bundle.groom?.material?.sourceColorWeight !== persona.hairSourceColorWeight ||
+      hairGroups[0]?.material?.sourceColorWeight !== persona.hairSourceColorWeight ||
+      !bundle.report?.mapped?.includes(
+        `@hair(source_color_weight=${persona.hairSourceColorWeight})`
+      ) ||
+      bundle.lod?.transition?.schemaVersion !== lodFoundation?.receiptSchema ||
+      bundle.lod?.transition?.selectionMode !== lodFoundation?.selectionMode ||
+      bundle.lod?.transition?.mode !== lodFoundation?.fadeMode ||
+      bundle.lod?.transition?.durationSeconds !== lodFoundation?.fadeDurationSeconds ||
+      bundle.lod?.transition?.hysteresisBand !== lodFoundation?.hysteresisBand ||
       bundle.face?.eyeScale !== persona.eyeScale ||
       bundle.face?.orbitalProfile !== 'recessed-lids-v1' ||
       bundle.face?.ocularProfile !== 'layered-ocular-v1' ||
@@ -1473,6 +1539,15 @@ export async function runCharacterAppearanceH3J(options = parseArgs([])) {
       clusteredGroomReceiptCount: civic.records.filter(
         (record) => record.bundle.groom?.clusterCount >= 2
       ).length,
+      authoredHairChromaWeightCount: civic.records.filter(
+        (record) =>
+          record.bundle.groom?.material?.sourceColorWeight === record.hairSourceColorWeight &&
+          record.hairSourceColorWeight !== UPSTREAM_DEFAULT_HAIR_SOURCE_COLOR_WEIGHT
+      ).length,
+      lodTransitionReceiptCount: civic.records.filter(
+        (record) =>
+          record.bundle.lod?.transition?.schemaVersion === 'holoscript.character-lod-transition.v1'
+      ).length,
       repeatedCompileByteIdentity: true,
       strippedFacialLandmarkDelta: civic.records.every(
         (record) => record.comparisons.facialLandmarks.geometryChanged
@@ -1500,7 +1575,11 @@ export async function runCharacterAppearanceH3J(options = parseArgs([])) {
         clusterSpread: record.bundle.groom.clusterSpread,
         emittedGuideCount: record.bundle.groom.emittedGuideCount,
         cardCount: record.bundle.groom.cardCount,
+        materialSchemaVersion: record.bundle.groom.material?.schemaVersion,
+        authoredSourceColorWeight: record.hairSourceColorWeight,
+        receivedSourceColorWeight: record.bundle.groom.material?.sourceColorWeight,
       },
+      lodTransition: record.bundle.lod?.transition,
       comparisons: record.comparisons,
     })),
     visual,

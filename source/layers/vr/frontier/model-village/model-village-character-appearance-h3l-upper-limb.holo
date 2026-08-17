@@ -16,7 +16,7 @@ composition "Stormglass Character Appearance H3L Upper Limb Tailoring" {
     policySource: "source/proofs/model-village-character-appearance-h3l-upper-limb-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3l-upper-limb-seed.hs"
     inheritedH3KSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3k-upper-body-occlusion.holo"
-    inheritedH3KSourceSha256: "36c032523889ce1cd5a2f0f490f471e3f503ee875f56667b514ee5e1d70708c3"
+    inheritedH3KSourceSha256: "8eeba4c614cf1a19ecd15871fcb7ec7648c428a2ffcf9f894dce49da31bd9738"
     upstreamHoloScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
     upstreamBodyBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
     upstreamBodyBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"

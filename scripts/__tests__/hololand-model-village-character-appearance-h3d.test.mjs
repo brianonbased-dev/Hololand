@@ -18,8 +18,17 @@ test('H3D parses all three formats and binds the source-authored ocular contract
   assert.equal(stack.contract.state.ocularFoundation.profile, 'layered-ocular-v1');
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    'ac44ce5fbdb93c4a78e17a3c535138de49978bbd'
+    'b3d031dd47e112021efe97863794abe3e5c16807'
   );
+  assert.equal(
+    stack.contract.state.nativeAdmission.morphSchemaVersion,
+    'holoscript.native-facial-morph.v2'
+  );
+  assert.equal(
+    stack.contract.state.nativeAdmission.morphSchemaVersionRefused,
+    'holoscript.native-facial-morph.v3'
+  );
+  assert.equal(stack.contract.state.nativeAdmission.crossEyeOcularClosureAllowed, false);
   assert.deepEqual(
     validation.plan.personas.map((persona) => persona.personaId),
     ['hearth_keeper', 'path_tender', 'record_steward']
@@ -65,6 +74,37 @@ test('H3D emits nine deterministic bundles with eight native ocular groups each'
   }
 });
 
+test('H3D re-witnesses the admitted v2 orbital lid closing each eye of its own ocular stack', async () => {
+  const stack = await parseH3DStack(ROOT, HOLOSCRIPT_ROOT);
+  const validation = validateH3DContract(stack, ROOT, HOLOSCRIPT_ROOT);
+  assert.equal(validation.status, 'pass', validation.errors.join('\n'));
+  const ocular = await compileH3DOcularBundles(stack, validation.plan);
+  const closure = ocular.orbitalLidClosure;
+  assert.equal(ocular.morphSchemaVersion, 'holoscript.native-facial-morph.v2');
+  // The v2 admission has to be earned by this composition's own authored tearline.
+  assert.equal(closure.unrimmedSchemaVersion, 'holoscript.native-facial-morph.v1');
+  assert.ok(closure.authoredRimVertexCount > 0);
+  assert.equal(closure.blinkChangedVertexDelta, closure.authoredRimVertexCount);
+  // Each lid closes something, and the two lids never touch the same vertex.
+  assert.ok(closure.movedByLeftLid > 0);
+  assert.equal(closure.movedByLeftLid, closure.movedByRightLid);
+  for (const side of ['left', 'right']) {
+    for (const region of ['sclera', 'iris', 'pupil', 'cornea']) {
+      const measured = closure.regionClosure[`${side}.${region}`];
+      assert.ok(measured, `${side}.${region} was not measured`);
+      assert.ok(
+        measured.closedByOwnLid > 0,
+        `${side} ${region} did not move under its own lid`
+      );
+      assert.equal(
+        measured.closedByOtherLid,
+        0,
+        `${side} ${region} moved under the other eye's lid`
+      );
+    }
+  }
+});
+
 test('H3D fails closed on presentation shaders, tear film, and photoreal overclaims', async () => {
   const stack = await parseH3DStack(ROOT, HOLOSCRIPT_ROOT);
   stack.contract.state.presentationShaderOverrideUsed = true;
@@ -76,4 +116,24 @@ test('H3D fails closed on presentation shaders, tear film, and photoreal overcla
   assert.match(errors, /presentationShaderOverrideUsed/);
   assert.match(errors, /productionTearFilmClaimed/);
   assert.match(errors, /photorealismClaimed/);
+});
+
+test('H3D refuses a source that quietly widens the admitted morph semantics', async () => {
+  for (const mutate of [
+    (state) => {
+      state.nativeAdmission.morphSchemaVersion = 'holoscript.native-facial-morph.v3';
+    },
+    (state) => {
+      state.nativeAdmission.crossEyeOcularClosureAllowed = true;
+    },
+    (state) => {
+      state.nativeAdmission.expressionNormalRecomputationAdmitted = true;
+    },
+  ]) {
+    const stack = await parseH3DStack(ROOT, HOLOSCRIPT_ROOT);
+    mutate(stack.contract.state);
+    const validation = validateH3DContract(stack, ROOT, HOLOSCRIPT_ROOT);
+    assert.equal(validation.status, 'fail');
+    assert.match(validation.errors.join('\n'), /admitted native facial morph semantics drifted/);
+  }
 });

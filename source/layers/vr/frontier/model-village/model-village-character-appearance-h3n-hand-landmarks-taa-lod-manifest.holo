@@ -17,7 +17,7 @@ composition "HoloLand Model Village Character Appearance H3N Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3n-hand-landmarks-taa-lod.holo"
-      sourceSha256: "54adad703efb810edd40e8464f060a85eba14ec6cb383fc9adf5110bb2df076d"
+      sourceSha256: "bc466280e60720e181de3b4948b1e77e5ed06549d623adfb659f8bcafedca1d2"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -33,11 +33,11 @@ composition "HoloLand Model Village Character Appearance H3N Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3n.mjs"
-      checkerSha256: "3add557e2ca067a8b60f0b3a8b85daf4ee5c533684243b1e222dc369ea49c664"
+      checkerSha256: "75e9b1b745351742679c5b0c64993f5a2921d0e88375b6baad76f6748cd71e7e"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3n.test.mjs"
-      testSha256: "6390ae58e547d3e59c4b957ee2b82980ff651795d19e72d7e1a2a2a1652f59a1"
+      testSha256: "af0e278d0c7016056e85146f882f50bb2c10b41998f946870262f43814513080"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3n-hand-landmarks-taa-lod-2026-07-28.md"
@@ -57,13 +57,13 @@ composition "HoloLand Model Village Character Appearance H3N Manifest" {
       role: "aspirational_image_generated_art_direction_not_renderer_evidence"
     }
     upstream: {
-      holoScriptCommit: "15113b292b811f6f4a287eacea048a8c12c9a4e6"
-      bodyBuilderSha256: "fd3eab90245201d8848c6d6e10785f3759faec6aced51ae9eeaaafc177c22f45"
-      garmentBuilderSha256: "bb05f603b0f0887acf447da910a7177ff34589a48e5ed8f9e35914dc80e12dd9"
-      characterHostSha256: "34a1f4242058c3dc0194de261be3d8c889edb3f2d4faf30e20610d3940f5abcb"
-      compositionBridgeSha256: "437c2d75d90fa795d9840d369591d968637586764a190efda341a3056960a7a5"
-      hairBuilderSha256: "11af225d7f3ebab413bf5f88749e58a9735d6e9e66e0a9d6b13477ceda7311c0"
-      compilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+      holoScriptCommit: "b3d031dd47e112021efe97863794abe3e5c16807"
+      bodyBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"
+      garmentBuilderSha256: "c771348d58ff637883c2733836c4aa85f1be5e38532292119ff6b8d39468d21c"
+      characterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
+      compositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
+      hairBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
+      compilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
       taaReferenceSha256: "256a465285257c3d9fb1fd4b7c26b4777bf2ccebebd556df699604f8b849c520"
     }
     nativeAdmission: {

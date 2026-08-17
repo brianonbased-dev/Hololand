@@ -53,6 +53,58 @@ const H3C_SOURCE = `${MODEL_VILLAGE}/model-village-character-appearance-h3c-face
 const H3C_MANIFEST = `${MODEL_VILLAGE}/model-village-character-appearance-h3c-face-foundation-manifest.holo`;
 
 /**
+ * The forward chain, in topological order, from the first gate the seven-patch repair
+ * moved down to the last gate it can reach.
+ *
+ * Why this exists now and did not before: the original resolver stopped one hop past H3B
+ * because propagating further would have rewritten H3D/H3E/H3F while they were red for
+ * unrelated upstream drift, and would have turned the then-green H3G red to tidy up gates
+ * that were broken anyway. That reason expired when H3D-H3N were repaired and re-witnessed.
+ * The graph was also re-measured and is a strict DAG (h3a -> h4a, 28 nodes, no cycle), so
+ * a single ordered pass converges.
+ *
+ * A lineage pin records "I was witnessed against THIS version of my predecessor". It
+ * asserts nothing about whether the gate's property holds, so refreshing one cannot launder
+ * a gate green -- verified below: every gate red for a non-lineage reason stays red.
+ */
+const FORWARD_CHAIN = [
+  ['H3E', `${MODEL_VILLAGE}/model-village-character-appearance-h3e-orbital-fit.holo`],
+  ['H3F', `${MODEL_VILLAGE}/model-village-character-appearance-h3f-native-groom.holo`],
+  ['H3G', `${MODEL_VILLAGE}/model-village-character-appearance-h3g-hair-response.holo`],
+  ['H3H', `${MODEL_VILLAGE}/model-village-character-appearance-h3h-temporal-lod.holo`],
+  ['H3I', `${MODEL_VILLAGE}/model-village-character-appearance-h3i-anatomy-surface.holo`],
+  ['H3J', `${MODEL_VILLAGE}/model-village-character-appearance-h3j-civic-landmarks.holo`],
+  ['H3K', `${MODEL_VILLAGE}/model-village-character-appearance-h3k-upper-body-occlusion.holo`],
+  ['H3L', `${MODEL_VILLAGE}/model-village-character-appearance-h3l-upper-limb.holo`],
+  ['H3M', `${MODEL_VILLAGE}/model-village-character-appearance-h3m-anatomical-hands.holo`],
+  ['H3N', `${MODEL_VILLAGE}/model-village-character-appearance-h3n-hand-landmarks-taa-lod.holo`],
+  ['H3O', `${MODEL_VILLAGE}/model-village-character-appearance-h3o-native-hand-material-plates.holo`],
+  ['H3P', `${MODEL_VILLAGE}/model-village-character-appearance-h3p-hand-topology-convergence.holo`],
+  ['H3Q', `${MODEL_VILLAGE}/model-village-character-appearance-h3q-material-calibration.holo`],
+  ['H3R', `${MODEL_VILLAGE}/model-village-character-appearance-h3r-posed-deformation.holo`],
+  ['H3S', `${MODEL_VILLAGE}/model-village-character-appearance-h3s-hand-surface-anatomy.holo`],
+  ['H3T', `${MODEL_VILLAGE}/model-village-character-appearance-h3t-skin-surface-response.holo`],
+  // H3U is walked so its REFUSAL is reported every run rather than being a silent omission
+  // from the list. Its pin is in PRE_EXISTING_HOLD, so the resolver reads it, finds it
+  // drifted, and says so without rewriting -- the chain effectively ends at H3T.
+  ['H3U', `${MODEL_VILLAGE}/model-village-character-appearance-h3u-browser-quest-temporal-lod.holo`],
+];
+
+/**
+ * Lineage pins this resolver REFUSES to refresh, with the reason.
+ *
+ * These were measured as already drifted BEFORE the seven-patch integration (by
+ * reconstructing the pre-patch worktree from HEAD blobs re-shaped to each file's recorded
+ * line endings, then proving the reconstruction against captured sha256s). Refreshing a pin
+ * whose predecessor THIS change moved is owed maintenance. Refreshing one that was already
+ * wrong is masking a pre-existing fault under cover of a sweep, so it is held instead.
+ *
+ * The chain therefore STOPS at H3T. H3U's pin on H3T was already stale, and H3U is one of
+ * the four GPU gates that cannot be judged headlessly, so it is reported and left alone.
+ */
+const PRE_EXISTING_HOLD = new Set(['H3U::inheritedH3TSourceSha256']);
+
+/**
  * Blocks whose `sha256:` follows a `path:` naming a file this change can legitimately
  * move. Anything else in the manifest is verified only.
  */
@@ -104,21 +156,22 @@ const STAGES = [
     file: H3B_MANIFEST,
     kind: 'manifest',
   },
-  // The forward chain. H3C pins H3B's source, H3D pins H3C's, and so on down to H3U, so
-  // any edit to H3B ripples forward. It is carried EXACTLY ONE HOP and then stopped.
-  //
-  // Stopping is deliberate, not laziness. Propagating further would rewrite H3D's, H3E's
-  // and H3F's sources, and H3G -- which is green today -- pins H3F's source, so a full
-  // sweep would turn a passing gate red to tidy up gates that are already red for
-  // unrelated upstream drift. H3D is the only gate left holding a stale pin here, it was
-  // already failing before this change, and its own source is untouched, so the ripple
-  // dies at H3D instead of reaching H3G.
   {
-    name: 'H3C inherits H3B (one hop; the chain is deliberately stopped here)',
+    name: 'H3C inherits H3B',
     file: H3C_SOURCE,
     kind: 'metadata',
     pins: [['inheritedH3BSource', 'inheritedH3BSourceSha256', ROOT]],
   },
+  // H3D's own inherited pin is carried by its repaired source and needs no stage here.
+  // From H3E the chain is walked generically: each gate's lineage pins are DISCOVERED from
+  // its own text rather than hardcoded, so a gate that grows a second predecessor (H3I pins
+  // both H3G and H3H) is handled without editing this list.
+  ...FORWARD_CHAIN.map(([gate, file]) => ({
+    name: `${gate} inherits its predecessor(s)`,
+    file,
+    kind: 'lineage',
+    gate,
+  })),
 ];
 
 // Deliberately NOT a stage: H3C's manifest. Its source, checker, test and report pins
@@ -209,6 +262,10 @@ function run({ check }) {
   const changed = [];
   const verified = [];
   const stale = [];
+  // Pins deliberately NOT refreshed because they were already drifted before this change.
+  // Kept apart from `stale` so a held pin does not read as fresh asset drift, and so the
+  // exit code still means "there is drift nobody has accounted for".
+  const held = [];
 
   for (const stage of STAGES) {
     const file = path.join(ROOT, stage.file);
@@ -256,6 +313,36 @@ function run({ check }) {
         }
       }
       text = cursor;
+    } else if (stage.kind === 'lineage') {
+      // Discover this gate's lineage pins from its own text: every inherited<X>Source that
+      // has a sibling inherited<X>Source Sha256. Held pins are reported, never rewritten.
+      const pins = [...text.matchAll(/inherited([A-Za-z0-9]+)Source:\s*"([^"]+)"/g)];
+      if (!pins.length) throw new Error(`${stage.file}: no inherited*Source pin found`);
+      for (const [, key, rel] of pins) {
+        const hashKey = `inherited${key}SourceSha256`;
+        if (readValue(text, hashKey) === null) {
+          stale.push(`${stage.file} :: ${hashKey} absent (pin records no hash; NOT added)`);
+          continue;
+        }
+        const target = path.resolve(ROOT, rel);
+        if (!existsSync(target)) {
+          stale.push(`${stage.file} :: ${hashKey} -> missing ${rel} (NOT rewritten)`);
+          continue;
+        }
+        const actual = sha256File(target);
+        if (readValue(text, hashKey) === actual) {
+          verified.push(`${stage.file} :: ${hashKey}`);
+          continue;
+        }
+        if (PRE_EXISTING_HOLD.has(`${stage.gate}::${hashKey}`)) {
+          held.push(
+            `${stage.file} :: ${hashKey} drifted BEFORE this change — HELD, not rewritten`,
+          );
+          continue;
+        }
+        text = writeValue(text, hashKey, actual, stage.file);
+        changed.push(`${stage.file} :: ${hashKey} -> ${actual.slice(0, 12)}`);
+      }
     } else {
       for (const [pathKey, hashKey, base] of stage.pins) {
         const rel = readValue(text, pathKey);
@@ -291,7 +378,7 @@ function run({ check }) {
     }
   }
 
-  return { changed, verified, stale };
+  return { changed, verified, stale, held };
 }
 
 const check = process.argv.includes('--check');
@@ -304,6 +391,7 @@ console.log(
       rewritten: result.changed,
       verified: result.verified.length,
       staleNotRewritten: result.stale,
+      heldPreExisting: result.held,
     },
     null,
     2,

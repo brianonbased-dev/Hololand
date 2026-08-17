@@ -15,20 +15,20 @@ composition "Stormglass Character Appearance H3M Anatomical Hands" {
     policySource: "source/proofs/model-village-character-appearance-h3m-anatomical-hands-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3m-anatomical-hands-seed.hs"
     inheritedH3LSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3l-upper-limb.holo"
-    inheritedH3LSourceSha256: "4cbf908f51ce4d3acfb4e90cd7319cbd0d2c3a2420c6a98eccca9cf7c7cb1dcb"
+    inheritedH3LSourceSha256: "7047cc7b64e379d52c1ed52b127056d739a4a79dcbb680ee50e605c0db5ccf7c"
     upstreamHoloScriptCommit: "7ed46ad627d5b9582216f008aa82021ef4e85152"
     upstreamBodyBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
-    upstreamBodyBuilderSha256: "dbed01ba427bec343fcdbb7aee8c6b9aa15be51940d03a5e9a26ab58c8441741"
+    upstreamBodyBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"
     upstreamGarmentBuilderPath: "packages/engine/src/character-render/AgentAvatarGarment.ts"
-    upstreamGarmentBuilderSha256: "bb05f603b0f0887acf447da910a7177ff34589a48e5ed8f9e35914dc80e12dd9"
+    upstreamGarmentBuilderSha256: "c771348d58ff637883c2733836c4aa85f1be5e38532292119ff6b8d39468d21c"
     upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
-    upstreamCharacterHostSha256: "ed7f72c9522ae302da6e85440475d4afbfdd7fc3a8c2ec4748b94f07a894bd18"
+    upstreamCharacterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
     upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
-    upstreamCompositionBridgeSha256: "fbf8be80e8f8cbd0be5281bd8bd52a6d8f5a4161a75d92a9ca183c7bedce2cae"
+    upstreamCompositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
     upstreamHairBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
-    upstreamHairBuilderSha256: "c4b8f6b3d974b1238e308831a337048d5e6cc940784a72a4b110fd2ebf446963"
+    upstreamHairBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
     upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
-    upstreamCompilerSha256: "8b458b337dbf1fcb501ecc814feb2d9f8b4ddb259d28c49986c4d053b7a3090d"
+    upstreamCompilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
     projectionRole: "read_only_symbolic_model_family_anatomical_hands_witness"
     artStyle: "hearthlight_biorealism"
     visualTarget: "stormglass_model_family_civic_portrait_stage"
@@ -103,6 +103,8 @@ composition "Stormglass Character Appearance H3M Anatomical Hands" {
       digitRingCount: 5
       digitVertexCount: 41
       digitIndexCount: 216
+      digitUniqueJointCountMinimum: 3
+      digitPalmAttachmentToleranceMeters: 0.04
       connectedSurfaceCountPerLimb: 6
       garmentStyle: "stormglass-open-civic-tunic"
       garmentFitProfile: "coherent-upper-body-clearance-v1"

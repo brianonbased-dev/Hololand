@@ -16,7 +16,7 @@ composition "HoloLand Model Village Character Appearance H3F Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3f-native-groom.holo"
-      sourceSha256: "1f35e8541e6b62ade27ffd25133f536fc3bc1927269efbb719c529331d6db957"
+      sourceSha256: "8aedc09fc216474ee9504c8e0b6df0b31e0d5843c99a726a9121d136b14962fd"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -31,11 +31,11 @@ composition "HoloLand Model Village Character Appearance H3F Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3f.mjs"
-      checkerSha256: "a4b9b69cf57b31b927cfb7e2eda0972de93f3ecbde80f2fb207e696947f5d723"
+      checkerSha256: "7653dc9136f17db5b0b5a709bd04278a4c28f76c4e0bcac5598bd95d4f6814f2"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3f.test.mjs"
-      testSha256: "71683339f463f0fdb9b6fb8ceb20cd486da161b5b974706f6ed79e5711251150"
+      testSha256: "1c9a00934a6e6ec3b20c3e820d8bbabc96996071b10866f38fb20cded78f31ed"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3f-native-groom-2026-07-28.md"
@@ -52,10 +52,10 @@ composition "HoloLand Model Village Character Appearance H3F Manifest" {
     }
     upstream: {
       holoScriptCommit: "1203b06bd0e857b26c874479ea9e6b6cdc521896"
-      groomBuilderSha256: "5859bb02c77ee41dc5dd0ce4cf496cf28d5ac8fa52d93e6227bd6576cee1c055"
-      characterHostSha256: "c3224d7f3cb9c7bd2a68038dd85b5982a9400a6c554c76c2582526d201f6f6f4"
-      compositionBridgeSha256: "51efb78897796e0a85d23cbb5d1600fd5bb3cbc182e7f53014167fdc0f1f46be"
-      compilerSha256: "ff9880f7a3b678ab2cf3e76c19e0b2273094f6e6de22bfc3de25ca6eca663932"
+      groomBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
+      characterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
+      compositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
+      compilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
     }
     nativeAdmission: {
       compilerTarget: "character-webgpu"
@@ -65,6 +65,12 @@ composition "HoloLand Model Village Character Appearance H3F Manifest" {
       orbitalProfile: "recessed-lids-v1"
       groomProfile: "scalp-flow-v1"
       scalpSurface: "neutral-anatomical-ellipsoid"
+      hairMaterialSchemaVersion: "holoscript.agent-avatar-hair-material.v2"
+      hairCoverageProfile: "opaque-v1"
+      hairStrandCoverage: 1
+      hairAlphaToCoverageRequested: false
+      hairSourceColorWeightAuthoredHere: false
+      hairSourceColorWeight: 0.55
       legacyComparisonProfile: "radial-cards-v1"
       nativeBundleCount: 9
       ocularGroupsPerBundle: 8

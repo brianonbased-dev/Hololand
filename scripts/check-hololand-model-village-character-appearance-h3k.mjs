@@ -25,7 +25,7 @@ const REPORT_REL =
 const HERO_REL =
   'docs/assets/model-village/model-village-character-appearance-h3k-upper-body-occlusion-2026-07-28.png';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3k';
-const EXPECTED_COMMIT = '5836a2dee69f278b89ef801312c7bb6fe003bf0f';
+const EXPECTED_COMMIT = 'b3d031dd47e112021efe97863794abe3e5c16807';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const EXPECTED_POSES = ['civic_rest', 'open_welcome', 'dialogue_reach'];
 const HASH_BINDINGS = [

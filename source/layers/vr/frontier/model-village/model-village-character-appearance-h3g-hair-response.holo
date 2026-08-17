@@ -22,7 +22,7 @@ composition "Stormglass Character Appearance H3G Hair Response" {
     policySource: "source/proofs/model-village-character-appearance-h3g-hair-response-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3g-hair-response-seed.hs"
     inheritedH3FSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3f-native-groom.holo"
-    inheritedH3FSourceSha256: "49713bb446b634ff158a3d5b28b13517bb67041ac8ca011881171c921464317d"
+    inheritedH3FSourceSha256: "0d2f247638c4ab042a10f89e9cd272b5a6776b6f62009b3fb5c0f8a03d92ee96"
     upstreamHoloScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
     upstreamGroomBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
     upstreamGroomBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"

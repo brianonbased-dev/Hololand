@@ -29,6 +29,7 @@ test('H3J parses all three formats and binds the native civic landmark boundary'
     mouthDepthRange: [0.76, 0.94],
     clusterCountRange: [12, 16],
     clusterSpreadRange: [0.36, 0.48],
+    hairSourceColorWeightRange: [0.44, 0.68],
     openFaceRequired: true,
     nativeWardrobeRequired: true,
     presentationWardrobeBridge: false,
@@ -41,6 +42,21 @@ test('H3J parses all three formats and binds the native civic landmark boundary'
   assert.deepEqual(
     validation.plan.personas.map((persona) => persona.personaId),
     ['hearth_keeper', 'path_tender', 'record_steward']
+  );
+  assert.deepEqual(stack.contract.state.lodTransitionFoundation, {
+    receiptSchema: 'holoscript.character-lod-transition.v1',
+    selectionMode: 'distance',
+    fadeMode: 'dither',
+    fadeDurationSeconds: 0.26,
+    fadeDurationMilliseconds: 260,
+    hysteresisBand: 0.65,
+  });
+  // Three distinct authored chroma weights, none of them upstream's 0.55 default. If any equalled
+  // the default, the round-trip assertion in the next test could pass while upstream silently
+  // discarded the authored key.
+  assert.deepEqual(
+    validation.plan.personas.map((persona) => persona.hairSourceColorWeight),
+    [0.62, 0.44, 0.68]
   );
   assert.deepEqual(
     validation.plan.personas.map(
@@ -107,6 +123,25 @@ test('H3J emits three exact native receipts with stripped-control causal deltas'
     );
     assert.equal(record.bundle.groom.clusterCount, record.clusterCount);
     assert.equal(record.bundle.groom.clusterSpread, record.clusterSpread);
+    assert.equal(
+      record.bundle.groom.material.schemaVersion,
+      'holoscript.agent-avatar-hair-material.v2'
+    );
+    assert.equal(record.bundle.groom.material.sourceColorWeight, record.hairSourceColorWeight);
+    assert.notEqual(record.bundle.groom.material.sourceColorWeight, 0.55);
+    assert.ok(
+      record.bundle.report.mapped.includes(
+        `@hair(source_color_weight=${record.hairSourceColorWeight})`
+      ),
+      `${record.personaId} authored hair chroma weight was not mapped by the compiler`
+    );
+    assert.deepEqual(record.bundle.lod.transition, {
+      schemaVersion: 'holoscript.character-lod-transition.v1',
+      selectionMode: 'distance',
+      mode: 'dither',
+      durationSeconds: 0.26,
+      hysteresisBand: 0.65,
+    });
     assert.equal(record.bundle.report.stubbed.length, 0);
     assert.equal(record.comparisons.facialLandmarks.baselineReceiptAbsent, true);
     assert.equal(record.comparisons.facialLandmarks.geometryChanged, true);
@@ -120,6 +155,20 @@ test('H3J emits three exact native receipts with stripped-control causal deltas'
     assert.match(record.geometrySha256, /^[0-9a-f]{64}$/);
     assert.match(record.repeatedCompileSha256, /^[0-9a-f]{64}$/);
   }
+});
+
+test('H3J fails closed on unauthored hair chroma and lod transition drift', async () => {
+  const stack = await parseH3JStack(ROOT, HOLOSCRIPT_ROOT);
+  const clean = validateH3JContract(stack, ROOT, HOLOSCRIPT_ROOT);
+  assert.equal(clean.status, 'pass', clean.errors.join('\n'));
+  stack.contract.objects[0].hairSourceColorWeight = 0.55;
+  stack.contract.state.lodTransitionFoundation.fadeMode = 'crossfade';
+  const drifted = validateH3JContract(stack, ROOT, HOLOSCRIPT_ROOT);
+  assert.equal(drifted.status, 'fail');
+  const driftErrors = drifted.errors.join('\n');
+  assert.match(driftErrors, /hearth_keeper source-authored hair chroma weight drifted/);
+  assert.match(driftErrors, /lod transition foundation drifted/);
+  assert.match(driftErrors, /hearth_keeper source-authored lod transition drifted/);
 });
 
 test('H3J fails closed on wardrobe bridge, realism, and temporal claim drift', async () => {

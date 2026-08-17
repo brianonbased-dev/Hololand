@@ -15,7 +15,7 @@ composition "HoloLand Model Village Character Appearance H3E Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3e-orbital-fit.holo"
-      sourceSha256: "118011e35f76cbf3443846bb846c98a6b152aedb97b5f381c02051697c300921"
+      sourceSha256: "aa0bb52c93cdf0b70ad326bb57875d594c92642ccdaa62b520c632ea636d94a4"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -30,11 +30,11 @@ composition "HoloLand Model Village Character Appearance H3E Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3e.mjs"
-      checkerSha256: "2e0678f8d573c4676d5636107dc2f9776d41deb3a9f656a0d554a709fc206374"
+      checkerSha256: "af29bd09a74b97a59c611b7659b20048ce34681b6e13971b1b6ec29a5130d676"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3e.test.mjs"
-      testSha256: "d24bf934a05ca3888ff1ea561dbb0b36ec1b58b196c699f3b255187ba78102ef"
+      testSha256: "7cd02bc4f31d2360c8ba7bfbc3944c889ccd3f3ea2102e629a2bed89ef2085a7"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3e-orbital-fit-2026-07-28.md"
@@ -50,12 +50,12 @@ composition "HoloLand Model Village Character Appearance H3E Manifest" {
       iterationAccepted: 5
     }
     upstream: {
-      holoScriptCommit: "444d39491600856ac4cb305ad40680a212ed2a06"
-      faceBuilderSha256: "7d4a67990659f5f6816c78ec57812f5e6015634cbd83d4e5a86e6f68892434e9"
-      ocularBuilderSha256: "d6a9cb66d34485200c6a19bf8078a00e555c2e386cde6cbd2ecb4ee9b46129e8"
-      characterHostSha256: "0176e69547bfab748dee0b130723035606445fd46e27dd29cd4e7c698a8ec47e"
-      compositionBridgeSha256: "6d30bf242490fb64c89e2111027b1987fc46ccb97deade54c2924f2793e2bb17"
-      compilerSha256: "34cb6770008c6aa42f876bdaebf777999f18adf513e5280d0559312f91b71a66"
+      holoScriptCommit: "b3d031dd47e112021efe97863794abe3e5c16807"
+      faceBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"
+      ocularBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
+      characterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
+      compositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
+      compilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
     }
     nativeAdmission: {
       compilerTarget: "character-webgpu"
@@ -69,6 +69,12 @@ composition "HoloLand Model Village Character Appearance H3E Manifest" {
       dedicatedOrbitalIndicesPerBundle: 432
       orbitalVertexDeltaOverLegacyTearline: 76
       orbitalTriangleDeltaOverLegacyTearline: 76
+      legacyComparisonProfile: "tearline-rim-v1"
+      legacyDedicatedOrbitalVerticesPerBundle: 76
+      legacyDedicatedOrbitalIndicesPerBundle: 204
+      admittedOrbitalProfileCatalog: ["tearline-rim-v1", "recessed-lids-v1", "anatomical-lid-fold-v2", "anatomical-lid-blend-v3", "integrated-lid-rim-v4"]
+      orbitalGeometryReceiptWitnessed: true
+      authoredParameterPerturbationProved: ["eye_recess", "lid_opening", "canthal_tilt"]
       sourceAuthoredVisualHairLod: 2
       fallbackUsed: false
       stubCount: 0

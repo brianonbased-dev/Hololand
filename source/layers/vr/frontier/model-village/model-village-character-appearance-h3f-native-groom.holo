@@ -16,16 +16,16 @@ composition "Stormglass Character Appearance H3F Native Groom" {
     policySource: "source/proofs/model-village-character-appearance-h3f-native-groom-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3f-native-groom-seed.hs"
     inheritedH3ESource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3e-orbital-fit.holo"
-    inheritedH3ESourceSha256: "118011e35f76cbf3443846bb846c98a6b152aedb97b5f381c02051697c300921"
+    inheritedH3ESourceSha256: "bbecaf85a5ebf2d0e834eb20f687b0f83e989205e454bafd67b8b62a0ee6cacb"
     upstreamHoloScriptCommit: "1203b06bd0e857b26c874479ea9e6b6cdc521896"
     upstreamGroomBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
-    upstreamGroomBuilderSha256: "5859bb02c77ee41dc5dd0ce4cf496cf28d5ac8fa52d93e6227bd6576cee1c055"
+    upstreamGroomBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
     upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
-    upstreamCharacterHostSha256: "c3224d7f3cb9c7bd2a68038dd85b5982a9400a6c554c76c2582526d201f6f6f4"
+    upstreamCharacterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
     upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
-    upstreamCompositionBridgeSha256: "51efb78897796e0a85d23cbb5d1600fd5bb3cbc182e7f53014167fdc0f1f46be"
+    upstreamCompositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
     upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
-    upstreamCompilerSha256: "ff9880f7a3b678ab2cf3e76c19e0b2273094f6e6de22bfc3de25ca6eca663932"
+    upstreamCompilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
     projectionRole: "read_only_native_scalp_flow_groom_witness"
     artStyle: "hearthlight_biorealism"
     visualTarget: "stormglass_craft_groomed_orbital_portrait_studio"
@@ -95,6 +95,27 @@ composition "Stormglass Character Appearance H3F Native Groom" {
       scanDerived: false
     }
 
+    // H4J and its successors added a hair-material record to the derived groom
+    // receipt that did not exist at the originally pinned commit. H3F is the
+    // pre-chroma, pre-coverage gate: it authors hair COLOR and groom GEOMETRY
+    // and deliberately authors no coverage or chroma-weight control -- those
+    // are H3G's subject. The values below are admitted by name as the opaque,
+    // melanin-dominant baseline H3F has always claimed in prose, and are now
+    // witnessed against the compiled bundle instead of asserted against
+    // literals the checker wrote itself.
+    groomMaterialFoundation: {
+      schemaVersion: "holoscript.agent-avatar-hair-material.v2"
+      shadingModel: "marschner-hair"
+      coverageProfile: "opaque-v1"
+      strandCoverage: 1
+      alphaToCoverageRequested: false
+      authoredSourceColorReachesMaterial: true
+      sourceColorWeightAuthoredHere: false
+      upstreamUnauthoredSourceColorWeight: 0.55
+      authoredCoverageControlIntroducedBy: "H3G"
+      authoredSourceColorWeightIntroducedBy: "H3G"
+    }
+
     nativeAdmission: {
       compilerTarget: "character-webgpu"
       outputFormat: "character-webgpu/drawspec"
@@ -112,6 +133,11 @@ composition "Stormglass Character Appearance H3F Native Groom" {
       authoredRootLiftOperative: true
       authoredTipTaperOperative: true
       authoredHairlineBiasOperative: true
+      compiledHairMaterialWitnessRequired: true
+      compiledOpaqueCoverageRequired: true
+      compiledAlphaToCoverageForbidden: true
+      authoredHairColorReachesMaterialRequired: true
+      unauthoredSourceColorWeightRequired: true
       fullH3Admitted: false
     }
 

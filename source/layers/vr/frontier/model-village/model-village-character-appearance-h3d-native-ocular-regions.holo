@@ -6,6 +6,12 @@
 // The witness does not use a presentation shader to paint an iris onto one eyeball
 // sphere. This is still a bounded procedural eye foundation: no wet tear film,
 // vascular texture atlas, scan-derived anatomy, or photorealism claim.
+//
+// Upstream H4J replaced the single eye-globe blink with an orbital-lid blink driven per
+// eye by blink_left / blink_right. That semantics is admitted here by name as
+// native-facial-morph.v2, and the gate re-witnesses it against this composition's own
+// subject: each lid must close over its own eye's four native ocular regions and reach
+// none of the other eye's. v3 expression-normal recomputation stays refused.
 
 composition "Stormglass Character Appearance H3D Native Ocular Regions" {
   metadata {
@@ -17,22 +23,24 @@ composition "Stormglass Character Appearance H3D Native Ocular Regions" {
     policySource: "source/proofs/model-village-character-appearance-h3d-native-ocular-regions-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3d-native-ocular-regions-seed.hs"
     inheritedH3CSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3c-face-foundation.holo"
-    inheritedH3CSourceSha256: "4e82a903464018201a588c82cc9cb99388272be40c7f0aaaa9bfde1f31d6d7a5"
-    upstreamHoloScriptCommit: "ac44ce5fbdb93c4a78e17a3c535138de49978bbd"
+    inheritedH3CSourceSha256: "665dbfbc54752e4f63218f107c16ea890d30bce883178afc69c0bfdbf2fcdb72"
+    upstreamHoloScriptCommit: "b3d031dd47e112021efe97863794abe3e5c16807"
     upstreamOcularBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
-    upstreamOcularBuilderSha256: "cd65660735791fa0051065f7ea9a97c3a3d9ec98037de07c27c7cbd9dbe95db4"
+    upstreamOcularBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
     upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
-    upstreamCharacterHostSha256: "4de3dfe87604c0de2e5ddfe6ed54cce19240ca78bd2256f198664acf54ae620f"
+    upstreamCharacterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
+    upstreamMorphBuilderPath: "packages/engine/src/character-render/AgentAvatarMorph.ts"
+    upstreamMorphBuilderSha256: "f021d0ff48f3c65584125bec6aa39a5c03017e35cc6168f0b512074700a48357"
     upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
-    upstreamCompositionBridgeSha256: "509535e60bdb3825d7251f6d1af46849e94d906edbcac4f9ca3f7dc40a725c35"
+    upstreamCompositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
     upstreamCharacterRendererPath: "packages/engine/src/character-render/character-render.ts"
-    upstreamCharacterRendererSha256: "f16e06f448587d2a0a95cba5fc6416aec4d0f6a7033f8adefcb96aa092aac88a"
+    upstreamCharacterRendererSha256: "c30b518a126b0e4daa0ce5319a78f35da1f635f969f7df824b56e533d9cd15f4"
     upstreamDrawSpecPath: "packages/engine/src/native-render/draw-spec.ts"
-    upstreamDrawSpecSha256: "0d73e383f71fb8d32ca270b2e68a95c0b2f51c877e0593ecc6519057298ffcd4"
+    upstreamDrawSpecSha256: "04fac9799b233efe14b938be2f1d0272c064a64566bccadb0ae34b53e6b1d199"
     upstreamEyeShaderPath: "packages/engine/src/rendering/webgpu/shaders/skin-skinning.wgsl"
-    upstreamEyeShaderSha256: "0fd08806b96410a29f222becc0eec6448b5b7226957b659818f0759aa93e3d16"
+    upstreamEyeShaderSha256: "a8436b3c29f07f3dff6cc336ec21a0093cb82de5de5e91d05c6780420cf1fa40"
     upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
-    upstreamCompilerSha256: "34cb6770008c6aa42f876bdaebf777999f18adf513e5280d0559312f91b71a66"
+    upstreamCompilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
     projectionRole: "read_only_native_ocular_material_witness"
     artStyle: "hearthlight_biorealism"
     visualTarget: "stormglass_craft_real_eye_portrait_studio"
@@ -112,6 +120,13 @@ composition "Stormglass Character Appearance H3D Native Ocular Regions" {
       authoredOcularScaleOperative: true
       authoredCorneaIorOperative: true
       fullH3Admitted: false
+      morphSchemaVersion: "holoscript.native-facial-morph.v2"
+      morphSchemaVersionRefused: "holoscript.native-facial-morph.v3"
+      blinkClosesAuthoredOrbitalLid: true
+      perEyeOrbitalLidClosureRequired: true
+      everyOcularRegionMustCloseWithItsOwnLid: true
+      crossEyeOcularClosureAllowed: false
+      expressionNormalRecomputationAdmitted: false
     }
 
     benchmark: {

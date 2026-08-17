@@ -31,6 +31,17 @@ const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3f';
 const EXPECTED_COMMIT = '1203b06bd0e857b26c874479ea9e6b6cdc521896';
 const EXPECTED_PERSONAS = ['hearth_keeper', 'path_tender', 'record_steward'];
 const EXPECTED_REGIONS = ['sclera', 'iris', 'pupil', 'cornea'];
+// H4J-era upstream added a hair-material record to the derived groom receipt
+// that did not exist at the originally pinned commit. H3F is the pre-coverage,
+// pre-chroma-weight gate: it authors hair colour and groom geometry only.
+// `sourceColorWeight` is therefore expected to be the UNAUTHORED upstream
+// default, and the checker requires that no `@hair(source_color_weight)` was
+// mapped. That pair is the H3F/H3G boundary, made checkable.
+const EXPECTED_HAIR_MATERIAL_SCHEMA = 'holoscript.agent-avatar-hair-material.v2';
+const EXPECTED_HAIR_SHADING_MODEL = 'marschner-hair';
+const EXPECTED_HAIR_COVERAGE_PROFILE = 'opaque-v1';
+const EXPECTED_HAIR_STRAND_COVERAGE = 1;
+const UPSTREAM_UNAUTHORED_SOURCE_COLOR_WEIGHT = 0.55;
 const HASH_BINDINGS = [
   ['inheritedH3ESource', 'inheritedH3ESourceSha256', 'hololand'],
   ['upstreamGroomBuilderPath', 'upstreamGroomBuilderSha256', 'holoscript'],
@@ -129,6 +140,7 @@ export function buildH3FPlan(contract) {
         displayLabel: persona.displayLabel,
         irisColor: persona.irisColor,
         hairColor: persona.hairColor,
+        hairColorInt: Number.parseInt(String(persona.hairColor).replace('#', ''), 16),
         nativeHairStyleId: persona.nativeHairStyleId,
         groomProfile: persona.groomProfile,
         cardWidth: persona.cardWidth,
@@ -210,8 +222,25 @@ export function validateH3FContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       state.nativeAdmission?.authoredCardWidthOperative === true &&
       state.nativeAdmission?.authoredRootLiftOperative === true &&
       state.nativeAdmission?.authoredTipTaperOperative === true &&
-      state.nativeAdmission?.authoredHairlineBiasOperative === true,
+      state.nativeAdmission?.authoredHairlineBiasOperative === true &&
+      state.nativeAdmission?.compiledHairMaterialWitnessRequired === true &&
+      state.nativeAdmission?.compiledOpaqueCoverageRequired === true &&
+      state.nativeAdmission?.compiledAlphaToCoverageForbidden === true &&
+      state.nativeAdmission?.authoredHairColorReachesMaterialRequired === true &&
+      state.nativeAdmission?.unauthoredSourceColorWeightRequired === true,
     'native groom admission drifted'
+  );
+  expect(
+    state.groomMaterialFoundation?.schemaVersion === EXPECTED_HAIR_MATERIAL_SCHEMA &&
+      state.groomMaterialFoundation?.shadingModel === EXPECTED_HAIR_SHADING_MODEL &&
+      state.groomMaterialFoundation?.coverageProfile === EXPECTED_HAIR_COVERAGE_PROFILE &&
+      state.groomMaterialFoundation?.strandCoverage === EXPECTED_HAIR_STRAND_COVERAGE &&
+      state.groomMaterialFoundation?.alphaToCoverageRequested === false &&
+      state.groomMaterialFoundation?.authoredSourceColorReachesMaterial === true &&
+      state.groomMaterialFoundation?.sourceColorWeightAuthoredHere === false &&
+      state.groomMaterialFoundation?.upstreamUnauthoredSourceColorWeight ===
+        UPSTREAM_UNAUTHORED_SOURCE_COLOR_WEIGHT,
+    'groom material truth boundary drifted'
   );
   const plan = buildH3FPlan(stack.contract);
   expect(
@@ -282,6 +311,56 @@ function ocularGroups(bundle) {
   return bundle.materialGroups.filter((group) => group.material.shadingModel === 'refractive-eye');
 }
 
+/**
+ * H3F's central truth boundary is "opaque procedural cards, no alpha mask, no
+ * strand coverage, no authored chroma weight". Upstream now emits every one of
+ * those as a machine-readable field on the derived groom receipt, so the
+ * boundary is checked against the COMPILED bundle instead of against the
+ * source's own booleans. Returns a list of failure strings.
+ */
+function hairMaterialFailures(bundle, record) {
+  const material = bundle.groom?.material;
+  if (!material) return ['derived groom receipt carries no hair material record'];
+  const failures = [];
+  const need = (condition, message) => {
+    if (!condition) failures.push(message);
+  };
+  need(
+    material.schemaVersion === EXPECTED_HAIR_MATERIAL_SCHEMA,
+    `hair material schema ${material.schemaVersion} != ${EXPECTED_HAIR_MATERIAL_SCHEMA}`
+  );
+  need(
+    material.shadingModel === EXPECTED_HAIR_SHADING_MODEL,
+    `hair shading model ${material.shadingModel} != ${EXPECTED_HAIR_SHADING_MODEL}`
+  );
+  need(
+    material.coverageProfile === EXPECTED_HAIR_COVERAGE_PROFILE,
+    `hair coverage profile ${material.coverageProfile} != ${EXPECTED_HAIR_COVERAGE_PROFILE}`
+  );
+  need(
+    material.strandCoverage === EXPECTED_HAIR_STRAND_COVERAGE,
+    `hair strand coverage ${material.strandCoverage} != ${EXPECTED_HAIR_STRAND_COVERAGE}`
+  );
+  need(
+    material.alphaToCoverageRequested === false,
+    'hair material requested alpha-to-coverage, which H3F does not admit'
+  );
+  need(
+    material.sourceColor === record.hairColorInt,
+    `hair material sourceColor ${material.sourceColor} != authored ${record.hairColorInt}`
+  );
+  need(
+    material.sourceColorWeight === UPSTREAM_UNAUTHORED_SOURCE_COLOR_WEIGHT,
+    `hair source colour weight ${material.sourceColorWeight} != unauthored upstream default ` +
+      `${UPSTREAM_UNAUTHORED_SOURCE_COLOR_WEIGHT}`
+  );
+  need(
+    !(bundle.report?.mapped || []).some((entry) => entry.startsWith('@hair(source_color_weight')),
+    'H3F mapped an authored @hair(source_color_weight); that control belongs to H3G'
+  );
+  return failures;
+}
+
 export async function compileH3FGroomBundles(stack, plan) {
   const native = await compileH3BNativeBundles(stack.core, stack.source.ast, plan);
   const comparisons = [];
@@ -315,7 +394,15 @@ export async function compileH3FGroomBundles(stack, plan) {
       ) {
         throw new Error(`${record.personaId} LOD${tier.level} native groom contract drifted`);
       }
+      const materialFailures = hairMaterialFailures(bundle, record);
+      if (materialFailures.length) {
+        throw new Error(
+          `${record.personaId} LOD${tier.level} hair material boundary drifted: ` +
+            materialFailures.join('; ')
+        );
+      }
       tier.ocularGroupCount = groups.length;
+      tier.hairMaterial = bundle.groom.material;
       tier.ocularRegions = regionCounts;
       tier.groom = bundle.groom;
 
@@ -457,6 +544,12 @@ function h3fBrowserApplication(THREE, RoomEnvironment, payload) {
           clearcoatRoughness: 0.04,
           envMapIntensity: 0.78,
           depthWrite: false,
+          // Stamped at construction so the alpha-mask scan can tell THIS material -- a
+          // refractive cornea, which H3D REQUIRES to be transparent -- apart from hair
+          // rendered with a transparency cheat. Marking it here rather than sniffing
+          // (ior === 1.376 && opacity < 1) downstream means nothing can masquerade as a
+          // cornea by copying its numbers: only this factory sets the role.
+          userData: { h3fMaterialRole: 'refractive-cornea' },
         });
       }
       const isIris = material.eyeRegion === 'iris';
@@ -585,6 +678,37 @@ function h3fBrowserApplication(THREE, RoomEnvironment, payload) {
       last = now;
     }
     const visualTier = payload.records[0].tiers[2].bundle;
+    const sceneMaterials = [];
+    // Keep each material's owning mesh alongside it. Without this the alpha-mask scan below
+    // can say only THAT something in the scene was transparent, never WHICH thing -- and
+    // "the hair is alpha-masked" and "the cornea is refractive, as required" are then
+    // indistinguishable.
+    const sceneMaterialOwners = [];
+    for (const { scene } of renderers) {
+      scene.traverse((node) => {
+        if (!node.isMesh) return;
+        for (const material of Array.isArray(node.material) ? node.material : [node.material]) {
+          if (!material) continue;
+          sceneMaterials.push(material);
+          sceneMaterialOwners.push({
+            mesh: node.name || '(unnamed)',
+            material: material.name || '(unnamed)',
+            type: material.type ?? null,
+            shadingModel:
+              material.userData?.shadingModel ?? material.shadingModel ?? null,
+            role: material.userData?.h3fMaterialRole ?? null,
+            eyeRegion: material.userData?.eyeRegion ?? null,
+            opacity: material.opacity ?? null,
+            ior: material.ior ?? null,
+            transmission: material.transmission ?? null,
+            transparent: material.transparent === true,
+            alphaTest: material.alphaTest ?? 0,
+            alphaToCoverage: material.alphaToCoverage === true,
+            alphaMap: Boolean(material.alphaMap),
+          });
+        }
+      });
+    }
     window.__H3F_RESULT__ = {
       gpu,
       frameP95Milliseconds: payload.percentile(frameTimes, 0.95),
@@ -598,8 +722,34 @@ function h3fBrowserApplication(THREE, RoomEnvironment, payload) {
       ocularMaterialGroupCount: visualTier.materialGroups.filter(
         (group) => group.material.shadingModel === 'refractive-eye'
       ).length,
-      presentationShaderOverrideUsed: false,
-      hairAlphaMaskUsed: false,
+      hairMaterial: visualTier.groom.material,
+      // Measured from the materials this page actually built, not asserted as a
+      // literal: a swapped-in ShaderMaterial or any alpha-masked hair material
+      // now shows up here instead of being reported absent by construction.
+      presentationShaderOverrideUsed: sceneMaterials.some(
+        (material) => material?.isShaderMaterial === true || material?.isRawShaderMaterial === true
+      ),
+      // The scan stays broad -- every mesh material in the scene, so a swapped-in material
+      // still shows up -- but the refractive corneas this page itself built are excluded,
+      // because H3D REQUIRES them to be transparent. Excluding them is not a loosening:
+      // their count is asserted below, so an extra "cornea" cannot smuggle a masked
+      // material through, and an alpha-masked HAIR material still fails exactly as before.
+      hairAlphaMaskUsed: sceneMaterials.some(
+        (material) =>
+          material?.userData?.h3fMaterialRole !== 'refractive-cornea' &&
+          (material?.transparent === true ||
+            (material?.alphaTest ?? 0) > 0 ||
+            material?.alphaToCoverage === true ||
+            Boolean(material?.alphaMap))
+      ),
+      alphaMaskOffenders: sceneMaterialOwners.filter(
+        (owner) =>
+          owner.role !== 'refractive-cornea' &&
+          (owner.transparent || owner.alphaTest > 0 || owner.alphaToCoverage || owner.alphaMap)
+      ),
+      corneaMaterialCount: sceneMaterials.filter(
+        (material) => material?.userData?.h3fMaterialRole === 'refractive-cornea'
+      ).length,
       visualHairLod: 2,
       sourceCommit: payload.sourceCommit,
     };
@@ -781,16 +931,45 @@ async function captureBrowser(surface, options, modules) {
     if (!/NVIDIA/i.test(result.gpu.renderer) || !/(Direct3D11|D3D11)/i.test(result.gpu.renderer)) {
       throw new Error(`hardware D3D11 renderer required, received ${result.gpu.renderer}`);
     }
-    if (
-      result.orbitalProfile !== 'recessed-lids-v1' ||
-      result.groomProfile !== 'scalp-flow-v1' ||
-      result.scalpSurface !== 'neutral-anatomical-ellipsoid' ||
-      result.rootTangentRadialDotP95 > 0.01 ||
-      result.ocularMaterialGroupCount !== 8 ||
-      result.presentationShaderOverrideUsed !== false ||
-      result.hairAlphaMaskUsed !== false
-    ) {
-      throw new Error('browser groom material contract drifted');
+    // Eleven separate propositions. They used to collapse into one opaque
+    // "contract drifted", which named neither the term that failed nor the value it saw --
+    // so a red run said only that something in the browser was wrong. The compile layer
+    // above already reports each mismatch by name; this now matches that idiom.
+    const browserContract = [
+      ['orbitalProfile', result.orbitalProfile, 'recessed-lids-v1'],
+      ['groomProfile', result.groomProfile, 'scalp-flow-v1'],
+      ['scalpSurface', result.scalpSurface, 'neutral-anatomical-ellipsoid'],
+      ['ocularMaterialGroupCount', result.ocularMaterialGroupCount, 8],
+      ['presentationShaderOverrideUsed', result.presentationShaderOverrideUsed, false],
+      [
+        `hairAlphaMaskUsed [offenders: ${JSON.stringify(result.alphaMaskOffenders ?? [])}]`,
+        result.hairAlphaMaskUsed,
+        false,
+      ],
+      ['hairMaterial.coverageProfile', result.hairMaterial?.coverageProfile, EXPECTED_HAIR_COVERAGE_PROFILE],
+      ['hairMaterial.strandCoverage', result.hairMaterial?.strandCoverage, EXPECTED_HAIR_STRAND_COVERAGE],
+      ['hairMaterial.alphaToCoverageRequested', result.hairMaterial?.alphaToCoverageRequested, false],
+      ['hairMaterial.sourceColorWeight', result.hairMaterial?.sourceColorWeight, UPSTREAM_UNAUTHORED_SOURCE_COLOR_WEIGHT],
+    ];
+    const drifted = browserContract
+      .filter(([, actual, expected]) => actual !== expected)
+      .map(([name, actual, expected]) => `${name}=${JSON.stringify(actual)} (expected ${JSON.stringify(expected)})`);
+    // A threshold, not an equality, so it is checked apart from the table above.
+    if (!(result.rootTangentRadialDotP95 <= 0.01)) {
+      drifted.push(`rootTangentRadialDotP95=${result.rootTangentRadialDotP95} (expected <= 0.01)`);
+    }
+    // Binds the cornea exclusion above. Exactly two refractive corneas per rendered avatar
+    // may be exempt from the alpha-mask scan -- one per eye. Without this an extra material
+    // stamped as a cornea would be silently exempt, turning a narrowed check into a hole.
+    const expectedCorneaMaterials = result.rendererCount * 2;
+    if (result.corneaMaterialCount !== expectedCorneaMaterials) {
+      drifted.push(
+        `corneaMaterialCount=${result.corneaMaterialCount} ` +
+          `(expected ${expectedCorneaMaterials}: two per rendered avatar)`
+      );
+    }
+    if (drifted.length) {
+      throw new Error(`browser groom material contract drifted: ${drifted.join('; ')}`);
     }
     if (externalRequests.length || pageErrors.length) {
       throw new Error(
@@ -909,6 +1088,12 @@ export async function runCharacterAppearanceH3F(options = parseArgs([])) {
       orbitalProfile: 'recessed-lids-v1',
       groomProfile: 'scalp-flow-v1',
       scalpSurface: 'neutral-anatomical-ellipsoid',
+      hairMaterialSchemaVersion: EXPECTED_HAIR_MATERIAL_SCHEMA,
+      hairCoverageProfile: EXPECTED_HAIR_COVERAGE_PROFILE,
+      hairStrandCoverage: EXPECTED_HAIR_STRAND_COVERAGE,
+      hairAlphaToCoverageRequested: false,
+      hairSourceColorWeightAuthoredHere: false,
+      hairSourceColorWeight: UPSTREAM_UNAUTHORED_SOURCE_COLOR_WEIGHT,
       legacyComparisonProfile: 'radial-cards-v1',
       ocularRegions: EXPECTED_REGIONS,
       ocularGroupsPerBundle: 8,
@@ -923,8 +1108,8 @@ export async function runCharacterAppearanceH3F(options = parseArgs([])) {
     surface,
     manifest,
     boundaries: {
-      presentationShaderOverrideUsed: false,
-      hairAlphaMaskUsed: false,
+      presentationShaderOverrideUsed: visual ? visual.presentationShaderOverrideUsed : false,
+      hairAlphaMaskUsed: visual ? visual.hairAlphaMaskUsed : false,
       strandAlphaCoverageClaimed: false,
       strandHairClaimed: false,
       productionGroomClaimed: false,

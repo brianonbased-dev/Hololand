@@ -308,6 +308,8 @@ export function validateH3MContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       anatomy?.digitRingCount === 5 &&
       anatomy?.digitVertexCount === 41 &&
       anatomy?.digitIndexCount === 216 &&
+      anatomy?.digitUniqueJointCountMinimum === 3 &&
+      anatomy?.digitPalmAttachmentToleranceMeters === 0.04 &&
       anatomy?.connectedSurfaceCountPerLimb === 6,
     'anatomy foundation drifted'
   );
@@ -389,6 +391,37 @@ function proveConnectedRange(indices, receipt, label) {
     connectedVertexCount: visited.size,
     expectedVertexCount: receipt.vertexRange.vertexCount,
   };
+}
+
+/**
+ * Nearest-surface gap, in emitted metres, between a digit and the arm/palm
+ * surface it is supposed to grow out of.
+ *
+ * The digits are deliberately NOT topologically joined to the palm - the
+ * contract disclaims that with `palmToDigitSharedTopologyClaimed: false` - so
+ * connectivity alone cannot tell an anatomical hand from five tubes floating in
+ * space. Measured 2026-08-17 at HoloScript 747c2227: every one of the 40 digits
+ * sits within 16.9mm of its parent limb, so the authored 40mm tolerance carries
+ * roughly 2.4x headroom over real geometry while still rejecting a detached hand.
+ */
+function proveDigitAttachment(positions, limb, digit) {
+  const limbStart = limb.vertexRange.vertexStart;
+  const limbEnd = limbStart + limb.vertexRange.vertexCount;
+  const digitStart = digit.vertexRange.vertexStart;
+  const digitEnd = digitStart + digit.vertexRange.vertexCount;
+  let nearestSquared = Infinity;
+  for (let digitVertex = digitStart; digitVertex < digitEnd; digitVertex++) {
+    const digitOffset = digitVertex * 3;
+    for (let limbVertex = limbStart; limbVertex < limbEnd; limbVertex++) {
+      const limbOffset = limbVertex * 3;
+      const dx = positions[digitOffset] - positions[limbOffset];
+      const dy = positions[digitOffset + 1] - positions[limbOffset + 1];
+      const dz = positions[digitOffset + 2] - positions[limbOffset + 2];
+      const squared = dx * dx + dy * dy + dz * dz;
+      if (squared < nearestSquared) nearestSquared = squared;
+    }
+  }
+  return Math.sqrt(nearestSquared);
 }
 
 async function compileOne(toolchain, ast, resident) {
@@ -489,6 +522,7 @@ export async function compileH3MBundles(stack, plan) {
           digit: digit.digit,
           ...topology,
           uniqueJointCount: new Set(jointIndices).size,
+          palmAttachmentMeters: proveDigitAttachment(bundle.mesh.positions, limb, digit),
         });
       }
     }
@@ -568,6 +602,32 @@ export async function runCharacterAppearanceH3M(options = parseArgs([])) {
     const validation = validateH3MContract(stack, options.root, options.holoScriptRoot);
     if (validation.status !== 'pass') throw new Error(validation.errors.join('\n'));
     const compiled = await compileH3MBundles(stack, validation.plan);
+    // Enforce the two authored hand floors. Both were computed and discarded
+    // before 2026-08-17: a de-articulated digit (every ring bound to the palm
+    // bone) and a hand translated 0.75m off the wrist both produced a green
+    // receipt, because nothing read the numbers back. The floors live in the
+    // .holo so they are authored evidence rather than checker constants.
+    const authoredAnatomy = stack.contract.state.anatomyFoundation;
+    const digitTopologies = compiled.records.flatMap((record) => record.digitTopology);
+    const minimumDigitUniqueJointCount = Math.min(
+      ...digitTopologies.map((digit) => digit.uniqueJointCount)
+    );
+    const maximumDigitPalmAttachmentMeters = Math.max(
+      ...digitTopologies.map((digit) => digit.palmAttachmentMeters)
+    );
+    if (minimumDigitUniqueJointCount < authoredAnatomy.digitUniqueJointCountMinimum) {
+      throw new Error(
+        `digit articulation collapsed: a digit binds ${minimumDigitUniqueJointCount} distinct ` +
+          `joints, below the authored floor of ${authoredAnatomy.digitUniqueJointCountMinimum}`
+      );
+    }
+    if (maximumDigitPalmAttachmentMeters > authoredAnatomy.digitPalmAttachmentToleranceMeters) {
+      throw new Error(
+        `digit detached from palm: nearest-surface gap of ` +
+          `${maximumDigitPalmAttachmentMeters.toFixed(4)}m exceeds the authored tolerance of ` +
+          `${authoredAnatomy.digitPalmAttachmentToleranceMeters}m`
+      );
+    }
     const clearance = await proveH3KPoseClearance(
       compiled,
       validation.plan,
@@ -628,6 +688,8 @@ export async function runCharacterAppearanceH3M(options = parseArgs([])) {
           ...clearance.receipts.map((item) => item.minimumClearanceMeters)
         ),
         minimumCoveredRayRatio: Math.min(...clearance.receipts.map((item) => item.coveredRayRatio)),
+        minimumDigitUniqueJointCount,
+        maximumDigitPalmAttachmentMeters,
         repeatedCompileByteIdentity: true,
         strippedAnatomyDelta: compiled.records.every(
           (record) => record.comparisons.strippedAnatomy.geometryChanged

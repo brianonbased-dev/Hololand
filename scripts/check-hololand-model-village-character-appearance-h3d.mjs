@@ -30,10 +30,22 @@ const HERO_REL =
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3d';
 const EXPECTED_PERSONAS = ['hearth_keeper', 'path_tender', 'record_steward'];
 const EXPECTED_REGIONS = ['sclera', 'iris', 'pupil', 'cornea'];
+// H4J replaced the single eye-globe blink with an orbital-lid blink driven per eye by
+// blink_left / blink_right. That is a real improvement to the semantics this gate's
+// subject lives under, so it is admitted BY NAME from the source contract below and
+// then MEASURED against the eight native ocular regions. v3 expression-normal
+// recomputation stays refused: no HoloLand surface has authored or witnessed it.
+const ADMITTED_MORPH_SCHEMA_VERSION = 'holoscript.native-facial-morph.v2';
+const REFUSED_MORPH_SCHEMA_VERSION = 'holoscript.native-facial-morph.v3';
 const HASH_BINDINGS = [
   ['inheritedH3CSource', 'inheritedH3CSourceSha256', 'hololand'],
   ['upstreamOcularBuilderPath', 'upstreamOcularBuilderSha256', 'holoscript'],
   ['upstreamCharacterHostPath', 'upstreamCharacterHostSha256', 'holoscript'],
+  // Admitting the v2 orbital-lid blink by name puts the morph builder inside this gate's
+  // contract surface: it is the file that decides which lid a blink channel closes. It was
+  // unpinned while this gate only cared about eye MATERIALS, so the v1 -> v2 per-eye change
+  // landed behind every pin H3D held. Pinning it is what makes that class of drift visible.
+  ['upstreamMorphBuilderPath', 'upstreamMorphBuilderSha256', 'holoscript'],
   ['upstreamCompositionBridgePath', 'upstreamCompositionBridgeSha256', 'holoscript'],
   ['upstreamCharacterRendererPath', 'upstreamCharacterRendererSha256', 'holoscript'],
   ['upstreamDrawSpecPath', 'upstreamDrawSpecSha256', 'holoscript'],
@@ -213,6 +225,19 @@ export function validateH3DContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       state.nativeAdmission?.legacyCompositeEyeGroupAllowed === false,
     'native ocular admission drifted'
   );
+  // The v2 orbital-lid blink is admitted here BY NAME, from the source contract, and the
+  // shape of the re-witness it obliges is authored alongside it. Widening what this gate
+  // accepts therefore requires editing the composition, not the checker.
+  expect(
+    state.nativeAdmission?.morphSchemaVersion === ADMITTED_MORPH_SCHEMA_VERSION &&
+      state.nativeAdmission?.morphSchemaVersionRefused === REFUSED_MORPH_SCHEMA_VERSION &&
+      state.nativeAdmission?.blinkClosesAuthoredOrbitalLid === true &&
+      state.nativeAdmission?.perEyeOrbitalLidClosureRequired === true &&
+      state.nativeAdmission?.everyOcularRegionMustCloseWithItsOwnLid === true &&
+      state.nativeAdmission?.crossEyeOcularClosureAllowed === false &&
+      state.nativeAdmission?.expressionNormalRecomputationAdmitted === false,
+    'admitted native facial morph semantics drifted'
+  );
   expect(
     state.benchmark?.visualHairLod === 2 &&
       state.benchmark?.visualHairLodReason === 'ocular_region_readability',
@@ -298,8 +323,236 @@ function ocularGroups(bundle) {
   return bundle.materialGroups.filter((group) => group.material.shadingModel === 'refractive-eye');
 }
 
+function withoutAuthoredTearline(ast) {
+  const copy = structuredClone(ast);
+  for (const object of copy.objects || []) {
+    const face = object.traits?.find((trait) => trait.name === 'face');
+    if (face) face.config = { ...face.config, tearline: false };
+  }
+  return copy;
+}
+
+function withMorphTargets(ast, objectId, targets) {
+  const copy = structuredClone(ast);
+  const object = copy.objects?.find((candidate) => candidate.name === objectId);
+  const morph = object?.traits?.find((trait) => trait.name === 'morph');
+  if (!morph) throw new Error(`native morph trait missing for ${objectId}`);
+  morph.config = { ...(morph.config || {}), targets };
+  return copy;
+}
+
+function groupVertexIndices(bundle, group) {
+  const indices = new Set();
+  for (let cursor = group.indexStart; cursor < group.indexStart + group.indexCount; cursor += 1) {
+    indices.add(bundle.mesh.indices[cursor]);
+  }
+  return indices;
+}
+
+function movedVertexIndices(before, after) {
+  if (before.vertexCount !== after.vertexCount) {
+    throw new Error('ocular closure probe changed the vertex count; the two are not comparable');
+  }
+  const moved = new Set();
+  for (let vertex = 0; vertex < before.vertexCount; vertex += 1) {
+    const offset = vertex * 3;
+    if (
+      before.mesh.positions[offset] !== after.mesh.positions[offset] ||
+      before.mesh.positions[offset + 1] !== after.mesh.positions[offset + 1] ||
+      before.mesh.positions[offset + 2] !== after.mesh.positions[offset + 2]
+    ) {
+      moved.add(vertex);
+    }
+  }
+  return moved;
+}
+
+/**
+ * Re-witness the eight native ocular regions under the admitted v2 orbital-lid blink.
+ *
+ * H4J changed what a blink DOES to this gate's subject. Under native-facial-morph.v1 a
+ * blink scaled one eye-globe vertex range; under v2 an authored orbital lid rim closes
+ * as well, and the closure is driven per eye by blink_left / blink_right. This gate can
+ * therefore witness something it could not witness before: that the per-eye lid closure
+ * is registered against the correct eye's OWN four native ocular regions.
+ *
+ * Both halves are measured off the serialized bundle the browser draws, so nothing here
+ * is hand-asserted: the authored rim's vertex cost and the rim's blink motion have to
+ * agree, and each lid has to move all four of its own regions and none of the other
+ * eye's. If upstream ever aliases the two lids back together, stops closing the authored
+ * rim, or drops a region out of the closure, these measurements stop agreeing.
+ */
+async function measureOcularOrbitalLidClosure(stack, plan, admittedMorphSchemaVersion) {
+  const persona = plan.personas[0];
+  const build = async (ast) => {
+    const result = await exportBundle(stack.core, ast, persona.objectId, 0);
+    if (!result.success || result.usedFallback) {
+      throw new Error('ocular orbital lid closure probe compile failed');
+    }
+    return JSON.parse(result.output);
+  };
+  const neutralTargets = { smile: 0, jawOpen: 0, blink: 0 };
+  const rimmed = await build(withMorphTargets(stack.source.ast, persona.objectId, neutralTargets));
+  const unrimmed = await build(
+    withMorphTargets(withoutAuthoredTearline(stack.source.ast), persona.objectId, neutralTargets)
+  );
+  const rimmedBlink = await build(
+    withMorphTargets(stack.source.ast, persona.objectId, { blink: 1 })
+  );
+  const unrimmedBlink = await build(
+    withMorphTargets(withoutAuthoredTearline(stack.source.ast), persona.objectId, { blink: 1 })
+  );
+
+  // Falsifiable half one: this gate's v2 is EARNED by its own authored tearline. Withhold
+  // the authored rim and upstream must hand back v1, not the schema this gate admitted.
+  if (unrimmed.morph?.schemaVersion !== 'holoscript.native-facial-morph.v1') {
+    throw new Error(
+      `withholding the authored tearline must fall back to native-facial-morph.v1, got ${unrimmed.morph?.schemaVersion}`
+    );
+  }
+  if (rimmed.morph?.schemaVersion !== admittedMorphSchemaVersion) {
+    throw new Error(
+      `authored tearline must produce ${admittedMorphSchemaVersion}, got ${rimmed.morph?.schemaVersion}`
+    );
+  }
+  const authoredRimVertexCount = rimmed.vertexCount - unrimmed.vertexCount;
+  const blinkChangedVertexDelta =
+    rimmedBlink.morph.changedVertexCount - unrimmedBlink.morph.changedVertexCount;
+  if (authoredRimVertexCount <= 0) {
+    throw new Error(`authored orbital rim contributed no geometry: ${authoredRimVertexCount}`);
+  }
+  if (blinkChangedVertexDelta !== authoredRimVertexCount) {
+    throw new Error(
+      'v2 blink must close the whole authored orbital rim: ' +
+        `${blinkChangedVertexDelta} of ${authoredRimVertexCount} rim vertices moved`
+    );
+  }
+
+  // Falsifiable half two, and the part that is H3D's own: the per-eye lid must close over
+  // the per-eye ocular stack this gate serializes, and must not reach across the face.
+  const left = await build(withMorphTargets(stack.source.ast, persona.objectId, { blink_left: 1 }));
+  const right = await build(
+    withMorphTargets(stack.source.ast, persona.objectId, { blink_right: 1 })
+  );
+  for (const [label, bundle] of [
+    ['blink_left', left],
+    ['blink_right', right],
+  ]) {
+    if (
+      bundle.morph?.schemaVersion !== admittedMorphSchemaVersion ||
+      bundle.morph?.schemaVersion === REFUSED_MORPH_SCHEMA_VERSION ||
+      bundle.morph?.normalsRecomputed !== false ||
+      bundle.morph?.ignoredTargets?.length !== 0 ||
+      bundle.morph?.appliedTargets?.length !== 1 ||
+      bundle.morph?.appliedTargets?.[0]?.target !== label ||
+      bundle.morph?.appliedTargets?.[0]?.weight !== 1
+    ) {
+      throw new Error(
+        `${label} is not an operative per-eye v2 channel ` +
+          `(schema ${bundle.morph?.schemaVersion}, applied ${JSON.stringify(bundle.morph?.appliedTargets)}, ` +
+          `normalsRecomputed ${bundle.morph?.normalsRecomputed})`
+      );
+    }
+  }
+  const movedByLeft = movedVertexIndices(rimmed, left);
+  const movedByRight = movedVertexIndices(rimmed, right);
+  if (movedByLeft.size === 0 || movedByRight.size === 0) {
+    throw new Error(
+      `a per-eye lid closed nothing: left=${movedByLeft.size} right=${movedByRight.size}`
+    );
+  }
+  for (const vertex of movedByLeft) {
+    if (movedByRight.has(vertex)) {
+      throw new Error('the two orbital lids moved a shared vertex; per-eye closure is not disjoint');
+    }
+  }
+
+  const groups = ocularGroups(rimmed);
+  const sides = { left: [], right: [] };
+  for (const group of groups) {
+    const vertices = groupVertexIndices(rimmed, group);
+    if (vertices.size === 0) throw new Error(`${group.material.eyeRegion} group serialized no vertices`);
+    let sum = 0;
+    for (const vertex of vertices) sum += rimmed.mesh.positions[vertex * 3];
+    const centroidX = sum / vertices.size;
+    if (centroidX === 0) {
+      throw new Error(`${group.material.eyeRegion} group is not on one side of the face`);
+    }
+    sides[centroidX < 0 ? 'left' : 'right'].push({
+      region: group.material.eyeRegion,
+      vertices,
+      centroidX,
+    });
+  }
+  const regionClosure = {};
+  for (const [side, members] of Object.entries(sides)) {
+    const own = side === 'left' ? movedByLeft : movedByRight;
+    const other = side === 'left' ? movedByRight : movedByLeft;
+    const regions = members.map((member) => member.region).sort();
+    if (
+      members.length !== EXPECTED_REGIONS.length ||
+      JSON.stringify(regions) !== JSON.stringify([...EXPECTED_REGIONS].sort())
+    ) {
+      throw new Error(
+        `the ${side} eye does not carry exactly one native group per ocular region: ${JSON.stringify(regions)}`
+      );
+    }
+    for (const member of members) {
+      let closedByOwnLid = 0;
+      let closedByOtherLid = 0;
+      for (const vertex of member.vertices) {
+        if (own.has(vertex)) closedByOwnLid += 1;
+        if (other.has(vertex)) closedByOtherLid += 1;
+      }
+      if (closedByOwnLid <= 0) {
+        throw new Error(
+          `the ${side} ${member.region} region did not move when the ${side} orbital lid closed`
+        );
+      }
+      if (closedByOtherLid !== 0) {
+        throw new Error(
+          `the ${side} ${member.region} region moved when the other eye's lid closed: ` +
+            `${closedByOtherLid} of ${member.vertices.size} vertices`
+        );
+      }
+      regionClosure[`${side}.${member.region}`] = {
+        serializedVertexCount: member.vertices.size,
+        closedByOwnLid,
+        closedByOtherLid,
+      };
+    }
+  }
+  for (const region of EXPECTED_REGIONS) {
+    const l = regionClosure[`left.${region}`];
+    const r = regionClosure[`right.${region}`];
+    if (l.serializedVertexCount !== r.serializedVertexCount || l.closedByOwnLid !== r.closedByOwnLid) {
+      throw new Error(
+        `the two ${region} regions are not mirror-symmetric under their own lid: ` +
+          `left ${l.closedByOwnLid}/${l.serializedVertexCount} vs right ${r.closedByOwnLid}/${r.serializedVertexCount}`
+      );
+    }
+  }
+
+  return {
+    personaId: persona.personaId,
+    admittedMorphSchemaVersion,
+    unrimmedSchemaVersion: unrimmed.morph.schemaVersion,
+    authoredRimVertexCount,
+    blinkChangedVertexDelta,
+    movedByLeftLid: movedByLeft.size,
+    movedByRightLid: movedByRight.size,
+    regionClosure,
+    rimmedPositionDigest: rimmed.morph.positionDigest,
+    leftPositionDigest: left.morph.positionDigest,
+    rightPositionDigest: right.morph.positionDigest,
+  };
+}
+
 export async function compileH3DOcularBundles(stack, plan) {
-  const native = await compileH3BNativeBundles(stack.core, stack.source.ast, plan);
+  const admittedMorphSchemaVersion = stack.contract.state.nativeAdmission?.morphSchemaVersion;
+  const native = await compileH3BNativeBundles(stack.core, stack.source.ast, plan, {
+    morphSchemaVersion: admittedMorphSchemaVersion,
+  });
   for (const record of native.records) {
     for (const tier of record.tiers) {
       const { bundle } = tier;
@@ -333,6 +586,9 @@ export async function compileH3DOcularBundles(stack, plan) {
             group.material.opacity <= 0 ||
             group.material.opacity >= 1
         ) ||
+        bundle.morph?.schemaVersion !== admittedMorphSchemaVersion ||
+        bundle.morph?.schemaVersion === REFUSED_MORPH_SCHEMA_VERSION ||
+        bundle.morph?.normalsRecomputed !== false ||
         !bundle.report?.mapped?.includes('@face(ocular_profile=layered-ocular-v1)') ||
         bundle.report?.stubbed?.length !== 0
       ) {
@@ -363,11 +619,18 @@ export async function compileH3DOcularBundles(stack, plan) {
       `layered ocular topology delta too small: vertices=${ocularVertexDelta} triangles=${ocularTriangleDelta}`
     );
   }
+  const orbitalLidClosure = await measureOcularOrbitalLidClosure(
+    stack,
+    plan,
+    admittedMorphSchemaVersion
+  );
   return {
     native,
     ocularVertexDelta,
     ocularTriangleDelta,
     legacyVertexCount: legacyBundle.vertexCount,
+    morphSchemaVersion: admittedMorphSchemaVersion,
+    orbitalLidClosure,
   };
 }
 
@@ -942,6 +1205,9 @@ export async function runCharacterAppearanceH3D(options = parseArgs([])) {
       ocularGroupsPerBundle: 8,
       groupsPerRegion: 2,
       visualHairLod: 2,
+      morphSchemaVersion: ocular.morphSchemaVersion,
+      morphSchemaVersionRefused: REFUSED_MORPH_SCHEMA_VERSION,
+      orbitalLidClosure: ocular.orbitalLidClosure,
       ocularVertexDelta: ocular.ocularVertexDelta,
       ocularTriangleDelta: ocular.ocularTriangleDelta,
       legacyVertexCount: ocular.legacyVertexCount,

@@ -34,7 +34,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-appearance-h3n-hand-landmarks-taa-lod-2026-07-28.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3n';
-const EXPECTED_COMMIT = '15113b292b811f6f4a287eacea048a8c12c9a4e6';
+const EXPECTED_COMMIT = 'b3d031dd47e112021efe97863794abe3e5c16807';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const EXPECTED_DIGITS = ['thumb', 'index', 'middle', 'ring', 'pinky'];
 const EXPECTED_LANDMARK_COUNTS = {

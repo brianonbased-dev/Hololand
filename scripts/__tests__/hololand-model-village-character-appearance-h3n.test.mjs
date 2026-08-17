@@ -23,7 +23,7 @@ test('H3N parses .holo, .hsplus, and .hs with four symbolic model families', asy
     assert.equal(validation.status, 'pass', validation.errors.join('\n'));
     assert.equal(
       stack.contract.metadata.upstreamHoloScriptCommit,
-      '15113b292b811f6f4a287eacea048a8c12c9a4e6'
+      'b3d031dd47e112021efe97863794abe3e5c16807'
     );
     assert.deepEqual(
       validation.plan.residents.map((resident) => resident.displayLabel),
