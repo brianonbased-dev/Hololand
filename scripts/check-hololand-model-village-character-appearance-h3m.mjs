@@ -12,6 +12,7 @@ import {
   buildH3KPlan,
   proveH3KPoseClearance,
 } from './check-hololand-model-village-character-appearance-h3k.mjs';
+import { withWgslRaw } from './lib/model-village-wgsl-raw-plugin.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_HOLOSCRIPT_ROOT =
@@ -89,7 +90,12 @@ function sourcePath(root, relative) {
 
 async function loadEsbuild(holoScriptRoot) {
   const workspaceRequire = createRequire(path.join(holoScriptRoot, 'package.json'));
-  return import(pathToFileURL(workspaceRequire.resolve('esbuild')).href);
+  const esbuild = await import(pathToFileURL(workspaceRequire.resolve('esbuild')).href);
+  // HoloScript's character-render entry imports its skin shader as
+  // `skin-skinning.wgsl?raw`, which esbuild cannot load unaided. H3N and
+  // H3O..H3V all take their esbuild from this stack, so wrapping here is the one
+  // seam that keeps ten gates able to build the code they witness.
+  return withWgslRaw(esbuild);
 }
 
 async function loadNativeToolchain(holoScriptRoot, outputDir, esbuild) {
