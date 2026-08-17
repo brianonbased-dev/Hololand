@@ -87,6 +87,135 @@ const ALLOWED_HAIR_GEOMETRY = new Set([
   'hair_braid',
 ]);
 
+const SUCCESSOR_CHECKER_REL =
+  'scripts/check-hololand-model-village-character-appearance-h3b.mjs';
+const SUPERSESSION_PERSONA_TYPES = new Set([
+  'neutral_civic_persona_target', // H3A
+  'native_neutral_civic_persona', // H3B
+]);
+
+function supersessionPersonas(contract) {
+  return (contract.objects || []).filter((object) =>
+    SUPERSESSION_PERSONA_TYPES.has(object.type),
+  );
+}
+
+/**
+ * The ten properties H3A holds and refuses to be retired into H3B without.
+ *
+ * Each entry carries a MUTATION, not a hash. A property counts as "asserted by gate G"
+ * only when applying that mutation to G's own parsed contract makes G's contract
+ * validator emit an error it was not already emitting. Presence is therefore measured by
+ * execution, and a value that merely sits in a source file unread does not count -- H3B
+ * literally carries atlas, benchmark, civicRole, the tracking defaults and the promotion
+ * booleans, and enforces none of them. That gap is exactly what "does not assert" means,
+ * and it is why reading H3B's text would have given the wrong answer.
+ *
+ * This replaces the successor CONTENT HASH pin. That pin was circular -- H3A recorded
+ * H3B's source hash while H3B recorded H3A's, so neither file could be edited without
+ * invalidating the other and the pair had no fixed point -- and it measured the wrong
+ * thing in both directions: it fired on a whitespace change, and it stayed silent when
+ * H3B actually gained one of these properties, which is the only event that should ever
+ * reopen the retirement question.
+ */
+export const SUPERSESSION_PROPERTIES = Object.freeze([
+  {
+    id: 'dermalAtlasCustody',
+    label: 'the deterministic dermal atlas custody contract',
+    mutate(contract) {
+      contract.state.atlas = { ...(contract.state.atlas || {}) };
+      contract.state.atlas.algorithm = 'unpinned_third_party_atlas';
+      contract.state.atlas.externalUris = ['https://example.invalid/skin.png'];
+      contract.state.atlas.albedoSize = [64, 64];
+      contract.state.atlas.normalSize = [64, 64];
+      contract.state.atlas.surfaceMaskSize = [64, 64];
+    },
+  },
+  {
+    id: 'absolutePersonaTriangleBudgets',
+    label: 'the absolute per-persona triangle budgets',
+    mutate(contract) {
+      contract.state.lod = { ...(contract.state.lod || {}) };
+      contract.state.lod.maximumPersonaTriangles = [9999999, 9999999, 9999999];
+    },
+  },
+  {
+    id: 'benchmarkProtocolShape',
+    label: 'the benchmark protocol shape',
+    mutate(contract) {
+      contract.state.benchmark = { ...(contract.state.benchmark || {}) };
+      contract.state.benchmark.warmupFrames = 1;
+      contract.state.benchmark.measuredFrames = 1;
+      contract.state.benchmark.simultaneousPersonaCount = 1;
+    },
+  },
+  {
+    id: 'civicRoleBinding',
+    label: 'the civic-role binding',
+    mutate(contract) {
+      for (const persona of supersessionPersonas(contract)) {
+        persona.civicRole = 'unbound';
+      }
+    },
+  },
+  {
+    id: 'silhouetteAndAtlasCellUniqueness',
+    label: 'silhouette and dermal-atlas-cell uniqueness',
+    mutate(contract) {
+      for (const persona of supersessionPersonas(contract)) {
+        persona.silhouetteProfile = 'identical_profile';
+        persona.dermalAtlasCell = [0, 0];
+      }
+    },
+  },
+  {
+    id: 'h2LineagePins',
+    label: 'the H2 lineage pins',
+    mutate(contract) {
+      contract.metadata.inheritedH2SourceSha256 = '0'.repeat(64);
+      contract.metadata.inheritedH2ManifestSha256 = '0'.repeat(64);
+      contract.metadata.inheritedH2ReportSha256 = '0'.repeat(64);
+    },
+  },
+  {
+    id: 'faceAndEyeTrackingDefaults',
+    label: 'the face and eye tracking defaults',
+    mutate(contract) {
+      contract.state.faceTrackingEnabledByDefault = true;
+      contract.state.eyeTrackingEnabledByDefault = true;
+    },
+  },
+  {
+    id: 'sharedMotionAndCapabilityInvariants',
+    label: 'the shared motion and capability invariants',
+    mutate(contract) {
+      contract.state.sharedMotionQualityInvariant = false;
+      contract.state.sharedCapabilityInvariant = false;
+    },
+  },
+  {
+    id: 'promotionReplacementBoundary',
+    label: 'the promotion and replacement boundary',
+    mutate(contract) {
+      contract.state.productionProfilePromotionClaimed = true;
+      contract.state.publicFirstReleaseReplacementClaimed = true;
+    },
+  },
+  {
+    id: 'accessibilityEvidence',
+    label: 'the accessibility evidence',
+    mutate(contract) {
+      contract.state.goldenTargets = (contract.state.goldenTargets || []).filter(
+        (target) => !String(target.id).includes('accessibility'),
+      );
+    },
+  },
+]);
+
+export const SUPERSESSION_PROPERTY_IDS = Object.freeze(
+  SUPERSESSION_PROPERTIES.map((property) => property.id),
+);
+
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
 }
@@ -330,6 +459,20 @@ export function validateH3AContract(
     canonicalJson(state.resetEvents) === canonicalJson(RESET_EVENTS),
     'history reset contract drifted',
   );
+  // Accessibility evidence is one of the ten properties H3A refuses to be retired
+  // without, so the contract has to bind it. Before this it was produced by the runner
+  // and pinned by the manifest but never asserted here, which made that leg of the
+  // refusal unfalsifiable -- deleting the target from the source changed nothing.
+  const accessibilityTarget = (state.goldenTargets || []).find(
+    (target) => target.id === 'h3a_accessibility',
+  );
+  expect(
+    Boolean(accessibilityTarget) &&
+      accessibilityTarget.width === 2400 &&
+      accessibilityTarget.height === 600 &&
+      String(accessibilityTarget.output || '').includes('h3a-accessibility'),
+    'H3A must keep the accessibility golden target',
+  );
 
   const personas = contract.objects.filter(
     (object) => object.type === 'neutral_civic_persona_target',
@@ -442,28 +585,152 @@ export function validateH3AContract(
   // The retired grep matched source text; the replacement compiles real geometry. If either
   // channel regresses upstream, the executed proof fails and this gate goes red.
   //
-  // Retiring H3A into H3B is refused while H3A holds properties H3B does not assert
-  // (dermal atlas custody, absolute triangle budgets, benchmark protocol, civic roles,
-  // silhouette/atlas-cell uniqueness, H2 lineage, tracking defaults, shared invariants,
-  // promotion boundary, accessibility). The successor pin below keeps the pointer honest:
-  // H3A must name H3B, and H3B's source must exist and match its recorded hash.
+  // The pointer to the successor stays honest -- H3A must name H3B and H3B's source must
+  // exist -- but H3A no longer records H3B's CONTENT HASH. That pin was circular against
+  // H3B's own inheritedH3A* pins, and it could not answer the only question worth asking:
+  // has H3B taken over the properties H3A is retained for? proveSupersessionBoundary()
+  // answers that by execution instead.
   expect(
     metadata.successorGate === 'H3B',
     'H3A must name the successor gate that carries the native channels',
   );
-  const successorPath = path.resolve(root, metadata.successorSource || '');
   expect(
-    Boolean(metadata.successorSource && metadata.successorSourceSha256) &&
-      existsSync(successorPath),
+    Boolean(metadata.successorSource) &&
+      existsSync(path.resolve(root, metadata.successorSource || '')),
     'successor gate source missing',
   );
-  if (existsSync(successorPath)) {
-    expect(
-      sha256File(successorPath) === metadata.successorSourceSha256,
-      'successor gate source hash drifted',
-    );
-  }
+  // The refusal itself is now a declared, checkable claim rather than manifest prose.
+  const supersession = state.supersessionBoundary || {};
+  expect(
+    typeof supersession.retirementRefused === 'boolean',
+    'supersessionBoundary.retirementRefused must be true or false',
+  );
+  expect(
+    canonicalJson(supersession.refusedProperties) ===
+      canonicalJson(SUPERSESSION_PROPERTY_IDS),
+    'supersessionBoundary.refusedProperties must name exactly the properties this gate probes',
+  );
+  expect(
+    typeof supersession.refusedReason === 'string' &&
+      supersession.refusedReason.trim().length > 0,
+    'supersessionBoundary.refusedReason must state why H3A is retained',
+  );
   return { status: errors.length ? 'fail' : 'pass', errors };
+}
+
+/**
+ * EXECUTED proof of the retire-vs-restate decision.
+ *
+ * For each of the ten properties H3A is retained for, this mutates BOTH contracts and
+ * asks each gate's own validator whether it notices. H3A must notice every one (or its
+ * refusal has gone stale and is silently over-claiming); and the direction of the
+ * successor result is governed by the declared retirementRefused:
+ *
+ *   retirementRefused: true  -> H3B must assert NONE of them. If H3B has gained one, the
+ *                               gate goes red naming it, because retirement is now
+ *                               partly justified and must be re-decided by a human.
+ *   retirementRefused: false -> H3B must assert ALL of them. This is what makes "H3A can
+ *                               be retired" a claim the gate can refuse rather than a
+ *                               comment nobody checks.
+ *
+ * Comparison is against each gate's own pre-existing errors, so unrelated drift in H3B
+ * (stale upstream pins, say) cannot masquerade as H3B having gained a property.
+ */
+export async function proveSupersessionBoundary({
+  contract,
+  root = ROOT,
+  holoScriptRoot = DEFAULT_HOLOSCRIPT_ROOT,
+}) {
+  const failures = [];
+  const witness = [];
+  const declared = contract.state.supersessionBoundary || {};
+  const retirementRefused = declared.retirementRefused;
+  const successorGate = contract.metadata.successorGate || 'the successor gate';
+
+  let successorModule;
+  let successorContract;
+  try {
+    successorModule = await import(
+      pathToFileURL(path.join(root, SUCCESSOR_CHECKER_REL)).href
+    );
+    successorContract = (
+      await successorModule.parseH3BStack(root, holoScriptRoot)
+    ).contract;
+  } catch (error) {
+    return {
+      status: 'fail',
+      retirementRefused,
+      witness,
+      failures: [
+        `could not load or parse ${successorGate} to test the supersession boundary: ${error.message}`,
+      ],
+    };
+  }
+
+  const clone = (value) => JSON.parse(JSON.stringify(value));
+  const newErrors = (before, after) =>
+    after.filter((error) => !before.includes(error));
+  const baselineSelf = validateH3AContract(
+    clone(contract),
+    root,
+    holoScriptRoot,
+  ).errors;
+  const baselineSuccessor = successorModule.validateH3BContract(
+    clone(successorContract),
+    root,
+    holoScriptRoot,
+  ).errors;
+
+  for (const property of SUPERSESSION_PROPERTIES) {
+    const mutatedSelf = clone(contract);
+    property.mutate(mutatedSelf);
+    const selfNoticed = newErrors(
+      baselineSelf,
+      validateH3AContract(mutatedSelf, root, holoScriptRoot).errors,
+    );
+    const mutatedSuccessor = clone(successorContract);
+    property.mutate(mutatedSuccessor);
+    const successorNoticed = newErrors(
+      baselineSuccessor,
+      successorModule.validateH3BContract(
+        mutatedSuccessor,
+        root,
+        holoScriptRoot,
+      ).errors,
+    );
+    const heldByH3A = selfNoticed.length > 0;
+    const assertedBySuccessor = successorNoticed.length > 0;
+    witness.push({
+      property: property.id,
+      label: property.label,
+      heldByH3A,
+      assertedBySuccessor,
+      h3aWitness: selfNoticed[0] || null,
+      successorWitness: successorNoticed[0] || null,
+    });
+    if (!heldByH3A) {
+      failures.push(
+        `H3A no longer asserts ${property.id} (${property.label}); the refusal to retire is stale and must be re-decided`,
+      );
+    }
+    if (retirementRefused === true && assertedBySuccessor) {
+      failures.push(
+        `${successorGate} now asserts ${property.id} (${property.label}); H3A retirement must be re-evaluated`,
+      );
+    }
+    if (retirementRefused === false && !assertedBySuccessor) {
+      failures.push(
+        `retirementRefused is false but ${successorGate} does not assert ${property.id} (${property.label}); H3A cannot be retired`,
+      );
+    }
+  }
+
+  return {
+    status: failures.length ? 'fail' : 'pass',
+    retirementRefused,
+    witness,
+    failures,
+  };
 }
 
 /**
@@ -1996,7 +2263,7 @@ async function runBrowser(surface, plan, options, modules) {
   }
 }
 
-async function validateManifest(root, holoScriptRoot) {
+async function validateManifest(root, holoScriptRoot, contract) {
   const manifestPath = path.join(root, MANIFEST_REL);
   if (!existsSync(manifestPath)) {
     return { status: 'fail', errors: [`missing ${MANIFEST_REL}`] };
@@ -2044,6 +2311,19 @@ async function validateManifest(root, holoScriptRoot) {
     if (!existsSync(absolute) || sha256File(absolute) !== binding.sha256) {
       errors.push(`manifest binding drifted: ${binding.path}`);
     }
+  }
+  // The manifest's copy of the refusal must agree with the contract's. Before this the
+  // manifest carried retirementRefused and its reason and NOTHING read either one, so the
+  // whole retire-vs-restate decision was documentation.
+  if (
+    state.successor?.gate !== contract?.metadata?.successorGate ||
+    state.successor?.source !== contract?.metadata?.successorSource ||
+    state.successor?.retirementRefused !==
+      contract?.state?.supersessionBoundary?.retirementRefused ||
+    canonicalJson(state.successor?.refusedProperties) !==
+      canonicalJson(SUPERSESSION_PROPERTY_IDS)
+  ) {
+    errors.push('manifest supersession record disagrees with the H3A contract');
   }
   if (
     state.boundaries?.fullH3Claimed !== false ||
@@ -2143,12 +2423,29 @@ H3A still does **not** claim the native channels: its preview geometry remains
 source-owned, and native channel coverage is carried by
 \`${receipt.successor.gate}\` (\`${receipt.successor.source}\`). Full H3 is not admitted here.
 
-H3A is retained rather than retired because it uniquely holds the deterministic
-dermal atlas custody contract, the absolute per-persona triangle budgets, the
-benchmark protocol shape, civic-role binding, silhouette and dermal-atlas-cell
-uniqueness, the H2 lineage pins, the face/eye tracking defaults, the shared
-motion and capability invariants, the promotion/replacement boundary, and the
-accessibility evidence -- none of which the successor gate asserts.
+## Retire-vs-restate, measured
+
+H3A is retained rather than retired because it holds properties
+\`${receipt.successor.gate}\` does not assert. This run did not take that on trust. It
+mutated each property in **both** contracts and asked each gate's own validator whether
+it noticed, comparing against that gate's pre-existing errors so unrelated drift cannot
+be mistaken for supersession.
+
+| Property | H3A asserts | \`${receipt.successor.gate}\` asserts |
+|---|:--:|:--:|
+${receipt.successor.properties
+  .map(
+    (entry) =>
+      `| ${entry.label} | ${entry.heldByH3A ? 'yes' : 'NO'} | ${entry.assertedBySuccessor ? 'YES' : 'no'} |`,
+  )
+  .join('\n')}
+
+Retirement refused: **${receipt.successor.retirementRefused}**. Several of these keys do
+appear in \`${receipt.successor.gate}\`'s source text, but its gate never reads them, so
+they can drift without anything going red -- which is why this table is built by
+execution and not by reading the successor's source. If the successor ever begins
+asserting one of these, this gate goes red naming that property and the retire-vs-restate
+decision is reopened.
 
 No persona binds Claude, OpenAI, Gemini, Grok, GLM, Brittney, or any adapter
 family. The live blinded research profile cannot admit these civic personas
@@ -2179,6 +2476,11 @@ export async function runCharacterAppearanceH3A(
   );
   const plan = buildH3APlan(stack.contract);
   const nativeChannels = await proveUpstreamNativeChannels(stack.core, plan);
+  const supersession = await proveSupersessionBoundary({
+    contract: stack.contract,
+    root,
+    holoScriptRoot,
+  });
   const modules = await loadWorkspaceModules(holoScriptRoot);
   const firstAtlases = generateDermalAtlasBuffers(
     modules.PNG,
@@ -2222,7 +2524,7 @@ export async function runCharacterAppearanceH3A(
   const browser = await runBrowser(surface, plan, options, modules);
   const manifest = options.skipManifest
     ? { status: 'skipped', errors: [], reason: 'bootstrap_skip_requested' }
-    : await validateManifest(root, holoScriptRoot);
+    : await validateManifest(root, holoScriptRoot, stack.contract);
   const externalRequests = browser.requests.filter(
     (url) => !url.startsWith('http://127.0.0.1:'),
   );
@@ -2271,6 +2573,9 @@ export async function runCharacterAppearanceH3A(
       plan.upstreamNativeAdmission.fullH3Admitted === false,
     // EXECUTED, not asserted: both channels compiled real output this run.
     upstreamNativeChannelsProven: nativeChannels.status === 'pass',
+    // EXECUTED, not asserted: every property H3A is retained for was mutated in both
+    // contracts this run, H3A noticed all ten, and H3B noticed none of them.
+    supersessionBoundaryProven: supersession.status === 'pass',
     exactFrameProtocol:
       browser.witness.benchmark.raf.samples === plan.benchmark.measuredFrames &&
       browser.witness.benchmark.renderSubmit.samples ===
@@ -2310,6 +2615,7 @@ export async function runCharacterAppearanceH3A(
   const failures = [
     ...validation.errors.map((error) => `contract:${error}`),
     ...nativeChannels.failures.map((error) => `nativeChannel:${error}`),
+    ...supersession.failures.map((error) => `supersession:${error}`),
     ...Object.entries(checks)
       .filter(([, value]) => value !== true)
       .map(([name]) => name),
@@ -2357,7 +2663,14 @@ export async function runCharacterAppearanceH3A(
     successor: {
       gate: stack.contract.metadata.successorGate,
       source: stack.contract.metadata.successorSource,
-      sha256: stack.contract.metadata.successorSourceSha256,
+      // No content hash: pinning the successor's bytes was circular against H3B's own
+      // lineage pins and never answered whether H3B had superseded anything. The
+      // measured property table below answers exactly that.
+      retirementRefused: supersession.retirementRefused,
+      retirementRefusedReason:
+        stack.contract.state.supersessionBoundary?.refusedReason,
+      properties: supersession.witness,
+      proofStatus: supersession.status,
     },
     plan,
     atlases: Object.fromEntries(

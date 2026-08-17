@@ -15,7 +15,7 @@ composition "HoloLand Model Village Character Appearance H3A Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3a-neutral-personas.holo"
-      sha256: "d516b27d2dbf33618600045a0f3ca409d6311ed6d8d8c065e6bd79c9a77b2dfb"
+      sha256: "3d32af1ce3e28f31bb90714f1b76aa4a255ed44ffdad4a7a296b120c535ae14a"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -31,11 +31,11 @@ composition "HoloLand Model Village Character Appearance H3A Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3a.mjs"
-      sha256: "9d4d5f3181ea6ea7f799f308b614982c51e15044ed5ac3f4f7ff754a156b3d64"
+      sha256: "49e84ca64e69053b65a3496cd686042724fbdf4a6a51de219bb885f542ce1222"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3a.test.mjs"
-      sha256: "a6e36e47446d572e7d43fef66b640977dc927644b613d9abb7346a8a93251573"
+      sha256: "6097745840ec04b502d0733cf3f526bd7a34da0dc3db10190ee8080134a58791"
     }
     report: {
       path: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H3A_2026-07-27.md"
@@ -188,8 +188,19 @@ composition "HoloLand Model Village Character Appearance H3A Manifest" {
     successor: {
       gate: "H3B"
       source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3b-native-channels.holo"
-      sha256: "be9c335799a4369b1fdbe0ec85a0733b6f3635865584a8a0931d891974ff6f26"
       retirementRefused: true
+      refusedProperties: [
+        "dermalAtlasCustody",
+        "absolutePersonaTriangleBudgets",
+        "benchmarkProtocolShape",
+        "civicRoleBinding",
+        "silhouetteAndAtlasCellUniqueness",
+        "h2LineagePins",
+        "faceAndEyeTrackingDefaults",
+        "sharedMotionAndCapabilityInvariants",
+        "promotionReplacementBoundary",
+        "accessibilityEvidence"
+      ]
       retirementRefusedReason: "H3B does not assert the dermal atlas custody contract, absolute per-persona triangle budgets, benchmark protocol shape, civic-role binding, silhouette or dermal-atlas-cell uniqueness, H2 lineage pins, face/eye tracking defaults, shared motion and capability invariants, the promotion/replacement boundary, or accessibility evidence"
     }
     inherited: {

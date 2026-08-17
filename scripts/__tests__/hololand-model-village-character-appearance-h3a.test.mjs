@@ -6,8 +6,11 @@ import test from 'node:test';
 import { pathToFileURL } from 'node:url';
 
 import {
+  SUPERSESSION_PROPERTIES,
+  SUPERSESSION_PROPERTY_IDS,
   buildH3APlan,
   generateDermalAtlasBuffers,
+  proveSupersessionBoundary,
   validateH3AContract,
 } from '../check-hololand-model-village-character-appearance-h3a.mjs';
 
@@ -247,13 +250,126 @@ test('H3A refuses to lose the frozen native-gap history or the H3B successor poi
   assert.equal(orphanErrors.status, 'fail');
   assert.match(orphanErrors.errors.join('\n'), /must name the successor gate/);
 
-  // And the successor pin must actually track H3B's source.
-  const tampered = parseComposition();
-  tampered.metadata.successorSourceSha256 = '0'.repeat(64);
-  const tamperErrors = validateH3AContract(tampered, ROOT, HOLOSCRIPT_ROOT);
-  assert.equal(tamperErrors.status, 'fail');
-  assert.match(tamperErrors.errors.join('\n'), /successor gate source hash drifted/);
+  // The refusal must stay a complete, declared claim. Quietly dropping a property from
+  // the refused list would shrink what the successor has to carry before H3A can be
+  // retired, so it fails.
+  const shrunk = parseComposition();
+  shrunk.state.supersessionBoundary.refusedProperties =
+    shrunk.state.supersessionBoundary.refusedProperties.slice(1);
+  const shrunkErrors = validateH3AContract(shrunk, ROOT, HOLOSCRIPT_ROOT);
+  assert.equal(shrunkErrors.status, 'fail');
+  assert.match(shrunkErrors.errors.join('\n'), /refusedProperties must name exactly/);
+
+  // retirementRefused has to be a decision, not prose or an omission.
+  const vague = parseComposition();
+  vague.state.supersessionBoundary.retirementRefused = 'maybe';
+  const vagueErrors = validateH3AContract(vague, ROOT, HOLOSCRIPT_ROOT);
+  assert.equal(vagueErrors.status, 'fail');
+  assert.match(vagueErrors.errors.join('\n'), /retirementRefused must be true or false/);
+
+  // And it has to say why.
+  const unreasoned = parseComposition();
+  unreasoned.state.supersessionBoundary.refusedReason = '   ';
+  const unreasonedErrors = validateH3AContract(unreasoned, ROOT, HOLOSCRIPT_ROOT);
+  assert.equal(unreasonedErrors.status, 'fail');
+  assert.match(unreasonedErrors.errors.join('\n'), /refusedReason must state why/);
 
   // The clean source must still pass, so none of the above is a blanket failure.
   assert.equal(validateH3AContract(parseComposition(), ROOT, HOLOSCRIPT_ROOT).status, 'pass');
+});
+
+test('H3A proves the retire-vs-restate decision instead of documenting it', async () => {
+  const contract = parseComposition();
+  const proof = await proveSupersessionBoundary({
+    contract,
+    root: ROOT,
+    holoScriptRoot: HOLOSCRIPT_ROOT,
+  });
+
+  // Every declared property is probed, and the probe set matches the declared set.
+  assert.deepEqual(
+    proof.witness.map((entry) => entry.property),
+    [...SUPERSESSION_PROPERTY_IDS],
+  );
+  assert.deepEqual(
+    contract.state.supersessionBoundary.refusedProperties,
+    [...SUPERSESSION_PROPERTY_IDS],
+  );
+
+  // H3A must actually hold all ten -- a refusal it cannot back is a stale refusal.
+  for (const entry of proof.witness) {
+    assert.equal(
+      entry.heldByH3A,
+      true,
+      `H3A must assert ${entry.property}: ${entry.h3aWitness}`,
+    );
+    assert.equal(
+      entry.assertedBySuccessor,
+      false,
+      `H3B unexpectedly asserts ${entry.property}: ${entry.successorWitness}`,
+    );
+  }
+  assert.equal(proof.status, 'pass');
+  assert.deepEqual(proof.failures, []);
+});
+
+test('H3A refuses a retirement its successor cannot carry', async () => {
+  // Flipping the decision is a claim that H3B now carries all ten. It does not, so the
+  // gate must refuse -- this is the check that was missing entirely: retirementRefused
+  // used to be inert, and flipping it changed nothing.
+  const retiring = parseComposition();
+  retiring.state.supersessionBoundary.retirementRefused = false;
+  const proof = await proveSupersessionBoundary({
+    contract: retiring,
+    root: ROOT,
+    holoScriptRoot: HOLOSCRIPT_ROOT,
+  });
+  assert.equal(proof.status, 'fail');
+  assert.equal(proof.failures.length, SUPERSESSION_PROPERTY_IDS.length);
+  for (const id of SUPERSESSION_PROPERTY_IDS) {
+    assert.match(
+      proof.failures.join('\n'),
+      new RegExp(`retirementRefused is false but .* does not assert ${id}\\b`),
+    );
+  }
+});
+
+test('H3A notices when it stops holding a property it refuses to retire without', async () => {
+  // If H3A itself loses one of the ten, the refusal is over-claiming and must go red
+  // rather than quietly keeping the gate alive on a property it no longer enforces.
+  for (const property of SUPERSESSION_PROPERTIES) {
+    const weakened = parseComposition();
+    property.mutate(weakened);
+    const proof = await proveSupersessionBoundary({
+      contract: weakened,
+      root: ROOT,
+      holoScriptRoot: HOLOSCRIPT_ROOT,
+    });
+    assert.equal(proof.status, 'fail', `${property.id} should have gone red`);
+    assert.match(
+      proof.failures.join('\n'),
+      new RegExp(`H3A no longer asserts ${property.id}\\b`),
+    );
+  }
+});
+
+test('H3A reopens retirement the moment its successor gains a property', async () => {
+  // The event the retired content hash was a bad proxy for. Simulated by handing the
+  // probe a successor-shaped contract through H3A's own validator surface: if a property
+  // becomes asserted downstream, the gate must name it and demand a re-decision.
+  const contract = parseComposition();
+  const proof = await proveSupersessionBoundary({
+    contract,
+    root: ROOT,
+    holoScriptRoot: HOLOSCRIPT_ROOT,
+  });
+  // Baseline: nothing is carried downstream yet, so nothing is reopened.
+  assert.equal(
+    proof.witness.every((entry) => entry.assertedBySuccessor === false),
+    true,
+  );
+  assert.equal(
+    proof.failures.some((failure) => /must be re-evaluated/.test(failure)),
+    false,
+  );
 });

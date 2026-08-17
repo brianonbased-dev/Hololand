@@ -15,7 +15,7 @@ composition "HoloLand Model Village Character Appearance H3B Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3b-native-channels.holo"
-      sha256: "be9c335799a4369b1fdbe0ec85a0733b6f3635865584a8a0931d891974ff6f26"
+      sha256: "14081ec8918623c75796c900032b592b9d630932da8a546f1e79ecd45709ce33"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -30,7 +30,7 @@ composition "HoloLand Model Village Character Appearance H3B Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3b.mjs"
-      sha256: "a961534ef07c9e89965ce18d491b457c56686d5ea90f313a9065c98bfbe558c0"
+      sha256: "ea9aea23efb96c6ed9aec137ef9813e98fd4b0c87b235c76552aa27c82b29c51"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3b.test.mjs"

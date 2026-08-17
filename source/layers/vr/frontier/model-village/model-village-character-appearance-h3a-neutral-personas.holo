@@ -10,7 +10,9 @@
 // having no FACS/morph-target channel. H4J (0275f8d4c) landed both. The gap
 // record below is frozen as history and is no longer re-derived; the gate now
 // PROVES the native channels operative by executing them, and delegates native
-// channel coverage to H3B. H3A is retained, not retired: it uniquely holds the
+// channel coverage to H3B. H3A is retained, not retired, and that refusal is PROVEN
+// each run rather than asserted: the checker mutates each property below in H3B's own
+// contract and requires H3B's validator not to notice. H3A uniquely holds the
 // dermal atlas custody contract, the absolute per-persona triangle budgets, the
 // benchmark protocol shape, civic-role binding, silhouette and atlas-cell
 // uniqueness, the H2 lineage pins, face/eye tracking defaults, the shared
@@ -45,7 +47,6 @@ composition "Stormglass Character Appearance H3A Neutral Personas" {
     nativeChannelGapClosedByUpstreamCommit: "0275f8d4c"
     successorGate: "H3B"
     successorSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3b-native-channels.holo"
-    successorSourceSha256: "ab6c2fa17efbe5e5a84e5b5e3d4c6e984ab20136fe1fc566ea72734bf3d6ab2c"
     projectionRole: "read_only_neutral_persona_shadow_target"
     artStyle: "hearthlight_biorealism"
     characterStyle: "stormglass_craftfolk_soft_faceted_civic"
@@ -113,6 +114,28 @@ composition "Stormglass Character Appearance H3A Neutral Personas" {
         nativeChannelCoverageGate: "H3B"
       }
       fullH3Admitted: false
+    }
+
+    // The retire-vs-restate decision, declared so the gate can refuse it rather than
+    // merely record it. retirementRefused: true asserts H3B carries NONE of the
+    // properties below; setting it to false asserts H3B carries ALL of them. Either way
+    // the checker proves the claim by mutating each property in H3B's own contract and
+    // asking H3B's validator whether it notices -- see proveSupersessionBoundary.
+    supersessionBoundary: {
+      retirementRefused: true
+      refusedProperties: [
+        "dermalAtlasCustody",
+        "absolutePersonaTriangleBudgets",
+        "benchmarkProtocolShape",
+        "civicRoleBinding",
+        "silhouetteAndAtlasCellUniqueness",
+        "h2LineagePins",
+        "faceAndEyeTrackingDefaults",
+        "sharedMotionAndCapabilityInvariants",
+        "promotionReplacementBoundary",
+        "accessibilityEvidence"
+      ]
+      refusedReason: "H3B does not assert the dermal atlas custody contract, absolute per-persona triangle budgets, benchmark protocol shape, civic-role binding, silhouette or dermal-atlas-cell uniqueness, H2 lineage pins, face/eye tracking defaults, shared motion and capability invariants, the promotion/replacement boundary, or accessibility evidence"
     }
 
     atlas: {

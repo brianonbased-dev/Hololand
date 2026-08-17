@@ -26,7 +26,7 @@ composition "Stormglass Character Appearance H3C Face Foundation" {
     policySource: "source/proofs/model-village-character-appearance-h3c-face-foundation-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3c-face-foundation-seed.hs"
     inheritedH3BSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3b-native-channels.holo"
-    inheritedH3BSourceSha256: "ab6c2fa17efbe5e5a84e5b5e3d4c6e984ab20136fe1fc566ea72734bf3d6ab2c"
+    inheritedH3BSourceSha256: "14081ec8918623c75796c900032b592b9d630932da8a546f1e79ecd45709ce33"
     upstreamHoloScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
     upstreamFaceBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
     upstreamFaceBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"
