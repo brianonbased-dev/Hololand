@@ -15,7 +15,7 @@ composition "Stormglass Character Appearance H3P Hand Topology Convergence" {
     policySource: "source/proofs/model-village-character-appearance-h3p-hand-topology-convergence-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3p-hand-topology-convergence-seed.hs"
     inheritedH3NSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3n-hand-landmarks-taa-lod.holo"
-    inheritedH3NSourceSha256: "d25af8223225e04a12169919ed08f4eded3609d1c242f40faf561d3b84c52485"
+    inheritedH3NSourceSha256: "cbdc1a0be9aade7d29da44f8bf7c48b0baa273412c099698e859630b65f1bcb6"
     upstreamHoloScriptCommit: "1a9290762e1c1b1671c0a3ae9fb7d25999f0d0c1"
     upstreamAvatarMeshPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
     upstreamAvatarMeshSha256: "1a54bb937002ade95305872e57cdbf67c866a2a219a14d9416884d9a661784ac"

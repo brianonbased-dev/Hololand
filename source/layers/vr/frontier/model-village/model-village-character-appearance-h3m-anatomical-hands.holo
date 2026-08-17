@@ -15,7 +15,7 @@ composition "Stormglass Character Appearance H3M Anatomical Hands" {
     policySource: "source/proofs/model-village-character-appearance-h3m-anatomical-hands-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3m-anatomical-hands-seed.hs"
     inheritedH3LSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3l-upper-limb.holo"
-    inheritedH3LSourceSha256: "7047cc7b64e379d52c1ed52b127056d739a4a79dcbb680ee50e605c0db5ccf7c"
+    inheritedH3LSourceSha256: "aaf7f52d132a09b0c3f23cd1f8335c6cfe3413e83d802bcd97e8a52ccd0ac92f"
     upstreamHoloScriptCommit: "7ed46ad627d5b9582216f008aa82021ef4e85152"
     upstreamBodyBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
     upstreamBodyBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"

@@ -16,7 +16,7 @@ composition "Stormglass Character Appearance H3F Native Groom" {
     policySource: "source/proofs/model-village-character-appearance-h3f-native-groom-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3f-native-groom-seed.hs"
     inheritedH3ESource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3e-orbital-fit.holo"
-    inheritedH3ESourceSha256: "bbecaf85a5ebf2d0e834eb20f687b0f83e989205e454bafd67b8b62a0ee6cacb"
+    inheritedH3ESourceSha256: "ccda53537c0050e62891a8e29ce75ed083f5d8d484943cd6fbfd193c28120d6d"
     upstreamHoloScriptCommit: "1203b06bd0e857b26c874479ea9e6b6cdc521896"
     upstreamGroomBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
     upstreamGroomBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"

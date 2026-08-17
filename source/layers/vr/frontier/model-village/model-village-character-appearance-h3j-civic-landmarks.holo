@@ -16,7 +16,7 @@ composition "Stormglass Character Appearance H3J Civic Landmarks" {
     policySource: "source/proofs/model-village-character-appearance-h3j-civic-landmarks-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3j-civic-landmarks-seed.hs"
     inheritedH3ISource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3i-anatomy-surface.holo"
-    inheritedH3ISourceSha256: "28efb7c1ca4f92afe23b2214e20c442105295f7b6eb12d6b99f29021a8fae400"
+    inheritedH3ISourceSha256: "9e28c95b13e164d7fb0d9a0729be81370b307a51e33d09a9ab4dcede5a6f4d37"
     upstreamHoloScriptCommit: "1bc81ee7e02fade1095dc1c1548d7879e27a2800"
     upstreamGarmentBuilderPath: "packages/engine/src/character-render/AgentAvatarGarment.ts"
     upstreamGarmentBuilderSha256: "c771348d58ff637883c2733836c4aa85f1be5e38532292119ff6b8d39468d21c"

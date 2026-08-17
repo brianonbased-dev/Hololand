@@ -20,7 +20,7 @@ composition "Stormglass Character Appearance H3T Skin Surface Response" {
     policySource: "source/proofs/model-village-character-appearance-h3t-skin-surface-response-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3t-skin-surface-response-seed.hs"
     inheritedH3SSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3s-hand-surface-anatomy.holo"
-    inheritedH3SSourceSha256: "9f9c8c80f295204513cb481771022400cb29ad7c912ac4ef4639b324370caf11"
+    inheritedH3SSourceSha256: "112aafc842b557bbbe1e8d5c17dd57aaf45f34d45d1fa8b900ad855e7b52e48f"
     upstreamHoloScriptCommit: "f165a58722c0808bc4ab9753ab1c68136870e10d"
     upstreamAvatarMeshPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
     upstreamAvatarMeshSha256: "d74ba768fe042da665abcf1f5e2e583d3cf49152b368623caf4ff4d3a0e93565"

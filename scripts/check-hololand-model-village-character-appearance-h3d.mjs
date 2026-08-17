@@ -46,6 +46,24 @@ const HASH_BINDINGS = [
   // unpinned while this gate only cared about eye MATERIALS, so the v1 -> v2 per-eye change
   // landed behind every pin H3D held. Pinning it is what makes that class of drift visible.
   ['upstreamMorphBuilderPath', 'upstreamMorphBuilderSha256', 'holoscript'],
+  // NOT pinned: packages/engine/src/character-render/AgentAvatarMesh.ts.
+  //
+  // The step-3 verifier reported that this gate "stopped one file short" -- that
+  // AgentAvatarMorph MOVES the orbital rim while AgentAvatarMesh BUILDS it, so collapsing
+  // the authored rim from 76 vertices to 24 left the gate green. The first half is a real
+  // hole and is closed below by assertAdmittedClosureMagnitudes. The attribution is wrong,
+  // and adding the pin was tried and then withdrawn on evidence:
+  //
+  //   - the rim was collapsed in packages/engine/dist (segments 18 -> 6): H3D stayed GREEN;
+  //   - it was collapsed in the .ts SOURCE with the pin hash refreshed first, so only
+  //     behaviour could fire: H3D stayed GREEN.
+  //
+  // This gate measures the rim as a delta between two CORE compiles
+  // (rimmed.vertexCount - unrimmed.vertexCount), and loads only packages/core/dist. No file
+  // under core/dist carries that builder, and engine is never imported on this path. So
+  // AgentAvatarMesh.ts cannot move any number H3D reads: pinning it would add a check that
+  // can go red only when someone edits a file this gate never executes. The generator that
+  // does move these numbers is core's compiler, which IS pinned above as upstreamCompilerPath.
   ['upstreamCompositionBridgePath', 'upstreamCompositionBridgeSha256', 'holoscript'],
   ['upstreamCharacterRendererPath', 'upstreamCharacterRendererSha256', 'holoscript'],
   ['upstreamDrawSpecPath', 'upstreamDrawSpecSha256', 'holoscript'],
@@ -624,6 +642,7 @@ export async function compileH3DOcularBundles(stack, plan) {
     plan,
     admittedMorphSchemaVersion
   );
+  assertAdmittedClosureMagnitudes(stack, orbitalLidClosure);
   return {
     native,
     ocularVertexDelta,
@@ -632,6 +651,44 @@ export async function compileH3DOcularBundles(stack, plan) {
     morphSchemaVersion: admittedMorphSchemaVersion,
     orbitalLidClosure,
   };
+}
+
+/**
+ * Binds the closure MAGNITUDES to the values admitted in the authored source.
+ *
+ * Everything the closure probe asserted before this was a RELATION: each region moves under
+ * its own lid, none moves under the other's, and left mirrors right. Relations survive
+ * scale. Collapse the authored orbital rim from 76 vertices to 24 and all of them still
+ * hold -- both eyes shrink together, own-lid stays nonzero, cross-lid stays zero -- so the
+ * gate reported green over a gutted rim. The five numbers were already computed and written
+ * into the manifest, where nothing read them back.
+ *
+ * They are admitted from the .holo contract rather than the manifest on purpose: a manifest
+ * is a record this run writes, so checking against it would compare a measurement to itself.
+ * Widening the admitted magnitudes now requires a source edit.
+ */
+function assertAdmittedClosureMagnitudes(stack, closure) {
+  const admitted = stack.contract.state.nativeAdmission?.admittedOrbitalClosureMagnitudes;
+  if (!admitted) {
+    throw new Error('nativeAdmission.admittedOrbitalClosureMagnitudes is absent from the authored contract');
+  }
+  const regions = closure.regionClosure ?? {};
+  const measured = {
+    authoredOrbitalRimVertexCount: closure.authoredRimVertexCount,
+    blinkChangedVertexDelta: closure.blinkChangedVertexDelta,
+    verticesMovedByLeftLid: closure.movedByLeftLid,
+    verticesMovedByRightLid: closure.movedByRightLid,
+    serializedScleraVertexCount: regions['left.sclera']?.serializedVertexCount,
+    serializedIrisVertexCount: regions['left.iris']?.serializedVertexCount,
+    serializedPupilVertexCount: regions['left.pupil']?.serializedVertexCount,
+    serializedCorneaVertexCount: regions['left.cornea']?.serializedVertexCount,
+  };
+  const drifted = Object.entries(measured)
+    .filter(([key, value]) => value !== admitted[key])
+    .map(([key, value]) => `${key}=${value} (admitted ${admitted[key]})`);
+  if (drifted.length) {
+    throw new Error(`admitted orbital closure magnitudes drifted: ${drifted.join('; ')}`);
+  }
 }
 
 function browserBundle(bundle) {

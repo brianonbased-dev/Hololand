@@ -127,6 +127,16 @@ composition "Stormglass Character Appearance H3D Native Ocular Regions" {
       everyOcularRegionMustCloseWithItsOwnLid: true
       crossEyeOcularClosureAllowed: false
       expressionNormalRecomputationAdmitted: false
+      admittedOrbitalClosureMagnitudes: {
+        authoredOrbitalRimVertexCount: 76
+        blinkChangedVertexDelta: 76
+        verticesMovedByLeftLid: 362
+        verticesMovedByRightLid: 362
+        serializedScleraVertexCount: 187
+        serializedIrisVertexCount: 26
+        serializedPupilVertexCount: 26
+        serializedCorneaVertexCount: 126
+      }
     }
 
     benchmark: {

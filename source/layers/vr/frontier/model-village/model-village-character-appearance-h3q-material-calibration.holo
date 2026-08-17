@@ -16,7 +16,7 @@ composition "Stormglass Character Appearance H3Q Material Calibration" {
     policySource: "source/proofs/model-village-character-appearance-h3q-material-calibration-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3q-material-calibration-seed.hs"
     inheritedH3PSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3p-hand-topology-convergence.holo"
-    inheritedH3PSourceSha256: "dd0b2b7bd7d723f744c2eeb52f83a3f9fe8cff8005ea1f459db95ac2544681e5"
+    inheritedH3PSourceSha256: "a95052a808f25fad70f8fff075b618310b1c753acbf662dba3432c404dd90fb7"
     upstreamHoloScriptCommit: "40697c773533db38d3111855c1eeab9ac381c396"
     upstreamAvatarMeshPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
     upstreamAvatarMeshSha256: "1a54bb937002ade95305872e57cdbf67c866a2a219a14d9416884d9a661784ac"

@@ -15,7 +15,7 @@ composition "Stormglass Character Appearance H3N Hand Landmarks TAA LOD" {
     policySource: "source/proofs/model-village-character-appearance-h3n-hand-landmarks-taa-lod-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3n-hand-landmarks-taa-lod-seed.hs"
     inheritedH3MSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3m-anatomical-hands.holo"
-    inheritedH3MSourceSha256: "031396a5d3c725f9f433265041e076630bbb6891b50abd685b7f009c1def9d2b"
+    inheritedH3MSourceSha256: "7cb0f8f89efb60974ff2a0eb7d928057799c5209b8efacc4019e224cabb894ce"
     upstreamHoloScriptCommit: "b3d031dd47e112021efe97863794abe3e5c16807"
     upstreamBodyBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
     upstreamBodyBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"

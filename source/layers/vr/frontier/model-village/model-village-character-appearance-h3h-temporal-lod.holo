@@ -16,7 +16,7 @@ composition "Stormglass Character Appearance H3H Temporal LOD" {
     policySource: "source/proofs/model-village-character-appearance-h3h-temporal-lod-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3h-temporal-lod-seed.hs"
     inheritedH3GSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3g-hair-response.holo"
-    inheritedH3GSourceSha256: "bf096cf35d4b9a7d9694e312f3cf359179716b79b3b4eed5fb404068b8a244e4"
+    inheritedH3GSourceSha256: "f6c7f067ab3613c2c7fe76afd1605d2a772ce169005f86f572fa0326895fb56a"
     upstreamHoloScriptCommit: "daf5993dc1c5372bfb79d2fa81b8dbcc6d32ebfb"
     upstreamGroomBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
     upstreamGroomBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"

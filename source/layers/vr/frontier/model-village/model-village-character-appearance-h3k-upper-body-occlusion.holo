@@ -15,7 +15,7 @@ composition "Stormglass Character Appearance H3K Upper Body Occlusion" {
     policySource: "source/proofs/model-village-character-appearance-h3k-upper-body-occlusion-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3k-upper-body-occlusion-seed.hs"
     inheritedH3JSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3j-civic-landmarks.holo"
-    inheritedH3JSourceSha256: "f7ad53cc2cc1fbec01a97f6eb6ce0a66255e0ef145146842cc04bf175f663dd6"
+    inheritedH3JSourceSha256: "e8b6b9278a0c494c551af2c4654c97627ef3646765d72e94657157f8425ac8ee"
     upstreamHoloScriptCommit: "b3d031dd47e112021efe97863794abe3e5c16807"
     upstreamBodyBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
     upstreamBodyBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"

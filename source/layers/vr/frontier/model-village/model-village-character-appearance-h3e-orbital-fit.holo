@@ -16,7 +16,7 @@ composition "Stormglass Character Appearance H3E Orbital Fit" {
     policySource: "source/proofs/model-village-character-appearance-h3e-orbital-fit-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3e-orbital-fit-seed.hs"
     inheritedH3DSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3d-native-ocular-regions.holo"
-    inheritedH3DSourceSha256: "540bbacc027d287fcfae323dc290ac8fc06beb3c996e251fa93589245401263a"
+    inheritedH3DSourceSha256: "6c1eaf887b22870f60c3ded4893d430b4f3d8e4f903251bd6d2e2448c54e4d7c"
     upstreamHoloScriptCommit: "b3d031dd47e112021efe97863794abe3e5c16807"
     upstreamFaceBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
     upstreamFaceBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"
