@@ -71,6 +71,15 @@ export const UNWIRED_REASONS = {
     + 'native WGSL shader and final RTX pixels; it passes with none of those present, '
     + 'because its fixtures hand-build both the records and the payload and then assert '
     + 'the validator accepts them. Wiring it would add a check that cannot go red.',
+  H_SERIES_GREEN_BUT_NEEDS_BROWSER_GPU:
+    'Character gate that is GREEN as of 2026-08-17 but launches a real browser and '
+    + 'requires a GPU adapter, so it is declared rather than wired into a headless lane. '
+    + 'These were H_SERIES_RED_AT_HEAD until the seven-patch integration; keeping that '
+    + 'reason would have left the census asserting something false about a passing gate. '
+    + 'Measured on this host (RTX 3060 Laptop, ANGLE D3D11): H3F..H3K all pass, and H3F '
+    + 'proves its own browser layer reaches hardware -- it reads back '
+    + '"ANGLE (NVIDIA ... Direct3D11)" and refuses anything else. This is an environment '
+    + 'boundary, not a defect claim.',
   PRE_H_VISUAL_NEEDS_BROWSER_GPU:
     'Pre-H visual witness that launches a real browser and requires a GPU adapter. '
     + 'Not runnable in a headless CPU lane, so it is declared rather than wired. '
@@ -84,11 +93,18 @@ export const KNOWN_UNWIRED = buildKnownUnwired();
 
 function buildKnownUnwired() {
   const entries = [];
+  // h3l, h3m and h3n left this list on 2026-08-17: the seven-patch integration made them
+  // green AND they need no browser, so they are wired instead of declared. The census's
+  // RETIRED_ALLOWLIST_ENTRY rule is what forces that removal -- a declared file that is now
+  // wired is an error, so a repaired gate cannot quietly keep its excuse.
   const hSeries = [
-    'h1', 'h2', 'h3a', 'h3f', 'h3g', 'h3h', 'h3i', 'h3j', 'h3k', 'h3l', 'h3m',
-    'h3n', 'h3o', 'h3p', 'h3q', 'h3r', 'h3s', 'h3t', 'h3u', 'h3v', 'h3w', 'h3x',
+    'h1', 'h2', 'h3a', 'h3f', 'h3g', 'h3h', 'h3i', 'h3j', 'h3k',
+    'h3o', 'h3p', 'h3q', 'h3r', 'h3s', 'h3t', 'h3u', 'h3v', 'h3w', 'h3x',
     'h3y', 'h3z', 'h4a',
   ];
+  // Green as of the seven-patch integration, but browser/GPU-bound. Splitting these out of
+  // H_SERIES_RED_AT_HEAD stops the census stating a falsehood about a passing gate.
+  const hSeriesGreenGpuBound = new Set(['h3f', 'h3g', 'h3h', 'h3i', 'h3j', 'h3k']);
   const hRealism = ['h4b', 'h4c', 'h4d', 'h4e', 'h4f', 'h4g', 'h4h', 'h4i'];
   const preH = [
     'atmosphere-convergence', 'cinematic-observer-show', 'geometry-convergence',
@@ -101,7 +117,9 @@ function buildKnownUnwired() {
   for (const gate of hSeries) {
     const reason = gate === 'h4a'
       ? 'H_SERIES_PASSES_WITHOUT_ITS_SUBJECT'
-      : 'H_SERIES_RED_AT_HEAD';
+      : hSeriesGreenGpuBound.has(gate)
+        ? 'H_SERIES_GREEN_BUT_NEEDS_BROWSER_GPU'
+        : 'H_SERIES_RED_AT_HEAD';
     entries.push({ file: `scripts/check-hololand-model-village-character-appearance-${gate}.mjs`, reason });
     entries.push({ file: `scripts/__tests__/hololand-model-village-character-appearance-${gate}.test.mjs`, reason });
   }
