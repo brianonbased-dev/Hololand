@@ -133,6 +133,7 @@ export function buildH3HPlan(contract) {
         displayLabel: persona.displayLabel,
         irisColor: persona.irisColor,
         hairColor: persona.hairColor,
+        sourceColorWeight: persona.sourceColorWeight,
         nativeHairStyleId: persona.nativeHairStyleId,
         groomProfile: persona.groomProfile,
         cardWidth: persona.cardWidth,
@@ -175,6 +176,7 @@ export function validateH3HContract(stack, root = ROOT, holoScriptRoot = DEFAULT
     ['nativeAlphaToCoverageRequestedClaimed', true],
     ['nativeTangentAnisotropyClaimed', true],
     ['nativeLongitudinalShiftClaimed', true],
+    ['nativeHairSourceColorWeightClaimed', true],
     ['derivedHairMaterialReceiptClaimed', true],
     ['presentationShaderOverrideUsed', false],
     ['presentationMaterialBridgeUsed', true],
@@ -217,6 +219,9 @@ export function validateH3HContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       state.hairResponseFoundation?.analyticNativeCoverage === true &&
       state.hairResponseFoundation?.tangentAwareDualLobe === true &&
       state.hairResponseFoundation?.longitudinalLobeShift === true &&
+      state.hairResponseFoundation?.hairMaterialReceiptSchema ===
+        'holoscript.agent-avatar-hair-material.v2' &&
+      state.hairResponseFoundation?.sourceColorAuthored === true &&
       state.hairResponseFoundation?.derivedMaterialReceipt === true &&
       state.hairResponseFoundation?.presentationShaderOverride === false &&
       state.hairResponseFoundation?.presentationMaterialBridge === true &&
@@ -262,6 +267,10 @@ export function validateH3HContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       state.nativeAdmission?.authoredEdgeSoftnessOperative === true &&
       state.nativeAdmission?.authoredAnisotropyStrengthOperative === true &&
       state.nativeAdmission?.authoredLongitudinalShiftOperative === true &&
+      state.nativeAdmission?.authoredHairSourceColorWeightOperative === true &&
+      state.nativeAdmission?.hairMaterialReceiptSchemaRequired ===
+        'holoscript.agent-avatar-hair-material.v2' &&
+      state.nativeAdmission?.sourceColorWeightTierInvariantRequired === true &&
       state.nativeAdmission?.alphaToCoverageRequestedRequired === true &&
       state.nativeAdmission?.multisampleCountRequired === 4 &&
       state.nativeAdmission?.exactNineLodTransitionReceiptsRequired === true &&
@@ -287,6 +296,7 @@ export function validateH3HContract(stack, root = ROOT, holoScriptRoot = DEFAULT
     expect(
       hair?.config?.groom_profile === 'scalp_flow_v1' &&
         hair?.config?.color === persona.hairColor &&
+        hair?.config?.source_color_weight === persona.sourceColorWeight &&
         hair?.config?.card_width === persona.cardWidth &&
         hair?.config?.root_lift === persona.rootLift &&
         hair?.config?.tip_taper === persona.tipTaper &&
@@ -363,7 +373,9 @@ function ocularGroups(bundle) {
 export async function compileH3HTemporalLodBundles(stack, plan) {
   const native = await compileH3BNativeBundles(stack.core, stack.source.ast, plan);
   const comparisons = [];
+  const sourceColorTiers = [];
   for (const record of native.records) {
+    const authoredHairColor = parseInt(record.hairColor.replace('#', ''), 16);
     for (const tier of record.tiers) {
       const { bundle } = tier;
       const material = bundle.groom?.material;
@@ -406,7 +418,9 @@ export async function compileH3HTemporalLodBundles(stack, plan) {
         bundle.groom?.rootLift !== record.rootLift ||
         bundle.groom?.tipTaper !== record.tipTaper ||
         bundle.groom?.hairlineBias !== record.hairlineBias ||
-        material?.schemaVersion !== 'holoscript.agent-avatar-hair-material.v1' ||
+        material?.schemaVersion !== 'holoscript.agent-avatar-hair-material.v2' ||
+        material?.sourceColor !== authoredHairColor ||
+        material?.sourceColorWeight !== record.sourceColorWeight ||
         material?.coverageProfile !== record.coverageProfile ||
         material?.strandCoverage !== record.strandCoverage ||
         material?.edgeSoftness !== record.edgeSoftness ||
@@ -425,6 +439,8 @@ export async function compileH3HTemporalLodBundles(stack, plan) {
         hairGroup?.material.edgeSoftness !== record.edgeSoftness ||
         hairGroup?.material.anisotropyStrength !== record.anisotropyStrength ||
         hairGroup?.material.longitudinalShift !== record.longitudinalShift ||
+        hairGroup?.material.color !== authoredHairColor ||
+        hairGroup?.material.sourceColorWeight !== record.sourceColorWeight ||
         hairUvs.length !== bundle.vertexCount * 2 ||
         cardUvVertices.length === 0 ||
         cardUvMin !== 0 ||
@@ -471,6 +487,8 @@ export async function compileH3HTemporalLodBundles(stack, plan) {
         opaqueBundle.groom?.profile !== 'scalp-flow-v1' ||
         opaqueBundle.groom?.material?.coverageProfile !== 'opaque-v1' ||
         opaqueBundle.groom?.material?.alphaToCoverageRequested !== false ||
+        opaqueBundle.groom?.material?.sourceColor !== authoredHairColor ||
+        opaqueBundle.groom?.material?.sourceColorWeight !== record.sourceColorWeight ||
         sha256(JSON.stringify(canonical(opaqueBundle.mesh))) !==
           sha256(JSON.stringify(canonical(bundle.mesh)))
       ) {
@@ -486,10 +504,44 @@ export async function compileH3HTemporalLodBundles(stack, plan) {
         cardUv: tier.cardUv,
       });
     }
+
+    // H3H is the only gate in this family that witnesses one persona at three LOD tiers and
+    // then cross-fades two of them live, so it is the gate that must prove the source-authored
+    // hair colour weight is tier-invariant: a weight that survived LOD0 but was dropped or
+    // re-defaulted at LOD1/LOD2 would recolour the hair mid-dither and no single-tier gate
+    // would see it.
+    const tierWeights = record.tiers.map((tier) => tier.hairMaterial?.sourceColorWeight);
+    const tierColors = record.tiers.map((tier) => tier.hairMaterial?.sourceColor);
+    const tierSchemas = record.tiers.map((tier) => tier.hairMaterial?.schemaVersion);
+    if (
+      record.tiers.length !== 3 ||
+      !tierWeights.every((weight) => weight === record.sourceColorWeight) ||
+      !tierColors.every((color) => color === authoredHairColor) ||
+      !tierSchemas.every(
+        (schema) => schema === 'holoscript.agent-avatar-hair-material.v2'
+      )
+    ) {
+      throw new Error(
+        `${record.personaId} source-authored hair colour weight is not LOD tier-invariant: ` +
+          `weights=${JSON.stringify(tierWeights)} colors=${JSON.stringify(tierColors)} ` +
+          `schemas=${JSON.stringify(tierSchemas)}`
+      );
+    }
+    sourceColorTiers.push({
+      personaId: record.personaId,
+      authoredSourceColor: authoredHairColor,
+      authoredSourceColorWeight: record.sourceColorWeight,
+      levels: record.tiers.map((tier) => tier.level),
+      tierWeights,
+      tierColors,
+      tierSchemas,
+      tierInvariant: true,
+    });
   }
   return {
     native,
     comparisons,
+    sourceColorTiers,
   };
 }
 
@@ -518,6 +570,7 @@ function h3hBrowserApplication(
   const portraits = [];
   const hairBridges = [];
   const capBridges = [];
+  const lodSourceColorRecords = [];
   const hairTextureCache = new Map();
   const gpu = {};
   const sharedCanvas = document.createElement('canvas');
@@ -802,6 +855,7 @@ function h3hBrowserApplication(
         specularIntensity: 1.25,
         envMapIntensity: 1.15,
       });
+      response.userData.hairResponse = true;
       if (recordBridge) {
         hairBridges.push({
           personaId: record.personaId,
@@ -814,6 +868,8 @@ function h3hBrowserApplication(
           edgeSoftness: material.edgeSoftness,
           anisotropyStrength: material.anisotropyStrength,
           longitudinalShift: material.longitudinalShift,
+          sourceColor: material.color,
+          sourceColorWeight: material.sourceColorWeight,
           alphaToCoverage: response.alphaToCoverage,
           alphaTest: response.alphaTest,
           anisotropy: response.anisotropy,
@@ -914,6 +970,24 @@ function h3hBrowserApplication(
       mesh.position.x = (portraitIndex - 1) * 0.38;
       scene.add(mesh);
       return mesh;
+    });
+    // The two meshes that actually cross-fade are LOD1 and LOD2, so record the hair receipt
+    // read off each of them: this is where a tier-dropped source colour weight would show up
+    // as a mid-dither recolour.
+    lodSourceColorRecords.push({
+      personaId: record.personaId,
+      levels: [1, 2],
+      schemas: [1, 2].map((level) => record.tiers[level].bundle.groom.material.schemaVersion),
+      sourceColors: [1, 2].map((level) => record.tiers[level].bundle.groom.material.sourceColor),
+      sourceColorWeights: [1, 2].map(
+        (level) => record.tiers[level].bundle.groom.material.sourceColorWeight
+      ),
+      presentedColors: [0, 1].map(
+        (index) =>
+          `#${lodMeshes[index].material
+            .find((entry) => entry.userData.hairResponse === true)
+            .color.getHexString()}`
+      ),
     });
     const bundle = record.tiers[1].bundle;
     const eyeY = eyeHeight(bundle, lodMeshes[0].geometry);
@@ -1130,6 +1204,10 @@ function h3hBrowserApplication(
       rootTangentRadialDotP95: visualTier.groom.rootTangentRadialDotP95,
       frontalOcclusionVertexCount: visualTier.groom.frontalOcclusionVertexCount,
       coverageProfile: visualTier.groom.material.coverageProfile,
+      hairMaterialReceiptSchema: visualTier.groom.material.schemaVersion,
+      hairSourceColor: visualTier.groom.material.sourceColor,
+      hairSourceColorWeight: visualTier.groom.material.sourceColorWeight,
+      lodSourceColorRecords,
       alphaToCoverageRequested: visualTier.groom.material.alphaToCoverageRequested,
       tangentAttribute: visualTier.groom.material.tangentAttribute,
       cardUvAttribute: visualTier.groom.material.cardUvAttribute,
@@ -1287,7 +1365,17 @@ async function startServer(root) {
   return { server, url: `http://127.0.0.1:${address.port}` };
 }
 
-async function captureBrowser(surface, options, modules) {
+async function captureBrowser(surface, options, modules, plan) {
+  const authoredByPersona = new Map(
+    plan.personas.map((persona) => [
+      persona.personaId,
+      {
+        sourceColor: parseInt(persona.hairColor.replace('#', ''), 16),
+        sourceColorWeight: persona.sourceColorWeight,
+        hairColor: persona.hairColor.toLowerCase(),
+      },
+    ])
+  );
   const { server, url } = await startServer(options.outputDir);
   const externalRequests = [];
   const pageErrors = [];
@@ -1342,8 +1430,31 @@ async function captureBrowser(surface, options, modules) {
           bridge.proceduralAlphaMap === true &&
           bridge.externalTexture === false &&
           bridge.customShader === false &&
-          bridge.nativeTangentAttribute === true
+          bridge.nativeTangentAttribute === true &&
+          bridge.sourceColor === authoredByPersona.get(bridge.personaId)?.sourceColor &&
+          bridge.sourceColorWeight ===
+            authoredByPersona.get(bridge.personaId)?.sourceColorWeight &&
+          bridge.resolvedColor === authoredByPersona.get(bridge.personaId)?.hairColor
       );
+    // The dither cross-fade runs between LOD1 and LOD2. Both tiers must carry the same
+    // source-authored colour weight, or the persona changes colour mid-transition.
+    const validSourceColorTiers =
+      result.lodSourceColorRecords?.length === 3 &&
+      result.lodSourceColorRecords.every((entry) => {
+        const authored = authoredByPersona.get(entry.personaId);
+        return (
+          Boolean(authored) &&
+          entry.schemas?.length === 2 &&
+          entry.schemas.every(
+            (schema) => schema === 'holoscript.agent-avatar-hair-material.v2'
+          ) &&
+          entry.sourceColors?.every((color) => color === authored.sourceColor) &&
+          entry.sourceColorWeights?.every(
+            (weight) => weight === authored.sourceColorWeight
+          ) &&
+          entry.presentedColors?.every((color) => color === authored.hairColor)
+        );
+      });
     const validCapBridges =
       result.capBridges?.length === 3 &&
       result.capBridges.every(
@@ -1400,6 +1511,8 @@ async function captureBrowser(surface, options, modules) {
       result.scalpSurface !== 'neutral-anatomical-ellipsoid' ||
       result.rootTangentRadialDotP95 > 0.01 ||
       result.coverageProfile !== 'alpha-to-coverage-v1' ||
+      result.hairMaterialReceiptSchema !== 'holoscript.agent-avatar-hair-material.v2' ||
+      !validSourceColorTiers ||
       result.alphaToCoverageRequested !== true ||
       result.tangentAttribute !== 'strand-flow' ||
       result.cardUvAttribute !== 'card-width' ||
@@ -1505,7 +1618,7 @@ export async function runCharacterAppearanceH3H(options = parseArgs([])) {
   if (!options.compileOnly) {
     const modules = await loadWorkspaceModules(options.holoScriptRoot);
     surface = await buildBrowserSurface({ stack, hairResponse }, options, modules);
-    visual = await captureBrowser(surface, options, modules);
+    visual = await captureBrowser(surface, options, modules, validation.plan);
   }
   const manifest = options.requireManifest
     ? validateManifest(options.root)
@@ -1540,6 +1653,9 @@ export async function runCharacterAppearanceH3H(options = parseArgs([])) {
       ocularRegions: EXPECTED_REGIONS,
       ocularGroupsPerBundle: 8,
       visualHairLod: 1,
+      hairMaterialReceiptSchema: 'holoscript.agent-avatar-hair-material.v2',
+      sourceColorAuthored: true,
+      sourceColorTiers: hairResponse.sourceColorTiers,
       lodTransitionReceiptSchema: 'holoscript.character-lod-transition.v1',
       lodTransitionReceiptCount: 9,
       lodTransition: {

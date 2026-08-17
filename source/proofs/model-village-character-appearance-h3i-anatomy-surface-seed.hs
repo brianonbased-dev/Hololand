@@ -11,7 +11,8 @@ object H3IAnatomySurfaceSeedManifest {
   upstreamHoloScriptCommit: "96b8f4afc811caff5438a74e7246c02eab3e7898"
   compilerTarget: "character-webgpu"
   anatomyReceiptSchema: "holoscript.agent-avatar-anatomy.v1"
-  skinReceiptSchema: "holoscript.agent-avatar-skin-material.v1"
+  skinReceiptSchema: "holoscript.agent-avatar-skin-material.v2"
+  skinCalibrationProfile: "legacy-v1"
   skinMicrodetailProfile: "analytic-pore-v1"
   groomProfile: "scalp-flow-v1"
   personaCount: 3

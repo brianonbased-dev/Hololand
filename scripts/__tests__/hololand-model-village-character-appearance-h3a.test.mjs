@@ -211,7 +211,7 @@ test('H3A contract fails closed on native overclaim, identity, tracking, and wri
   const validation = validateH3AContract(contract, ROOT, HOLOSCRIPT_ROOT);
   assert.equal(validation.status, 'fail');
   const errors = validation.errors.join('\n');
-  assert.match(errors, /full H3 must remain blocked/);
+  assert.match(errors, /resolved historical boundary/);
   assert.match(errors, /nativeHairStyleChannelClaimed/);
   assert.match(errors, /nativeMorphTargetChannelClaimed/);
   assert.match(errors, /adapterFamilyBinding/);
@@ -221,4 +221,39 @@ test('H3A contract fails closed on native overclaim, identity, tracking, and wri
   assert.match(errors, /faceTrackingEnabledByDefault/);
   assert.match(errors, /biometricPersistenceAllowed/);
   assert.match(errors, /must not bind an adapter family/);
+});
+
+test('H3A refuses to lose the frozen native-gap history or the H3B successor pointer', () => {
+  // The historical record is H3A's reason to exist. Rewriting it to claim the gap
+  // never existed must fail, even though the channels are operative today.
+  const rewritten = parseComposition();
+  rewritten.state.upstreamNativeAdmission.historical.authoredHairStyleGeometryOperative = true;
+  rewritten.state.upstreamNativeAdmission.historical.authoredMorphFacsOperative = true;
+  const historyErrors = validateH3AContract(rewritten, ROOT, HOLOSCRIPT_ROOT);
+  assert.equal(historyErrors.status, 'fail');
+  assert.match(historyErrors.errors.join('\n'), /frozen historical native-gap record drifted/);
+
+  // H3A may not quietly claim the native channels it delegates to H3B.
+  const overclaim = parseComposition();
+  overclaim.state.upstreamNativeAdmission.current.h3aClaimsNativeChannels = true;
+  const overclaimErrors = validateH3AContract(overclaim, ROOT, HOLOSCRIPT_ROOT);
+  assert.equal(overclaimErrors.status, 'fail');
+  assert.match(overclaimErrors.errors.join('\n'), /delegate coverage to H3B/);
+
+  // Retiring H3A into H3B silently by dropping the pointer must fail.
+  const orphaned = parseComposition();
+  orphaned.metadata.successorGate = 'NONE';
+  const orphanErrors = validateH3AContract(orphaned, ROOT, HOLOSCRIPT_ROOT);
+  assert.equal(orphanErrors.status, 'fail');
+  assert.match(orphanErrors.errors.join('\n'), /must name the successor gate/);
+
+  // And the successor pin must actually track H3B's source.
+  const tampered = parseComposition();
+  tampered.metadata.successorSourceSha256 = '0'.repeat(64);
+  const tamperErrors = validateH3AContract(tampered, ROOT, HOLOSCRIPT_ROOT);
+  assert.equal(tamperErrors.status, 'fail');
+  assert.match(tamperErrors.errors.join('\n'), /successor gate source hash drifted/);
+
+  // The clean source must still pass, so none of the above is a blanket failure.
+  assert.equal(validateH3AContract(parseComposition(), ROOT, HOLOSCRIPT_ROOT).status, 'pass');
 });

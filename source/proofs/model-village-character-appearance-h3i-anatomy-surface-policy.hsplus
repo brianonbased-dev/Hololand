@@ -29,7 +29,8 @@ composition "Stormglass Character Appearance H3I Anatomy Surface Policy" {
     target: "character-webgpu"
     outputFormat: "character-webgpu/drawspec"
     anatomyReceiptSchema: "holoscript.agent-avatar-anatomy.v1"
-    skinReceiptSchema: "holoscript.agent-avatar-skin-material.v1"
+    skinReceiptSchema: "holoscript.agent-avatar-skin-material.v2"
+    skinCalibrationProfile: "legacy-v1"
     groomProfile: "scalp-flow-v1"
     skinMicrodetailProfile: "analytic-pore-v1"
     expectedPersonaCount: 3
@@ -88,6 +89,9 @@ composition "Stormglass Character Appearance H3I Anatomy Surface Policy" {
     }
     if (bundle.skin.schemaVersion != expected.skinReceiptSchema) {
       return { admitted: false, reason: "skin_receipt_missing" }
+    }
+    if (bundle.skin.calibrationProfile != expected.skinCalibrationProfile) {
+      return { admitted: false, reason: "wrong_skin_calibration_profile" }
     }
     if (bundle.skin.microdetailProfile != expected.skinMicrodetailProfile) {
       return { admitted: false, reason: "wrong_skin_microdetail_profile" }

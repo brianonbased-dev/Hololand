@@ -52,8 +52,15 @@ const HASH_BINDINGS = [
     'holoscript',
   ],
   ['upstreamMorphBuilderPath', 'upstreamMorphBuilderSha256', 'holoscript'],
+  // CharacterHost decides whether the authored orbital lid range reaches the morph
+  // builder at all, and is therefore the file that selects morph v1 vs v2. It was
+  // unpinned when this gate was first witnessed, so the v1 -> v2 blink change landed
+  // behind every pin H3C held. Pinning it is what makes that class of drift visible.
+  ['upstreamMorphHostPath', 'upstreamMorphHostSha256', 'holoscript'],
   ['upstreamCompilerPath', 'upstreamCompilerSha256', 'holoscript'],
 ];
+const ADMITTED_MORPH_SCHEMA_VERSION = 'holoscript.native-facial-morph.v2';
+const REFUSED_MORPH_SCHEMA_VERSION = 'holoscript.native-facial-morph.v3';
 
 function sha256File(filePath) {
   return createHash('sha256').update(readFileSync(filePath)).digest('hex');
@@ -197,6 +204,7 @@ export function validateH3CContract(
       state.faceFoundation?.radialSegments === 22 &&
       state.faceFoundation?.verticalSegments === 16 &&
       state.faceFoundation?.tearlineRimTopology === true &&
+      state.faceFoundation?.orbitalLidBlinkOperative === true &&
       state.faceFoundation?.smoothSkullNormals === true &&
       state.faceFoundation?.wetTearFilm === false &&
       state.faceFoundation?.productionBlendshapeRig === false &&
@@ -213,6 +221,18 @@ export function validateH3CContract(
         'neutral-anatomical-v2' &&
       state.nativeAdmission?.normalsRecomputedAfterMorph === false,
     'native admission drifted',
+  );
+  // The v2 orbital-lid blink is admitted BY NAME here. The gate accepts exactly the
+  // schema this source authorises, and keeps refusing v3 expression-normal
+  // recomputation, which no HoloLand surface has authored or witnessed.
+  expect(
+    state.nativeAdmission?.morphSchemaVersion ===
+      ADMITTED_MORPH_SCHEMA_VERSION &&
+      state.nativeAdmission?.blinkClosesAuthoredOrbitalLid === true &&
+      state.nativeAdmission?.orbitalLidClosureMustCoverWholeAuthoredRim ===
+        true &&
+      state.nativeAdmission?.expressionNormalRecomputationAdmitted === false,
+    'admitted native facial morph semantics drifted',
   );
   expect(
     state.benchmark?.visualHairLod === 2 &&
@@ -276,11 +296,91 @@ async function exportBundle(core, ast, objectId, lodLevel) {
   });
 }
 
+/**
+ * Recompile one persona with the authored tearline rim withheld.
+ *
+ * This is the falsifiable half of the v2 admission: the rim's vertex cost and the rim's blink
+ * motion are both MEASURED here, so neither number is hand-asserted. If upstream ever stops
+ * closing the authored lid, the two measurements stop agreeing and this gate goes red.
+ */
+async function measureOrbitalLidBlink(stack, plan) {
+  const persona = plan.personas[1];
+  const blink = { blink: 1 };
+  const build = async (withTearline) => {
+    const ast = structuredClone(stack.source.ast);
+    const template = ast.templates?.find(
+      (candidate) => candidate.name === 'StormglassNativeFacePersona',
+    );
+    const face = template?.traits?.find((trait) => trait.name === 'face');
+    if (!face) throw new Error('source-authored @face trait missing');
+    face.config = { ...face.config, tearline: withTearline };
+    const object = ast.objects.find(
+      (candidate) => candidate.name === persona.objectId,
+    );
+    const morph = object?.traits?.find((trait) => trait.name === 'morph');
+    if (!morph) throw new Error(`native morph trait missing for ${persona.objectId}`);
+    morph.config = { ...(morph.config || {}), targets: { ...blink } };
+    const result = await exportBundle(stack.core, ast, persona.objectId, 0);
+    if (!result.success || result.usedFallback) {
+      throw new Error(
+        `orbital lid blink probe compile failed (tearline=${withTearline})`,
+      );
+    }
+    return JSON.parse(result.output);
+  };
+
+  const rimmed = await build(true);
+  const unrimmed = await build(false);
+  const authoredRimVertexCount = rimmed.vertexCount - unrimmed.vertexCount;
+  const blinkChangedVertexDelta =
+    rimmed.morph.changedVertexCount - unrimmed.morph.changedVertexCount;
+
+  if (unrimmed.morph?.schemaVersion !== 'holoscript.native-facial-morph.v1') {
+    throw new Error(
+      `withholding the authored tearline must fall back to native-facial-morph.v1, got ${unrimmed.morph?.schemaVersion}`,
+    );
+  }
+  if (rimmed.morph?.schemaVersion !== ADMITTED_MORPH_SCHEMA_VERSION) {
+    throw new Error(
+      `authored tearline must produce ${ADMITTED_MORPH_SCHEMA_VERSION}, got ${rimmed.morph?.schemaVersion}`,
+    );
+  }
+  if (authoredRimVertexCount <= 0) {
+    throw new Error(
+      `authored tearline rim contributed no geometry: ${authoredRimVertexCount}`,
+    );
+  }
+  if (blinkChangedVertexDelta !== authoredRimVertexCount) {
+    throw new Error(
+      'v2 blink must close the whole authored orbital rim: ' +
+        `${blinkChangedVertexDelta} of ${authoredRimVertexCount} rim vertices moved`,
+    );
+  }
+  if (rimmed.morph.normalsRecomputed !== false) {
+    throw new Error('orbital lid blink recomputed normals; v3 is not admitted here');
+  }
+  return {
+    personaId: persona.personaId,
+    weights: blink,
+    authoredRimVertexCount,
+    blinkChangedVertexDelta,
+    rimmedChangedVertexCount: rimmed.morph.changedVertexCount,
+    unrimmedChangedVertexCount: unrimmed.morph.changedVertexCount,
+    rimmedSchemaVersion: rimmed.morph.schemaVersion,
+    unrimmedSchemaVersion: unrimmed.morph.schemaVersion,
+    rimmedPositionDigest: rimmed.morph.positionDigest,
+    unrimmedPositionDigest: unrimmed.morph.positionDigest,
+  };
+}
+
 export async function compileH3CFaceBundles(stack, plan) {
+  const admittedMorphSchemaVersion =
+    stack.contract.state.nativeAdmission?.morphSchemaVersion;
   const native = await compileH3BNativeBundles(
     stack.core,
     stack.source.ast,
     plan,
+    { morphSchemaVersion: admittedMorphSchemaVersion },
   );
   const tiers = native.records.flatMap((record) => record.tiers);
   for (const tier of tiers) {
@@ -291,6 +391,10 @@ export async function compileH3CFaceBundles(stack, plan) {
       bundle.face?.verticalSegments !== 16 ||
       bundle.face?.tearline !== true ||
       bundle.morph?.topology !== 'neutral-anatomical-v2' ||
+      bundle.morph?.schemaVersion !== admittedMorphSchemaVersion ||
+      bundle.morph?.schemaVersion === REFUSED_MORPH_SCHEMA_VERSION ||
+      bundle.morph?.normalsRecomputed !== false ||
+      bundle.morph?.ignoredTargets?.length !== 0 ||
       !bundle.report?.mapped?.includes(
         '@face(topology=neutral-anatomical-v2)',
       ) ||
@@ -301,6 +405,7 @@ export async function compileH3CFaceBundles(stack, plan) {
       );
     }
   }
+  const orbitalLidBlink = await measureOrbitalLidBlink(stack, plan);
 
   const legacyAst = structuredClone(stack.source.ast);
   const template = legacyAst.templates?.find(
@@ -325,7 +430,13 @@ export async function compileH3CFaceBundles(stack, plan) {
       `neutral anatomical topology delta too small: ${topologyVertexDelta}`,
     );
   }
-  return { native, topologyVertexDelta, legacyVertexCount: legacyBundle.vertexCount };
+  return {
+    native,
+    topologyVertexDelta,
+    legacyVertexCount: legacyBundle.vertexCount,
+    morphSchemaVersion: admittedMorphSchemaVersion,
+    orbitalLidBlink,
+  };
 }
 
 function browserBundle(bundle) {
@@ -853,12 +964,84 @@ function parseArgs(argv = process.argv.slice(2)) {
   return options;
 }
 
+/**
+ * Compare every compiled bundle against the digests the manifest witnesses.
+ *
+ * Before this existed the nine persona digests and the expression digests lived only in an
+ * ephemeral .tmp receipt that nothing ever read back, so "re-witnessed" was an unverifiable
+ * claim. These are the gate's goldens: geometry (vertex counts, position digests, changed-vertex
+ * counts) and the morph semantics that produced them — not bundle byte hashes, which would red on
+ * any unrelated upstream serialization change and teach nobody anything.
+ */
+function validateBundleGoldens(stack, face, root) {
+  const manifestPath = path.join(root, MANIFEST_REL);
+  if (!existsSync(manifestPath)) {
+    throw new Error('H3C manifest missing; native bundle goldens cannot be verified');
+  }
+  const parsed = new stack.core.HoloCompositionParser().parse(
+    readFileSync(manifestPath, 'utf8'),
+  );
+  if (!parsed.success || parsed.errors.length) {
+    throw new Error(
+      `H3C manifest parse failed: ${JSON.stringify(parsed.errors)}`,
+    );
+  }
+  const state = properties(parsed.ast.state);
+  const witnessed = state.bundleDigests;
+  if (!witnessed || !Array.isArray(witnessed.personas) || !Array.isArray(witnessed.expressions)) {
+    throw new Error('H3C manifest carries no witnessed native bundle digests');
+  }
+  const observedPersonas = face.native.records.flatMap((record) =>
+    record.tiers.map((tier) => ({
+      personaId: record.personaId,
+      level: tier.level,
+      vertexCount: tier.vertexCount,
+      schemaVersion: tier.bundle.morph.schemaVersion,
+      positionDigest: tier.bundle.morph.positionDigest,
+    })),
+  );
+  const observedExpressions = face.native.expressionBundles.map((expression) => ({
+    expressionId: expression.expressionId,
+    changedVertexCount: expression.morph.changedVertexCount,
+    schemaVersion: expression.morph.schemaVersion,
+    positionDigest: expression.morph.positionDigest,
+  }));
+  const normalize = (rows, keys) =>
+    JSON.stringify(
+      rows.map((row) => Object.fromEntries(keys.map((key) => [key, row[key]]))),
+    );
+  const personaKeys = ['personaId', 'level', 'vertexCount', 'schemaVersion', 'positionDigest'];
+  const expressionKeys = ['expressionId', 'changedVertexCount', 'schemaVersion', 'positionDigest'];
+  if (
+    normalize(witnessed.personas, personaKeys) !== normalize(observedPersonas, personaKeys)
+  ) {
+    throw new Error(
+      'witnessed native persona bundle digests drifted\n' +
+        `  manifest: ${normalize(witnessed.personas, personaKeys)}\n` +
+        `  compiled: ${normalize(observedPersonas, personaKeys)}`,
+    );
+  }
+  if (
+    normalize(witnessed.expressions, expressionKeys) !==
+    normalize(observedExpressions, expressionKeys)
+  ) {
+    throw new Error(
+      'witnessed native expression bundle digests drifted\n' +
+        `  manifest: ${normalize(witnessed.expressions, expressionKeys)}\n` +
+        `  compiled: ${normalize(observedExpressions, expressionKeys)}`,
+    );
+  }
+  return { personas: observedPersonas, expressions: observedExpressions };
+}
+
 function validateManifest(root) {
   const manifestPath = path.join(root, MANIFEST_REL);
   if (!existsSync(manifestPath)) {
     return { status: 'missing', errors: ['manifest missing'] };
   }
   const text = readFileSync(manifestPath, 'utf8');
+  // The manifest has always RECORDED a test and report hash; until now it verified
+  // neither, so both could drift while the manifest still claimed to pin them.
   const bindings = [
     [SOURCE_REL, /sourceSha256:\s*"([0-9a-f]{64})"/],
     [POLICY_REL, /policySha256:\s*"([0-9a-f]{64})"/],
@@ -866,6 +1049,14 @@ function validateManifest(root) {
     [
       'scripts/check-hololand-model-village-character-appearance-h3c.mjs',
       /checkerSha256:\s*"([0-9a-f]{64})"/,
+    ],
+    [
+      'scripts/__tests__/hololand-model-village-character-appearance-h3c.test.mjs',
+      /testSha256:\s*"([0-9a-f]{64})"/,
+    ],
+    [
+      'docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H3C_2026-07-28.md',
+      /reportSha256:\s*"([0-9a-f]{64})"/,
     ],
     [HERO_REL, /heroSha256:\s*"([0-9a-f]{64})"/],
   ];
@@ -899,6 +1090,7 @@ export async function runCharacterAppearanceH3C(
     stack,
     validation.plan,
   );
+  const goldens = validateBundleGoldens(stack, face, options.root);
   let visual = null;
   let surface = null;
   if (!options.compileOnly) {
@@ -919,7 +1111,10 @@ export async function runCharacterAppearanceH3C(
     throw new Error(manifest.errors.join('\n'));
   }
   const receipt = {
-    schema: 'hololand.model-village.character-appearance-h3c-witness.v1',
+    // v2 of the receipt schema: the evidence below is witnessed under the admitted
+    // native-facial-morph.v2 orbital-lid blink, not the v1 eye-globe-only blink the
+    // .v1 receipts recorded. A reader must not compare the two as like for like.
+    schema: 'hololand.model-village.character-appearance-h3c-witness.v2',
     status: 'pass',
     generatedAt: new Date().toISOString(),
     source: {
@@ -937,6 +1132,8 @@ export async function runCharacterAppearanceH3C(
       expressionReceiptCount:
         face.native.expressionBundles.length,
       topology: 'neutral-anatomical-v2',
+      morphSchemaVersion: face.morphSchemaVersion,
+      orbitalLidBlink: face.orbitalLidBlink,
       visualHairLod: 2,
       topologyVertexDelta: face.topologyVertexDelta,
       legacyVertexCount: face.legacyVertexCount,
@@ -944,6 +1141,7 @@ export async function runCharacterAppearanceH3C(
         personaId: record.personaId,
         tiers: record.tiers.map(({ bundle, ...tier }) => tier),
       })),
+      goldens,
     },
     visual,
     surface,
@@ -951,7 +1149,16 @@ export async function runCharacterAppearanceH3C(
     boundaries: {
       productionFaceCompleteClaimed: false,
       productionTearFilmClaimed: false,
+      admittedMorphSchemaVersion: ADMITTED_MORPH_SCHEMA_VERSION,
+      refusedMorphSchemaVersion: REFUSED_MORPH_SCHEMA_VERSION,
       normalsRecomputedAfterMorphClaimed: false,
+      // Measured, not asserted: how many compiled bundles actually reported
+      // recomputed normals. A non-zero count here means v3 reached this gate.
+      measuredNormalsRecomputedBundleCount: [
+        ...face.native.records.flatMap((record) => record.tiers),
+        ...face.native.expressionBundles,
+      ].filter((entry) => entry.bundle?.morph?.normalsRecomputed === true)
+        .length,
       photorealismClaimed: false,
       biometricLikenessClaimed: false,
       canonicalWrites: 0,

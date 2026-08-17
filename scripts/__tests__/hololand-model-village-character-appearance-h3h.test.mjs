@@ -16,6 +16,16 @@ test('H3H parses all three formats and binds the temporal LOD truth boundary', a
   const validation = validateH3HContract(stack, ROOT, HOLOSCRIPT_ROOT);
   assert.equal(validation.status, 'pass', validation.errors.join('\n'));
   assert.equal(stack.contract.state.hairResponseFoundation.coverageProfile, 'alpha-to-coverage-v1');
+  assert.equal(
+    stack.contract.state.hairResponseFoundation.hairMaterialReceiptSchema,
+    'holoscript.agent-avatar-hair-material.v2'
+  );
+  assert.equal(stack.contract.state.hairResponseFoundation.sourceColorAuthored, true);
+  assert.equal(
+    stack.contract.state.nativeAdmission.hairMaterialReceiptSchemaRequired,
+    'holoscript.agent-avatar-hair-material.v2'
+  );
+  assert.equal(stack.contract.state.nativeAdmission.sourceColorWeightTierInvariantRequired, true);
   assert.deepEqual(stack.contract.state.temporalLodFoundation, {
     selectionMode: 'distance',
     transitionMode: 'dither',
@@ -62,6 +72,12 @@ test('H3H parses all three formats and binds the temporal LOD truth boundary', a
       [0.86, 0.1, 0.84, 0.06],
     ]
   );
+  // Three distinct authored weights: a checker that silently accepted the upstream 0.55
+  // default cannot pass this.
+  assert.deepEqual(
+    validation.plan.personas.map((persona) => persona.sourceColorWeight),
+    [0.55, 0.62, 0.48]
+  );
 });
 
 test('H3H emits nine deterministic native LOD transition receipts', async () => {
@@ -73,8 +89,31 @@ test('H3H emits nine deterministic native LOD transition receipts', async () => 
   assert.equal(hairResponse.native.records.length, 3);
   assert.equal(tiers.length, 9);
   assert.equal(hairResponse.comparisons.length, 9);
+  assert.equal(hairResponse.sourceColorTiers.length, 3);
+  for (const entry of hairResponse.sourceColorTiers) {
+    assert.deepEqual(entry.levels, [0, 1, 2]);
+    assert.equal(entry.tierInvariant, true);
+    assert.deepEqual(entry.tierWeights, [
+      entry.authoredSourceColorWeight,
+      entry.authoredSourceColorWeight,
+      entry.authoredSourceColorWeight,
+    ]);
+    assert.deepEqual(entry.tierSchemas, [
+      'holoscript.agent-avatar-hair-material.v2',
+      'holoscript.agent-avatar-hair-material.v2',
+      'holoscript.agent-avatar-hair-material.v2',
+    ]);
+  }
+  assert.deepEqual(
+    hairResponse.sourceColorTiers.map((entry) => entry.authoredSourceColorWeight),
+    [0.55, 0.62, 0.48]
+  );
   for (const tier of tiers) {
     assert.equal(tier.bundle.groom.profile, 'scalp-flow-v1');
+    assert.equal(
+      tier.bundle.groom.material.schemaVersion,
+      'holoscript.agent-avatar-hair-material.v2'
+    );
     assert.equal(tier.bundle.groom.scalpSurface, 'neutral-anatomical-ellipsoid');
     assert.equal(tier.bundle.groom.schemaVersion, 'holoscript.agent-avatar-groom-geometry.v1');
     assert.equal(tier.bundle.groom.material.coverageProfile, 'alpha-to-coverage-v1');
@@ -115,6 +154,9 @@ test('H3H emits nine deterministic native LOD transition receipts', async () => 
   for (const comparison of hairResponse.comparisons) {
     assert.equal(comparison.sourceAuthored.coverageProfile, 'alpha-to-coverage-v1');
     assert.equal(comparison.opaque.coverageProfile, 'opaque-v1');
+    // Colour authorship is independent of the coverage profile.
+    assert.equal(comparison.opaque.sourceColorWeight, comparison.sourceAuthored.sourceColorWeight);
+    assert.equal(comparison.opaque.sourceColor, comparison.sourceAuthored.sourceColor);
     assert.equal(comparison.geometryByteIdentical, true);
     assert.match(comparison.geometrySha256, /^[0-9a-f]{64}$/);
   }
@@ -130,6 +172,7 @@ test('H3H fails closed on bridge, realism, and temporal-claim drift', async () =
   stack.contract.state.photorealismClaimed = true;
   stack.contract.state.motionReprojectionClaimed = true;
   stack.contract.state.nativeWebgpuTaaClaimed = true;
+  stack.contract.state.nativeHairSourceColorWeightClaimed = false;
   const validation = validateH3HContract(stack, ROOT, HOLOSCRIPT_ROOT);
   assert.equal(validation.status, 'fail');
   const errors = validation.errors.join('\n');
@@ -141,4 +184,5 @@ test('H3H fails closed on bridge, realism, and temporal-claim drift', async () =
   assert.match(errors, /photorealismClaimed/);
   assert.match(errors, /motionReprojectionClaimed/);
   assert.match(errors, /nativeWebgpuTaaClaimed/);
+  assert.match(errors, /nativeHairSourceColorWeightClaimed/);
 });

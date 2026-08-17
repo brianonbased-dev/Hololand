@@ -16,28 +16,28 @@ composition "Stormglass Character Appearance H3I Anatomy Surface" {
     policySource: "source/proofs/model-village-character-appearance-h3i-anatomy-surface-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3i-anatomy-surface-seed.hs"
     inheritedH3HSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3h-temporal-lod.holo"
-    inheritedH3HSourceSha256: "d9a24c28963668a388109330f7ad55ebb84d301d956058f935571abe101e22dc"
+    inheritedH3HSourceSha256: "ed6d8f460fe8d47ded34ccb8d62fdef623bbbf146b51804451909ab2a3c47870"
     inheritedH3GSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3g-hair-response.holo"
-    inheritedH3GSourceSha256: "1750a4aeae76c6c3d8ab317866a4b033fe7db1deb283b220d74ca919299aa1b7"
+    inheritedH3GSourceSha256: "0352e0c48ca09f18562abf14da555b74605c635d4f73b2241ec87807f921717f"
     upstreamHoloScriptCommit: "96b8f4afc811caff5438a74e7246c02eab3e7898"
     upstreamGroomBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
-    upstreamGroomBuilderSha256: "526781cdbf8810ca7a5d47c48d2669f86b5be495c4fbfd00f39ede7167d68c8b"
+    upstreamGroomBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
     upstreamAnatomyBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
-    upstreamAnatomyBuilderSha256: "5f761149c6cba8f1fa017bf4dc5ac0e33b19d61dbe0938c2cc62768332c303fc"
+    upstreamAnatomyBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"
     upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
-    upstreamCharacterHostSha256: "eace3666bed7b5b966119d66faab39125d96c15f27ed87fd89c2ba1ff0adb740"
+    upstreamCharacterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
     upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
-    upstreamCompositionBridgeSha256: "833c6a90fab2ca67c820685ae895b2fdc77514930360a7381d5ef56b93fa9535"
+    upstreamCompositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
     upstreamLodTransitionPath: "packages/engine/src/lod/LODTransition.ts"
     upstreamLodTransitionSha256: "a0f08f8dc3dbe4742afdcb902003d0ca1db540f509ae78bc06c3c4bbad6aa744"
     upstreamNativeRendererPath: "packages/engine/src/character-render/character-render.ts"
-    upstreamNativeRendererSha256: "4a7101a7b63660b948c117ded57bdbbcf1bd1955af6bef91661879e606fd6d5f"
+    upstreamNativeRendererSha256: "c30b518a126b0e4daa0ce5319a78f35da1f635f969f7df824b56e533d9cd15f4"
     upstreamHairShaderPath: "packages/engine/src/rendering/webgpu/shaders/skin-skinning.wgsl"
-    upstreamHairShaderSha256: "68db4a8cc91c33c7807fe7857c315167a155fc4103ef6416d61b853bf113928a"
+    upstreamHairShaderSha256: "a8436b3c29f07f3dff6cc336ec21a0093cb82de5de5e91d05c6780420cf1fa40"
     upstreamDrawSpecPath: "packages/engine/src/native-render/draw-spec.ts"
-    upstreamDrawSpecSha256: "65c0dd26a77883b04b5f478ef6eb6dae9e088eeb50020d0375ecc542ab4949c8"
+    upstreamDrawSpecSha256: "04fac9799b233efe14b938be2f1d0272c064a64566bccadb0ae34b53e6b1d199"
     upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
-    upstreamCompilerSha256: "5d5a8d9747c68d6b4acc65a4ccc48ef4573d6f73cd041865a24a5677201d4a37"
+    upstreamCompilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
     projectionRole: "read_only_native_anatomy_surface_convergence_witness"
     artStyle: "hearthlight_biorealism"
     visualTarget: "stormglass_shared_renderer_anatomy_surface_portrait_stage"
@@ -140,7 +140,9 @@ composition "Stormglass Character Appearance H3I Anatomy Surface" {
 
     anatomySurfaceFoundation: {
       anatomyReceiptSchema: "holoscript.agent-avatar-anatomy.v1"
-      skinReceiptSchema: "holoscript.agent-avatar-skin-material.v1"
+      skinReceiptSchema: "holoscript.agent-avatar-skin-material.v2"
+      skinCalibrationProfile: "legacy-v1"
+      skinDisclosureOnlyWidening: true
       skinMicrodetailProfile: "analytic-pore-v1"
       faceWidthRange: [0.93, 0.96]
       faceLengthRange: [1.05, 1.08]
@@ -259,7 +261,7 @@ composition "Stormglass Character Appearance H3I Anatomy Surface" {
     @body(height: 1.82, build_scale: 1.04, shoulder_scale: 1.12, torso_scale: 0.96, skin_tone: "#B9785F")
     @face(topology: "neutral_anatomical_v2", radial_segments: 22, vertical_segments: 16, face_width: 0.94, face_length: 1.07, jaw_taper: 0.3, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.3, lid_opening: 0.46, canthal_tilt: 0.14, ocular_profile: "layered_ocular_v1", iris_color: "#6B8C82", sclera_color: "#EEE9DF", iris_scale: 0.5, pupil_scale: 0.38, cornea_ior: 1.376)
     @subsurface_scattering(color: "#B9785F", scatter_color: "#B85F4C", microdetail_profile: "analytic_pore_v1", microdetail_scale: 94, microdetail_strength: 0.075)
-    @hair(style: "cropped_coils", color: "#563A30", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.17, crown_whorl: 0.42, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.84, edge_softness: 0.12, anisotropy_strength: 0.86, longitudinal_shift: 0.08)
+    @hair(style: "cropped_coils", color: "#563A30", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.17, crown_whorl: 0.42, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.84, edge_softness: 0.12, anisotropy_strength: 0.86, longitudinal_shift: 0.08, source_color_weight: 0.55)
     @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
     @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 260, levels: [
       { level: 0, distance: 0, garment_segments: 24, hair_guides: 168, hair_cards_per_guide: 2, hair_segments: 7 },
@@ -283,6 +285,7 @@ composition "Stormglass Character Appearance H3I Anatomy Surface" {
     edgeSoftness: 0.12
     anisotropyStrength: 0.86
     longitudinalShift: 0.08
+    sourceColorWeight: 0.55
     faceWidth: 0.94
     faceLength: 1.07
     jawTaper: 0.3
@@ -298,7 +301,7 @@ composition "Stormglass Character Appearance H3I Anatomy Surface" {
     @body(height: 1.88, build_scale: 0.98, shoulder_scale: 1.1, torso_scale: 0.94, skin_tone: "#87543F")
     @face(topology: "neutral_anatomical_v2", radial_segments: 22, vertical_segments: 16, face_width: 0.96, face_length: 1.05, jaw_taper: 0.28, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.27, lid_opening: 0.49, canthal_tilt: 0.1, ocular_profile: "layered_ocular_v1", iris_color: "#A58B52", sclera_color: "#F0EADF", iris_scale: 0.48, pupil_scale: 0.4, cornea_ior: 1.376)
     @subsurface_scattering(color: "#87543F", scatter_color: "#874735", microdetail_profile: "analytic_pore_v1", microdetail_scale: 102, microdetail_strength: 0.085)
-    @hair(style: "short", color: "#303641", groom_profile: "scalp_flow_v1", card_width: 0.0058, root_lift: 0.002, tip_taper: 0.14, hairline_bias: 0.18, crown_whorl: -0.28, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.8, edge_softness: 0.14, anisotropy_strength: 0.9, longitudinal_shift: 0.12)
+    @hair(style: "short", color: "#303641", groom_profile: "scalp_flow_v1", card_width: 0.0058, root_lift: 0.002, tip_taper: 0.14, hairline_bias: 0.18, crown_whorl: -0.28, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.8, edge_softness: 0.14, anisotropy_strength: 0.9, longitudinal_shift: 0.12, source_color_weight: 0.55)
     @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
     @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 260, levels: [
       { level: 0, distance: 0, garment_segments: 24, hair_guides: 126, hair_cards_per_guide: 2, hair_segments: 6 },
@@ -322,6 +325,7 @@ composition "Stormglass Character Appearance H3I Anatomy Surface" {
     edgeSoftness: 0.14
     anisotropyStrength: 0.9
     longitudinalShift: 0.12
+    sourceColorWeight: 0.55
     faceWidth: 0.96
     faceLength: 1.05
     jawTaper: 0.28
@@ -337,7 +341,7 @@ composition "Stormglass Character Appearance H3I Anatomy Surface" {
     @body(height: 1.78, build_scale: 1.08, shoulder_scale: 1.08, torso_scale: 0.97, skin_tone: "#D0A086")
     @face(topology: "neutral_anatomical_v2", radial_segments: 22, vertical_segments: 16, face_width: 0.93, face_length: 1.08, jaw_taper: 0.32, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.32, lid_opening: 0.44, canthal_tilt: 0.16, ocular_profile: "layered_ocular_v1", iris_color: "#526D91", sclera_color: "#F2EBE4", iris_scale: 0.52, pupil_scale: 0.36, cornea_ior: 1.376)
     @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A", microdetail_profile: "analytic_pore_v1", microdetail_scale: 88, microdetail_strength: 0.065)
-    @hair(style: "medium_wavy", color: "#82563A", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.15, crown_whorl: 0.34, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.86, edge_softness: 0.1, anisotropy_strength: 0.84, longitudinal_shift: 0.06)
+    @hair(style: "medium_wavy", color: "#82563A", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.15, crown_whorl: 0.34, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.86, edge_softness: 0.1, anisotropy_strength: 0.84, longitudinal_shift: 0.06, source_color_weight: 0.55)
     @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
     @lod(mode: "distance", hysteresis: 0.65, fade_mode: "dither", fade_duration_ms: 260, levels: [
       { level: 0, distance: 0, garment_segments: 24, hair_guides: 160, hair_cards_per_guide: 2, hair_segments: 8 },
@@ -361,6 +365,7 @@ composition "Stormglass Character Appearance H3I Anatomy Surface" {
     edgeSoftness: 0.1
     anisotropyStrength: 0.84
     longitudinalShift: 0.06
+    sourceColorWeight: 0.55
     faceWidth: 0.93
     faceLength: 1.08
     jawTaper: 0.32

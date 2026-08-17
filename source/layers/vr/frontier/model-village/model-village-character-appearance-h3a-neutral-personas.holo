@@ -2,8 +2,20 @@
 //
 // A read-only visual target for neutral civic faces, hands, eyes, skin, hair
 // silhouettes, and expression deltas. This is deliberately a shadow consumer:
-// the current upstream HoloScript host still reports @hair(style) and @morph
-// as unwired, so this source cannot promote full H3 or enter live research.
+// its preview geometry is source-owned, so it cannot promote full H3 or enter
+// live research.
+//
+// HISTORICAL BOUNDARY, RESOLVED 2026-08-16. H3A was authored when upstream
+// HoloScript reported @hair(style) as having no geometry channel and @morph as
+// having no FACS/morph-target channel. H4J (0275f8d4c) landed both. The gap
+// record below is frozen as history and is no longer re-derived; the gate now
+// PROVES the native channels operative by executing them, and delegates native
+// channel coverage to H3B. H3A is retained, not retired: it uniquely holds the
+// dermal atlas custody contract, the absolute per-persona triangle budgets, the
+// benchmark protocol shape, civic-role binding, silhouette and atlas-cell
+// uniqueness, the H2 lineage pins, face/eye tracking defaults, the shared
+// motion/capability invariants, the promotion/replacement boundary, and the
+// accessibility evidence -- none of which H3B asserts.
 
 composition "Stormglass Character Appearance H3A Neutral Personas" {
   metadata {
@@ -22,11 +34,18 @@ composition "Stormglass Character Appearance H3A Neutral Personas" {
     inheritedH2ManifestSha256: "49eeaf4dfd16f80a4e35414c5aa29c2c294f34ff2aa317b25d6f871f21992d8b"
     inheritedH2Report: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H2_2026-07-27.md"
     inheritedH2ReportSha256: "0594f003d0730677babf5984ae7f2c3e90e850e18e8cedfa9509e14e9b10cc27"
-    upstreamHoloScriptCommit: "9153ab98a87decffc38876070ca8bfc04b179f01"
+    upstreamHoloScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
     upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
-    upstreamCharacterHostSha256: "f451aba16f6af6fec204b3e8d728b996d53274ac5e3f393399df841734e85131"
+    upstreamCharacterHostSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
     upstreamHairBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
-    upstreamHairBuilderSha256: "04148fe420429ae5d3994ef7c91b163ab6be8f83ec204f1051d19e77aa6acd2b"
+    upstreamHairBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
+    historicalUpstreamHoloScriptCommit: "9153ab98a87decffc38876070ca8bfc04b179f01"
+    historicalUpstreamCharacterHostSha256: "f451aba16f6af6fec204b3e8d728b996d53274ac5e3f393399df841734e85131"
+    historicalUpstreamHairBuilderSha256: "04148fe420429ae5d3994ef7c91b163ab6be8f83ec204f1051d19e77aa6acd2b"
+    nativeChannelGapClosedByUpstreamCommit: "0275f8d4c"
+    successorGate: "H3B"
+    successorSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3b-native-channels.holo"
+    successorSourceSha256: "ab6c2fa17efbe5e5a84e5b5e3d4c6e984ab20136fe1fc566ea72734bf3d6ab2c"
     projectionRole: "read_only_neutral_persona_shadow_target"
     artStyle: "hearthlight_biorealism"
     characterStyle: "stormglass_craftfolk_soft_faceted_civic"
@@ -44,7 +63,7 @@ composition "Stormglass Character Appearance H3A Neutral Personas" {
   state {
     authority: "read_only"
     gateLevel: "H3A"
-    fullH3PromotionStatus: "blocked_upstream_native_hair_style_and_morph"
+    fullH3PromotionStatus: "historical_boundary_satisfied_native_channels_carried_by_h3b"
     presentationProfile: "village_story_unblinded_shadow_only"
     productionProfilePromotionClaimed: false
     publicFirstReleaseReplacementClaimed: false
@@ -71,14 +90,28 @@ composition "Stormglass Character Appearance H3A Neutral Personas" {
     photorealismClaimed: false
     fullWorldConvergenceClaimed: false
 
+    // Frozen history + current operative fact. The historical block records what
+    // was true when H3A was authored and is never re-derived from upstream source
+    // text; the current block is PROVEN BY EXECUTION each run (see
+    // proveUpstreamNativeChannels in the checker), not asserted by hand.
     upstreamNativeAdmission: {
-      holoScriptCommit: "9153ab98a87decffc38876070ca8bfc04b179f01"
-      hairColorOperative: true
-      defaultProceduralHairOperative: true
-      authoredHairStyleGeometryOperative: false
-      authoredMorphFacsOperative: false
-      characterHostHairStyleReport: "has_no_geometry_channel_yet"
-      characterHostMorphReport: "no_facs_morph_target_channel_yet"
+      historical: {
+        holoScriptCommit: "9153ab98a87decffc38876070ca8bfc04b179f01"
+        authoredHairStyleGeometryOperative: false
+        authoredMorphFacsOperative: false
+        characterHostHairStyleReport: "has_no_geometry_channel_yet"
+        characterHostMorphReport: "no_facs_morph_target_channel_yet"
+      }
+      current: {
+        holoScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
+        gapClosedByUpstreamCommit: "0275f8d4c"
+        hairColorOperative: true
+        defaultProceduralHairOperative: true
+        authoredHairStyleGeometryOperative: true
+        authoredMorphFacsOperative: true
+        h3aClaimsNativeChannels: false
+        nativeChannelCoverageGate: "H3B"
+      }
       fullH3Admitted: false
     }
 

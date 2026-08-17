@@ -87,8 +87,13 @@ composition CharacterAppearanceH3ANeutralPersonaPolicy {
     upstreamHairBuilderRequired: true
     authoredHairStyleGeometryOperativeRequiredForFullH3: true
     authoredMorphFacsOperativeRequiredForFullH3: true
-    currentAuthoredHairStyleGeometryOperative: false
-    currentAuthoredMorphFacsOperative: false
+    historicalAuthoredHairStyleGeometryOperative: false
+    historicalAuthoredMorphFacsOperative: false
+    currentAuthoredHairStyleGeometryOperative: true
+    currentAuthoredMorphFacsOperative: true
+    currentOperativeProvenByExecution: true
+    h3aClaimsNativeChannels: false
+    nativeChannelCoverageGate: "H3B"
     fullH3AdmissionExpected: false
     failClosed: true
   }
@@ -120,13 +125,14 @@ composition CharacterAppearanceH3ANeutralPersonaPolicy {
   template H3APromotionGate {
     type: "h3a_promotion_gate"
     promotionTarget: "read_only_neutral_persona_shadow_target"
-    fullH3PromotionTarget: "blocked"
+    fullH3PromotionTarget: "historical_boundary_satisfied_carried_by_h3b"
     requiredChecks: [
       "three_format_parse",
       "three_exact_neutral_personas",
       "adapter_family_binding_absent",
       "upstream_hash_binding",
-      "native_gap_fail_closed",
+      "native_channels_proven_by_execution",
+      "successor_gate_pinned",
       "repeated_atlas_byte_identity",
       "source_owned_hair_preview",
       "source_owned_expression_preview",

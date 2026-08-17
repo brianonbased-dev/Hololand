@@ -468,7 +468,17 @@ function hairGroup(bundle) {
   );
 }
 
-export async function compileH3BNativeBundles(core, sourceAst, plan) {
+/**
+ * Compile the native persona and expression bundles shared by the H3B..H3I gates.
+ *
+ * `options.morphSchemaVersion` is the native facial morph receipt schema the CALLING gate has
+ * admitted in its own source contract. It defaults to v1, so every gate that has not admitted a
+ * newer morph semantics keeps failing closed exactly as before — admitting a later schema is a
+ * per-gate authored decision, never a widening of the set this shared helper accepts.
+ */
+export async function compileH3BNativeBundles(core, sourceAst, plan, options = {}) {
+  const expectedMorphSchemaVersion =
+    options.morphSchemaVersion ?? 'holoscript.native-facial-morph.v1';
   const records = [];
   for (const persona of plan.personas) {
     const tiers = [];
@@ -536,11 +546,16 @@ export async function compileH3BNativeBundles(core, sourceAst, plan) {
     }
     const bundle = JSON.parse(first.output);
     if (
-      bundle.morph?.schemaVersion !== 'holoscript.native-facial-morph.v1' ||
+      bundle.morph?.schemaVersion !== expectedMorphSchemaVersion ||
       bundle.morph?.ignoredTargets?.length !== 0 ||
       bundle.morph?.normalsRecomputed !== false
     ) {
-      throw new Error(`${expression.expressionId} morph receipt drifted`);
+      throw new Error(
+        `${expression.expressionId} morph receipt drifted ` +
+          `(schema ${bundle.morph?.schemaVersion} vs admitted ${expectedMorphSchemaVersion}, ` +
+          `ignored ${JSON.stringify(bundle.morph?.ignoredTargets)}, ` +
+          `normalsRecomputed ${bundle.morph?.normalsRecomputed})`,
+      );
     }
     if (
       expression.expressionId !== 'neutral' &&

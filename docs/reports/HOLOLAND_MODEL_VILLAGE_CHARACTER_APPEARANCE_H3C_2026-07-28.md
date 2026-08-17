@@ -1,8 +1,14 @@
 # HoloLand Model Village Character Appearance H3C
 
-Date: 2026-07-28  
-Status: accepted bounded foundation  
+Date: 2026-07-28 (re-witnessed 2026-08-16)  
+Status: accepted bounded foundation, re-witnessed under native facial morph v2  
 Milestone: `MV_CHARACTER_APPEARANCE_H3C_FACE_FOUNDATION`
+
+> **2026-08-16 re-witness.** Everything below the "Re-witness" heading at the end of
+> this report is the current evidence of record. The body of the report is the
+> original 2026-07-28 acceptance and is preserved as the dated record it was.
+> The blink semantics it was written under have since changed upstream; the
+> re-witness section states what changed, what was re-measured, and what held.
 
 ## Outcome
 
@@ -118,3 +124,88 @@ GraphRAG refresh scanned 11,648 tracked files, but impact analysis remained
 non-authoritative because the cached graph covered only 57.44% of the current
 20,280-file candidate set. Direct source reads, targeted tests, builds, compiler
 receipts, and the GPU witness are the evidence of record for this lane.
+
+## Re-witness, 2026-08-16 — native facial morph v1 → v2
+
+### What changed upstream
+
+HoloScript commit `09fe4773d` (2026-07-29) — one day after this gate's original
+pin `faf90ec8c` — gave the native facial morph builder an optional orbital-lid
+vertex range and wired `CharacterHost` to pass it. The effect on this
+composition is specific and was never a claim H3C made:
+
+- **Under v1**, an authored blink scaled only the eye globe.
+- **Under v2**, a blink also closes the authored orbital lid shell — the same
+  rim this composition has always asked for with `@face(tearline: true)`.
+
+The receipt schema moved with it: every H3C bundle now reports
+`holoscript.native-facial-morph.v2` instead of `v1`.
+
+### What the original evidence actually got wrong
+
+All three original expression probes (`neutral`, `soft_smile`, `viseme_oh`)
+carry `blink` at zero. The v2 orbital path is skipped at zero blink weight, so
+those three position digests, and the captured portrait golden, are **unchanged**
+byte for byte under v2. What was stale was not the picture — it was the
+receipt (nine bundle hashes, all carrying the `v1` schema string) and, more
+seriously, the coverage: H3C claimed
+`nativeEyelidTearlineRimTopologyClaimed: true` and never once moved that rim.
+The gate witnessed the lid as geometry and never as motion.
+
+### What is admitted now
+
+`state.nativeAdmission` names the semantics instead of inheriting it:
+
+```text
+morphSchemaVersion:                          "holoscript.native-facial-morph.v2"
+blinkClosesAuthoredOrbitalLid:               true
+orbitalLidClosureMustCoverWholeAuthoredRim:  true
+expressionNormalRecomputationAdmitted:       false
+```
+
+A fourth expression probe, `blink_closed` (`blink: 1`), exercises it.
+
+### Re-measured evidence
+
+| Measure | Result |
+|---|---:|
+| Post-warm frame interval p95 | 17.2 ms |
+| Render-submit p95 | 1.1 ms |
+| Native persona/LOD bundles | 9 |
+| Native expression receipts | 4 |
+| Topology vertex delta | +561 |
+| Legacy comparison bundle | 5,958 vertices |
+| Authored tearline rim | +76 vertices |
+| Vertices the v2 blink closes beyond the v1 blink | 76 |
+| Bundles reporting recomputed normals | 0 |
+| External requests | 0 |
+| Page errors | 0 |
+
+Pinned HoloScript commit is now `721b4608da5d3752956d978108fa852cb2740b6d`.
+Captured at 1,800 × 720 in Chrome 151.0.7922.138 on
+`ANGLE (NVIDIA GeForce RTX 3060 Laptop GPU, Direct3D11)`.
+
+The orbital-lid claim is measured, not asserted. The gate compiles the same
+persona twice — once with the authored tearline and once with it withheld — and
+requires that the rim's vertex cost and the rim's blink motion be the same
+number (76 = 76), and that withholding the rim drops the receipt back to `v1`.
+Neither figure is written into the contract; if upstream stops closing the
+authored lid, the two measurements stop agreeing and this gate fails.
+
+### What still holds
+
+Verified by measurement rather than carried over: morph topology is still
+`neutral-anatomical-v2`; `ignoredTargets` is empty on every bundle; no trait is
+stubbed; the topology delta over the face-less legacy bundle is still +561 on a
+5,958-vertex comparison; and **no bundle reports recomputed normals**, so morph
+`v3` is not reaching this gate and
+`normalsRecomputedAfterMorphClaimed: false` remains true. The portrait golden
+reproduces bit for bit on a newer Chrome build.
+
+### Gate coverage repaired at the same time
+
+- `CharacterHost.ts` is now pinned. It is the file that decides whether the
+  orbital range reaches the morph builder — the file that flipped this gate's
+  semantics — and it sat behind every pin H3C held.
+- The manifest has always recorded a `testSha256` and a `reportSha256` and
+  verified neither. Both are now enforced.

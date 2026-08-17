@@ -29,9 +29,16 @@ const REPORT_REL =
 const HERO_REL =
   'docs/assets/model-village/model-village-character-appearance-h3g-hair-response-portraits-2026-07-28.png';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3g';
-const EXPECTED_COMMIT = '5a828db7f9fa54b805741e0997e1e98bb4e48926';
+const EXPECTED_COMMIT = '721b4608da5d3752956d978108fa852cb2740b6d';
 const EXPECTED_PERSONAS = ['hearth_keeper', 'path_tender', 'record_steward'];
 const EXPECTED_REGIONS = ['sclera', 'iris', 'pupil', 'cornea'];
+// Upstream carries the authored @hair(color) chroma over the melanin response at this
+// weight when the source does not author one. H3G exists to prove HoloLand authors it,
+// so every persona weight must differ from this value: a receipt carrying 0.55 is
+// indistinguishable from a receipt that was never authored at all.
+const UPSTREAM_UNAUTHORED_CHROMA_WEIGHT = 0.55;
+// Authoring a chroma weight puts the material on the source-chroma receipt schema.
+const EXPECTED_HAIR_MATERIAL_SCHEMA = 'holoscript.agent-avatar-hair-material.v2';
 const HASH_BINDINGS = [
   ['inheritedH3FSource', 'inheritedH3FSourceSha256', 'hololand'],
   ['upstreamGroomBuilderPath', 'upstreamGroomBuilderSha256', 'holoscript'],
@@ -133,6 +140,8 @@ export function buildH3GPlan(contract) {
         displayLabel: persona.displayLabel,
         irisColor: persona.irisColor,
         hairColor: persona.hairColor,
+        sourceColorInt: parseInt(String(persona.hairColor).replace('#', ''), 16),
+        sourceColorWeight: persona.sourceColorWeight,
         nativeHairStyleId: persona.nativeHairStyleId,
         groomProfile: persona.groomProfile,
         cardWidth: persona.cardWidth,
@@ -175,6 +184,8 @@ export function validateH3GContract(stack, root = ROOT, holoScriptRoot = DEFAULT
     ['nativeAlphaToCoverageRequestedClaimed', true],
     ['nativeTangentAnisotropyClaimed', true],
     ['nativeLongitudinalShiftClaimed', true],
+    ['nativeSourceChromaWeightClaimed', true],
+    ['unauthoredChromaBlendClaimed', false],
     ['derivedHairMaterialReceiptClaimed', true],
     ['presentationShaderOverrideUsed', false],
     ['presentationMaterialBridgeUsed', true],
@@ -210,6 +221,9 @@ export function validateH3GContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       state.hairResponseFoundation?.analyticNativeCoverage === true &&
       state.hairResponseFoundation?.tangentAwareDualLobe === true &&
       state.hairResponseFoundation?.longitudinalLobeShift === true &&
+      state.hairResponseFoundation?.hairMaterialReceiptSchema === EXPECTED_HAIR_MATERIAL_SCHEMA &&
+      state.hairResponseFoundation?.sourceChromaWeightAuthored === true &&
+      state.hairResponseFoundation?.sourceChromaWeightUpstreamDefaulted === false &&
       state.hairResponseFoundation?.derivedMaterialReceipt === true &&
       state.hairResponseFoundation?.presentationShaderOverride === false &&
       state.hairResponseFoundation?.presentationMaterialBridge === true &&
@@ -231,6 +245,9 @@ export function validateH3GContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       state.nativeAdmission?.authoredEdgeSoftnessOperative === true &&
       state.nativeAdmission?.authoredAnisotropyStrengthOperative === true &&
       state.nativeAdmission?.authoredLongitudinalShiftOperative === true &&
+      state.nativeAdmission?.authoredSourceColorWeightOperative === true &&
+      state.nativeAdmission?.sourceChromaRoundTripRequired === true &&
+      state.nativeAdmission?.hairMaterialReceiptSchemaRequired === EXPECTED_HAIR_MATERIAL_SCHEMA &&
       state.nativeAdmission?.alphaToCoverageRequestedRequired === true &&
       state.nativeAdmission?.multisampleCountRequired === 4,
     'hair response admission drifted'
@@ -248,6 +265,23 @@ export function validateH3GContract(stack, root = ROOT, holoScriptRoot = DEFAULT
     );
     const hair = object?.traits?.find((trait) => trait.name === 'hair');
     expect(
+      typeof persona.sourceColorWeight === 'number' &&
+        hair?.config?.source_color_weight === persona.sourceColorWeight,
+      `${persona.personaId} source-authored hair chroma weight missing or drifted`
+    );
+    expect(
+      persona.sourceColorWeight !== UPSTREAM_UNAUTHORED_CHROMA_WEIGHT,
+      `${persona.personaId} chroma weight equals the upstream unauthored default ` +
+        `(${UPSTREAM_UNAUTHORED_CHROMA_WEIGHT}); an authored weight must be distinguishable ` +
+        'from a defaulted one in the receipt'
+    );
+    expect(
+      Number.isInteger(persona.sourceColorInt) &&
+        persona.sourceColorInt >= 0 &&
+        persona.sourceColorInt <= 0xffffff,
+      `${persona.personaId} hair colour is not a parseable 0xRRGGBB source chroma`
+    );
+    expect(
       hair?.config?.groom_profile === 'scalp_flow_v1' &&
         hair?.config?.color === persona.hairColor &&
         hair?.config?.card_width === persona.cardWidth &&
@@ -262,6 +296,20 @@ export function validateH3GContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       `${persona.personaId} source-authored hair response parameters drifted`
     );
   }
+  const chromaWeights = plan.personas.map((persona) => persona.sourceColorWeight);
+  expect(
+    new Set(chromaWeights).size === chromaWeights.length,
+    'chroma weights are not per-persona distinct; one shared constant cannot witness ' +
+      'per-persona authoring'
+  );
+  const chromaRange = state.hairResponseFoundation?.sourceAuthoredChromaWeightRange;
+  expect(
+    Array.isArray(chromaRange) &&
+      chromaRange.length === 2 &&
+      Math.min(...chromaWeights) === chromaRange[0] &&
+      Math.max(...chromaWeights) === chromaRange[1],
+    'declared sourceAuthoredChromaWeightRange does not bound the authored persona weights'
+  );
   for (const [pathKey, hashKey, owner] of HASH_BINDINGS) {
     const base = owner === 'hololand' ? root : holoScriptRoot;
     const relative = metadata[pathKey];
@@ -361,7 +409,12 @@ export async function compileH3GHairResponseBundles(stack, plan) {
         bundle.groom?.rootLift !== record.rootLift ||
         bundle.groom?.tipTaper !== record.tipTaper ||
         bundle.groom?.hairlineBias !== record.hairlineBias ||
-        material?.schemaVersion !== 'holoscript.agent-avatar-hair-material.v1' ||
+        material?.schemaVersion !== EXPECTED_HAIR_MATERIAL_SCHEMA ||
+        material?.sourceColor !== record.sourceColorInt ||
+        material?.sourceColorWeight !== record.sourceColorWeight ||
+        hairGroup?.material.sourceColorWeight !== record.sourceColorWeight ||
+        hairGroup?.material.color !== record.sourceColorInt ||
+        !bundle.report?.mapped?.includes(`@hair(source_color_weight=${record.sourceColorWeight})`) ||
         material?.coverageProfile !== record.coverageProfile ||
         material?.strandCoverage !== record.strandCoverage ||
         material?.edgeSoftness !== record.edgeSoftness ||
@@ -417,6 +470,10 @@ export async function compileH3GHairResponseBundles(stack, plan) {
         opaqueBundle.groom?.profile !== 'scalp-flow-v1' ||
         opaqueBundle.groom?.material?.coverageProfile !== 'opaque-v1' ||
         opaqueBundle.groom?.material?.alphaToCoverageRequested !== false ||
+        // The authored chroma weight is a colour decision, not a coverage decision:
+        // dropping the coverage profile must not disturb it.
+        opaqueBundle.groom?.material?.sourceColorWeight !== record.sourceColorWeight ||
+        opaqueBundle.groom?.material?.sourceColor !== record.sourceColorInt ||
         sha256(JSON.stringify(canonical(opaqueBundle.mesh))) !==
           sha256(JSON.stringify(canonical(bundle.mesh)))
       ) {
@@ -688,6 +745,12 @@ function h3gBrowserApplication(THREE, RoomEnvironment, payload) {
         requestedHairColor: record.hairColor,
         resolvedColor: `#${response.color.getHexString()}`,
         resolvedEmissive: `#${response.emissive.getHexString()}`,
+        // Source-authored chroma weight, carried from the .holo through the native
+        // material receipt into the presentation payload. The physical-material bridge
+        // does not itself evaluate the melanin/source mix — that is the native shader —
+        // so this witnesses carriage, not a second implementation of the blend.
+        authoredSourceColorWeight: record.sourceColorWeight,
+        nativeSourceColorWeight: material.sourceColorWeight,
         coverageProfile: material.coverageProfile,
         strandCoverage: material.strandCoverage,
         edgeSoftness: material.edgeSoftness,
@@ -1063,6 +1126,9 @@ async function captureBrowser(surface, options, modules) {
       result.hairBridges.every(
         (bridge) =>
           bridge.materialType === 'MeshPhysicalMaterial' &&
+          typeof bridge.authoredSourceColorWeight === 'number' &&
+          bridge.nativeSourceColorWeight === bridge.authoredSourceColorWeight &&
+          bridge.authoredSourceColorWeight !== UPSTREAM_UNAUTHORED_CHROMA_WEIGHT &&
           bridge.coverageProfile === 'alpha-to-coverage-v1' &&
           bridge.alphaToCoverage === true &&
           bridge.alphaTest === 0.01 &&
@@ -1227,6 +1293,12 @@ export async function runCharacterAppearanceH3G(options = parseArgs([])) {
       scalpSurface: 'neutral-anatomical-ellipsoid',
       coverageProfile: 'alpha-to-coverage-v1',
       opaqueComparisonProfile: 'opaque-v1',
+      hairMaterialReceiptSchema: EXPECTED_HAIR_MATERIAL_SCHEMA,
+      sourceChromaWeightAuthored: true,
+      upstreamUnauthoredChromaWeight: UPSTREAM_UNAUTHORED_CHROMA_WEIGHT,
+      authoredSourceChromaWeights: Object.fromEntries(
+        validation.plan.personas.map((persona) => [persona.personaId, persona.sourceColorWeight])
+      ),
       multisampleCount: 4,
       alphaToCoverageRequested: true,
       tangentAttribute: 'strand-flow',
@@ -1249,6 +1321,8 @@ export async function runCharacterAppearanceH3G(options = parseArgs([])) {
       presentationAlphaMapUsed: true,
       externalHairTextureUsed: false,
       hairCardAlphaCoverageClaimed: true,
+      sourceChromaWeightAuthoredClaimed: true,
+      unauthoredChromaBlendClaimed: false,
       strandAlphaCoverageClaimed: false,
       strandHairClaimed: false,
       productionGroomClaimed: false,

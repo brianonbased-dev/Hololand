@@ -15,31 +15,31 @@ composition "HoloLand Model Village Character Appearance H3A Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3a-neutral-personas.holo"
-      sha256: "6d7b45083fbb70fd1ee1587d47139916b300db5b16561ce1c3926d529ec4b48c"
+      sha256: "d516b27d2dbf33618600045a0f3ca409d6311ed6d8d8c065e6bd79c9a77b2dfb"
       parser: "HoloCompositionParser"
     }
     policy: {
       path: "source/proofs/model-village-character-appearance-h3a-neutral-personas-policy.hsplus"
-      sha256: "ff7473a3cba1be5eb2027e5f00d5b4eefd2377d58af16985c48ae35b4fad660b"
+      sha256: "a343feb1c81e787c8dcf00f86b65dea4ea935ae7dbff4d83e4765a7ba04119a9"
       parser: "HoloScriptPlusParser"
       nativeActionExecutionClaimed: false
     }
     seed: {
       path: "source/proofs/model-village-character-appearance-h3a-neutral-personas-seed.hs"
-      sha256: "27a37b71686b60358b5183dabb031fde36e0e15621cb1edd0d5bbb3e214c5442"
+      sha256: "0063b3e5677af6ed441403f0f6e72c52673a90e1884dc76db04809000b6edeb7"
       parser: "HoloScriptCodeParser"
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3a.mjs"
-      sha256: "f416a66260ce57a8353512515d2ed868ea26b37f8316c4a276e4f2fde5345eba"
+      sha256: "9d4d5f3181ea6ea7f799f308b614982c51e15044ed5ac3f4f7ff754a156b3d64"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3a.test.mjs"
-      sha256: "b5afa8d88c61c1ca8d8271094267ec5d46315ed039ae060022b064f6eb9251e4"
+      sha256: "a6e36e47446d572e7d43fef66b640977dc927644b613d9abb7346a8a93251573"
     }
     report: {
       path: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H3A_2026-07-27.md"
-      sha256: "f2e0ec53144a7fb32bd03e94ae5eabb1381f0bf0780480133dff6f0f197d7c1a"
+      sha256: "6e532ffff336575bfc536e8c3fd6dd1fc90bccec227dff5bf6abe5287e433fe1"
     }
     albedoAtlas: {
       path: "assets/model-village/materials/stormglass-neutral-persona-dermal-albedo-2k.png"
@@ -161,16 +161,36 @@ composition "HoloLand Model Village Character Appearance H3A Manifest" {
       secondLodAuthority: false
     }
     nativeAdmission: {
-      holoScriptCommit: "9153ab98a87decffc38876070ca8bfc04b179f01"
-      characterHostPath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
-      characterHostSha256: "f451aba16f6af6fec204b3e8d728b996d53274ac5e3f393399df841734e85131"
-      hairBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
-      hairBuilderSha256: "04148fe420429ae5d3994ef7c91b163ab6be8f83ec204f1051d19e77aa6acd2b"
-      hairColorOperative: true
-      defaultProceduralHairOperative: true
-      authoredHairStyleGeometryOperative: false
-      authoredMorphFacsOperative: false
+      historical: {
+        holoScriptCommit: "9153ab98a87decffc38876070ca8bfc04b179f01"
+        characterHostSha256: "f451aba16f6af6fec204b3e8d728b996d53274ac5e3f393399df841734e85131"
+        hairBuilderSha256: "04148fe420429ae5d3994ef7c91b163ab6be8f83ec204f1051d19e77aa6acd2b"
+        authoredHairStyleGeometryOperative: false
+        authoredMorphFacsOperative: false
+      }
+      current: {
+        holoScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
+        gapClosedByUpstreamCommit: "0275f8d4c"
+        characterHostPath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
+        characterHostSha256: "2cceebff96068a4b2206545a05c27d59c5f7cbd48122db3edd3128dfef848459"
+        hairBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
+        hairBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
+        hairColorOperative: true
+        defaultProceduralHairOperative: true
+        authoredHairStyleGeometryOperative: true
+        authoredMorphFacsOperative: true
+        provenBy: "execution"
+        h3aClaimsNativeChannels: false
+        nativeChannelCoverageGate: "H3B"
+      }
       fullH3Admitted: false
+    }
+    successor: {
+      gate: "H3B"
+      source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3b-native-channels.holo"
+      sha256: "be9c335799a4369b1fdbe0ec85a0733b6f3635865584a8a0931d891974ff6f26"
+      retirementRefused: true
+      retirementRefusedReason: "H3B does not assert the dermal atlas custody contract, absolute per-persona triangle budgets, benchmark protocol shape, civic-role binding, silhouette or dermal-atlas-cell uniqueness, H2 lineage pins, face/eye tracking defaults, shared motion and capability invariants, the promotion/replacement boundary, or accessibility evidence"
     }
     inherited: {
       h2SourceSha256: "9ac3fc87acfecc1555e5de1a5c0445f1deab2f7ff9a141a76d25c3dbd2cfd5b2"

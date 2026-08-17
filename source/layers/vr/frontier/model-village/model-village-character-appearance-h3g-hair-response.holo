@@ -5,6 +5,12 @@
 // HoloScript requests a 4x multisampled alpha-to-coverage pipeline and carries a
 // material receipt through character-webgpu. This is card coverage, not strand
 // hair, scan-derived grooming, production grooming, or photorealism.
+//
+// Every persona also authors source_color_weight: how much of the authored hair
+// chroma survives over the melanin response. HoloLand authors that number; it is
+// not inherited from an upstream default. Each value is deliberately distinct and
+// none equals the upstream unauthored default, so the receipt can tell an authored
+// weight apart from a defaulted one.
 
 composition "Stormglass Character Appearance H3G Hair Response" {
   metadata {
@@ -16,22 +22,22 @@ composition "Stormglass Character Appearance H3G Hair Response" {
     policySource: "source/proofs/model-village-character-appearance-h3g-hair-response-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3g-hair-response-seed.hs"
     inheritedH3FSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3f-native-groom.holo"
-    inheritedH3FSourceSha256: "1f35e8541e6b62ade27ffd25133f536fc3bc1927269efbb719c529331d6db957"
-    upstreamHoloScriptCommit: "5a828db7f9fa54b805741e0997e1e98bb4e48926"
+    inheritedH3FSourceSha256: "49713bb446b634ff158a3d5b28b13517bb67041ac8ca011881171c921464317d"
+    upstreamHoloScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
     upstreamGroomBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
-    upstreamGroomBuilderSha256: "a26c955e19fd8294c6b10fcdfa7e63e51c8e2e3e07b137f76bb9127513fdbf42"
+    upstreamGroomBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
     upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHost.ts"
-    upstreamCharacterHostSha256: "edbad40844f40e67614111797c6765849d620077e4b322bcd39eeed6ecfae10b"
+    upstreamCharacterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
     upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
-    upstreamCompositionBridgeSha256: "a3ec426c57d7bdfa08e600703e4c6df194c8b216939fe3bc14e5cda012b78c48"
+    upstreamCompositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
     upstreamNativeRendererPath: "packages/engine/src/character-render/character-render.ts"
-    upstreamNativeRendererSha256: "746501775d4007c173f705ed3c41255e9d104783869d8024ab51ac103515f1fa"
+    upstreamNativeRendererSha256: "c30b518a126b0e4daa0ce5319a78f35da1f635f969f7df824b56e533d9cd15f4"
     upstreamHairShaderPath: "packages/engine/src/rendering/webgpu/shaders/skin-skinning.wgsl"
-    upstreamHairShaderSha256: "c5d71aa86c6fe7d12a00c6f71e517fefc3e8dd4c9b98ddcf22377994edd10018"
+    upstreamHairShaderSha256: "a8436b3c29f07f3dff6cc336ec21a0093cb82de5de5e91d05c6780420cf1fa40"
     upstreamDrawSpecPath: "packages/engine/src/native-render/draw-spec.ts"
-    upstreamDrawSpecSha256: "d92c8792897d6bcca5c554c512deaa8a44ba7a1d7bf0ba3eb5c0ad22dc54be00"
+    upstreamDrawSpecSha256: "04fac9799b233efe14b938be2f1d0272c064a64566bccadb0ae34b53e6b1d199"
     upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
-    upstreamCompilerSha256: "ff9880f7a3b678ab2cf3e76c19e0b2273094f6e6de22bfc3de25ca6eca663932"
+    upstreamCompilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
     projectionRole: "read_only_native_hair_coverage_response_witness"
     artStyle: "hearthlight_biorealism"
     visualTarget: "stormglass_craft_fiber_highlight_portrait_studio"
@@ -76,6 +82,8 @@ composition "Stormglass Character Appearance H3G Hair Response" {
     nativeAlphaToCoverageRequestedClaimed: true
     nativeTangentAnisotropyClaimed: true
     nativeLongitudinalShiftClaimed: true
+    nativeSourceChromaWeightClaimed: true
+    unauthoredChromaBlendClaimed: false
     derivedHairMaterialReceiptClaimed: true
     presentationShaderOverrideUsed: false
     presentationMaterialBridgeUsed: true
@@ -98,6 +106,10 @@ composition "Stormglass Character Appearance H3G Hair Response" {
       sourceAuthoredEdgeSoftnessRange: [0.1, 0.14]
       sourceAuthoredAnisotropyStrengthRange: [0.84, 0.9]
       sourceAuthoredLongitudinalShiftRange: [0.06, 0.12]
+      sourceAuthoredChromaWeightRange: [0.5, 0.7]
+      hairMaterialReceiptSchema: "holoscript.agent-avatar-hair-material.v2"
+      sourceChromaWeightAuthored: true
+      sourceChromaWeightUpstreamDefaulted: false
       cardWidthUvAttribute: "card-width"
       tangentAttribute: "strand-flow"
       multisampleCount: 4
@@ -131,6 +143,9 @@ composition "Stormglass Character Appearance H3G Hair Response" {
       authoredEdgeSoftnessOperative: true
       authoredAnisotropyStrengthOperative: true
       authoredLongitudinalShiftOperative: true
+      authoredSourceColorWeightOperative: true
+      sourceChromaRoundTripRequired: true
+      hairMaterialReceiptSchemaRequired: "holoscript.agent-avatar-hair-material.v2"
       alphaToCoverageRequestedRequired: true
       multisampleCountRequired: 4
       fullH3Admitted: false
@@ -169,7 +184,7 @@ composition "Stormglass Character Appearance H3G Hair Response" {
     @body(height: 1.82, build_scale: 1.04, skin_tone: "#B9785F")
     @face(topology: "neutral_anatomical_v2", radial_segments: 22, vertical_segments: 16, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.3, lid_opening: 0.46, canthal_tilt: 0.14, ocular_profile: "layered_ocular_v1", iris_color: "#6B8C82", sclera_color: "#EEE9DF", iris_scale: 0.5, pupil_scale: 0.38, cornea_ior: 1.376)
     @subsurface_scattering(color: "#B9785F", scatter_color: "#B85F4C")
-    @hair(style: "cropped_coils", color: "#563A30", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.17, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.84, edge_softness: 0.12, anisotropy_strength: 0.86, longitudinal_shift: 0.08)
+    @hair(style: "cropped_coils", color: "#563A30", source_color_weight: 0.62, groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.17, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.84, edge_softness: 0.12, anisotropy_strength: 0.86, longitudinal_shift: 0.08)
     @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
     @lod(levels: [
       { level: 0, distance: 0, garment_segments: 24, hair_guides: 168, hair_cards_per_guide: 2, hair_segments: 7 },
@@ -193,13 +208,14 @@ composition "Stormglass Character Appearance H3G Hair Response" {
     edgeSoftness: 0.12
     anisotropyStrength: 0.86
     longitudinalShift: 0.08
+    sourceColorWeight: 0.62
   }
 
   object "PathTender" using "StormglassNativeHairResponsePersona" {
     @body(height: 1.88, build_scale: 0.98, skin_tone: "#87543F")
     @face(topology: "neutral_anatomical_v2", radial_segments: 22, vertical_segments: 16, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.27, lid_opening: 0.49, canthal_tilt: 0.1, ocular_profile: "layered_ocular_v1", iris_color: "#A58B52", sclera_color: "#F0EADF", iris_scale: 0.48, pupil_scale: 0.4, cornea_ior: 1.376)
     @subsurface_scattering(color: "#87543F", scatter_color: "#874735")
-    @hair(style: "short", color: "#303641", groom_profile: "scalp_flow_v1", card_width: 0.0058, root_lift: 0.002, tip_taper: 0.14, hairline_bias: 0.18, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.8, edge_softness: 0.14, anisotropy_strength: 0.9, longitudinal_shift: 0.12)
+    @hair(style: "short", color: "#303641", source_color_weight: 0.5, groom_profile: "scalp_flow_v1", card_width: 0.0058, root_lift: 0.002, tip_taper: 0.14, hairline_bias: 0.18, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.8, edge_softness: 0.14, anisotropy_strength: 0.9, longitudinal_shift: 0.12)
     @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
     @lod(levels: [
       { level: 0, distance: 0, garment_segments: 24, hair_guides: 126, hair_cards_per_guide: 2, hair_segments: 6 },
@@ -223,13 +239,14 @@ composition "Stormglass Character Appearance H3G Hair Response" {
     edgeSoftness: 0.14
     anisotropyStrength: 0.9
     longitudinalShift: 0.12
+    sourceColorWeight: 0.5
   }
 
   object "RecordSteward" using "StormglassNativeHairResponsePersona" {
     @body(height: 1.78, build_scale: 1.08, skin_tone: "#D0A086")
     @face(topology: "neutral_anatomical_v2", radial_segments: 22, vertical_segments: 16, tearline: true, orbital_profile: "recessed_lids_v1", eye_recess: 0.32, lid_opening: 0.44, canthal_tilt: 0.16, ocular_profile: "layered_ocular_v1", iris_color: "#526D91", sclera_color: "#F2EBE4", iris_scale: 0.52, pupil_scale: 0.36, cornea_ior: 1.376)
     @subsurface_scattering(color: "#D0A086", scatter_color: "#C47E6A")
-    @hair(style: "medium_wavy", color: "#82563A", groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.15, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.86, edge_softness: 0.1, anisotropy_strength: 0.84, longitudinal_shift: 0.06)
+    @hair(style: "medium_wavy", color: "#82563A", source_color_weight: 0.7, groom_profile: "scalp_flow_v1", card_width: 0.0052, root_lift: 0.0025, tip_taper: 0.08, hairline_bias: 0.15, coverage_profile: "alpha_to_coverage_v1", strand_coverage: 0.86, edge_softness: 0.1, anisotropy_strength: 0.84, longitudinal_shift: 0.06)
     @morph(targets: { smile: 0, jawOpen: 0, blink: 0 })
     @lod(levels: [
       { level: 0, distance: 0, garment_segments: 24, hair_guides: 160, hair_cards_per_guide: 2, hair_segments: 8 },
@@ -253,5 +270,6 @@ composition "Stormglass Character Appearance H3G Hair Response" {
     edgeSoftness: 0.1
     anisotropyStrength: 0.84
     longitudinalShift: 0.06
+    sourceColorWeight: 0.7
   }
 }

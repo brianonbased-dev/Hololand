@@ -46,7 +46,9 @@ pairs were byte-identical.
 | Record Steward | 6,196 / 6,004 | 3,644 / 3,732 | 3,324 / 3,466 | 52 |
 
 Every bundle preserved eight native ocular material groups and produced a
-`holoscript.agent-avatar-hair-material.v1` receipt. Indexed hair-card UVs span
+`holoscript.agent-avatar-hair-material.v2` receipt carrying the exact authored
+hair chroma and the source-authored weight at which that chroma is blended over
+the melanin response. Indexed hair-card UVs span
 the full authored width from 0 to 1. For each persona and LOD, the checker also
 compiled an `opaque-v1` comparison after removing only the H3G response
 controls. All nine comparisons retained the exact same geometry bytes, proving
@@ -55,11 +57,23 @@ groom.
 
 The source-authored values remained operative:
 
-| Persona | Coverage | Edge softness | Anisotropy | Longitudinal shift |
-| --- | ---: | ---: | ---: | ---: |
-| Hearth Keeper | 0.84 | 0.12 | 0.86 | 0.08 |
-| Path Tender | 0.80 | 0.14 | 0.90 | 0.12 |
-| Record Steward | 0.86 | 0.10 | 0.84 | 0.06 |
+| Persona | Coverage | Edge softness | Anisotropy | Longitudinal shift | Chroma weight |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Hearth Keeper | 0.84 | 0.12 | 0.86 | 0.08 | 0.62 |
+| Path Tender | 0.80 | 0.14 | 0.90 | 0.12 | 0.50 |
+| Record Steward | 0.86 | 0.10 | 0.84 | 0.06 | 0.70 |
+
+The chroma weight is the share of the authored `@hair(color)` that survives over
+the melanin response. HoloScript previously chose that number for every resident
+without asking the source; it is now an authored `@hair(source_color_weight)`
+control, and H3G fails if a persona weight is missing, disagrees with the
+receipt, or equals the upstream default that a never-authored resident would
+receive. The three weights are deliberately distinct, so one shared constant
+cannot satisfy the witness.
+
+The Three.js presentation bridge carries the weight in its payload but does not
+itself evaluate the melanin/source mix — that stays in the native shader — so
+the accepted capture is byte-identical to the pre-authoring hero.
 
 HoloScript's targeted engine suite passed 30 tests, including live Dawn GPU
 tests that detected the local GPU and verified source-authored coverage changes

@@ -18,7 +18,7 @@ test('H3G parses all three formats and binds source-authored hair response contr
   assert.equal(stack.contract.state.hairResponseFoundation.coverageProfile, 'alpha-to-coverage-v1');
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    '5a828db7f9fa54b805741e0997e1e98bb4e48926'
+    '721b4608da5d3752956d978108fa852cb2740b6d'
   );
   assert.deepEqual(
     validation.plan.personas.map((persona) => persona.personaId),
@@ -39,6 +39,15 @@ test('H3G parses all three formats and binds source-authored hair response contr
       [0.86, 0.1, 0.84, 0.06],
     ]
   );
+  // Every persona authors its own hair-chroma weight, and none of them may equal
+  // the weight upstream applies when a source authors nothing.
+  assert.deepEqual(
+    validation.plan.personas.map((persona) => persona.sourceColorWeight),
+    [0.62, 0.5, 0.7]
+  );
+  for (const persona of validation.plan.personas) {
+    assert.notEqual(persona.sourceColorWeight, 0.55);
+  }
 });
 
 test('H3G emits nine deterministic material receipts over byte-identical opaque geometry', async () => {
@@ -54,6 +63,10 @@ test('H3G emits nine deterministic material receipts over byte-identical opaque 
     assert.equal(tier.bundle.groom.profile, 'scalp-flow-v1');
     assert.equal(tier.bundle.groom.scalpSurface, 'neutral-anatomical-ellipsoid');
     assert.equal(tier.bundle.groom.schemaVersion, 'holoscript.agent-avatar-groom-geometry.v1');
+    assert.equal(
+      tier.bundle.groom.material.schemaVersion,
+      'holoscript.agent-avatar-hair-material.v2'
+    );
     assert.equal(tier.bundle.groom.material.coverageProfile, 'alpha-to-coverage-v1');
     assert.equal(tier.bundle.groom.material.alphaToCoverageRequested, true);
     assert.equal(tier.bundle.groom.material.tangentAttribute, 'strand-flow');
@@ -75,8 +88,22 @@ test('H3G emits nine deterministic material receipts over byte-identical opaque 
       true
     );
   }
+  for (const record of hairResponse.native.records) {
+    for (const tier of record.tiers) {
+      assert.equal(tier.bundle.groom.material.sourceColorWeight, record.sourceColorWeight);
+      assert.equal(tier.bundle.groom.material.sourceColor, record.sourceColorInt);
+      assert.equal(
+        tier.bundle.report.mapped.includes(
+          `@hair(source_color_weight=${record.sourceColorWeight})`
+        ),
+        true
+      );
+    }
+  }
   for (const comparison of hairResponse.comparisons) {
     assert.equal(comparison.sourceAuthored.coverageProfile, 'alpha-to-coverage-v1');
+    // The chroma weight is a colour decision, not a coverage decision.
+    assert.equal(comparison.opaque.sourceColorWeight, comparison.sourceAuthored.sourceColorWeight);
     assert.equal(comparison.opaque.coverageProfile, 'opaque-v1');
     assert.equal(comparison.geometryByteIdentical, true);
     assert.match(comparison.geometrySha256, /^[0-9a-f]{64}$/);
@@ -91,9 +118,11 @@ test('H3G fails closed on external texture, custom shader, strand, scan, and rea
   stack.contract.state.strandHairClaimed = true;
   stack.contract.state.scanDerivedGroomClaimed = true;
   stack.contract.state.photorealismClaimed = true;
+  stack.contract.state.unauthoredChromaBlendClaimed = true;
   const validation = validateH3GContract(stack, ROOT, HOLOSCRIPT_ROOT);
   assert.equal(validation.status, 'fail');
   const errors = validation.errors.join('\n');
+  assert.match(errors, /unauthoredChromaBlendClaimed/);
   assert.match(errors, /externalHairTextureUsed/);
   assert.match(errors, /presentationShaderOverrideUsed/);
   assert.match(errors, /presentationAlphaMapUsed/);

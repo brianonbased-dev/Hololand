@@ -32,6 +32,27 @@ const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3i';
 const EXPECTED_COMMIT = '96b8f4afc811caff5438a74e7246c02eab3e7898';
 const EXPECTED_PERSONAS = ['hearth_keeper', 'path_tender', 'record_steward'];
 const EXPECTED_REGIONS = ['sclera', 'iris', 'pupil', 'cornea'];
+// H4J widened the skin receipt from v1 to v2. The v1 schema is unreachable: no upstream code path
+// emits it. The widening is admitted as a recorded editorial decision on the explicit condition
+// below, because every one of the eight added fields (calibrationProfile, color, scatterColor,
+// scatterRadii, specularF0, thickness, transmitStrength, ambient) reports a value the skin-sss
+// material group was ALREADY rendering at v1 - it is a disclosure widening, not an appearance
+// change. That is only true while the calibration stays legacy-v1: authoring fixed-light-human-v1
+// moves thickness 0.3->0.24, transmitStrength 0.4->0.32, ambient 0.12->0.09, roughness 0.45->0.5.
+// So calibrationProfile is pinned here and the eight fields are required to equal the rendering
+// material. If upstream changes the default calibration, this gate goes red.
+const EXPECTED_SKIN_RECEIPT_SCHEMA = 'holoscript.agent-avatar-skin-material.v2';
+const EXPECTED_SKIN_CALIBRATION_PROFILE = 'legacy-v1';
+// Fields v2 added that must mirror the skin-sss material group exactly (disclosure, not new state).
+const SKIN_DISCLOSURE_SCALAR_FIELDS = [
+  'color',
+  'specularF0',
+  'thickness',
+  'transmitStrength',
+  'ambient',
+  'roughness',
+];
+const SKIN_DISCLOSURE_VECTOR_FIELDS = ['scatterColor', 'scatterRadii'];
 const HASH_BINDINGS = [
   ['inheritedH3HSource', 'inheritedH3HSourceSha256', 'hololand'],
   ['inheritedH3GSource', 'inheritedH3GSourceSha256', 'hololand'],
@@ -147,6 +168,7 @@ export function buildH3IPlan(contract) {
         edgeSoftness: persona.edgeSoftness,
         anisotropyStrength: persona.anisotropyStrength,
         longitudinalShift: persona.longitudinalShift,
+        sourceColorWeight: persona.sourceColorWeight,
         faceWidth: persona.faceWidth,
         faceLength: persona.faceLength,
         jawTaper: persona.jawTaper,
@@ -250,8 +272,10 @@ export function validateH3IContract(stack, root = ROOT, holoScriptRoot = DEFAULT
   );
   expect(
     state.anatomySurfaceFoundation?.anatomyReceiptSchema === 'holoscript.agent-avatar-anatomy.v1' &&
-      state.anatomySurfaceFoundation?.skinReceiptSchema ===
-        'holoscript.agent-avatar-skin-material.v1' &&
+      state.anatomySurfaceFoundation?.skinReceiptSchema === EXPECTED_SKIN_RECEIPT_SCHEMA &&
+      state.anatomySurfaceFoundation?.skinCalibrationProfile ===
+        EXPECTED_SKIN_CALIBRATION_PROFILE &&
+      state.anatomySurfaceFoundation?.skinDisclosureOnlyWidening === true &&
       state.anatomySurfaceFoundation?.skinMicrodetailProfile === 'analytic-pore-v1' &&
       JSON.stringify(state.anatomySurfaceFoundation?.faceWidthRange) ===
         JSON.stringify([0.93, 0.96]) &&
@@ -367,6 +391,7 @@ export function validateH3IContract(stack, root = ROOT, holoScriptRoot = DEFAULT
         hair?.config?.edge_softness === persona.edgeSoftness &&
         hair?.config?.anisotropy_strength === persona.anisotropyStrength &&
         hair?.config?.longitudinal_shift === persona.longitudinalShift &&
+        hair?.config?.source_color_weight === persona.sourceColorWeight &&
         hair?.config?.crown_whorl === persona.crownWhorl,
       `${persona.personaId} source-authored hair response parameters drifted`
     );
@@ -521,7 +546,15 @@ export async function compileH3ITemporalLodBundles(stack, plan) {
         anatomy?.jawTaper !== record.jawTaper ||
         anatomy?.shoulderScale !== record.shoulderScale ||
         anatomy?.torsoScale !== record.torsoScale ||
-        skin?.schemaVersion !== 'holoscript.agent-avatar-skin-material.v1' ||
+        skin?.schemaVersion !== EXPECTED_SKIN_RECEIPT_SCHEMA ||
+        skin?.calibrationProfile !== EXPECTED_SKIN_CALIBRATION_PROFILE ||
+        SKIN_DISCLOSURE_SCALAR_FIELDS.some(
+          (field) => skin?.[field] !== skinGroup?.material[field]
+        ) ||
+        SKIN_DISCLOSURE_VECTOR_FIELDS.some(
+          (field) =>
+            JSON.stringify(skin?.[field]) !== JSON.stringify(skinGroup?.material[field])
+        ) ||
         skin?.microdetailProfile !== 'analytic-pore-v1' ||
         skin?.microdetailScale !== record.microdetailScale ||
         skin?.microdetailStrength !== record.microdetailStrength ||
@@ -537,7 +570,8 @@ export async function compileH3ITemporalLodBundles(stack, plan) {
         bundle.groom?.tipTaper !== record.tipTaper ||
         bundle.groom?.hairlineBias !== record.hairlineBias ||
         bundle.groom?.crownWhorl !== record.crownWhorl ||
-        material?.schemaVersion !== 'holoscript.agent-avatar-hair-material.v1' ||
+        material?.schemaVersion !== 'holoscript.agent-avatar-hair-material.v2' ||
+        material?.sourceColor !== Number.parseInt(record.hairColor.slice(1), 16) ||
         material?.coverageProfile !== record.coverageProfile ||
         material?.strandCoverage !== record.strandCoverage ||
         material?.edgeSoftness !== record.edgeSoftness ||
@@ -585,6 +619,32 @@ export async function compileH3ITemporalLodBundles(stack, plan) {
         bundle.report?.stubbed?.length !== 0
       ) {
         throw new Error(`${record.personaId} LOD${tier.level} temporal LOD contract drifted`);
+      }
+      // H4J's hair receipt moved v1 -> v2 by adding sourceColor/sourceColorWeight. sourceColor is
+      // genuinely source-authored (@hair(color) is mapped), so it is asserted above. The WEIGHT is
+      // not: CharacterHost.ts sets `sourceColorWeight: opts.hairTone === undefined ? 0 : 0.55` and
+      // CharacterHostFromComposition.ts has no mapping for it, so an authored
+      // @hair(source_color_weight) is SILENTLY DISCARDED - not mapped, not stubbed. Asserting the
+      // bare 0.55 would hand-assert a value HoloLand never authored, so instead the gate requires
+      // upstream to honour and report the authored weight. This stays red until the upstream
+      // authoring patch lands (see H3G).
+      if (material?.sourceColorWeight !== record.sourceColorWeight) {
+        throw new Error(
+          `${record.personaId} LOD${tier.level} hair sourceColorWeight is upstream-defaulted, ` +
+            `not source-authored: authored=${record.sourceColorWeight} received=${material?.sourceColorWeight}. ` +
+            'HoloScript cannot express @hair(source_color_weight) - upstream authoring patch required.'
+        );
+      }
+      if (
+        !bundle.report?.mapped?.includes(
+          `@hair(source_color_weight=${record.sourceColorWeight})`
+        )
+      ) {
+        throw new Error(
+          `${record.personaId} LOD${tier.level} authored @hair(source_color_weight=` +
+            `${record.sourceColorWeight}) was accepted by the parser but never mapped by the ` +
+            'composition bridge - the value is silently discarded upstream.'
+        );
       }
       tier.ocularGroupCount = groups.length;
       tier.ocularRegions = regionCounts;
@@ -1211,6 +1271,7 @@ function h3iBrowserApplication(
           personaId: record.personaId,
           materialType: skin.type,
           receiptSchema: record.tiers[1].bundle.skin.schemaVersion,
+          receiptCalibrationProfile: record.tiers[1].bundle.skin.calibrationProfile,
           microdetailProfile: material.microdetailProfile,
           microdetailScale: material.microdetailScale,
           microdetailStrength: material.microdetailStrength,
@@ -1801,7 +1862,8 @@ async function captureBrowser(surface, options, modules) {
       result.skinBridges.every(
         (bridge) =>
           bridge.materialType === 'MeshPhysicalMaterial' &&
-          bridge.receiptSchema === 'holoscript.agent-avatar-skin-material.v1' &&
+          bridge.receiptSchema === 'holoscript.agent-avatar-skin-material.v2' &&
+          bridge.receiptCalibrationProfile === 'legacy-v1' &&
           bridge.microdetailProfile === 'analytic-pore-v1' &&
           bridge.microdetailScale >= 88 &&
           bridge.microdetailScale <= 102 &&
@@ -1839,7 +1901,8 @@ async function captureBrowser(surface, options, modules) {
       result.anatomy?.shoulderScale === 1.12 &&
       result.anatomy?.torsoScale === 0.96;
     const validSkinReceipt =
-      result.skin?.schemaVersion === 'holoscript.agent-avatar-skin-material.v1' &&
+      result.skin?.schemaVersion === 'holoscript.agent-avatar-skin-material.v2' &&
+      result.skin?.calibrationProfile === 'legacy-v1' &&
       result.skin?.microdetailProfile === 'analytic-pore-v1' &&
       result.skin?.microdetailScale === 94 &&
       result.skin?.microdetailStrength === 0.075;
@@ -2023,7 +2086,8 @@ export async function runCharacterAppearanceH3I(options = parseArgs([])) {
       topology: 'neutral-anatomical-v2',
       anatomyReceiptSchema: 'holoscript.agent-avatar-anatomy.v1',
       anatomyReceiptCount: 9,
-      skinReceiptSchema: 'holoscript.agent-avatar-skin-material.v1',
+      skinReceiptSchema: EXPECTED_SKIN_RECEIPT_SCHEMA,
+      skinCalibrationProfile: EXPECTED_SKIN_CALIBRATION_PROFILE,
       skinReceiptCount: 9,
       skinMicrodetailProfile: 'analytic-pore-v1',
       crownWhorlReceiptCount: 9,

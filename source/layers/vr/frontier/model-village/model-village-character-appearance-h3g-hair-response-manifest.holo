@@ -16,7 +16,7 @@ composition "HoloLand Model Village Character Appearance H3G Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3g-hair-response.holo"
-      sourceSha256: "1750a4aeae76c6c3d8ab317866a4b033fe7db1deb283b220d74ca919299aa1b7"
+      sourceSha256: "c1553a6ea86978f2b51d2bc89b23dae91800eb8dc27560aacdfe4a557591a32f"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -31,15 +31,15 @@ composition "HoloLand Model Village Character Appearance H3G Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3g.mjs"
-      checkerSha256: "58b566ce46187bf895c6c3a8f12e88d6ba7d20a02dca945be4ad0d45ff4ac387"
+      checkerSha256: "c7f56d43ff401d5d84651f2fee103953bcfdb1a0aee063e9b69dd57d370e09b2"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3g.test.mjs"
-      testSha256: "b3d7f4d4469b9ac311734c111e27c8f8137ea7a00df3c9b20963bceb0c0ac1a2"
+      testSha256: "fbcb02ed7ed21ea49319199e7ecec37d47a4676e0b2ecb87752a255e6029ee81"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3g-hair-response-2026-07-28.md"
-      reportSha256: "5581295919716293583f1a8ed9b9d760ca8200288a556d9b6b8f94fe8c3c9c59"
+      reportSha256: "4261ce498f7838aaebd40bc972e2dbf74f03daf0ca3f1c4091bee47f52147652"
     }
     hero: {
       path: "docs/assets/model-village/model-village-character-appearance-h3g-hair-response-portraits-2026-07-28.png"
@@ -51,15 +51,15 @@ composition "HoloLand Model Village Character Appearance H3G Manifest" {
       iterationAccepted: 9
     }
     upstream: {
-      holoScriptCommit: "5a828db7f9fa54b805741e0997e1e98bb4e48926"
+      holoScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
       inheritedH3FSourceSha256: "1f35e8541e6b62ade27ffd25133f536fc3bc1927269efbb719c529331d6db957"
-      groomBuilderSha256: "a26c955e19fd8294c6b10fcdfa7e63e51c8e2e3e07b137f76bb9127513fdbf42"
-      characterHostSha256: "edbad40844f40e67614111797c6765849d620077e4b322bcd39eeed6ecfae10b"
-      compositionBridgeSha256: "a3ec426c57d7bdfa08e600703e4c6df194c8b216939fe3bc14e5cda012b78c48"
-      nativeRendererSha256: "746501775d4007c173f705ed3c41255e9d104783869d8024ab51ac103515f1fa"
-      hairShaderSha256: "c5d71aa86c6fe7d12a00c6f71e517fefc3e8dd4c9b98ddcf22377994edd10018"
-      drawSpecSha256: "d92c8792897d6bcca5c554c512deaa8a44ba7a1d7bf0ba3eb5c0ad22dc54be00"
-      compilerSha256: "ff9880f7a3b678ab2cf3e76c19e0b2273094f6e6de22bfc3de25ca6eca663932"
+      groomBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
+      characterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
+      compositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
+      nativeRendererSha256: "c30b518a126b0e4daa0ce5319a78f35da1f635f969f7df824b56e533d9cd15f4"
+      hairShaderSha256: "a8436b3c29f07f3dff6cc336ec21a0093cb82de5de5e91d05c6780420cf1fa40"
+      drawSpecSha256: "04fac9799b233efe14b938be2f1d0272c064a64566bccadb0ae34b53e6b1d199"
+      compilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
     }
     nativeAdmission: {
       compilerTarget: "character-webgpu"
@@ -71,7 +71,10 @@ composition "HoloLand Model Village Character Appearance H3G Manifest" {
       scalpSurface: "neutral-anatomical-ellipsoid"
       coverageProfile: "alpha-to-coverage-v1"
       opaqueComparisonProfile: "opaque-v1"
-      materialReceiptSchema: "holoscript.agent-avatar-hair-material.v1"
+      materialReceiptSchema: "holoscript.agent-avatar-hair-material.v2"
+      sourceChromaWeightAuthored: true
+      upstreamUnauthoredChromaWeight: 0.55
+      authoredSourceChromaWeights: { hearth_keeper: 0.62, path_tender: 0.5, record_steward: 0.7 }
       nativeBundleCount: 9
       geometryByteIdenticalComparisonCount: 9
       ocularGroupsPerBundle: 8
@@ -110,6 +113,8 @@ composition "HoloLand Model Village Character Appearance H3G Manifest" {
       capBoundaryDerivedFromNativeReceipt: true
       capAnisotropy: 0
       cardAnisotropySourceAuthored: true
+      cardSourceChromaWeightCarried: true
+      cardSourceChromaMixEvaluatedInBridge: false
       cardAlphaToCoverage: true
       proceduralColorMap: true
       proceduralAlphaMap: true
@@ -122,6 +127,8 @@ composition "HoloLand Model Village Character Appearance H3G Manifest" {
       nativeAlphaToCoverageRequestedClaimed: true
       nativeTangentAnisotropyClaimed: true
       nativeLongitudinalShiftClaimed: true
+      nativeSourceChromaWeightClaimed: true
+      unauthoredChromaBlendClaimed: false
       derivedHairMaterialReceiptClaimed: true
       presentationShaderOverrideUsed: false
       presentationMaterialBridgeUsed: true

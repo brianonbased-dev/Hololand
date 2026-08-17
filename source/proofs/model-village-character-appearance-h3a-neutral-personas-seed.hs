@@ -114,7 +114,11 @@ object "H3ANativeHairAdmissionSeed" {
   type: "h3a_native_admission_seed"
   channel: "hair_style_geometry"
   upstreamPath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
-  currentOperative: false
+  historicalOperative: false
+  currentOperative: true
+  provenBy: "execution"
+  claimedByH3A: false
+  coverageGate: "H3B"
   fullH3Required: true
   expectedAdmission: false
 }
@@ -123,7 +127,11 @@ object "H3ANativeMorphAdmissionSeed" {
   type: "h3a_native_admission_seed"
   channel: "morph_facs"
   upstreamPath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
-  currentOperative: false
+  historicalOperative: false
+  currentOperative: true
+  provenBy: "execution"
+  claimedByH3A: false
+  coverageGate: "H3B"
   fullH3Required: true
   expectedAdmission: false
 }

@@ -251,8 +251,8 @@ export function validateH3AContract(
   );
   expect(
     state.fullH3PromotionStatus ===
-      'blocked_upstream_native_hair_style_and_morph',
-    'full H3 must remain blocked on the two upstream native channels',
+      'historical_boundary_satisfied_native_channels_carried_by_h3b',
+    'H3A must state the resolved historical boundary and name its successor gate',
   );
   for (const [key, expected] of [
     ['productionProfilePromotionClaimed', false],
@@ -281,13 +281,30 @@ export function validateH3AContract(
   ]) {
     expect(state[key] === expected, `${key} must equal ${expected}`);
   }
+  // The frozen historical record. This is H3A's reason to exist, preserved verbatim:
+  // at this commit upstream genuinely had neither channel. It is never re-derived from
+  // upstream source text, because that text has legitimately moved on.
+  const historical = state.upstreamNativeAdmission?.historical;
   expect(
-    state.upstreamNativeAdmission?.hairColorOperative === true &&
-      state.upstreamNativeAdmission?.defaultProceduralHairOperative === true &&
-      state.upstreamNativeAdmission?.authoredHairStyleGeometryOperative === false &&
-      state.upstreamNativeAdmission?.authoredMorphFacsOperative === false &&
+    historical?.holoScriptCommit === '9153ab98a87decffc38876070ca8bfc04b179f01' &&
+      historical?.authoredHairStyleGeometryOperative === false &&
+      historical?.authoredMorphFacsOperative === false &&
+      historical?.characterHostHairStyleReport === 'has_no_geometry_channel_yet' &&
+      historical?.characterHostMorphReport === 'no_facs_morph_target_channel_yet',
+    'frozen historical native-gap record drifted',
+  );
+  // The current admission. Both channels are now operative upstream; H3A still does
+  // not claim them (its preview stays source-owned) and delegates coverage to H3B.
+  const current = state.upstreamNativeAdmission?.current;
+  expect(
+    current?.hairColorOperative === true &&
+      current?.defaultProceduralHairOperative === true &&
+      current?.authoredHairStyleGeometryOperative === true &&
+      current?.authoredMorphFacsOperative === true &&
+      current?.h3aClaimsNativeChannels === false &&
+      current?.nativeChannelCoverageGate === 'H3B' &&
       state.upstreamNativeAdmission?.fullH3Admitted === false,
-    'upstream native admission must fail closed',
+    'current native admission must record the closed gap and delegate coverage to H3B',
   );
   expect(
     state.atlas?.algorithm === 'stormglass_neutral_dermal_atlas_v1' &&
@@ -417,21 +434,168 @@ export function validateH3AContract(
       expect(sha256File(absolute) === expectedHash, `${pathKey} hash drifted`);
     }
   }
-  const characterHostPath = path.resolve(
-    holoScriptRoot,
-    metadata.upstreamCharacterHostPath || '',
+  // H3A's founding evidence used to be a grep for two upstream stub strings asserting the
+  // channels were ABSENT. Upstream closed the gap in H4J (0275f8d4c), so that grep now
+  // measures the wrong thing. It is replaced -- not deleted -- by two stronger checks:
+  //   1. the frozen historical record above, which preserves what H3A was for;
+  //   2. proveUpstreamNativeChannels(), which EXECUTES both channels every run.
+  // The retired grep matched source text; the replacement compiles real geometry. If either
+  // channel regresses upstream, the executed proof fails and this gate goes red.
+  //
+  // Retiring H3A into H3B is refused while H3A holds properties H3B does not assert
+  // (dermal atlas custody, absolute triangle budgets, benchmark protocol, civic roles,
+  // silhouette/atlas-cell uniqueness, H2 lineage, tracking defaults, shared invariants,
+  // promotion boundary, accessibility). The successor pin below keeps the pointer honest:
+  // H3A must name H3B, and H3B's source must exist and match its recorded hash.
+  expect(
+    metadata.successorGate === 'H3B',
+    'H3A must name the successor gate that carries the native channels',
   );
-  if (existsSync(characterHostPath)) {
-    const source = readFileSync(characterHostPath, 'utf8');
+  const successorPath = path.resolve(root, metadata.successorSource || '');
+  expect(
+    Boolean(metadata.successorSource && metadata.successorSourceSha256) &&
+      existsSync(successorPath),
+    'successor gate source missing',
+  );
+  if (existsSync(successorPath)) {
     expect(
-      source.includes("@hair(style:'${style}') has no geometry channel yet") &&
-        source.includes(
-          "report.stubbed.push({ trait: '@morph', reason: 'no FACS/morph-target channel yet' })",
-        ),
-      'upstream native gap evidence changed; re-audit H3 admission',
+      sha256File(successorPath) === metadata.successorSourceSha256,
+      'successor gate source hash drifted',
     );
   }
   return { status: errors.length ? 'fail' : 'pass', errors };
+}
+
+/**
+ * EXECUTED proof that the two channels H3A was authored against are now operative.
+ *
+ * Compiles H3A's own authored hair styles and expression targets through the same public
+ * surface H3B is proved on (ExportManager -> 'character-webgpu'). Requires, for every
+ * H3A hair style: a native @hair(style=<id>) mapping, zero stubs, and real hair geometry;
+ * and for every non-neutral H3A expression: native @morph targets applied with no ignored
+ * targets. Returns a witness so the receipt records what was actually compiled.
+ */
+export async function proveUpstreamNativeChannels(core, plan) {
+  const failures = [];
+  const styleWitness = [];
+  const expressionWitness = [];
+
+  const compile = (objectId, traits) =>
+    new core.ExportManager({
+      useCircuitBreaker: false,
+      useFallback: false,
+      useMemoryMonitoring: false,
+    }).export(
+      'character-webgpu',
+      {
+        name: 'H3A upstream native channel proof',
+        templates: [{ name: 'CivicPersona', traits: [] }],
+        objects: [
+          {
+            name: objectId,
+            template: 'CivicPersona',
+            position: { x: 0, y: 0, z: 0 },
+            traits: [
+              { name: 'skeleton', config: { rig: 'humanoid_65' } },
+              { name: 'body', config: { height: 1.72 } },
+              ...traits,
+            ],
+          },
+        ],
+      },
+      { compilerOptions: { objectId, entityId: `h3a-native-proof-${objectId}`, lodLevel: 0 } },
+    );
+
+  // Channel 1: authored hair-style geometry.
+  const styleGeometry = new Map();
+  for (const persona of plan.personas) {
+    const objectId = `HairProof_${persona.personaId}`;
+    const result = await compile(objectId, [
+      { name: 'hair', config: { style: persona.hairStyleId, color: persona.hairColor } },
+    ]);
+    if (!result.success || result.usedFallback) {
+      failures.push(`native hair style ${persona.hairStyleId} failed to compile`);
+      continue;
+    }
+    const bundle = JSON.parse(result.output);
+    const hair = bundle.materialGroups.find(
+      (group) => group.material.shadingModel === 'marschner-hair',
+    );
+    const mapped = bundle.report?.mapped || [];
+    const hairTriangles = hair ? hair.indexCount / 3 : 0;
+    if (!mapped.includes(`@hair(style=${persona.hairStyleId})`)) {
+      failures.push(`@hair(style=${persona.hairStyleId}) is not natively mapped upstream`);
+    }
+    if ((bundle.report?.stubbed || []).length !== 0) {
+      failures.push(`native hair style ${persona.hairStyleId} reported stubs`);
+    }
+    if (!(hairTriangles > 0)) {
+      failures.push(`native hair style ${persona.hairStyleId} produced no hair geometry`);
+    }
+    styleGeometry.set(persona.hairStyleId, hairTriangles);
+    styleWitness.push({
+      hairStyleId: persona.hairStyleId,
+      mapped: mapped.filter((entry) => entry.startsWith('@hair')),
+      hairTriangles,
+      vertexCount: bundle.vertexCount,
+    });
+  }
+  // Distinct styles must yield distinct geometry, not one shared default.
+  if (styleGeometry.size > 1 && new Set(styleGeometry.values()).size === 1) {
+    failures.push('every authored hair style produced identical geometry (default fallback)');
+  }
+
+  // Channel 2: authored FACS / morph targets.
+  const H3A_EXPRESSION_FACS = {
+    neutral: {},
+    soft_smile: { smile: 0.55 },
+    blink: { blink_left: 1, blink_right: 1 },
+    viseme_aa: { viseme_aa: 0.9, jaw_open: 0.6 },
+    viseme_ee: { viseme_ee: 0.85 },
+    viseme_oh: { viseme_oh: 0.8, jaw_open: 0.35 },
+  };
+  for (const expression of plan.expressions) {
+    const targets = H3A_EXPRESSION_FACS[expression.expressionId];
+    if (!targets) {
+      failures.push(`no FACS mapping recorded for expression ${expression.expressionId}`);
+      continue;
+    }
+    if (expression.expressionId === 'neutral') continue;
+    const objectId = `MorphProof_${expression.expressionId}`;
+    const result = await compile(objectId, [
+      { name: 'hair', config: { style: plan.personas[0].hairStyleId } },
+      { name: 'morph', config: { targets } },
+    ]);
+    if (!result.success || result.usedFallback) {
+      failures.push(`native morph ${expression.expressionId} failed to compile`);
+      continue;
+    }
+    const bundle = JSON.parse(result.output);
+    const mapped = (bundle.report?.mapped || []).filter((entry) => entry.startsWith('@morph'));
+    if (mapped.length === 0) {
+      failures.push(`@morph for ${expression.expressionId} is not natively mapped upstream`);
+    }
+    if ((bundle.morph?.ignoredTargets || []).length !== 0) {
+      failures.push(`native morph ${expression.expressionId} ignored authored targets`);
+    }
+    if (!(bundle.morph?.changedVertexCount > 0)) {
+      failures.push(`native morph ${expression.expressionId} deformed no vertices`);
+    }
+    expressionWitness.push({
+      expressionId: expression.expressionId,
+      authoredTargets: targets,
+      mapped,
+      changedVertexCount: bundle.morph?.changedVertexCount ?? 0,
+      ignoredTargets: bundle.morph?.ignoredTargets ?? [],
+    });
+  }
+
+  return {
+    status: failures.length ? 'fail' : 'pass',
+    failures,
+    styleWitness,
+    expressionWitness,
+  };
 }
 
 function hexRgb(hex) {
@@ -1715,7 +1879,7 @@ async function runBrowser(surface, plan, options, modules) {
           800,
           360,
           expression.expressionId.toUpperCase().replaceAll('_', ' '),
-          'source delta bridge preview · native @morph blocked',
+          'source delta bridge preview · native @morph carried by H3B',
         ),
       );
     }
@@ -1952,13 +2116,39 @@ ${perLod}
 - Render-submit p95: ${receipt.performance.renderSubmit.p95.toFixed(2)} ms
 - Dropped-frame ratio: ${(receipt.performance.droppedFrameRatio * 100).toFixed(3)}%
 
-## Native admission boundary
+## Native admission boundary (historical, resolved)
 
-The upstream HoloScript engine at commit
-\`${receipt.nativeAdmission.holoScriptCommit}\` still maps hair color and default
-procedural hair, but reports authored \`@hair(style)\` geometry as unwired and
-\`@morph\` as lacking a FACS/morph-target channel. H3A therefore proves only a
-source-owned bridge preview. Full H3 remains blocked and is not claimed.
+H3A was authored against upstream HoloScript commit
+\`${receipt.nativeAdmission.historical.holoScriptCommit}\`, which reported authored
+\`@hair(style)\` geometry as having no geometry channel and \`@morph\` as having no
+FACS/morph-target channel. That record is frozen above and is no longer re-derived.
+
+Upstream closed both gaps in \`${receipt.nativeAdmission.current.gapClosedByUpstreamCommit}\`.
+This run **executed** both channels against commit
+\`${receipt.nativeAdmission.current.holoScriptCommit}\` rather than asserting them:
+
+| Authored hair style | Native mapping | Hair triangles |
+|---|---|---:|
+${receipt.nativeAdmission.executedProof.hairStyles
+  .map((entry) => `| ${entry.hairStyleId} | ${entry.mapped.join(', ')} | ${entry.hairTriangles} |`)
+  .join('\n')}
+
+| Expression | Native morph mapping | Vertices deformed |
+|---|---|---:|
+${receipt.nativeAdmission.executedProof.expressions
+  .map((entry) => `| ${entry.expressionId} | ${entry.mapped.join(', ')} | ${entry.changedVertexCount} |`)
+  .join('\n')}
+
+H3A still does **not** claim the native channels: its preview geometry remains
+source-owned, and native channel coverage is carried by
+\`${receipt.successor.gate}\` (\`${receipt.successor.source}\`). Full H3 is not admitted here.
+
+H3A is retained rather than retired because it uniquely holds the deterministic
+dermal atlas custody contract, the absolute per-persona triangle budgets, the
+benchmark protocol shape, civic-role binding, silhouette and dermal-atlas-cell
+uniqueness, the H2 lineage pins, the face/eye tracking defaults, the shared
+motion and capability invariants, the promotion/replacement boundary, and the
+accessibility evidence -- none of which the successor gate asserts.
 
 No persona binds Claude, OpenAI, Gemini, Grok, GLM, Brittney, or any adapter
 family. The live blinded research profile cannot admit these civic personas
@@ -1988,6 +2178,7 @@ export async function runCharacterAppearanceH3A(
     holoScriptRoot,
   );
   const plan = buildH3APlan(stack.contract);
+  const nativeChannels = await proveUpstreamNativeChannels(stack.core, plan);
   const modules = await loadWorkspaceModules(holoScriptRoot);
   const firstAtlases = generateDermalAtlasBuffers(
     modules.PNG,
@@ -2064,10 +2255,22 @@ export async function runCharacterAppearanceH3A(
     sourceOwnedExpressionPreview: plan.expressions.every(
       (expression) => expression.nativeMorphTargetClaimed === false,
     ),
-    nativeAdmissionFailsClosed:
-      plan.upstreamNativeAdmission.authoredHairStyleGeometryOperative === false &&
-      plan.upstreamNativeAdmission.authoredMorphFacsOperative === false &&
+    // The historical gap record stays frozen; the current record must say the gap closed;
+    // and full H3 is still NOT admitted by H3A (H3B carries the native channels).
+    historicalNativeGapRecordFrozen:
+      plan.upstreamNativeAdmission.historical
+        ?.authoredHairStyleGeometryOperative === false &&
+      plan.upstreamNativeAdmission.historical?.authoredMorphFacsOperative ===
+        false,
+    currentNativeChannelsAdmitted:
+      plan.upstreamNativeAdmission.current
+        ?.authoredHairStyleGeometryOperative === true &&
+      plan.upstreamNativeAdmission.current?.authoredMorphFacsOperative ===
+        true &&
+      plan.upstreamNativeAdmission.current?.h3aClaimsNativeChannels === false &&
       plan.upstreamNativeAdmission.fullH3Admitted === false,
+    // EXECUTED, not asserted: both channels compiled real output this run.
+    upstreamNativeChannelsProven: nativeChannels.status === 'pass',
     exactFrameProtocol:
       browser.witness.benchmark.raf.samples === plan.benchmark.measuredFrames &&
       browser.witness.benchmark.renderSubmit.samples ===
@@ -2106,6 +2309,7 @@ export async function runCharacterAppearanceH3A(
   };
   const failures = [
     ...validation.errors.map((error) => `contract:${error}`),
+    ...nativeChannels.failures.map((error) => `nativeChannel:${error}`),
     ...Object.entries(checks)
       .filter(([, value]) => value !== true)
       .map(([name]) => name),
@@ -2141,6 +2345,19 @@ export async function runCharacterAppearanceH3A(
         stack.contract.metadata.upstreamCharacterHostSha256,
       hairBuilderPath: stack.contract.metadata.upstreamHairBuilderPath,
       hairBuilderSha256: stack.contract.metadata.upstreamHairBuilderSha256,
+      // Executed evidence that the historical gap is closed, replacing the retired
+      // source-text grep. Recorded so the claim is auditable from the receipt alone.
+      executedProof: {
+        status: nativeChannels.status,
+        failures: nativeChannels.failures,
+        hairStyles: nativeChannels.styleWitness,
+        expressions: nativeChannels.expressionWitness,
+      },
+    },
+    successor: {
+      gate: stack.contract.metadata.successorGate,
+      source: stack.contract.metadata.successorSource,
+      sha256: stack.contract.metadata.successorSourceSha256,
     },
     plan,
     atlases: Object.fromEntries(

@@ -6,6 +6,15 @@
 // sovereign character compiler, authored hair LODs, native eyes, and bounded
 // morph channels. This is a procedural facial foundation, not a scan, production
 // blendshape rig, biometric likeness, or photorealism claim.
+//
+// 2026-08-16 re-witness. Upstream native facial morph moved v1 -> v2 in HoloScript
+// 09fe4773d (2026-07-29), one day after this gate's original pin. Under v1 a blink
+// scaled only the eye globe; under v2 it also closes the authored orbital lid shell
+// that this composition already asks for with @face(tearline: true). H3C now admits
+// that semantics by name, authors a blink probe that exercises it, and witnesses the
+// lid closure as a measured delta rather than inheriting an unexamined receipt.
+// Expression-time normal recomputation (morph v3) stays refused: normals are still
+// the neutral serialized set, and the gate fails closed if v3 ever appears here.
 
 composition "Stormglass Character Appearance H3C Face Foundation" {
   metadata {
@@ -17,18 +26,20 @@ composition "Stormglass Character Appearance H3C Face Foundation" {
     policySource: "source/proofs/model-village-character-appearance-h3c-face-foundation-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3c-face-foundation-seed.hs"
     inheritedH3BSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3b-native-channels.holo"
-    inheritedH3BSourceSha256: "be9c335799a4369b1fdbe0ec85a0733b6f3635865584a8a0931d891974ff6f26"
-    upstreamHoloScriptCommit: "faf90ec8cbac992c6ca0ed9ffafb9033fa9bd127"
+    inheritedH3BSourceSha256: "ab6c2fa17efbe5e5a84e5b5e3d4c6e984ab20136fe1fc566ea72734bf3d6ab2c"
+    upstreamHoloScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
     upstreamFaceBuilderPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
-    upstreamFaceBuilderSha256: "77ce27afc799ea48f8a04189664ee01529f5fdfe0928df9aff1ec7e8132610f2"
+    upstreamFaceBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"
     upstreamEyeBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
-    upstreamEyeBuilderSha256: "bd5ed2aa28527983275eac024636b8c80acae0728480001d68165e425b672bf9"
+    upstreamEyeBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
     upstreamCompositionBridgePath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
-    upstreamCompositionBridgeSha256: "cd3039cdcbbc7df089ab00e7d7c25317436d88c8e542820f6c19c62c44354c23"
+    upstreamCompositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
     upstreamMorphBuilderPath: "packages/engine/src/character-render/AgentAvatarMorph.ts"
-    upstreamMorphBuilderSha256: "7a95a85d362c2d55d802a0587dd79b6d4787e752ca5f302c47c49e521f464de6"
+    upstreamMorphBuilderSha256: "f021d0ff48f3c65584125bec6aa39a5c03017e35cc6168f0b512074700a48357"
+    upstreamMorphHostPath: "packages/engine/src/character-render/CharacterHost.ts"
+    upstreamMorphHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
     upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
-    upstreamCompilerSha256: "34cb6770008c6aa42f876bdaebf777999f18adf513e5280d0559312f91b71a66"
+    upstreamCompilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
     projectionRole: "read_only_native_face_foundation_witness"
     artStyle: "hearthlight_biorealism"
     visualTarget: "stormglass_craft_real_portrait_studio"
@@ -80,6 +91,7 @@ composition "Stormglass Character Appearance H3C Face Foundation" {
       radialSegments: 22
       verticalSegments: 16
       tearlineRimTopology: true
+      orbitalLidBlinkOperative: true
       smoothSkullNormals: true
       jawTaper: true
       noseLandmark: true
@@ -101,7 +113,11 @@ composition "Stormglass Character Appearance H3C Face Foundation" {
       authoredMorphFacsSubsetOperative: true
       authoredLocomotionPoseMaterialized: true
       morphTopology: "neutral-anatomical-v2"
+      morphSchemaVersion: "holoscript.native-facial-morph.v2"
+      blinkClosesAuthoredOrbitalLid: true
+      orbitalLidClosureMustCoverWholeAuthoredRim: true
       normalsRecomputedAfterMorph: false
+      expressionNormalRecomputationAdmitted: false
       fullH3Admitted: false
     }
 
@@ -225,5 +241,14 @@ composition "Stormglass Character Appearance H3C Face Foundation" {
     type: "native_morph_expression_probe"
     expressionId: "viseme_oh"
     weights: { oh: 0.9, jawOpen: 0.2 }
+  }
+
+  // Blink is the probe the original three never carried: every earlier weight set
+  // left blink at zero, so the authored orbital lid was witnessed as topology and
+  // never as motion. Under morph v2 a full blink must close the whole authored rim.
+  object "ExpressionBlinkClosed" {
+    type: "native_morph_expression_probe"
+    expressionId: "blink_closed"
+    weights: { blink: 1 }
   }
 }

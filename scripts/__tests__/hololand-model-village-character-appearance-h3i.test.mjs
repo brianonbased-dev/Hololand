@@ -17,7 +17,9 @@ test('H3I parses all three formats and binds the anatomy and surface truth bound
   assert.equal(validation.status, 'pass', validation.errors.join('\n'));
   assert.deepEqual(stack.contract.state.anatomySurfaceFoundation, {
     anatomyReceiptSchema: 'holoscript.agent-avatar-anatomy.v1',
-    skinReceiptSchema: 'holoscript.agent-avatar-skin-material.v1',
+    skinReceiptSchema: 'holoscript.agent-avatar-skin-material.v2',
+    skinCalibrationProfile: 'legacy-v1',
+    skinDisclosureOnlyWidening: true,
     skinMicrodetailProfile: 'analytic-pore-v1',
     faceWidthRange: [0.93, 0.96],
     faceLengthRange: [1.05, 1.08],
@@ -91,14 +93,34 @@ test('H3I emits nine exact anatomy, crown, skin, and temporal receipts', async (
         shoulderScale: record.shoulderScale,
         torsoScale: record.torsoScale,
       });
+      // Re-witnessed under the admitted v2 semantics. The eight fields v2 added are the
+      // skin-sss material group's own values, now disclosed by the receipt; they are asserted
+      // against that group below so the golden cannot drift away from what actually renders.
+      const skinGroup = tier.bundle.materialGroups.find(
+        (group) => group.material.shadingModel === 'skin-sss'
+      );
       assert.deepEqual(tier.bundle.skin, {
-        schemaVersion: 'holoscript.agent-avatar-skin-material.v1',
+        schemaVersion: 'holoscript.agent-avatar-skin-material.v2',
+        calibrationProfile: 'legacy-v1',
         shadingModel: 'skin-sss',
+        color: skinGroup.material.color,
+        scatterColor: skinGroup.material.scatterColor,
+        scatterRadii: skinGroup.material.scatterRadii,
+        specularF0: skinGroup.material.specularF0,
+        thickness: skinGroup.material.thickness,
+        transmitStrength: skinGroup.material.transmitStrength,
+        ambient: skinGroup.material.ambient,
         microdetailProfile: 'analytic-pore-v1',
         microdetailScale: record.microdetailScale,
         microdetailStrength: record.microdetailStrength,
         roughness: 0.45,
       });
+      // legacy-v1 is the calibration that preserves the pre-H4J appearance. Pin the values it
+      // selects, so a change of upstream default calibration cannot pass silently.
+      assert.equal(skinGroup.material.thickness, 0.3);
+      assert.equal(skinGroup.material.transmitStrength, 0.4);
+      assert.equal(skinGroup.material.ambient, 0.12);
+      assert.equal(skinGroup.material.roughness, 0.45);
       assert.equal(tier.bundle.groom.crownWhorl, record.crownWhorl);
       assert.deepEqual(tier.bundle.lod.transition, {
         schemaVersion: 'holoscript.character-lod-transition.v1',
