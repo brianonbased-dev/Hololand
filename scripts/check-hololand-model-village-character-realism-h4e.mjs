@@ -13,6 +13,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
+import { validateUpstreamCommitPin } from './lib/model-village-upstream-commit-pin.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
@@ -78,6 +79,17 @@ const DURABLE_FILES = [
   EVIDENCE_REL,
 ];
 
+// The HEAD-equality assertion this replaced demanded one exact commit; eighteen gates
+// demanded eighteen different ones, so the set could never be satisfied at once. See
+// scripts/lib/model-village-upstream-commit-pin.mjs for the full reasoning.
+function upstreamPinFailures(holoScriptRoot) {
+  return validateUpstreamCommitPin(
+    holoScriptRoot,
+    EXPECTED_COMMIT,
+    HASH_BINDINGS.map(([relative, sha256]) => ({ pathKey: relative, relative, sha256 })),
+  ).errors;
+}
+
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -126,9 +138,7 @@ function gitHead(root) {
 
 function validatePins(root, holoScriptRoot) {
   const errors = [];
-  if (gitHead(holoScriptRoot) !== EXPECTED_COMMIT) {
-    errors.push(`HoloScript HEAD must be ${EXPECTED_COMMIT}`);
-  }
+  errors.push(...upstreamPinFailures(holoScriptRoot));
   for (const [relativePath, expected] of HASH_BINDINGS) {
     const absolute = path.join(holoScriptRoot, relativePath);
     if (!existsSync(absolute)) errors.push(`${relativePath} is missing`);

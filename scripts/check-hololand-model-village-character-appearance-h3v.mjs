@@ -12,6 +12,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { parseH3UStack } from './check-hololand-model-village-character-appearance-h3u.mjs';
 import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
+import { validateUpstreamCommitPin } from './lib/model-village-upstream-commit-pin.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
@@ -50,6 +51,23 @@ const HASH_BINDINGS = [
   ['upstreamHostBridgePath', 'upstreamHostBridgeSha256'],
   ['upstreamRendererPath', 'upstreamRendererSha256'],
 ];
+
+// The HEAD-equality assertion this replaced demanded one exact commit; eighteen gates
+// demanded eighteen different ones, so the set could never be satisfied at once. See
+// scripts/lib/model-village-upstream-commit-pin.mjs for the full reasoning.
+function upstreamPinFailures(holoScriptRoot, metadata) {
+  return validateUpstreamCommitPin(
+    holoScriptRoot,
+    metadata.upstreamHoloScriptCommit,
+    HASH_BINDINGS
+      .filter(([, , owner]) => owner === 'holoscript')
+      .map(([pathKey, hashKey]) => ({
+        pathKey,
+        relative: metadata[pathKey],
+        sha256: metadata[hashKey],
+      })),
+  ).errors;
+}
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -210,7 +228,7 @@ export function validateH3VContract(
   );
   expect(metadata.artStyle === 'hearthlight_biorealism', 'art style drifted');
   expect(metadata.upstreamHoloScriptCommit === EXPECTED_COMMIT, 'commit pin drifted');
-  expect(gitHead(holoScriptRoot) === EXPECTED_COMMIT, 'HoloScript HEAD is not pinned H3V');
+  for (const failure of upstreamPinFailures(holoScriptRoot, metadata)) expect(false, failure);
   for (const [pathKey, hashKey] of HASH_BINDINGS) {
     const absolute = path.join(holoScriptRoot, metadata[pathKey] || '');
     expect(existsSync(absolute), `${pathKey} does not exist`);

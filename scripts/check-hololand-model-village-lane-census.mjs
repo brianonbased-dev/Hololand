@@ -65,11 +65,17 @@ export const UNWIRED_REASONS = {
     + '(git IS on PATH). Each invited a different wrong repair. They now resolve through '
     + 'scripts/lib/model-village-holoscript-root.mjs, which fails loud instead of returning '
     + 'a path that is not there. '
-    + 'What is left is substantive, and mostly ONE assertion: eighteen gates require '
-    + 'HoloScript HEAD to EQUAL a pinned commit, and they name eighteen DIFFERENT commits, '
-    + 'so the set is unsatisfiable by construction -- no checkout state can ever make more '
-    + 'than one of them green. H3Y, H3Z and H4A instead report genuine hash drift on files '
-    + 'that moved upstream. Wiring before repair would land a red lane. Repair is the work.',
+    + 'The unsatisfiable HEAD-equality assertion is also GONE. Eighteen gates required '
+    + 'HoloScript HEAD to EQUAL a pinned commit and named eighteen DIFFERENT commits, so no '
+    + 'checkout state could ever make more than one green. They now use the canon-containment '
+    + 'validator (scripts/lib/model-village-upstream-commit-pin.mjs), proven load-bearing in '
+    + 'all 18 by injecting a commit that resolves but is not in canon: 18 of 18 caught. '
+    + 'What is left is genuine upstream drift, and it has ONE dominant cause. Seventeen gates '
+    + 'report hash drift on named files, most often AgentAvatarMesh.ts -- the file the H4J '
+    + 'change rewrote on 2026-08-04 (486 lines). These witnesses predate it and have not been '
+    + 're-witnessed since. H4G is the exception: it reports a missing @holoscript/core build '
+    + 'artifact, which is the unpinnable-build gap, not a pin. Wiring before repair would land '
+    + 'a red lane. Repair -- re-witnessing each gate against current upstream -- is the work.',
   H_SERIES_PASSES_WITHOUT_ITS_SUBJECT:
     'Character gate whose test is green with no HoloScript tree present at all. '
     + 'Executed negative control 2026-08-16: HOLOSCRIPT_ROOT=C:/definitely/not/a/real/'
