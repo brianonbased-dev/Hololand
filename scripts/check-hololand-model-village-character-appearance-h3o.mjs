@@ -32,7 +32,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-appearance-h3o-native-hand-material-plates-2026-07-29.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3o';
-const EXPECTED_COMMIT = 'b76b9f2c62a8de753fca6e55b11e7e60385bce02';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const HASH_BINDINGS = [
   ['inheritedH3NSource', 'inheritedH3NSourceSha256', 'hololand'],
@@ -425,6 +425,12 @@ async function compileH3OResidents(stack, plan) {
 }
 
 async function captureNativePlates(stack, plan, holoScriptRoot, outputDir) {
+  // The composition declares the two receipt schemas it was witnessed against. Nothing read
+  // those lines, so upstream could reshape either receipt and the gate would keep reporting a
+  // schema it had stopped seeing. H3U lost two thirds of its temporal boundary check exactly
+  // that way when the controller receipt went v1 -> v2, so bind them here instead of waiting.
+  const declaredMaterialReceiptSchema = stack.contract.state.nativeMaterialReceiptSchema;
+  const declaredDetailFrameSchema = stack.contract.state.nativeDetailFrameSchema;
   const runtime = await loadNativeRuntime(holoScriptRoot, outputDir, stack.esbuild);
   const gpu = runtime.createWebGpu([]);
   let adapter = await gpu.requestAdapter({ powerPreference: 'high-performance' });
@@ -477,6 +483,18 @@ async function captureNativePlates(stack, plan, holoScriptRoot, outputDir) {
         ],
         { padding: 1.42 }
       );
+      if (materialReceipt.schemaVersion !== declaredMaterialReceiptSchema) {
+        throw new Error(
+          `${resident.displayLabel} material plate receipt is ${materialReceipt.schemaVersion}, `
+            + `the composition declares ${declaredMaterialReceiptSchema}`
+        );
+      }
+      if (detailFrame.schemaVersion !== declaredDetailFrameSchema) {
+        throw new Error(
+          `${resident.displayLabel} detail frame receipt is ${detailFrame.schemaVersion}, `
+            + `the composition declares ${declaredDetailFrameSchema}`
+        );
+      }
       if (
         materialReceipt.roleCounts['keratin-nail'] !== 10 ||
         materialReceipt.skinNailOverlapIndexCount !== 0 ||

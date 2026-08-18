@@ -39,7 +39,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-appearance-h3x-cranial-expression-normals-2026-07-29.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3x';
-const EXPECTED_COMMIT = 'df6ebcd00b5e36fa6bc5fcc8ed8dde36dbd655c2';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const RENDER_SIZE = 512;
 const CLEAR = [0.008, 0.031, 0.067, 1];
@@ -59,13 +59,11 @@ function upstreamPinFailures(holoScriptRoot, metadata) {
   return validateUpstreamCommitPin(
     holoScriptRoot,
     metadata.upstreamHoloScriptCommit,
-    HASH_BINDINGS
-      .filter(([, , owner]) => owner === 'holoscript')
-      .map(([pathKey, hashKey]) => ({
-        pathKey,
-        relative: metadata[pathKey],
-        sha256: metadata[hashKey],
-      })),
+    HASH_BINDINGS.map(([pathKey, hashKey]) => ({
+      pathKey,
+      relative: metadata[pathKey],
+      sha256: metadata[hashKey],
+    })),
   ).errors;
 }
 

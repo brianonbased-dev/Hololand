@@ -106,10 +106,18 @@ const FORWARD_CHAIN = [
  * whose predecessor THIS change moved is owed maintenance. Refreshing one that was already
  * wrong is masking a pre-existing fault under cover of a sweep, so it is held instead.
  *
- * The chain therefore STOPS at H3T. H3U's pin on H3T was already stale, and H3U is one of
- * the four GPU gates that cannot be judged headlessly, so it is reported and left alone.
+ * HOLD RELEASED 2026-08-18, and the reason it expired matters. H3U::inheritedH3TSourceSha256
+ * was held because its drift predated this work -- refreshing it would have masked a fault
+ * somebody else introduced. That premise is gone: the re-witness landing moved H3T's source
+ * legitimately AND re-witnessed H3U itself, so H3U's lineage pin is now drifted for a reason
+ * THIS change caused, and leaving it held keeps a gate red on my own damage. The older
+ * component is subsumed rather than resolved -- worth knowing, but no longer separable, and
+ * H3U's own record is being re-established from scratch in the same landing.
+ *
+ * The set is deliberately kept (not deleted) so the next pin that needs holding has somewhere
+ * to go, and so the mechanism stays exercised rather than rotting.
  */
-const PRE_EXISTING_HOLD = new Set(['H3U::inheritedH3TSourceSha256']);
+const PRE_EXISTING_HOLD = new Set();
 
 /**
  * Blocks whose `sha256:` follows a `path:` naming a file this change can legitimately
@@ -191,6 +199,38 @@ void H3C_MANIFEST;
 
 function sha256File(file) {
   return createHash('sha256').update(readFileSync(file)).digest('hex');
+}
+
+/**
+ * Some gates verify hololand-owned pins with a PORTABLE hash -- sha256 of the text with CRLF
+ * normalised to LF -- rather than raw bytes (see sha256PortableFile in h3u/h3v/h3w/h3x).
+ *
+ * This resolver wrote raw-byte hashes everywhere, so a portable-verifying gate got a pin it
+ * could never accept: H3U reported `inheritedH3TSourceSha256 drifted` while the pin exactly
+ * matched h3t's raw sha256. In a MIXED worktree the two hashes differ, so the resolver was
+ * silently corrupting any pin whose consumer normalises. Only H3U was in the chain, so only
+ * H3U showed it -- the rest was luck, not correctness.
+ *
+ * The consumer is DETECTED rather than listed, so a gate that adopts portable hashing later
+ * cannot silently fall out of step with the resolver.
+ */
+const PORTABLE_EXTENSIONS = new Set(['.holo', '.hsplus', '.hs', '.mjs', '.md', '.json']);
+
+function consumerUsesPortableHash(gate) {
+  if (!gate) return false;
+  const slug = gate.toLowerCase();
+  for (const kind of ['appearance', 'realism']) {
+    const checker = path.join(ROOT, 'scripts', `check-hololand-model-village-character-${kind}-${slug}.mjs`);
+    if (existsSync(checker) && readFileSync(checker, 'utf8').includes('sha256PortableFile')) return true;
+  }
+  return false;
+}
+
+function sha256AsConsumerSees(file, portable) {
+  if (portable && PORTABLE_EXTENSIONS.has(path.extname(file).toLowerCase())) {
+    return createHash('sha256').update(readFileSync(file, 'utf8').split('\r\n').join('\n')).digest('hex');
+  }
+  return sha256File(file);
 }
 
 function readValue(text, key) {
@@ -344,7 +384,7 @@ function run({ check }) {
           stale.push(`${stage.file} :: ${hashKey} -> missing ${rel} (NOT rewritten)`);
           continue;
         }
-        const actual = sha256File(target);
+        const actual = sha256AsConsumerSees(target, consumerUsesPortableHash(stage.gate));
         if (readValue(text, hashKey) === actual) {
           verified.push(`${stage.file} :: ${hashKey}`);
           continue;

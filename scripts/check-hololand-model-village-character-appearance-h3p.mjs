@@ -32,7 +32,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-appearance-h3p-hand-topology-convergence-2026-07-29.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3p';
-const EXPECTED_COMMIT = '1a9290762e1c1b1671c0a3ae9fb7d25999f0d0c1';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const HASH_BINDINGS = [
   ['inheritedH3NSource', 'inheritedH3NSourceSha256', 'hololand'],

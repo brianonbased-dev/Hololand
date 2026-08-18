@@ -28,7 +28,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-appearance-h3q-material-calibration-2026-07-29.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3q';
-const EXPECTED_COMMIT = '40697c773533db38d3111855c1eeab9ac381c396';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const HASH_BINDINGS = [
   ['inheritedH3PSource', 'inheritedH3PSourceSha256', 'hololand'],

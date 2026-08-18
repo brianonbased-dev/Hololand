@@ -34,7 +34,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-appearance-h3t-skin-surface-response-2026-07-29.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3t';
-const EXPECTED_COMMIT = 'f165a58722c0808bc4ab9753ab1c68136870e10d';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const HASH_BINDINGS = [
   ['inheritedH3SSource', 'inheritedH3SSourceSha256', 'hololand'],

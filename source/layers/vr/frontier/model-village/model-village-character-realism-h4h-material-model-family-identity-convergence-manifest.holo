@@ -22,11 +22,11 @@ composition "Stormglass Character Realism H4H Manifest" {
   }
   object "H4HChecker" {
     path: "scripts/check-hololand-model-village-character-realism-h4h.mjs"
-    sha256: "624052f63c2e0b06b2b7e78ae533d3ee0d866f1e3a878286918752e64be93474"
+    sha256: "22e77c783d1f869f977da4596b967d7306ac2478533304cc2a7fc8fcf00e8963"
   }
   object "H4HTests" {
     path: "scripts/__tests__/hololand-model-village-character-realism-h4h.test.mjs"
-    sha256: "ee551df7a48cb37b34fd967b1d6b6910fdc7b3a11b15e834f05504b570543d53"
+    sha256: "20a7abb798182ecd1e5c27dc55e6a36513f4a925d67d8bc2610eee7203ef00f0"
   }
   object "H4HReport" {
     path: "docs/reports/model-village-character-realism-h4h-material-model-family-identity-convergence-2026-08-01.md"

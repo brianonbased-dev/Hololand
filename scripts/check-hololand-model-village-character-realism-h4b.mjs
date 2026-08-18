@@ -20,6 +20,7 @@ import { deriveH3YHarnessSource } from './check-hololand-model-village-character
 import { deriveH3ZHarnessSource } from './check-hololand-model-village-character-appearance-h3z.mjs';
 import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
 import { validateUpstreamCommitPin } from './lib/model-village-upstream-commit-pin.mjs';
+import { absolutizeHarnessLibImports } from './lib/model-village-harness-imports.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
@@ -302,6 +303,26 @@ const SOURCE_REL =
   return source;
 }
 
+// DO NOT REFRESH THIS GATE'S PINS TO CURRENT UPSTREAM. Re-witnessed 2026-08-17.
+//
+// H4B's distinguishing claim is the honest boundary below: blink is native, and gaze,
+// breath and cloth are sampled-only channels that the engine does NOT yet apply. That
+// claim was true at the pinned commit 1f295ee62 and is false of upstream today.
+//
+// HoloScript c96c6bf73 (2026-07-30, the commit H4C pins) made gaze and breath native.
+// CharacterHostFromComposition.ts now emits `gaze: 'native-ocular-globe-rotation'` and
+// `breath: 'native-upper-chest-deformation'` unconditionally -- there is no profile,
+// token or option that returns the sampled-only bindings. Measured by running this gate
+// with its pins moved to canon tip c273682f5: the browser/WebGPU leg and the inherited
+// H4A admission both pass, then all four residents fail here with "sampled-only channel
+// boundary drifted".
+//
+// So the only way to make H4B green against current upstream is to delete or widen the
+// boundary assertion, which would turn a truthful superseded witness into a false one.
+// H4B stays pinned to 1f295ee62 as the historical record; H4C carries the same residents
+// forward with the stronger native-gaze/native-breath claim. Note H4J (0275f8d4c,
+// 2026-08-04) is NOT the cause -- it landed four days after the boundary had already
+// moved, and touches no micro-motion code.
 export function validateH4BCompilerRecords(records) {
   const errors = [];
   for (const record of records || []) {
@@ -476,8 +497,12 @@ async function materializeHarness(root, outputDir) {
   const source = deriveH4BHarnessSource(h4aSource);
   mkdirSync(outputDir, { recursive: true });
   const generatedPath = path.join(outputDir, 'h4b-derived-webgpu-harness.mjs');
-  writeFileSync(generatedPath, source);
-  return import(`${pathToFileURL(generatedPath).href}?sha=${sha256(source)}`);
+  // h3x imports './lib/*.mjs'; those specifiers resolve against the harness's own
+  // directory, which has no lib/. Bind them to the real scripts/lib before writing.
+  const linked = absolutizeHarnessLibImports(source, path.join(ROOT, 'scripts'));
+  assert(linked.rewritten.length === 2, `H4B harness lib imports drifted: ${linked.rewritten.join(', ')}`);
+  writeFileSync(generatedPath, linked.source);
+  return import(`${pathToFileURL(generatedPath).href}?sha=${sha256(linked.source)}`);
 }
 
 function parseArgs(argv = process.argv.slice(2)) {

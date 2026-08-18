@@ -6,13 +6,13 @@ composition "Hearthlight Character Appearance H3T Skin Surface Response Manifest
     milestone: "MV_CHARACTER_APPEARANCE_H3T_SKIN_SURFACE_RESPONSE"
     date: "2026-07-29"
     source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3t-skin-surface-response.holo"
-    sourceSha256: "76c7f73703a184fd378fa6f1f6be4e701db9cc25afbddf8ab4d035f9a5972fd4"
+    sourceSha256: "c651f76712b7bab786d31d0f005f0e0a63a915489f4866a044e2b263f06c94d6"
     policy: "source/proofs/model-village-character-appearance-h3t-skin-surface-response-policy.hsplus"
     policySha256: "e5d5916c2a936c4a47518abe998c09459e1e000b7879bb20ffedc183013046b7"
     seed: "source/proofs/model-village-character-appearance-h3t-skin-surface-response-seed.hs"
     seedSha256: "a35e505a69b3f0131c2397fc85fd9bdf7fe7938c72e1baef259ef95c02e67910"
     checker: "scripts/check-hololand-model-village-character-appearance-h3t.mjs"
-    checkerSha256: "50219febdccffa4513a7a0585b1b518c313742ca1ba58d372bcec1b486641815"
+    checkerSha256: "398f3ef69a1ef53858fbc3d86f7cc0bb512849e6e84df9ea10605e19957bd896"
     test: "scripts/__tests__/hololand-model-village-character-appearance-h3t.test.mjs"
     testSha256: "39d1f1bb1ee87bd6cc25e8c9d2f4215f2727faee087c5269d59503135e6a11bf"
     report: "docs/reports/model-village-character-appearance-h3t-skin-surface-response-2026-07-29.md"
@@ -22,7 +22,7 @@ composition "Hearthlight Character Appearance H3T Skin Surface Response Manifest
     evidence: "docs/assets/model-village/model-village-character-appearance-h3t-skin-surface-response-2026-07-29.json"
     evidenceSha256: "4709b6e9792071f2ea193808c4055212022532a80e8d166acfa640469afc67df"
     evidenceReceiptSha256: "d59e3e78ce21df58b79aa8135f1ff1e5a170fb971eba98fe43e28fb454e92602"
-    upstreamHoloScriptCommit: "f165a58722c0808bc4ab9753ab1c68136870e10d"
+    upstreamHoloScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
   }
 
   state {

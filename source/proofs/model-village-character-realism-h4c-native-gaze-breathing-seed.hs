@@ -8,7 +8,7 @@ object H4CNativeGazeBreathingSeedManifest {
   worldSource: "source/layers/vr/frontier/model-village/model-village-character-realism-h4c-native-gaze-breathing.holo"
   policySource: "source/proofs/model-village-character-realism-h4c-native-gaze-breathing-policy.hsplus"
   inheritedMilestone: "MV_CHARACTER_REALISM_H4B_MICRO_MOTION_TIMING"
-  upstreamHoloScriptCommit: "c96c6bf7314be5d8849c6da256e92464f461b846"
+  upstreamHoloScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
   deterministicSeed: 301206
   compilerTarget: "character-webgpu"
   residentCount: 4

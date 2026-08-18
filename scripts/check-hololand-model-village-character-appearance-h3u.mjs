@@ -46,7 +46,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-appearance-h3u-browser-quest-temporal-lod-2026-07-29.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3u';
-const EXPECTED_COMMIT = '0c1a5313d0ed207744bf115ee3697a74e59046d2';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const RENDER_SIZE = 256;
 const CLEAR = [0.008, 0.031, 0.067, 1];
@@ -283,7 +283,9 @@ export function validateH3UContract(
     ['lodTransitionMode', 'dither'],
     ['lodTransitionDurationMilliseconds', 180],
     ['lodHysteresisBand', 0.65],
-    ['historyInvalidationPolicy', 'invalidate-on-camera-resident-or-lod-change-v1'],
+    ['historyInvalidationPolicy', 'reproject-resident-motion-invalidate-camera-or-lod-v2'],
+    ['temporalControllerReceiptSchema', 'holoscript.temporal-convergence.v2'],
+    ['temporalResolveReceiptSchema', 'holoscript.webgpu-temporal-resolve.v2'],
     ['cameraMotionInvalidationRequired', true],
     ['residentMotionInvalidationRequired', true],
     ['lodChangeInvalidationRequired', true],
@@ -1392,6 +1394,76 @@ function validateManifest(root) {
   return { status: errors.length ? 'fail' : 'pass', errors };
 }
 
+/**
+ * Bind the temporal receipts the browser returned to what the composition declares.
+ *
+ * WHY THIS EXISTS. The in-page witness guarded its "no unsupported temporal input" boundary
+ * with one expression:
+ *
+ *     if (browserReceipt.motionVectorsConsumed || browserReceipt.reactiveMaskConsumed ||
+ *         browserReceipt.disocclusionInputConsumed || questReceipt...) throw
+ *
+ * Upstream's controller receipt has since gone `holoscript.temporal-convergence.v1` -> `.v2`:
+ * `motionVectorsConsumed` was replaced by the count `motionVectorResidentFramesAdmitted`, and
+ * `disocclusionInputConsumed` was dropped outright. Two of the three operands now read
+ * `undefined`, so two thirds of that boundary passed by being unreadable rather than by being
+ * false — and `requiredHistoryPolicy` changed id under a composition that still declared the
+ * old one, with nothing comparing the two. A pin refresh would have re-greened all of that.
+ *
+ * So: read every key BY NAME, fail when a name this gate depends on is absent, and bind the
+ * policy id and both receipt schema ids to the composition. `disocclusionInputConsumed` has no
+ * v2 successor — that input is no longer measurable from the receipt, and this says so by
+ * accepting its absence while still refusing a present-and-true value.
+ */
+function validateTemporalReceipts(residents, state) {
+  const errors = [];
+  for (const resident of residents) {
+    for (const profile of [resident.browserProfile, resident.questBudgetProfile]) {
+      const receipt = profile.controller;
+      const where = `${resident.displayLabel}/${profile.profile}`;
+      if (receipt.schemaVersion !== state.temporalControllerReceiptSchema) {
+        errors.push(
+          `${where} controller receipt is ${receipt.schemaVersion}, `
+          + `the composition declares ${state.temporalControllerReceiptSchema}`
+        );
+      }
+      if (receipt.requiredHistoryPolicy !== state.historyInvalidationPolicy) {
+        errors.push(
+          `${where} controller enforces ${receipt.requiredHistoryPolicy}, `
+          + `the composition declares ${state.historyInvalidationPolicy}`
+        );
+      }
+      if (!('reactiveMaskConsumed' in receipt)) {
+        errors.push(`${where} controller receipt no longer reports reactiveMaskConsumed`);
+      } else if (receipt.reactiveMaskConsumed !== false) {
+        errors.push(`${where} consumed a reactive mask`);
+      }
+      if (!('motionVectorResidentFramesAdmitted' in receipt)) {
+        errors.push(
+          `${where} controller receipt no longer reports motionVectorResidentFramesAdmitted, `
+          + 'so this gate can no longer show it declined motion vectors'
+        );
+      } else if (receipt.motionVectorResidentFramesAdmitted !== 0) {
+        errors.push(
+          `${where} admitted ${receipt.motionVectorResidentFramesAdmitted} motion-vector frames`
+        );
+      }
+      if ('disocclusionInputConsumed' in receipt && receipt.disocclusionInputConsumed !== false) {
+        errors.push(`${where} consumed a disocclusion input`);
+      }
+      for (const stage of profile.stages) {
+        if (stage.resolveSchema !== state.temporalResolveReceiptSchema) {
+          errors.push(
+            `${where}/${stage.name} resolve receipt is ${stage.resolveSchema}, `
+            + `the composition declares ${state.temporalResolveReceiptSchema}`
+          );
+        }
+      }
+    }
+  }
+  return errors;
+}
+
 export async function runCharacterAppearanceH3U(options = {}) {
   const root = path.resolve(options.root || ROOT);
   const holoScriptRoot = path.resolve(options.holoScriptRoot || DEFAULT_HOLOSCRIPT_ROOT);
@@ -1415,6 +1487,11 @@ export async function runCharacterAppearanceH3U(options = {}) {
       html,
       outputDir,
     });
+    const temporalErrors = validateTemporalReceipts(
+      browserWitness.state.residents,
+      stack.h3uContract.state
+    );
+    assert(temporalErrors.length === 0, temporalErrors.join('\n'));
     const receipt = {
       schema: 'hololand.model-village.character-appearance-h3u-witness.v1',
       capturedAt: new Date().toISOString(),

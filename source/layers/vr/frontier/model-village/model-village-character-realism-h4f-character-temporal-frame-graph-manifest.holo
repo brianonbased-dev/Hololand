@@ -21,7 +21,7 @@ composition "Stormglass Character Realism H4F Manifest" {
   }
   object "H4FChecker" {
     path: "scripts/check-hololand-model-village-character-realism-h4f.mjs"
-    sha256: "a187457a732406b089bc24a7526006f351ad3710bae9ff799c995656c8bc53c0"
+    sha256: "408abc246cd4642a4744af17b64b8b345861ecb8b89e5b20712d800ff65d3c99"
   }
   object "H4FTests" {
     path: "scripts/__tests__/hololand-model-village-character-realism-h4f.test.mjs"

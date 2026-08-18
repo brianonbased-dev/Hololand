@@ -6,13 +6,13 @@ composition "Stormglass Character Appearance H3R Posed Deformation Manifest" {
     milestone: "MV_CHARACTER_APPEARANCE_H3R_POSED_DEFORMATION"
     date: "2026-07-29"
     source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3r-posed-deformation.holo"
-    sourceSha256: "ecc1859746d3cbe4123fcf111f934934748cc62d984591faab6975fc092c2cad"
+    sourceSha256: "642da1ee79b3aa08a1ee65b4f25350264dcf807918f36b898f48ef07233e25e5"
     policy: "source/proofs/model-village-character-appearance-h3r-posed-deformation-policy.hsplus"
     policySha256: "9b55a9f2cc4186d02db3750b9c20358e86f2d1b321eb1dd6ea9ec0e49606cbd2"
     seed: "source/proofs/model-village-character-appearance-h3r-posed-deformation-seed.hs"
     seedSha256: "4fb6ed981bcf989e6099104c89aadf3f2401bde681ad120b7cafa05e7906863d"
     checker: "scripts/check-hololand-model-village-character-appearance-h3r.mjs"
-    checkerSha256: "cb72b335a53f917f5306c5d0bfb2cb4c128da9dcde1ed931a82fe107297cbedd"
+    checkerSha256: "e7d7c8f0e2699a35eaa9c0c24b2b35e3e1a9ab52908d7f6499bae5ba9302c7eb"
     test: "scripts/__tests__/hololand-model-village-character-appearance-h3r.test.mjs"
     testSha256: "29c02b92f7dd6e646e2899640dbb9f36bb4b4f8aee0d2f1ad0905506586eb802"
     report: "docs/reports/model-village-character-appearance-h3r-posed-deformation-2026-07-29.md"
@@ -22,7 +22,7 @@ composition "Stormglass Character Appearance H3R Posed Deformation Manifest" {
     evidence: "docs/assets/model-village/model-village-character-appearance-h3r-posed-deformation-2026-07-29.json"
     evidenceSha256: "641384ac55e569c2177efbd9b08a02d0234761f6f9a48835a5c0ba142e1779f6"
     evidenceReceiptSha256: "50f706e40bab97f6ac8cc8d0c10f7b47a242d1ac651e2a286f114156322243f0"
-    upstreamHoloScriptCommit: "ad577ed2238d0e8a7302badd5656b7bf791aefc9"
+    upstreamHoloScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
   }
 
   state {

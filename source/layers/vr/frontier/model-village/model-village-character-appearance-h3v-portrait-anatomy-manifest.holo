@@ -7,15 +7,15 @@ composition "Stormglass Character Appearance H3V Portrait Anatomy Manifest" {
     milestone: "MV_CHARACTER_APPEARANCE_H3V_PORTRAIT_ANATOMY"
     date: "2026-07-29"
     source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3v-portrait-anatomy.holo"
-    sourceSha256: "02fcf5860fe3b91880efd8b99abbf088028c2e9eee75777b3c6efa813bb59fe9"
+    sourceSha256: "77d6b620e8bd3f47dddb0bb51e862d7fc2b84fdb480ad2560c8b0dff207fa693"
     policy: "source/proofs/model-village-character-appearance-h3v-portrait-anatomy-policy.hsplus"
     policySha256: "2d4ded16f2f218f138c3b59120bf3f9d56bf7ab3baed54c5c5fd51efd7ea6636"
     seed: "source/proofs/model-village-character-appearance-h3v-portrait-anatomy-seed.hs"
     seedSha256: "82879446578155a12a39e2fb75214c771657132c91078e40c32135695710a195"
     checker: "scripts/check-hololand-model-village-character-appearance-h3v.mjs"
-    checkerSha256: "0bb81f42c3d8c3eaf42a7556c8984b773db32cc626f1bc6d3c394a6d31d09b48"
+    checkerSha256: "dbc5d2b0e51d03ba445cbf78ba62f2edd766601610d3b5e5ee5f5f55894c42ea"
     test: "scripts/__tests__/hololand-model-village-character-appearance-h3v.test.mjs"
-    testSha256: "057dc2eb2370259108491a4c922c03dba0a639fdae133b0bcf3f775ec49b8e0d"
+    testSha256: "a0298cf91b67926654f390707f79bc49468fe5a670ef762a854a122d832c51e7"
     report: "docs/reports/model-village-character-appearance-h3v-portrait-anatomy-2026-07-29.md"
     reportSha256: "342a86bf25507f3d14dc7681cd7aff945aa9e67681d3a424870b36ddd4b58e61"
     hero: "docs/assets/model-village/model-village-character-appearance-h3v-portrait-anatomy-2026-07-29.png"
@@ -23,7 +23,7 @@ composition "Stormglass Character Appearance H3V Portrait Anatomy Manifest" {
     evidence: "docs/assets/model-village/model-village-character-appearance-h3v-portrait-anatomy-2026-07-29.json"
     evidenceSha256: "d4e796ccbbca6b64cf56b22fda9f27426718ff6b5167a421698734168933cc0f"
     evidenceReceiptSha256: "aa27bed35575357c77d0bd91e5aba51c3e86c5e7ab1296c7c09bd40d495e64be"
-    upstreamHoloScriptCommit: "38cef37972e2c5a6a980ae874206c15f5752ce26"
+    upstreamHoloScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
   }
 
   state {

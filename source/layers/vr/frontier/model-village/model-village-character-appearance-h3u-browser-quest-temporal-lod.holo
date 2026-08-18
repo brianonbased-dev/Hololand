@@ -16,14 +16,14 @@ composition "Stormglass Character Appearance H3U Browser Quest Temporal LOD" {
     policySource: "source/proofs/model-village-character-appearance-h3u-browser-quest-temporal-lod-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3u-browser-quest-temporal-lod-seed.hs"
     inheritedH3TSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3t-skin-surface-response.holo"
-    inheritedH3TSourceSha256: "76c7f73703a184fd378fa6f1f6be4e701db9cc25afbddf8ab4d035f9a5972fd4"
-    upstreamHoloScriptCommit: "0c1a5313d0ed207744bf115ee3697a74e59046d2"
+    inheritedH3TSourceSha256: "c651f76712b7bab786d31d0f005f0e0a63a915489f4866a044e2b263f06c94d6"
+    upstreamHoloScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
     upstreamTemporalPath: "packages/engine/src/rendering/webgpu/TemporalConvergence.ts"
-    upstreamTemporalSha256: "715576db496c76a2562c26fc33d6f3b48f0ca4f89b1cded77ed7728ef52f17a4"
+    upstreamTemporalSha256: "d6eff9ce826a095ccdb6563f38200db571ee2f2d1e64d76d352a190db11ec61d"
     upstreamRendererPath: "packages/engine/src/character-render/character-render.ts"
-    upstreamRendererSha256: "d871b0c67fbeb4d7f8f04165097e3377ebc88e68d9c816f1104d9a1c5422a15e"
+    upstreamRendererSha256: "c30b518a126b0e4daa0ce5319a78f35da1f635f969f7df824b56e533d9cd15f4"
     upstreamCompilerPath: "packages/core/src/compiler/CharacterWebGPUCompiler.ts"
-    upstreamCompilerSha256: "59b277f7e0e378c89b328848cc4e6b502f7ea9d7408d5b8e21ca546c69f890be"
+    upstreamCompilerSha256: "58c13464c5dd79ecddb889fd982376c567738f243a3b02c369f05b402b8e41ea"
     projectionRole: "read_only_symbolic_model_family_browser_temporal_lod_witness"
     architectureGuidance: "W.GOLD.002_sovereign_compiler_priority"
     artStyle: "hearthlight_biorealism"
@@ -72,7 +72,9 @@ composition "Stormglass Character Appearance H3U Browser Quest Temporal LOD" {
     lodHysteresisBand: 0.65
     authoredLodLevels: [0, 1, 2]
     witnessedLodLevels: [0, 2]
-    historyInvalidationPolicy: "invalidate-on-camera-resident-or-lod-change-v1"
+    historyInvalidationPolicy: "reproject-resident-motion-invalidate-camera-or-lod-v2"
+    temporalControllerReceiptSchema: "holoscript.temporal-convergence.v2"
+    temporalResolveReceiptSchema: "holoscript.webgpu-temporal-resolve.v2"
     cameraMotionInvalidationRequired: true
     residentMotionInvalidationRequired: true
     lodChangeInvalidationRequired: true

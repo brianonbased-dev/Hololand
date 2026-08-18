@@ -124,7 +124,7 @@ export function deriveH3YHarnessSource(baseSource) {
       'MV_CHARACTER_APPEARANCE_H3Y_CRANIAL_EXPRESSION_NORMALS',
       'MV_CHARACTER_APPEARANCE_H3Y_CONSTRUCTED_SOFT_TISSUE_PROBE',
     ],
-    ['df6ebcd00b5e36fa6bc5fcc8ed8dde36dbd655c2', EXPECTED_COMMIT],
+    ['c273682f5a5140b0ff8cde5da89ca7bfb98c63b2', EXPECTED_COMMIT],
     [
       "face?.facial_detail_profile === 'portrait_cranial_v3'",
       "face?.facial_detail_profile === 'portrait_soft_tissue_v4'",

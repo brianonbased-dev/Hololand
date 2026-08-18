@@ -66,7 +66,7 @@ test('H4H derives the promoted shared runner without mutating the H4G checker', 
   );
   const derived = deriveH4HRunnerSource(h4g);
   assert.match(derived, /runCharacterRealismH4H/);
-  assert.match(derived, /712698cf465b15c8552c3c5e545800543b929c78/);
+  assert.match(derived, /c273682f5a5140b0ff8cde5da89ca7bfb98c63b2/);
   assert.match(derived, /material-model-family-identity-convergence/);
   assert.match(
     derived,

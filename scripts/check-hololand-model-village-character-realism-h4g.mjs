@@ -20,6 +20,7 @@ import { deriveH3ZHarnessSource } from './check-hololand-model-village-character
 import { deriveH4BHarnessSource } from './check-hololand-model-village-character-realism-h4b.mjs';
 import { deriveH4CHarnessSource } from './check-hololand-model-village-character-realism-h4c.mjs';
 import { deriveH4DHarnessSource } from './check-hololand-model-village-character-realism-h4d.mjs';
+import { absolutizeHarnessImports } from './lib/model-village-harness-imports.mjs';
 import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
 import { validateUpstreamCommitPin } from './lib/model-village-upstream-commit-pin.mjs';
 
@@ -200,8 +201,12 @@ async function materializeCompiledFrame({ root, holoScriptRoot, outputDir, timeO
     outputDir,
     `h4g-derived-payload-${String(timeOffsetSeconds).replace('.', '-')}.mjs`
   );
-  writeFileSync(generatedPath, source);
-  const harness = await import(`${pathToFileURL(generatedPath).href}?sha=${sha256(source)}`);
+  // The derived harness is written outside scripts/, so its own './lib/...' imports have to be
+  // re-anchored at scripts/ or the file cannot be imported at all. The gate runners already do
+  // this for themselves; the harness write site did not. See lib/model-village-harness-imports.mjs.
+  const resolvableSource = absolutizeHarnessImports(source, path.join(root, 'scripts'));
+  writeFileSync(generatedPath, resolvableSource);
+  const harness = await import(`${pathToFileURL(generatedPath).href}?sha=${sha256(resolvableSource)}`);
   const stack = await harness.parseH4AStack(root, holoScriptRoot, outputDir);
   try {
     const plan = stack.h4aContract?.objects || [];

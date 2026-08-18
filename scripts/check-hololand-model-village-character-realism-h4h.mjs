@@ -33,7 +33,7 @@ const REPORT_REL = `docs/reports/${SLUG}-2026-08-01.md`;
 const HERO_REL = `docs/assets/model-village/${SLUG}-2026-08-01.png`;
 const EVIDENCE_REL = `docs/assets/model-village/${SLUG}-2026-08-01.json`;
 const OUTPUT_REL = '.tmp/hololand/model-village/character-realism-h4h-material-identity';
-const EXPECTED_COMMIT = '712698cf465b15c8552c3c5e545800543b929c78';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const PREVIOUS_COMMIT = '7a09fa27ba78694ad0751eabf9befea08aa973e3';
 const EXPECTED_IDENTITIES = [
   { displayLabel: 'OpenAI', modelFamilyId: 'openai', hairColor: 0x2f2928 },
@@ -43,12 +43,12 @@ const EXPECTED_IDENTITIES = [
 ];
 const SOURCE_COLOR_WEIGHT = 0.55;
 const MATERIAL_HASH_BINDINGS = [
-  ['packages/engine/src/native-render/draw-spec.ts', '346f6e8be79a9a27d8e644ead9a7c6dd6b87044464def8994baf1a62a9a00d9b'],
-  ['packages/engine/src/character-render/AgentAvatarHair.ts', '3cf398e760067f18e03c6940a2c6d11c9bc1bcb964fe0e7b298cc1c6f83fd090'],
-  ['packages/engine/src/character-render/CharacterHost.ts', '1252aa436237a79efda7c67e5dbc731bcd1a3e7c00bef8b28085679aaf720b80'],
-  ['packages/engine/src/character-render/CharacterHostFromComposition.ts', 'b61487173803bcaffbf1fa04468497900d6c42a67f82729da6c9e7c482718219'],
-  ['packages/engine/src/character-render/character-render.ts', 'a4342c713adfc43abbcec4c9dd44c04444955638cfb007dfc6a78d3f93b37beb'],
-  ['packages/engine/src/rendering/webgpu/shaders/skin-skinning.wgsl', 'c5b24531e4958ec42b7c9caf1463904c8bbb920c4175cba6cdc3178e80900d84'],
+  ['packages/engine/src/native-render/draw-spec.ts', '04fac9799b233efe14b938be2f1d0272c064a64566bccadb0ae34b53e6b1d199'],
+  ['packages/engine/src/character-render/AgentAvatarHair.ts', '69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955'],
+  ['packages/engine/src/character-render/CharacterHost.ts', 'bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7'],
+  ['packages/engine/src/character-render/CharacterHostFromComposition.ts', '82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079'],
+  ['packages/engine/src/character-render/character-render.ts', 'c30b518a126b0e4daa0ce5319a78f35da1f635f969f7df824b56e533d9cd15f4'],
+  ['packages/engine/src/rendering/webgpu/shaders/skin-skinning.wgsl', 'a8436b3c29f07f3dff6cc336ec21a0093cb82de5de5e91d05c6780420cf1fa40'],
 ];
 const DURABLE_FILES = [
   SOURCE_REL,

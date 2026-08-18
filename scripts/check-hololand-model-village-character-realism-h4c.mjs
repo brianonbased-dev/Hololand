@@ -21,6 +21,7 @@ import { deriveH3YHarnessSource } from './check-hololand-model-village-character
 import { deriveH3ZHarnessSource } from './check-hololand-model-village-character-appearance-h3z.mjs';
 import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
 import { validateUpstreamCommitPin } from './lib/model-village-upstream-commit-pin.mjs';
+import { absolutizeHarnessLibImports } from './lib/model-village-harness-imports.mjs';
 import {
   deriveH4BHarnessSource,
   measureStaticTaaConvergence,
@@ -54,7 +55,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-realism-h4c-native-gaze-breathing-2026-07-30.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-realism-h4c';
-const EXPECTED_COMMIT = 'c96c6bf7314be5d8849c6da256e92464f461b846';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const FRAME_OFFSETS_SECONDS = [0, 0.84, 1.68];
 const HASH_BINDINGS = [
@@ -64,11 +65,11 @@ const HASH_BINDINGS = [
   ],
   [
     'packages/engine/src/character-render/CharacterHost.ts',
-    '4b2d315429a6b816c21afcbdf8589593b6ce9a15b58f31aab08bf2e900df7bd7',
+    'bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7',
   ],
   [
     'packages/engine/src/character-render/CharacterHostFromComposition.ts',
-    '47e272029606fe34db37eba253d7f9a95d4e33867a6508aa5b7d3f247dce9ccc',
+    '82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079',
   ],
   [
     'packages/core/src/compiler/CharacterWebGPUCompiler.ts',
@@ -150,19 +151,65 @@ function gitHead(root) {
   }).trim();
 }
 
+// The merged witness source carries H4A's metadata block, so every upstream hash it
+// names must describe the SAME commit this gate pins. Before 2026-08-17 only the two
+// host files were restamped; H4J then moved AgentAvatarMesh.ts, character-render.ts,
+// AgentAvatarHair.ts and skin-skinning.wgsl, leaving the merged metadata describing a
+// mixture of two commits. The derived harness reads four of these keys, so a stale one
+// reads as "AvatarMesh drifted" rather than "this gate pins the wrong commit".
 export function offsetH4CMotionSource(source, timeOffsetSeconds) {
   if (!Number.isFinite(timeOffsetSeconds) || timeOffsetSeconds < 0) {
     throw new Error('H4C time offset must be a finite non-negative number');
   }
-  const restamped = source
-    .replaceAll(
+  // Kept inline, not hoisted: deriveH4CHarnessSource embeds this function via
+  // Function.prototype.toString(), so anything it closes over is not there at harness runtime.
+  const restamps = [
+    // CharacterHost.ts
+    [
       'eb0f40bacb1745ce2e3464b08f0470f7d6227274d6502841f95499e9978bafdf',
-      '4b2d315429a6b816c21afcbdf8589593b6ce9a15b58f31aab08bf2e900df7bd7'
-    )
-    .replaceAll(
+      'bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7',
+    ],
+    // CharacterHostFromComposition.ts
+    [
       'c7af37118977dccd585f6c4c616a3d8144e0b8a07c9ceb8c5e32c350d8bedfe9',
-      '47e272029606fe34db37eba253d7f9a95d4e33867a6508aa5b7d3f247dce9ccc'
-    );
+      '82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079',
+    ],
+    // AgentAvatarMesh.ts
+    [
+      'db0dc9f6418a320398910d12ae4b234a861740ceebfc320065b3fa630d733731',
+      '1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1',
+    ],
+    // character-render.ts
+    [
+      '1d3ad891a5a788a7f463e3c03b11d0fea0de7a8c7d3c42bd6ab4ad36fa9b472f',
+      'c30b518a126b0e4daa0ce5319a78f35da1f635f969f7df824b56e533d9cd15f4',
+    ],
+    // AgentAvatarHair.ts
+    [
+      '24a9a72c2e9c5eb5ba754c53ff388002635fda24c9c3204b6dbce461663e2e97',
+      '69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955',
+    ],
+    // skin-skinning.wgsl
+    [
+      '20826651e615fc6042ab370db745a88dac4bb86fbfbdb72830f7885d5562010d',
+      'a8436b3c29f07f3dff6cc336ec21a0093cb82de5de5e91d05c6780420cf1fa40',
+    ],
+  ];
+  let restamped = source;
+  for (const [before, after] of restamps) restamped = restamped.replaceAll(before, after);
+  // Fail loud rather than witnessing a source that names two different upstream commits.
+  // Only a full inherited composition carries these keys; the retiming unit exercises this
+  // function on a bare fragment, which legitimately carries none of them.
+  if (restamped.includes('upstreamAvatarMeshPath')) {
+    for (const [, after] of restamps) {
+      if (!restamped.includes(after)) {
+        throw new Error(
+          `H4C merged source does not carry the pinned upstream hash ${after}; `
+            + "the inherited H4A metadata moved off this gate's pin and must be re-witnessed",
+        );
+      }
+    }
+  }
   let count = 0;
   const shifted = restamped.replace(
     /source_time_seconds:\s*([0-9]+(?:\.[0-9]+)?)/g,
@@ -358,8 +405,12 @@ async function materializeHarness(root, outputDir, timeOffsetSeconds) {
     outputDir,
     `h4c-derived-webgpu-harness-${String(timeOffsetSeconds).replace('.', '-')}.mjs`
   );
-  writeFileSync(generatedPath, source);
-  return import(`${pathToFileURL(generatedPath).href}?sha=${sha256(source)}`);
+  // h3x imports './lib/*.mjs'; those specifiers resolve against the harness's own
+  // directory, which has no lib/. Bind them to the real scripts/lib before writing.
+  const linked = absolutizeHarnessLibImports(source, path.join(ROOT, 'scripts'));
+  assert(linked.rewritten.length === 2, `H4C harness lib imports drifted: ${linked.rewritten.join(', ')}`);
+  writeFileSync(generatedPath, linked.source);
+  return import(`${pathToFileURL(generatedPath).href}?sha=${sha256(linked.source)}`);
 }
 
 function summarizeMotionRecord(record) {

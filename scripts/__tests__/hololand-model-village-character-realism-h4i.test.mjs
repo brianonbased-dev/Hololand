@@ -98,7 +98,7 @@ test('H4I derives the promoted shared runner with the final source redirect', ()
   assert.match(derived, /runCharacterRealismH4I/);
   assert.match(derived, /deriveH4IHarnessSource\(deriveH4DHarnessSource\(h4c\)\)/);
   assert.match(derived, /model-village-character-realism-h4i-portrait-realism-convergence/);
-  assert.match(derived, /94594d173de8667c0d86ec0cf41f537ef623899b/);
+  assert.match(derived, /c273682f5a5140b0ff8cde5da89ca7bfb98c63b2/);
 });
 
 test('H4I portrait admission accepts four operative complexion and groom bindings', () => {

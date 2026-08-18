@@ -71,7 +71,7 @@ composition "Stormglass Character Realism H4B Micro Motion Timing Manifest" {
   object "CheckerBinding" {
     type: "immutable_artifact_binding"
     path: "scripts/check-hololand-model-village-character-realism-h4b.mjs"
-    sha256: "53461347b46c3a90d4f68879f6f69259e3cb62f2f2a0469800589a8061398217"
+    sha256: "08f002e9beef31c8d7b95604b2582ff58ee059e249751e56073abc870b81cb57"
   }
 
   object "TestBinding" {

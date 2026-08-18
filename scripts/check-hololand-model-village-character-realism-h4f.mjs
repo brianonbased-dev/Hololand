@@ -49,7 +49,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-realism-h4f-character-temporal-frame-graph-2026-07-31.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-realism-h4f';
-const EXPECTED_COMMIT = '345b85c87ef5a97bcad11cd39be8ece59358a319';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const FRAME_OFFSETS_SECONDS = [0, 0.84];
 const WIDTH = 512;
@@ -62,7 +62,7 @@ const TOTAL_MEASURED_SAMPLES = EXPECTED_RESIDENTS.length * MEASURED_FRAMES_PER_R
 const HASH_BINDINGS = [
   [
     'packages/engine/src/rendering/webgpu/CharacterTemporalFrameGraph.ts',
-    'a4c636c38cf120c131cb1cc77a1e8f76b2200c33a4068f880887089cc0fea486',
+    '860101d4692b4763a3b60840d0d271c2b7df6120788821ee2d988f3b9ec679e3',
   ],
   [
     'packages/engine/src/character-render/CharacterTextureRenderer.ts',
@@ -190,7 +190,10 @@ async function materializeCompiledFrame({ root, holoScriptRoot, outputDir, timeO
     ),
     timeOffsetSeconds
   );
-  const source = deriveH4DHarnessSource(h4c);
+  // The derived payload is written outside `scripts/`, so h3x's `./lib/...` specifiers
+  // no longer resolve from where it lands. Rebind them to the real `scripts/lib/`.
+  const libDir = pathToFileURL(path.join(root, 'scripts/lib/')).href;
+  const source = deriveH4DHarnessSource(h4c).replaceAll("from './lib/", `from '${libDir}`);
   mkdirSync(outputDir, { recursive: true });
   const generatedPath = path.join(
     outputDir,

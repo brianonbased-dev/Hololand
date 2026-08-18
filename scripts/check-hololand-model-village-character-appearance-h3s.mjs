@@ -31,7 +31,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-appearance-h3s-hand-surface-anatomy-2026-07-29.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3s';
-const EXPECTED_COMMIT = '8f1555f8a8ccf16a3745b9f021bcc21cf87e2b96';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const EXPECTED_POSES = [
   'measured-open-palm',

@@ -7,15 +7,15 @@ composition "Stormglass Character Appearance H3X Cranial Expression Normals Mani
     milestone: "MV_CHARACTER_APPEARANCE_H3X_CRANIAL_EXPRESSION_NORMALS"
     date: "2026-07-29"
     source: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3x-cranial-expression-normals.holo"
-    sourceSha256: "8cf33295d8ef17b0b8901191b2536904a67cde4424fb8202ebb73435911fc86f"
+    sourceSha256: "a2c7514165a2d032d03f33597034f3ae673a7a5fbb80f088710d377b23c3dfb5"
     policy: "source/proofs/model-village-character-appearance-h3x-cranial-expression-normals-policy.hsplus"
     policySha256: "1edd9f07f3f016cea37c8c71eb4b110e7e33891b9b99529ab6a570e312eb122c"
     seed: "source/proofs/model-village-character-appearance-h3x-cranial-expression-normals-seed.hs"
     seedSha256: "1319c1a13d5bf104185b0dbab64330e134388583842cc451604581958b559235"
     checker: "scripts/check-hololand-model-village-character-appearance-h3x.mjs"
-    checkerSha256: "9a995be9d77ecd00acb96c4130d5f8f8e6f5ba864d6553e7d3f77947f0490ead"
+    checkerSha256: "d207a7c75926db0ecb9d8c78b38a21faf75a0cea04d2742c2b5154279f3aeb54"
     test: "scripts/__tests__/hololand-model-village-character-appearance-h3x.test.mjs"
-    testSha256: "0f41d320c06371f2acf0f072d737a73ae73c78d43bf3c0cb1ee6875db79ac123"
+    testSha256: "882947ae302613f9630b424285e8c9e2eeed643fe85664d8975fa86690cdd494"
     report: "docs/reports/model-village-character-appearance-h3x-cranial-expression-normals-2026-07-29.md"
     reportSha256: "3b8bf66ca5e91befe264ee3d9d23efc7aab436b699808fd0ef880a1e157aaa80"
     hero: "docs/assets/model-village/model-village-character-appearance-h3x-cranial-expression-normals-2026-07-29.png"
@@ -23,7 +23,7 @@ composition "Stormglass Character Appearance H3X Cranial Expression Normals Mani
     evidence: "docs/assets/model-village/model-village-character-appearance-h3x-cranial-expression-normals-2026-07-29.json"
     evidenceSha256: "37b975d7f67912a5064e0e4559e5a5de51068ab3cf4d30a969173ff17cb6ef25"
     evidenceReceiptSha256: "70b0043fed949bc8cbe12b1e0ddfe3ef10bea8ec9e9bbfc1071b1f7d437076b2"
-    upstreamHoloScriptCommit: "df6ebcd00b5e36fa6bc5fcc8ed8dde36dbd655c2"
+    upstreamHoloScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
   }
 
   state {

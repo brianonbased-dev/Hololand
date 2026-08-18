@@ -75,7 +75,7 @@ composition "Stormglass Character Realism H4D Production Temporal Manifest" {
   object "CheckerBinding" {
     type: "immutable_artifact_binding"
     path: "scripts/check-hololand-model-village-character-realism-h4d.mjs"
-    sha256: "6919837c3159a61600e55a8dbcd1c1be9afcc64b8d8f24595dcd7f886e3b1c70"
+    sha256: "48b03a12ddcb95b7fb1ff7692069e565088622701b34d15bab17d19cb38c2595"
   }
 
   object "TestBinding" {

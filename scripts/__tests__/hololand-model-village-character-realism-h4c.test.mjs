@@ -51,11 +51,11 @@ test('H4C absolute-time offset advances exactly four source profiles', () => {
   );
   assert.match(
     restamped,
-    /4b2d315429a6b816c21afcbdf8589593b6ce9a15b58f31aab08bf2e900df7bd7/
+    /bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7/
   );
   assert.match(
     restamped,
-    /47e272029606fe34db37eba253d7f9a95d4e33867a6508aa5b7d3f247dce9ccc/
+    /82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079/
   );
   assert.doesNotMatch(restamped, /eb0f40bacb1745ce2e3464b08f0470f7d6227274d6502841f95499e9978bafdf/);
   assert.throws(() => offsetH4CMotionSource(source, -1), /finite non-negative/);
@@ -72,7 +72,7 @@ test('H4C harness derivation retimes the H4B source path and pins promoted HoloS
   const h4c = deriveH4CHarnessSource(h4b, 0.84);
   assert.match(h4c, /offsetH4CMotionSource/);
   assert.match(h4c, /model-village-character-realism-h4c-native-gaze-breathing\.holo/);
-  assert.match(h4c, /c96c6bf7314be5d8849c6da256e92464f461b846/);
+  assert.match(h4c, /c273682f5a5140b0ff8cde5da89ca7bfb98c63b2/);
   assert.match(h4c, /native gaze and upper-chest breathing/);
   assert.doesNotMatch(h4c, /1f295ee62e255883dc95394f5249700023bb39df/);
 });

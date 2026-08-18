@@ -10,7 +10,7 @@ witness rather than three copies of one static render.
 
 ## Shipped language/runtime foundation
 
-HoloScript canon `c96c6bf7314be5d8849c6da256e92464f461b846` adds
+HoloScript canon `c273682f5a5140b0ff8cde5da89ca7bfb98c63b2` adds
 drift-free, absolute-time native application after the existing facial morph:
 
 - each eye's complete layered ocular range rotates around its own bounds;

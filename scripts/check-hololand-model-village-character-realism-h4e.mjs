@@ -44,7 +44,7 @@ const EVIDENCE_REL =
 const INHERITED_HERO_REL =
   'docs/assets/model-village/model-village-character-realism-h4d-production-temporal-convergence-2026-07-30.png';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-realism-h4e';
-const EXPECTED_COMMIT = 'b72544464b2054797c7a73a0de2150da45621b1a';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const WIDTH = 1400;
 const HEIGHT = 900;
 const WARMUP_FRAMES = 8;
@@ -63,7 +63,7 @@ const HASH_BINDINGS = [
   ],
   [
     'packages/engine/src/rendering/webgpu/index.ts',
-    'f60574d1d06c6f02ef2b6e011fc0e49233c8bbff9bf84d6333da475fe6d49bf7',
+    '02c614306576caf87669fcaee1261dd458490217811688e746ef1f0cae34bd3d',
   ],
 ];
 const INHERITED_HERO_SHA256 =

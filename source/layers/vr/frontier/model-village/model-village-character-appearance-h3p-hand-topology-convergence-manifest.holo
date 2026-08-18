@@ -15,7 +15,7 @@ composition "HoloLand Model Village Character Appearance H3P Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3p-hand-topology-convergence.holo"
-      sourceSha256: "ab70ac429ace325b7072f81096895ba9758b5d141cc0efe2f85f6ae529100039"
+      sourceSha256: "cc384131b14366ff75de5e95a5632e41bada8a0f1860669550058560380f3fd2"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -31,7 +31,7 @@ composition "HoloLand Model Village Character Appearance H3P Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3p.mjs"
-      checkerSha256: "a04e33f76080636d6ef51de14cd90faf37e71f76c992d14b45ca8daef6b43944"
+      checkerSha256: "5c2b0c0f5c5769c4951ad2ba5648d3404d6492a7f80119beee19260000133e1e"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3p.test.mjs"
@@ -56,8 +56,8 @@ composition "HoloLand Model Village Character Appearance H3P Manifest" {
       receiptSha256: "79efdb48d3c485d8099d196d270c448b5e5f98839492289a816b0dbbc7a6c6d2"
     }
     upstream: {
-      holoScriptCommit: "1a9290762e1c1b1671c0a3ae9fb7d25999f0d0c1"
-      avatarMeshSha256: "1a54bb937002ade95305872e57cdbf67c866a2a219a14d9416884d9a661784ac"
+      holoScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
+      avatarMeshSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"
       priorTopologyCommit: "76e2afe54a66e24a694b185e2946041ee7ae967d"
     }
     topologyAdmission: {

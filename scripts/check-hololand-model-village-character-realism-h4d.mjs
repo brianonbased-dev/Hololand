@@ -51,7 +51,7 @@ const HERO_REL =
 const EVIDENCE_REL =
   'docs/assets/model-village/model-village-character-realism-h4d-production-temporal-convergence-2026-07-30.json';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-realism-h4d';
-const EXPECTED_COMMIT = '623b2bf3c6f4e7ba0fa4ed62ce20061796664c28';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const FRAME_OFFSETS_SECONDS = [0, 0.84];
 const HASH_BINDINGS = [
@@ -61,7 +61,7 @@ const HASH_BINDINGS = [
   ],
   [
     'packages/engine/src/rendering/webgpu/TemporalConvergence.ts',
-    '944a9d0d89819771bd1f1b11e3c7e221b9bfec39a9edcd44ec2327f91749ab7e',
+    'd6eff9ce826a095ccdb6563f38200db571ee2f2d1e64d76d352a190db11ec61d',
   ],
   [
     'packages/engine/src/rendering/webgpu/TemporalInputs.ts',
@@ -202,7 +202,10 @@ async function materializeCompiledFrame({
     ),
     timeOffsetSeconds
   );
-  const source = deriveH4DHarnessSource(h4c);
+  // The derived payload is written outside `scripts/`, so h3x's `./lib/...` specifiers
+  // no longer resolve from where it lands. Rebind them to the real `scripts/lib/`.
+  const libDir = pathToFileURL(path.join(root, 'scripts/lib/')).href;
+  const source = deriveH4DHarnessSource(h4c).replaceAll("from './lib/", `from '${libDir}`);
   mkdirSync(outputDir, { recursive: true });
   const generatedPath = path.join(
     outputDir,
