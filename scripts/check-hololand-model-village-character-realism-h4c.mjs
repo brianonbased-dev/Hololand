@@ -19,15 +19,20 @@ import {
 } from './check-hololand-model-village-character-appearance-h4a.mjs';
 import { deriveH3YHarnessSource } from './check-hololand-model-village-character-appearance-h3y.mjs';
 import { deriveH3ZHarnessSource } from './check-hololand-model-village-character-appearance-h3z.mjs';
+import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
 import {
   deriveH4BHarnessSource,
   measureStaticTaaConvergence,
 } from './check-hololand-model-village-character-realism-h4b.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DEFAULT_HOLOSCRIPT_ROOT =
-  process.env.HOLOSCRIPT_ROOT ||
-  'C:/Users/josep/Documents/GitHub/.holorepo-worktrees/h4c-native-gaze-breathing-r2';
+const DEFAULT_HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
+  gate: 'H4C',
+  // Kept, not deleted: sibling gates derive their runner source by string-substituting
+  // this file and assert on this exact literal, so removing it breaks their anchors.
+  // The path does not exist, so the resolver tries it and falls through to a real tree.
+  candidates: ['C:/Users/josep/Documents/GitHub/.holorepo-worktrees/h4c-native-gaze-breathing-r2'],
+});
 const BASE_CHECKER_REL = 'scripts/check-hololand-model-village-character-appearance-h3x.mjs';
 const INHERITED_SOURCE_REL =
   'source/layers/vr/frontier/model-village/model-village-character-appearance-h4a-facial-volume-garment-framing.holo';

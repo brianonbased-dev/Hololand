@@ -17,11 +17,16 @@ import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { parseH3TStack } from './check-hololand-model-village-character-appearance-h3t.mjs';
+import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DEFAULT_HOLOSCRIPT_ROOT =
-  process.env.HOLOSCRIPT_ROOT ||
-  'C:/holorepo-worktrees/holoscript-h3u-temporal-convergence';
+const DEFAULT_HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
+  gate: 'H3U',
+  // Kept, not deleted: sibling gates derive their runner source by string-substituting
+  // this file and assert on this exact literal, so removing it breaks their anchors.
+  // The path does not exist, so the resolver tries it and falls through to a real tree.
+  candidates: ['C:/holorepo-worktrees/holoscript-h3u-temporal-convergence'],
+});
 const SOURCE_REL =
   'source/layers/vr/frontier/model-village/model-village-character-appearance-h3u-browser-quest-temporal-lod.holo';
 const POLICY_REL =

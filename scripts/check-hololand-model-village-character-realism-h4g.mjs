@@ -20,10 +20,16 @@ import { deriveH3ZHarnessSource } from './check-hololand-model-village-character
 import { deriveH4BHarnessSource } from './check-hololand-model-village-character-realism-h4b.mjs';
 import { deriveH4CHarnessSource } from './check-hololand-model-village-character-realism-h4c.mjs';
 import { deriveH4DHarnessSource } from './check-hololand-model-village-character-realism-h4d.mjs';
+import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DEFAULT_HOLOSCRIPT_ROOT =
-  process.env.HOLOSCRIPT_ROOT || 'C:/holorepo-worktrees/holoscript-h4g-shared-world-frame';
+const DEFAULT_HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
+  gate: 'H4G',
+  // Kept, not deleted: sibling gates derive their runner source by string-substituting
+  // this file and assert on this exact literal, so removing it breaks their anchors.
+  // The path does not exist, so the resolver tries it and falls through to a real tree.
+  candidates: ['C:/holorepo-worktrees/holoscript-h4g-shared-world-frame'],
+});
 const BASE_CHECKER_REL = 'scripts/check-hololand-model-village-character-appearance-h3x.mjs';
 const SOURCE_REL =
   'source/layers/vr/frontier/model-village/model-village-character-realism-h4g-shared-character-world-frame.holo';

@@ -18,11 +18,16 @@ import {
 } from './check-hololand-model-village-character-appearance-h4a.mjs';
 import { deriveH3YHarnessSource } from './check-hololand-model-village-character-appearance-h3y.mjs';
 import { deriveH3ZHarnessSource } from './check-hololand-model-village-character-appearance-h3z.mjs';
+import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DEFAULT_HOLOSCRIPT_ROOT =
-  process.env.HOLOSCRIPT_ROOT ||
-  'C:/holorepo-worktrees/holoscript-h4b-character-micro-motion-timing-r3';
+const DEFAULT_HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
+  gate: 'H4B',
+  // Kept, not deleted: sibling gates derive their runner source by string-substituting
+  // this file and assert on this exact literal, so removing it breaks their anchors.
+  // The path does not exist, so the resolver tries it and falls through to a real tree.
+  candidates: ['C:/holorepo-worktrees/holoscript-h4b-character-micro-motion-timing-r3'],
+});
 const BASE_CHECKER_REL = 'scripts/check-hololand-model-village-character-appearance-h3x.mjs';
 const INHERITED_SOURCE_REL =
   'source/layers/vr/frontier/model-village/model-village-character-appearance-h4a-facial-volume-garment-framing.holo';

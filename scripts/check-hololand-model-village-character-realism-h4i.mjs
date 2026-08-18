@@ -10,10 +10,16 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DEFAULT_HOLOSCRIPT_ROOT =
-  process.env.HOLOSCRIPT_ROOT || 'C:/holorepo-worktrees/holoscript-h4i-portrait-realism';
+const DEFAULT_HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
+  gate: 'H4I',
+  // Kept, not deleted: sibling gates derive their runner source by string-substituting
+  // this file and assert on this exact literal, so removing it breaks their anchors.
+  // The path does not exist, so the resolver tries it and falls through to a real tree.
+  candidates: ['C:/holorepo-worktrees/holoscript-h4i-portrait-realism'],
+});
 const H4G_CHECKER_REL = 'scripts/check-hololand-model-village-character-realism-h4g.mjs';
 const SLUG = 'model-village-character-realism-h4i-portrait-realism-convergence';
 const SOURCE_REL = `source/layers/vr/frontier/model-village/${SLUG}.holo`;

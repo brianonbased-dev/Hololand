@@ -12,10 +12,16 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DEFAULT_HOLOSCRIPT_ROOT =
-  process.env.HOLOSCRIPT_ROOT || 'C:/holorepo-worktrees/holoscript-h4e-zero-copy';
+const DEFAULT_HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
+  gate: 'H4E',
+  // Kept, not deleted: sibling gates derive their runner source by string-substituting
+  // this file and assert on this exact literal, so removing it breaks their anchors.
+  // The path does not exist, so the resolver tries it and falls through to a real tree.
+  candidates: ['C:/holorepo-worktrees/holoscript-h4e-zero-copy'],
+});
 const SOURCE_REL =
   'source/layers/vr/frontier/model-village/model-village-character-realism-h4e-zero-copy-temporal-frame-graph.holo';
 const POLICY_REL =

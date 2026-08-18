@@ -55,14 +55,21 @@ const defaultRepoRoot = path.resolve(scriptDir, '..');
 // instead of silence.
 export const UNWIRED_REASONS = {
   H_SERIES_RED_AT_HEAD:
-    'Character gate H1..H4I. Unwired since it shipped. Executing the H-series test '
-    + 'files at HEAD gives 134 tests / 82 pass / 52 FAIL (measured 2026-08-16). '
-    + '15 of these checks default HOLOSCRIPT_ROOT to a per-gate worktree under '
-    + 'C:/holorepo-worktrees/ or C:/Users/josep/Documents/GitHub/.holorepo-worktrees/, '
-    + 'neither of which exists; the miss surfaces as "spawnSync git ENOENT", which is '
-    + 'indistinguishable from git being uninstalled. Four more die in the esbuild '
-    + 'harness on a raw-WGSL import HoloScript gained after these witness commits. '
-    + 'Wiring before repair would land a red lane. Repair is the work; this is the count.',
+    'Character gate H1..H4I, red for a REAL upstream reason and therefore not wired. '
+    + 'H-series at HEAD: 149 tests / 129 pass / 20 FAIL (measured 2026-08-17). '
+    + 'The dead-root defect this reason used to describe is FIXED. Fifteen of these '
+    + 'checks hardcoded a per-gate HoloRepo worktree under C:/holorepo-worktrees/ or '
+    + 'C:/Users/josep/Documents/GitHub/.holorepo-worktrees/ -- neither exists -- and that '
+    + 'ONE defect wore three faces: "Cannot find module esbuild" (esbuild IS installed), '
+    + '"AgentAvatarGarment.ts is missing" (the file IS present), and "spawnSync git ENOENT" '
+    + '(git IS on PATH). Each invited a different wrong repair. They now resolve through '
+    + 'scripts/lib/model-village-holoscript-root.mjs, which fails loud instead of returning '
+    + 'a path that is not there. '
+    + 'What is left is substantive, and mostly ONE assertion: eighteen gates require '
+    + 'HoloScript HEAD to EQUAL a pinned commit, and they name eighteen DIFFERENT commits, '
+    + 'so the set is unsatisfiable by construction -- no checkout state can ever make more '
+    + 'than one of them green. H3Y, H3Z and H4A instead report genuine hash drift on files '
+    + 'that moved upstream. Wiring before repair would land a red lane. Repair is the work.',
   H_SERIES_PASSES_WITHOUT_ITS_SUBJECT:
     'Character gate whose test is green with no HoloScript tree present at all. '
     + 'Executed negative control 2026-08-16: HOLOSCRIPT_ROOT=C:/definitely/not/a/real/'

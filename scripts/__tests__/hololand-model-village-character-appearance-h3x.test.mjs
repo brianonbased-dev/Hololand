@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { resolveHoloScriptRoot } from '../lib/model-village-holoscript-root.mjs';
 
 import {
   parseH3XStack,
@@ -10,9 +11,13 @@ import {
 } from '../check-hololand-model-village-character-appearance-h3x.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const HOLOSCRIPT_ROOT =
-  process.env.HOLOSCRIPT_ROOT ||
-  'C:/holorepo-worktrees/holoscript-h3x-cranial-expression-normals-proof';
+const HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
+  gate: 'H3X.TEST',
+  // Kept, not deleted: sibling gates derive their runner source by string-substituting
+  // this file and assert on this exact literal, so removing it breaks their anchors.
+  // The path does not exist, so the resolver tries it and falls through to a real tree.
+  candidates: ['C:/holorepo-worktrees/holoscript-h3x-cranial-expression-normals-proof'],
+});
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 
 test('H3X parses all formats and pins cranial/expression-normal claim boundaries', async () => {

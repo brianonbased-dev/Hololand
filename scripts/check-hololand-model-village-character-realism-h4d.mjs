@@ -19,11 +19,16 @@ import { deriveH3YHarnessSource } from './check-hololand-model-village-character
 import { deriveH3ZHarnessSource } from './check-hololand-model-village-character-appearance-h3z.mjs';
 import { deriveH4BHarnessSource } from './check-hololand-model-village-character-realism-h4b.mjs';
 import { deriveH4CHarnessSource } from './check-hololand-model-village-character-realism-h4c.mjs';
+import { resolveHoloScriptRoot } from './lib/model-village-holoscript-root.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DEFAULT_HOLOSCRIPT_ROOT =
-  process.env.HOLOSCRIPT_ROOT ||
-  'C:/Users/josep/Documents/GitHub/.holorepo-worktrees/h4d-character-temporal-convergence';
+const DEFAULT_HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
+  gate: 'H4D',
+  // Kept, not deleted: sibling gates derive their runner source by string-substituting
+  // this file and assert on this exact literal, so removing it breaks their anchors.
+  // The path does not exist, so the resolver tries it and falls through to a real tree.
+  candidates: ['C:/Users/josep/Documents/GitHub/.holorepo-worktrees/h4d-character-temporal-convergence'],
+});
 const BASE_CHECKER_REL =
   'scripts/check-hololand-model-village-character-appearance-h3x.mjs';
 const SOURCE_REL =

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { resolveHoloScriptRoot } from '../lib/model-village-holoscript-root.mjs';
 
 import {
   parseH3VStack,
@@ -10,9 +11,13 @@ import {
 } from '../check-hololand-model-village-character-appearance-h3v.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const HOLOSCRIPT_ROOT =
-  process.env.HOLOSCRIPT_ROOT ||
-  'C:/holorepo-worktrees/holoscript-h3v-portrait-anatomy';
+const HOLOSCRIPT_ROOT = resolveHoloScriptRoot({
+  gate: 'H3V.TEST',
+  // Kept, not deleted: sibling gates derive their runner source by string-substituting
+  // this file and assert on this exact literal, so removing it breaks their anchors.
+  // The path does not exist, so the resolver tries it and falls through to a real tree.
+  candidates: ['C:/holorepo-worktrees/holoscript-h3v-portrait-anatomy'],
+});
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 
 test('H3V parses all formats and pins portrait-anatomy claim boundaries', async () => {
