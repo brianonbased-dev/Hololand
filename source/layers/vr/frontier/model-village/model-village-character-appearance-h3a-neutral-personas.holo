@@ -36,7 +36,7 @@ composition "Stormglass Character Appearance H3A Neutral Personas" {
     inheritedH2ManifestSha256: "49eeaf4dfd16f80a4e35414c5aa29c2c294f34ff2aa317b25d6f871f21992d8b"
     inheritedH2Report: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H2_2026-07-27.md"
     inheritedH2ReportSha256: "0594f003d0730677babf5984ae7f2c3e90e850e18e8cedfa9509e14e9b10cc27"
-    upstreamHoloScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
+    upstreamHoloScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
     upstreamCharacterHostPath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
     upstreamCharacterHostSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"
     upstreamHairBuilderPath: "packages/engine/src/character-render/AgentAvatarHair.ts"
@@ -104,7 +104,7 @@ composition "Stormglass Character Appearance H3A Neutral Personas" {
         characterHostMorphReport: "no_facs_morph_target_channel_yet"
       }
       current: {
-        holoScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
+        holoScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
         gapClosedByUpstreamCommit: "0275f8d4c"
         hairColorOperative: true
         defaultProceduralHairOperative: true

@@ -16,7 +16,7 @@ composition "HoloLand Model Village Character Appearance H3G Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3g-hair-response.holo"
-      sourceSha256: "c1553a6ea86978f2b51d2bc89b23dae91800eb8dc27560aacdfe4a557591a32f"
+      sourceSha256: "60d834bf2cd97bf08635a8f25c972a063759988ac25e7247d585d90a1ee89dee"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -31,11 +31,11 @@ composition "HoloLand Model Village Character Appearance H3G Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3g.mjs"
-      checkerSha256: "c7f56d43ff401d5d84651f2fee103953bcfdb1a0aee063e9b69dd57d370e09b2"
+      checkerSha256: "ab55939699329e82651667b7da439315095edd65ca9cfa2a3726b476c5b20aa9"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3g.test.mjs"
-      testSha256: "fbcb02ed7ed21ea49319199e7ecec37d47a4676e0b2ecb87752a255e6029ee81"
+      testSha256: "90af0a197017fe48c9fa3f53e2a53f7d477eb93f42cc17db5e034cb3f43e3487"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3g-hair-response-2026-07-28.md"
@@ -51,7 +51,7 @@ composition "HoloLand Model Village Character Appearance H3G Manifest" {
       iterationAccepted: 9
     }
     upstream: {
-      holoScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
+      holoScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
       inheritedH3FSourceSha256: "1f35e8541e6b62ade27ffd25133f536fc3bc1927269efbb719c529331d6db957"
       groomBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
       characterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"

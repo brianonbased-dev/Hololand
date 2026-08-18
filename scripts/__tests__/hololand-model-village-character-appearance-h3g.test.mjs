@@ -18,7 +18,7 @@ test('H3G parses all three formats and binds source-authored hair response contr
   assert.equal(stack.contract.state.hairResponseFoundation.coverageProfile, 'alpha-to-coverage-v1');
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    '721b4608da5d3752956d978108fa852cb2740b6d'
+    'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2'
   );
   assert.deepEqual(
     validation.plan.personas.map((persona) => persona.personaId),

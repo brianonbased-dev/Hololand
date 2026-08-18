@@ -18,7 +18,7 @@ test('H3D parses all three formats and binds the source-authored ocular contract
   assert.equal(stack.contract.state.ocularFoundation.profile, 'layered-ocular-v1');
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    'b3d031dd47e112021efe97863794abe3e5c16807'
+    'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2'
   );
   assert.equal(
     stack.contract.state.nativeAdmission.morphSchemaVersion,

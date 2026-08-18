@@ -15,7 +15,7 @@ composition "HoloLand Model Village Character Appearance H3K Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3k-upper-body-occlusion.holo"
-      sourceSha256: "10de8c5452596f60369f4acf257c1cd3d17ec21a26a0327ce00114652cffc7ea"
+      sourceSha256: "afc5fe30231c85da5275428bd282ef3c7ce67498af522ab3bdd1d811f5bdc343"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -30,11 +30,11 @@ composition "HoloLand Model Village Character Appearance H3K Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3k.mjs"
-      checkerSha256: "cd74c8a42554ccf6d8084451f6bf02aa07304ff049bb13273741826171e79524"
+      checkerSha256: "70d724d7768f9a57044067d5bca244cc7f2f4af3f5012257a3f25ba59947c7a5"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3k.test.mjs"
-      testSha256: "4e35707c1eb3ed5172f812b4ceba8cc8c4fc7c55b826efafb19f746fb36534ce"
+      testSha256: "21c26952c903a6eac42a674c24eb74f81766bc48567414a6592ae8d29277b378"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3k-upper-body-occlusion-2026-07-28.md"

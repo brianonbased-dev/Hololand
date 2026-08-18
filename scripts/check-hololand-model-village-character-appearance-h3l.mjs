@@ -15,6 +15,8 @@ import {
   proveH3KPoseClearance,
 } from './check-hololand-model-village-character-appearance-h3k.mjs';
 
+import { validateUpstreamCommitPin } from './lib/model-village-upstream-commit-pin.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_HOLOSCRIPT_ROOT =
   process.env.HOLOSCRIPT_ROOT || 'C:/Users/josep/Documents/GitHub/HoloScript';
@@ -31,7 +33,7 @@ const MANIFEST_REL =
 const REPORT_REL =
   'docs/reports/model-village-character-appearance-h3l-upper-limb-2026-07-28.md';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3l';
-const EXPECTED_COMMIT = '721b4608da5d3752956d978108fa852cb2740b6d';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_RESIDENTS = ['OpenAI', 'Claude', 'Gemini', 'Grok'];
 const EXPECTED_GPU = 'NVIDIA GeForce RTX 3060 Laptop GPU';
 const HASH_BINDINGS = [
@@ -70,16 +72,21 @@ function properties(node) {
   );
 }
 
-function gitHasCommit(root, commit) {
-  try {
-    execFileSync('git', ['merge-base', '--is-ancestor', commit, 'HEAD'], {
-      cwd: root,
-      stdio: 'ignore',
-    });
-    return true;
-  } catch {
-    return false;
-  }
+// Delegates to the shared validator. The private gitHasCommit() this replaced asserted
+// "ancestor of HEAD", which accepted a commit that existed only on one laptop and
+// rejected a reproducible one whenever a peer left the shared checkout on a branch.
+function upstreamPinFailures(holoScriptRoot, metadata) {
+  return validateUpstreamCommitPin(
+    holoScriptRoot,
+    metadata.upstreamHoloScriptCommit,
+    HASH_BINDINGS
+      .filter(([, , owner]) => owner === 'holoscript')
+      .map(([pathKey, hashKey]) => ({
+        pathKey,
+        relative: metadata[pathKey],
+        sha256: metadata[hashKey],
+      })),
+  ).errors;
 }
 
 async function loadCore(holoScriptRoot) {
@@ -149,7 +156,7 @@ export function validateH3LContract(
   );
   expect(metadata.artStyle === 'hearthlight_biorealism', 'art style drifted');
   expect(metadata.upstreamHoloScriptCommit === EXPECTED_COMMIT, 'upstream commit pin drifted');
-  expect(gitHasCommit(holoScriptRoot, EXPECTED_COMMIT), 'upstream commit is not in HoloScript HEAD');
+  for (const failure of upstreamPinFailures(holoScriptRoot, metadata)) expect(false, failure);
   for (const [pathKey, hashKey, repo] of HASH_BINDINGS) {
     const base = repo === 'holoscript' ? holoScriptRoot : root;
     const absolute = path.join(base, metadata[pathKey] || '');

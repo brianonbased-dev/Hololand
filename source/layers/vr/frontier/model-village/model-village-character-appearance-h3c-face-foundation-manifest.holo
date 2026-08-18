@@ -19,7 +19,7 @@ composition "HoloLand Model Village Character Appearance H3C Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3c-face-foundation.holo"
-      sourceSha256: "f7e94d77adb37db2a4db509acef318311e8d0160ac933542e2043150def1e9ce"
+      sourceSha256: "d1fbccefd2b7f64f1c45ae1288c622e0489f0f15eb624d447804f8d7693b384d"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -34,11 +34,11 @@ composition "HoloLand Model Village Character Appearance H3C Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3c.mjs"
-      checkerSha256: "529dc27966d8eda17e2e47002e209b7e4ef16f9a1365825f79330fb338c20638"
+      checkerSha256: "2a87f728ebc496fb217a147f9abde7dcf1a8863c8f3785eabb455e01dbac7406"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3c.test.mjs"
-      testSha256: "c6325510450cf380f0b932da447125c6fe80fa6613248d6a7118cef6ea4af2bb"
+      testSha256: "574cb6177c754602ae10fea82db4356dedb1523af84b6fcde27cd9cc785e0485"
     }
     report: {
       path: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H3C_2026-07-28.md"
@@ -54,7 +54,7 @@ composition "HoloLand Model Village Character Appearance H3C Manifest" {
       iterationAccepted: 4
     }
     upstream: {
-      holoScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
+      holoScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
       faceBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"
       eyeBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
       compositionBridgeSha256: "82f384381a9a38d37e52fa76de5b0106548a693b4bbb9d4a2f32de7453f35079"

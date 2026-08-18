@@ -28,7 +28,7 @@ test('H3K parses all three formats and binds four named model-family residents',
   assert.equal(validation.status, 'pass', validation.errors.join('\n'));
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    'b3d031dd47e112021efe97863794abe3e5c16807'
+    'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2'
   );
   assert.deepEqual(
     validation.plan.residents.map((resident) => resident.displayLabel),

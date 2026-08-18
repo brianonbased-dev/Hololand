@@ -15,7 +15,7 @@ composition "HoloLand Model Village Character Appearance H3D Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3d-native-ocular-regions.holo"
-      sourceSha256: "6c1eaf887b22870f60c3ded4893d430b4f3d8e4f903251bd6d2e2448c54e4d7c"
+      sourceSha256: "1887f376284dbcfc0177fac9d10c0dea0d26158339ca0c6b77190a8ac23bb443"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -30,11 +30,11 @@ composition "HoloLand Model Village Character Appearance H3D Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3d.mjs"
-      checkerSha256: "208c5f3ad24cbd5bcce0b08de88ca234f68eb3a571f9761bdd260c65bdd8376d"
+      checkerSha256: "056cea8de43413d39e91c47cc3c176524f6236be18e88de1728b6b86f06dfe17"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3d.test.mjs"
-      testSha256: "cbdbe9c556e0d41380705dd08ec1dad85e4d8d25a498b9835e71903d65be9119"
+      testSha256: "60951ad80b63cfe63b443f5dacd7170e8ae91d07ee988ae245dd123aea972fe3"
     }
     report: {
       path: "docs/reports/HOLOLAND_MODEL_VILLAGE_CHARACTER_APPEARANCE_H3D_2026-07-28.md"
@@ -50,7 +50,7 @@ composition "HoloLand Model Village Character Appearance H3D Manifest" {
       iterationAccepted: 3
     }
     upstream: {
-      holoScriptCommit: "b3d031dd47e112021efe97863794abe3e5c16807"
+      holoScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
       ocularBuilderSha256: "69cd7a43b3261a8e0f5848a7fbbf323db9fa3d2cbb8228feb982b9deda220955"
       characterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"
       morphBuilderSha256: "f021d0ff48f3c65584125bec6aa39a5c03017e35cc6168f0b512074700a48357"

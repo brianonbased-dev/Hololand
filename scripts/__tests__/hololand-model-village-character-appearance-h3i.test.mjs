@@ -38,7 +38,7 @@ test('H3I parses all three formats and binds the anatomy and surface truth bound
   });
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    '96b8f4afc811caff5438a74e7246c02eab3e7898'
+    'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2'
   );
   assert.deepEqual(
     validation.plan.personas.map((persona) => persona.personaId),

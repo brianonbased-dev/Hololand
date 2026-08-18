@@ -16,7 +16,7 @@ composition "HoloLand Model Village Character Appearance H3L Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3l-upper-limb.holo"
-      sourceSha256: "32f8dc8460ab0887489c4c7686f37236bbb981a79bc6de7b8a731c33965a2770"
+      sourceSha256: "1650c501ad246a577a0452dee056268e780d22f8ed64c3e43d4349a45fdba8bd"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -32,11 +32,11 @@ composition "HoloLand Model Village Character Appearance H3L Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3l.mjs"
-      checkerSha256: "1893400e837e68752ec4f39e9f1ecea0669f9b648081a8645300b2533dfeec93"
+      checkerSha256: "c09670493ead2931219abdc7f523b12d72c19ccdff35a0af60bb5db881c05ab2"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3l.test.mjs"
-      testSha256: "b33be24748e6f58cf1bd7cef74476c8e3df19d869b80d093065c369c341fca60"
+      testSha256: "a8aaf7a5ef6a3de1eeb5a7fb7f27969d07f3ba82361ac584c66b62f37845737c"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3l-upper-limb-2026-07-28.md"

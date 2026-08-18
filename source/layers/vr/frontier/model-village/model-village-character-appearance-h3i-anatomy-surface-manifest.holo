@@ -17,7 +17,7 @@ composition "HoloLand Model Village Character Appearance H3I Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3i-anatomy-surface.holo"
-      sourceSha256: "921b20ada8843d047265cc591a4a9e94a036aaa9b034bb0c7c33a20ae8737f8a"
+      sourceSha256: "eb06516a73248fcca79a5c19be5e7e2e5aea6325dbdb80598e61c0a6cba7dff6"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -32,11 +32,11 @@ composition "HoloLand Model Village Character Appearance H3I Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3i.mjs"
-      checkerSha256: "cba5b97ad43f8abef667d1f7102c4835a2fc6b6ccda0b485e88a876309b990d6"
+      checkerSha256: "27c5f39b0723f0cec3bcd03bff92d7d91c3b0b311d945505bd888a466b4b3b5f"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3i.test.mjs"
-      testSha256: "5b52d5be179bac050a8b0d5e7e6d38bed73b727486d502e597978af0884e97a0"
+      testSha256: "fd7b87966f798a0a444ffa4c7312a496c69e1a4eb2cada37df8945647080a622"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3i-anatomy-surface-2026-07-28.md"

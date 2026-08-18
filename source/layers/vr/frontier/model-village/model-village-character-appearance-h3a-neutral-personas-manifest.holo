@@ -15,7 +15,7 @@ composition "HoloLand Model Village Character Appearance H3A Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3a-neutral-personas.holo"
-      sha256: "3d32af1ce3e28f31bb90714f1b76aa4a255ed44ffdad4a7a296b120c535ae14a"
+      sha256: "6d677e06207f5f872b02d93aaca9e54f5377f61afe91880f288bec8acaa75f21"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -169,7 +169,7 @@ composition "HoloLand Model Village Character Appearance H3A Manifest" {
         authoredMorphFacsOperative: false
       }
       current: {
-        holoScriptCommit: "721b4608da5d3752956d978108fa852cb2740b6d"
+        holoScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
         gapClosedByUpstreamCommit: "0275f8d4c"
         characterHostPath: "packages/engine/src/character-render/CharacterHostFromComposition.ts"
         characterHostSha256: "2cceebff96068a4b2206545a05c27d59c5f7cbd48122db3edd3128dfef848459"

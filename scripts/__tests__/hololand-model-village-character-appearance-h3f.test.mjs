@@ -18,7 +18,7 @@ test('H3F parses all three formats and binds source-authored scalp-flow controls
   assert.equal(stack.contract.state.groomFoundation.profile, 'scalp-flow-v1');
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    '1203b06bd0e857b26c874479ea9e6b6cdc521896'
+    'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2'
   );
   assert.deepEqual(
     validation.plan.personas.map((persona) => persona.personaId),

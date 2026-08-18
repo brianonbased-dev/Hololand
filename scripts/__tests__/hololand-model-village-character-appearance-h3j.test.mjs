@@ -37,7 +37,7 @@ test('H3J parses all three formats and binds the native civic landmark boundary'
   });
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    '1bc81ee7e02fade1095dc1c1548d7879e27a2800'
+    'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2'
   );
   assert.deepEqual(
     validation.plan.personas.map((persona) => persona.personaId),

@@ -16,7 +16,7 @@ composition "Stormglass Character Appearance H3R Posed Deformation" {
     policySource: "source/proofs/model-village-character-appearance-h3r-posed-deformation-policy.hsplus"
     seedSource: "source/proofs/model-village-character-appearance-h3r-posed-deformation-seed.hs"
     inheritedH3QSource: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3q-material-calibration.holo"
-    inheritedH3QSourceSha256: "7ae26f4589736b695faca0a6ee594ba197ad496bac65096bc6a963156f0752db"
+    inheritedH3QSourceSha256: "b1fb7a0dbcff37eef1fe4b5c4b6bda9e2f9835c9394bfcbd9211b3abf481262b"
     upstreamHoloScriptCommit: "ad577ed2238d0e8a7302badd5656b7bf791aefc9"
     upstreamAvatarMeshPath: "packages/engine/src/character-render/AgentAvatarMesh.ts"
     upstreamAvatarMeshSha256: "b437df6f4e1b6c6874a61bc18860346023662e33589ca7321c4cbb1cfd1a4aee"

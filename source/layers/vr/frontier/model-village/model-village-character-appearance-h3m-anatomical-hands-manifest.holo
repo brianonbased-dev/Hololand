@@ -16,7 +16,7 @@ composition "HoloLand Model Village Character Appearance H3M Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3m-anatomical-hands.holo"
-      sourceSha256: "cc1a3d35a14171bcf7ccb2f005885ec2b52c01ee22151170566102f76f41bcb5"
+      sourceSha256: "3af23cb67ece576e10ab34e93711a0d67a1ab91374eb5131902a12dfe2efd29b"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -32,11 +32,11 @@ composition "HoloLand Model Village Character Appearance H3M Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3m.mjs"
-      checkerSha256: "6eefeb9832b4ad2c4c21e0986f6d2cf3de8b0cb38a3f874e91d5731e58f18306"
+      checkerSha256: "e73b949400070490b640e9ccb2701d4381d81dc8720ebbfd758bc5b89bf35a5a"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3m.test.mjs"
-      testSha256: "3130bb76e5e232e8ccffb1c9a4f74a9f19429dcaae1e35d9500c0344d7a7d056"
+      testSha256: "d56ac701b865a45ed2e007ca0afd0e8bdd1bfaec6581fb6c91b539cf9f35e282"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3m-anatomical-hands-2026-07-28.md"

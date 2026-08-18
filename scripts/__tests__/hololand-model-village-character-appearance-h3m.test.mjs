@@ -21,7 +21,7 @@ test('H3M parses all three HoloScript formats and binds four symbolic model fami
     assert.equal(validation.status, 'pass', validation.errors.join('\n'));
     assert.equal(
       stack.contract.metadata.upstreamHoloScriptCommit,
-      '7ed46ad627d5b9582216f008aa82021ef4e85152'
+      'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2'
     );
     assert.deepEqual(
       validation.plan.residents.map((resident) => resident.displayLabel),

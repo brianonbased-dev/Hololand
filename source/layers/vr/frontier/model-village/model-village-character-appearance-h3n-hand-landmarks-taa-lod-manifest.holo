@@ -17,7 +17,7 @@ composition "HoloLand Model Village Character Appearance H3N Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3n-hand-landmarks-taa-lod.holo"
-      sourceSha256: "bc466280e60720e181de3b4948b1e77e5ed06549d623adfb659f8bcafedca1d2"
+      sourceSha256: "c3b6ceba2795042493fe20a20ac6044ab5d76cab15fae40c60e0ba454671f78e"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -33,11 +33,11 @@ composition "HoloLand Model Village Character Appearance H3N Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3n.mjs"
-      checkerSha256: "75e9b1b745351742679c5b0c64993f5a2921d0e88375b6baad76f6748cd71e7e"
+      checkerSha256: "23e4266c79911be6cd38f252ec553d8ef525b7f5a1fd90d429d8a4762f233be5"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3n.test.mjs"
-      testSha256: "af0e278d0c7016056e85146f882f50bb2c10b41998f946870262f43814513080"
+      testSha256: "9e7378a894604f972d1fffd07a6adb00c611fd706e443318b015bccf8c9aab73"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3n-hand-landmarks-taa-lod-2026-07-28.md"
@@ -57,7 +57,7 @@ composition "HoloLand Model Village Character Appearance H3N Manifest" {
       role: "aspirational_image_generated_art_direction_not_renderer_evidence"
     }
     upstream: {
-      holoScriptCommit: "b3d031dd47e112021efe97863794abe3e5c16807"
+      holoScriptCommit: "c273682f5a5140b0ff8cde5da89ca7bfb98c63b2"
       bodyBuilderSha256: "1de749995eedfd2472b2f516aaf7cf19087d41dbe18b4d1555cfe5044ac441e1"
       garmentBuilderSha256: "c771348d58ff637883c2733836c4aa85f1be5e38532292119ff6b8d39468d21c"
       characterHostSha256: "bc580f7ea846c98fcd2f1dff3f5b9cc0b637c2d40fcb5b39b2606d0649a2c1a7"

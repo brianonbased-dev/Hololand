@@ -17,7 +17,7 @@ composition "HoloLand Model Village Character Appearance H3J Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3j-civic-landmarks.holo"
-      sourceSha256: "8203d644c583fe1e7a822d37c044ffa986c78a1c96eff6ae2bf5b5c75a41c93b"
+      sourceSha256: "6247684f08d0f936835eddbcd84083ac22a37e5cecdc552e09b868502ffefa75"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -32,11 +32,11 @@ composition "HoloLand Model Village Character Appearance H3J Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3j.mjs"
-      checkerSha256: "515c62f497bcd5efd3aa816fa5734b2ffd421953c3ccb3be9d250dcef775d2a5"
+      checkerSha256: "090676db6e23c0fc7ee4e20b00c223ff53d7a1fcc0fc3a37a6de5f7f9a1fccb7"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3j.test.mjs"
-      testSha256: "70c01c3e934bc1689a98c7a050af6274b6e82f14d4aaedf4640c09d7262fdff3"
+      testSha256: "e0d812d171855e1cd4618c43157e1b7014ca4d6c9c208cf610ad33fa87f73234"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3j-civic-landmarks-2026-07-28.md"

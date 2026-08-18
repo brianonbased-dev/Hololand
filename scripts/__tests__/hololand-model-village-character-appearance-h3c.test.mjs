@@ -27,7 +27,7 @@ test('H3C parses all three formats and binds the source-authored face contract',
   );
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    '721b4608da5d3752956d978108fa852cb2740b6d',
+    'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2',
   );
   assert.equal(
     stack.contract.state.nativeAdmission.morphSchemaVersion,

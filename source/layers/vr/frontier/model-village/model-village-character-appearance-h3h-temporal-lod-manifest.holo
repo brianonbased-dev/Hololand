@@ -17,7 +17,7 @@ composition "HoloLand Model Village Character Appearance H3H Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3h-temporal-lod.holo"
-      sourceSha256: "d9a24c28963668a388109330f7ad55ebb84d301d956058f935571abe101e22dc"
+      sourceSha256: "3ff079bcefcda01998701fc74946ce2dc77bcf39d2d49ac343e3e7e3dbdb17da"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -32,11 +32,11 @@ composition "HoloLand Model Village Character Appearance H3H Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3h.mjs"
-      checkerSha256: "7762e838bf0361076b49791278ff1b6730c989d73ef73a6409bc362b683a9808"
+      checkerSha256: "37a398d9010f3b937f13539f08f0efa467388105ab225badc137c413a2c14f8e"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3h.test.mjs"
-      testSha256: "3b8d01e67d36d4266bf64d810e2679bed4788fb55532a462f86884f88cbf1df6"
+      testSha256: "1bd9680dda7d95f4b3e8f9cea237dec2688b49f2fdaedbcbe93edfc8d78f59a3"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3h-temporal-lod-2026-07-28.md"

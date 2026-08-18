@@ -21,6 +21,8 @@ import {
   sha256,
 } from './check-hololand-model-village-character-appearance-h3b.mjs';
 
+import { validateUpstreamCommitPin } from './lib/model-village-upstream-commit-pin.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_HOLOSCRIPT_ROOT =
   process.env.HOLOSCRIPT_ROOT ||
@@ -148,16 +150,21 @@ export async function parseH3CStack(
   };
 }
 
-function gitHasCommit(root, commit) {
-  try {
-    execFileSync('git', ['merge-base', '--is-ancestor', commit, 'HEAD'], {
-      cwd: root,
-      stdio: 'ignore',
-    });
-    return true;
-  } catch {
-    return false;
-  }
+// Delegates to the shared validator. The private gitHasCommit() this replaced asserted
+// "ancestor of HEAD", which accepted a commit that existed only on one laptop and
+// rejected a reproducible one whenever a peer left the shared checkout on a branch.
+function upstreamPinFailures(holoScriptRoot, metadata) {
+  return validateUpstreamCommitPin(
+    holoScriptRoot,
+    metadata.upstreamHoloScriptCommit,
+    HASH_BINDINGS
+      .filter(([, , owner]) => owner === 'holoscript')
+      .map(([pathKey, hashKey]) => ({
+        pathKey,
+        relative: metadata[pathKey],
+        sha256: metadata[hashKey],
+      })),
+  ).errors;
 }
 
 export function validateH3CContract(
@@ -271,10 +278,7 @@ export function validateH3CContract(
       );
     }
   }
-  expect(
-    gitHasCommit(holoScriptRoot, metadata.upstreamHoloScriptCommit),
-    'pinned upstream HoloScript commit is not an ancestor of HEAD',
-  );
+  for (const failure of upstreamPinFailures(holoScriptRoot, metadata)) expect(false, failure);
   return {
     status: errors.length ? 'fail' : 'pass',
     errors,

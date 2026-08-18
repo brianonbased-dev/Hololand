@@ -16,7 +16,7 @@ composition "HoloLand Model Village Character Appearance H3F Manifest" {
   state {
     source: {
       path: "source/layers/vr/frontier/model-village/model-village-character-appearance-h3f-native-groom.holo"
-      sourceSha256: "8aedc09fc216474ee9504c8e0b6df0b31e0d5843c99a726a9121d136b14962fd"
+      sourceSha256: "21d6e2c60f4a7953d5edac7c1a89996570883f44a6dcd6a205a8f2eb53a558c9"
       parser: "HoloCompositionParser"
     }
     policy: {
@@ -31,11 +31,11 @@ composition "HoloLand Model Village Character Appearance H3F Manifest" {
     }
     checker: {
       path: "scripts/check-hololand-model-village-character-appearance-h3f.mjs"
-      checkerSha256: "7653dc9136f17db5b0b5a709bd04278a4c28f76c4e0bcac5598bd95d4f6814f2"
+      checkerSha256: "ed30a2eb6b62d171da99fcbac17f3c417627038779e81f161885292594a57c38"
     }
     test: {
       path: "scripts/__tests__/hololand-model-village-character-appearance-h3f.test.mjs"
-      testSha256: "1c9a00934a6e6ec3b20c3e820d8bbabc96996071b10866f38fb20cded78f31ed"
+      testSha256: "c646a6523240e28b6775f62a77b56688e1d03c292c7a731191d7c71bb86336ce"
     }
     report: {
       path: "docs/reports/model-village-character-appearance-h3f-native-groom-2026-07-28.md"

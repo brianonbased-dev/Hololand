@@ -20,7 +20,7 @@ test('H3E parses all three formats and binds source-authored orbital fit', async
   assert.equal(stack.contract.state.orbitalFoundation.profile, 'recessed-lids-v1');
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    'b3d031dd47e112021efe97863794abe3e5c16807'
+    'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2'
   );
   assert.deepEqual(
     validation.plan.personas.map((persona) => persona.personaId),

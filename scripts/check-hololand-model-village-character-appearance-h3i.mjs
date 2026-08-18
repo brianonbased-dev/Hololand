@@ -14,6 +14,8 @@ import {
   sha256,
 } from './check-hololand-model-village-character-appearance-h3b.mjs';
 
+import { validateUpstreamCommitPin } from './lib/model-village-upstream-commit-pin.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_HOLOSCRIPT_ROOT =
   process.env.HOLOSCRIPT_ROOT || 'C:/Users/josep/Documents/GitHub/HoloScript';
@@ -29,7 +31,7 @@ const REPORT_REL =
 const HERO_REL =
   'docs/assets/model-village/model-village-character-appearance-h3i-anatomy-surface-portraits-2026-07-28.png';
 const OUTPUT_REL = '.tmp/hololand/model-village/character-appearance-h3i';
-const EXPECTED_COMMIT = '96b8f4afc811caff5438a74e7246c02eab3e7898';
+const EXPECTED_COMMIT = 'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2';
 const EXPECTED_PERSONAS = ['hearth_keeper', 'path_tender', 'record_steward'];
 const EXPECTED_REGIONS = ['sclera', 'iris', 'pupil', 'cornea'];
 // H4J widened the skin receipt from v1 to v2. The v1 schema is unreachable: no upstream code path
@@ -89,16 +91,21 @@ function properties(node) {
   );
 }
 
-function gitHasCommit(root, commit) {
-  try {
-    execFileSync('git', ['merge-base', '--is-ancestor', commit, 'HEAD'], {
-      cwd: root,
-      stdio: 'ignore',
-    });
-    return true;
-  } catch {
-    return false;
-  }
+// Delegates to the shared validator. The private gitHasCommit() this replaced asserted
+// "ancestor of HEAD", which accepted a commit that existed only on one laptop and
+// rejected a reproducible one whenever a peer left the shared checkout on a branch.
+function upstreamPinFailures(holoScriptRoot, metadata) {
+  return validateUpstreamCommitPin(
+    holoScriptRoot,
+    metadata.upstreamHoloScriptCommit,
+    HASH_BINDINGS
+      .filter(([, , owner]) => owner === 'holoscript')
+      .map(([pathKey, hashKey]) => ({
+        pathKey,
+        relative: metadata[pathKey],
+        sha256: metadata[hashKey],
+      })),
+  ).errors;
 }
 
 async function loadCore(holoScriptRoot) {
@@ -424,10 +431,7 @@ export function validateH3IContract(stack, root = ROOT, holoScriptRoot = DEFAULT
       expect(sha256File(absolute) === expectedHash, `${pathKey} hash drifted`);
     }
   }
-  expect(
-    gitHasCommit(holoScriptRoot, metadata.upstreamHoloScriptCommit),
-    'pinned upstream HoloScript commit is not an ancestor of HEAD'
-  );
+  for (const failure of upstreamPinFailures(holoScriptRoot, metadata)) expect(false, failure);
   return { status: errors.length ? 'fail' : 'pass', errors, plan };
 }
 

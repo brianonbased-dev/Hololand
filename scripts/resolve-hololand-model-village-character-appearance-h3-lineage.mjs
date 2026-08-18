@@ -45,6 +45,9 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const HOLOSCRIPT_ROOT =
   process.env.HOLOSCRIPT_ROOT || 'C:/Users/josep/Documents/GitHub/HoloScript';
 
+/** Canonical history. Pins derived here must be resolvable from a fresh clone, not just here. */
+const CANON_REF = process.env.HOLOSCRIPT_CANON_REF || 'canon/main';
+
 const MODEL_VILLAGE = 'source/layers/vr/frontier/model-village';
 const H3A_MANIFEST = `${MODEL_VILLAGE}/model-village-character-appearance-h3a-neutral-personas-manifest.holo`;
 const H3B_SOURCE = `${MODEL_VILLAGE}/model-village-character-appearance-h3b-native-channels.holo`;
@@ -68,6 +71,10 @@ const H3C_MANIFEST = `${MODEL_VILLAGE}/model-village-character-appearance-h3c-fa
  * a gate green -- verified below: every gate red for a non-lineage reason stays red.
  */
 const FORWARD_CHAIN = [
+  // H3D joined the chain when the upstream commit re-pin edited H3C's source. Before that its
+  // inherited pin was already correct and it needed no stage; the chain now starts one gate
+  // earlier rather than leaving a hole only this run would notice.
+  ['H3D', `${MODEL_VILLAGE}/model-village-character-appearance-h3d-native-ocular-regions.holo`],
   ['H3E', `${MODEL_VILLAGE}/model-village-character-appearance-h3e-orbital-fit.holo`],
   ['H3F', `${MODEL_VILLAGE}/model-village-character-appearance-h3f-native-groom.holo`],
   ['H3G', `${MODEL_VILLAGE}/model-village-character-appearance-h3g-hair-response.holo`],
@@ -227,12 +234,20 @@ function manifestBlock(text, block) {
   };
 }
 
+/**
+ * Newest commit touching these files WITHIN CANON.
+ *
+ * This used to walk from local HEAD, which quietly reintroduced the defect the upstream-pin
+ * validator exists to catch: it derived a commit that lives only in this checkout, so every
+ * resolver run overwrote a reproducible pin with an unreproducible one. Restricting the walk
+ * to the canon ref means the derived pin is one a fresh clone can resolve.
+ */
 function lastCommitTouching(files) {
   let newest = null;
   for (const file of files) {
     const commit = execFileSync(
       'git',
-      ['log', '-1', '--format=%H', '--', file],
+      ['log', '-1', '--format=%H', CANON_REF, '--', file],
       { cwd: HOLOSCRIPT_ROOT, encoding: 'utf8' },
     ).trim();
     if (!commit) continue;

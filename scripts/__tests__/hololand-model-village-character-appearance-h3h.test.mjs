@@ -51,7 +51,7 @@ test('H3H parses all three formats and binds the temporal LOD truth boundary', a
   });
   assert.equal(
     stack.contract.metadata.upstreamHoloScriptCommit,
-    'daf5993dc1c5372bfb79d2fa81b8dbcc6d32ebfb'
+    'c273682f5a5140b0ff8cde5da89ca7bfb98c63b2'
   );
   assert.deepEqual(
     validation.plan.personas.map((persona) => persona.personaId),
