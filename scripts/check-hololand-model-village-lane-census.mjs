@@ -75,7 +75,21 @@ export const UNWIRED_REASONS = {
     + 'change rewrote on 2026-08-04 (486 lines). These witnesses predate it and have not been '
     + 're-witnessed since. H4G is the exception: it reports a missing @holoscript/core build '
     + 'artifact, which is the unpinnable-build gap, not a pin. Wiring before repair would land '
-    + 'a red lane. Repair -- re-witnessing each gate against current upstream -- is the work.',
+    + 'a red lane. '
+    + 'The re-witness RAN (2026-08-18, 13 agents). Result: 17 of 18 audits claimed REPAIRED and '
+    + 'ZERO survived adversarial review -- 10 OVERSTATED, 6 INCOMPLETE, 1 REFUTED. No repair was '
+    + 'a silencing, and the audits agree H4J was ADDITIVE (every behavioural change sits behind an '
+    + 'opt-in token or a default-identity parameter), so the stale pins were not hiding a broken '
+    + 'property. They were hiding WEAK GATES. Executed examples: h4f passes while its temporal '
+    + 'resolve emits pure black for all 64 samples, because TemporalConvergence.ts is not in its '
+    + 'HASH_BINDINGS at all; h3v passes with every resident in a full T-pose, mutated at an '
+    + 'UNPINNED call site in CharacterHost.ts; h4e prints 7-of-7 LOD histories rejected while the '
+    + 'shader blends the stale history; h4h asserts 0.55 which is the ENGINE DEFAULT and is '
+    + 'authored nowhere. So wiring is not what is owed and re-pinning is not either -- these gates '
+    + 'need to be made capable of going red for their own subject before green from them means '
+    + 'anything. Do not land the re-witness patches as a batch: they turn red-for-a-known-reason '
+    + 'into green-while-structurally-blind, and some carry LF-normalised manifest hashes against '
+    + 'checkers that hash raw bytes.',
   H_SERIES_PASSES_WITHOUT_ITS_SUBJECT:
     'Character gate whose test is green with no HoloScript tree present at all. '
     + 'Executed negative control 2026-08-16: HOLOSCRIPT_ROOT=C:/definitely/not/a/real/'
