@@ -31,11 +31,11 @@ composition "HoloShell HoloClaw Production Frontier" {
     browserTerminalStatus: "partial"
     parallelChatStatus: "partial"
     runtimeExecutionStatus: "guarded_stage_only"
-    browserInstrumentationStatus: "research_ready"
-    terminalEventStreamStatus: "polling_receipts_only"
+    browserInstrumentationStatus: "read_only_observation_live"
+    terminalEventStreamStatus: "sse_push_live_polling_fallback"
     replayStatus: "snapshot_only"
     nonDeveloperUxStatus: "prototype"
-    packagingStatus: "missing"
+    packagingStatus: "bootstrap_stage_startup_registered"
     openClawRuntimeBackendAllowed: false
     nemoClawRuntimeBackendAllowed: false
     destructiveActionsTaken: false
@@ -104,22 +104,24 @@ composition "HoloShell HoloClaw Production Frontier" {
       nextImplementationSlice: "add session-bound runtime execution receipt stream behind workflow approval and HOLOSHELL_HOLOCLAW_ALLOW_AGENT_TICK"
     }
 
+    // Reconciled 2026-08-19 against real code + a live deployed-host check (see
+    // docs/audits/HOLOCLAW_BROWSER_TERMINAL_GAP_MATRIX_2026-06-30.md reconciliation section).
     object "BrowserInstrumentation" using "HoloClawProductionGap" {
       gapId: "browser-instrumentation"
       priority: "P0"
       title: "Browser instrumentation as app capability"
-      currentProof: "browser state, cockpit, terminal evidence, and session refresh proof exist"
-      missingProof: "visible Chrome tabs, console, network, DOM, screenshots, downloads, and authenticated app context are exposed as guarded source-owned tools"
-      nextImplementationSlice: "define CDP/BiDi-backed read-only browser observation adapter, then add consent-gated click/type actions"
+      currentProof: "CDP-backed read-only 'observe' operation (DOM/console/network) ships on browser_session, receipted, proven against a real unmocked Chromium browser (HoloScript packages/mcp-server/src/__tests__/browser-observe.test.ts, commit d2c35adc1), and confirmed live on the deployed mcp-server host via a fresh get_tool_manifest call 2026-08-19; consent-gated click/type actions ('act') already existed before this"
+      missingProof: "downloads and authenticated-app-context are not yet named observe reads; browser_launch's WebGL 3D-preview verification path stays blocked on the deployed container (Alpine Chromium ships no working software WebGL backend) even though DOM/console/network observation now works"
+      nextImplementationSlice: "add downloads/authenticated-app-context reads to observe, and fix the Alpine software-WebGL gap blocking browser_launch's 3D-preview verification"
     }
 
     object "TerminalEventStream" using "HoloClawProductionGap" {
       gapId: "terminal-event-stream"
       priority: "P0"
       title: "Native terminal event stream"
-      currentProof: "browser polls terminal session evidence every 30000ms"
-      missingProof: "terminal command lifecycle emits structured start/stdout/stderr/exit/artifact events with bounded human summaries"
-      nextImplementationSlice: "replace polling-only terminal receipt refresh with append-only event stream plus browser run cards"
+      currentProof: "GET /api/operator-terminal/events/stream pushes terminal lifecycle events to the browser over SSE, proven end to end (Hololand scripts/__tests__/holoshell-terminal-event-stream.test.mjs: a real client receives a pushed 'events' message after the receipt advances, with zero further requests from the client), commit e560a0e, reconciled 2026-08-19; the prior 30000ms poll stays on deliberately as a fallback transport, not removed"
+      missingProof: "none for this P0 ask; remaining terminal-evidence depth (progress verbs, failure categories, artifact chips, receipt summaries) belongs to the nondeveloper-ux row below, which today's transport change did not advance"
+      nextImplementationSlice: "closed as a P0 row; further work here is scoped under gapId nondeveloper-ux"
     }
 
     object "ParallelHoloClawChats" using "HoloClawProductionGap" {
@@ -149,16 +151,28 @@ composition "HoloShell HoloClaw Production Frontier" {
       nextImplementationSlice: "add progress verbs, failure categories, artifact chips, and receipt summaries to terminal run cards"
     }
 
+    // Reconciled 2026-08-19: "missing" undersold a real bootstrap-stage layer that shipped
+    // since June 30 (see docs/audits/HOLOCLAW_BROWSER_TERMINAL_GAP_MATRIX_2026-06-30.md
+    // reconciliation section). The deeper packaging gap (install/update/crash-recovery) is
+    // still real and still open.
     object "PackagingAndContinuity" using "HoloClawProductionGap" {
       gapId: "packaging-continuity"
       priority: "P2"
       title: "Desktop app packaging and continuity"
-      currentProof: "Brittney Studio launcher opens browser and refreshes terminal receipts hidden by default; visible terminal requires -OperatorTerminal"
-      missingProof: "install/update/startup/session restore are packaged as a native desktop app with crash recovery and no manual server ceremony"
-      nextImplementationSlice: "wrap launcher, server custody, terminal custody, and browser profile custody into a source-backed desktop package contract"
+      currentProof: "Brittney Studio launcher opens browser and refreshes terminal receipts hidden by default (visible terminal requires -OperatorTerminal); apps/holoshell/native/windows/Register-HoloShellStartup.ps1 additionally registers a real, tested (7/7 paired tests) Windows Startup-folder auto-launch shortcut with approval-gating, pre/post Test-Path verification, and a written receipt; apps/holoshell/docs/FOUNDER_NATIVE_HOST.md documents it honestly as bootstrap-stage, not full replacement"
+      missingProof: "install/update/session-restore are still not packaged as a native desktop app with crash recovery; scripts/holoshell-package-custody.mjs explicitly refuses --execute ('intentionally unsupported'), so there is no real installer or auto-update beyond the startup-registration bootstrap"
+      nextImplementationSlice: "wrap the existing startup-registration bootstrap, server custody, terminal custody, and browser profile custody into a full source-backed install/update/crash-recovery desktop package contract"
     }
   }
 
+  // Consolidated 2026-08-19 (board task task_1787109203243_5k1m): this is now
+  // the canonical name for the HoloClaw-replaces-not-wraps-OpenClaw/NemoClaw
+  // rule; holoshell-holoclaw-runtime-bridge.hsplus's sibling policy (formerly
+  // named HoloClawReplacesOpenClawAndNemoClaw) was renamed to match. Field
+  // sets differ slightly (this policy scopes agent_identity/desktop_app, the
+  // runtime-bridge one scopes lowerLevelSubstrateAllowed) because the two
+  // files govern different layers — only the name was consolidated, not the
+  // scope.
   policy "HoloClawMustReplaceNotWrapOpenClawNemoClaw" {
     appliesTo: ["runtime_backend", "agent_identity", "local_gateway", "desktop_app"]
     replacementRuntime: "HoloClaw"

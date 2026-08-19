@@ -135,7 +135,16 @@ composition "HoloShell HoloClaw Runtime Bridge" {
     receiptRequired: true
   }
 
-  policy "HoloClawReplacesOpenClawAndNemoClaw" {
+  // Consolidated 2026-08-19 (board task task_1787109203243_5k1m): this policy
+  // and holoshell-holoclaw-production-frontier.hsplus's policy asserted the
+  // identical rule (HoloClaw replaces OpenClaw/NemoClaw as the runtime
+  // backend, never wraps either) under two different names — two sources of
+  // truth for one policy in the same repo. Standardized on the production-
+  // frontier file's name, HoloClawMustReplaceNotWrapOpenClawNemoClaw, since
+  // it names the actual constraint (no wrapping) rather than just the
+  // outcome, and matches this repo's other policy-naming convention (full
+  // descriptive sentence names, e.g. HoloShellOwnsConsentSurface below).
+  policy "HoloClawMustReplaceNotWrapOpenClawNemoClaw" {
     appliesTo: ["agent_runtime", "local_agent_gateway", "secured_local_inference"]
     replacementRuntime: "HoloClaw"
     openClawRuntimeBackendAllowed: false
