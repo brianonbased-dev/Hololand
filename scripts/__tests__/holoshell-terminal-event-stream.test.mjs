@@ -145,6 +145,7 @@ const server = spawn(process.execPath, ['packages/holoshell/serve.mjs'], {
     HOLOSHELL_SESSION_ID: 'terminal-event-server-session',
     HOLOSHELL_OPERATOR_TERMINAL_RECEIPT: serverReceiptPath,
     HOLOSHELL_OPERATOR_TERMINAL_EVENT_LOG: serverEventLogPath,
+    HOLOSHELL_OPERATOR_TERMINAL_SSE_TICK_MS: '150',
     HOLOSCRIPT_API_KEY: '',
     HOLOSCRIPT_MCP_API_KEY: '',
   },
@@ -216,6 +217,91 @@ try {
   assert.equal(session.refreshRecovery.terminalEvidenceEventStreamEndpoint, 'GET /api/operator-terminal/events');
   assert.equal(session.refreshRecovery.terminalEvidenceUpstreamStatus, 'ready');
   assert.ok(session.refreshRecovery.rehydrateFrom.includes('GET /api/operator-terminal/events'));
+  assert.equal(session.browser.operatorTerminalEventsStreamEndpoint, 'GET /api/operator-terminal/events/stream');
+  assert.equal(session.terminal.eventStreamPushEndpoint, 'GET /api/operator-terminal/events/stream');
+  assert.equal(session.terminal.eventStreamPushTransport, 'sse');
+  assert.equal(session.refreshRecovery.terminalEvidenceEventStreamPushEndpoint, 'GET /api/operator-terminal/events/stream');
+  assert.equal(session.refreshRecovery.terminalEvidenceEventStreamPushTransport, 'sse');
+  // Polling stays declared honestly as the fallback transport — SSE supplements it,
+  // it does not silently overwrite what was already true.
+  assert.equal(session.refreshRecovery.terminalEvidenceStreamStatus, 'polling_enabled');
+  assert.equal(session.refreshRecovery.terminalEvidencePollIntervalMs, 30000);
+
+  const liveStatusAfterSessionCheck = await fetchJson('/api/live-status');
+  assert.equal(liveStatusAfterSessionCheck.route.operatorTerminalEventsStreamEndpoint, 'GET /api/operator-terminal/events/stream');
+  assert.ok(liveStatusAfterSessionCheck.capabilities.includes('operator_terminal_event_stream_push'));
+
+  // ── SSE push: real end-to-end proof, not a route-existence check ──
+  // Open the stream ONCE, capture the initial snapshot, force the receipt to advance (a
+  // new terminalHash mints new receipt-derived events), then assert the push arrives on
+  // the SAME connection without the client ever issuing a second request — this is the
+  // P0's actual claim ("replace 30-second polling"), not just "the endpoint responds".
+  function makeSSEEventWaiter(response) {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    return {
+      async waitFor(predicate, timeoutMs = 5000) {
+        const deadline = Date.now() + timeoutMs;
+        while (Date.now() < deadline) {
+          const remaining = Math.max(50, deadline - Date.now());
+          const { value, done } = await Promise.race([
+            reader.read(),
+            delay(remaining).then(() => ({ done: true, value: undefined, timedOut: true })),
+          ]);
+          if (done) {
+            if (value === undefined) continue; // our own timeout race losing branch fired; keep polling until deadline
+            break;
+          }
+          buffer += decoder.decode(value, { stream: true });
+          let boundary;
+          while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+            const block = buffer.slice(0, boundary);
+            buffer = buffer.slice(boundary + 2);
+            const eventLine = block.split('\n').find((line) => line.startsWith('event: '));
+            const dataLine = block.split('\n').find((line) => line.startsWith('data: '));
+            if (eventLine && dataLine) {
+              const message = { event: eventLine.slice(7), data: JSON.parse(dataLine.slice(6)) };
+              if (predicate(message)) return message;
+            }
+          }
+        }
+        throw new Error('Timed out waiting for matching SSE message');
+      },
+      async close() {
+        await reader.cancel().catch(() => {});
+      },
+    };
+  }
+
+  const sseController = new AbortController();
+  const sseResponse = await fetch(`http://127.0.0.1:${port}/api/operator-terminal/events/stream`, {
+    signal: sseController.signal,
+  });
+  assert.equal(sseResponse.status, 200);
+  assert.match(sseResponse.headers.get('content-type') || '', /text\/event-stream/);
+
+  const sseWaiter = makeSSEEventWaiter(sseResponse);
+  try {
+    const snapshotMessage = await sseWaiter.waitFor((message) => message.event === 'snapshot', 5000);
+    assert.equal(snapshotMessage.data.status, 'ready');
+    const snapshotLatestEventId = snapshotMessage.data.latestEventId;
+    assert.ok(snapshotLatestEventId, 'snapshot should carry a latestEventId');
+
+    // Advance the receipt WITHOUT the client making any further request — this is the
+    // behavior 30s polling could not give the browser without a fresh fetch.
+    const advancedReceipt = { ...receipt, receipt: { terminalHash: 'terminal-event-test-hash-sse-advance' } };
+    writeFileSync(serverReceiptPath, `${JSON.stringify(advancedReceipt, null, 2)}\n`, 'utf8');
+
+    const eventsMessage = await sseWaiter.waitFor((message) => message.event === 'events', 5000);
+    assert.notEqual(eventsMessage.data.latestEventId, snapshotLatestEventId);
+    assert.ok(eventsMessage.data.events.length > 0);
+    assert.ok(eventsMessage.data.events.every((event) => event.receiptHash === 'terminal-event-test-hash-sse-advance'));
+    assert.ok(eventsMessage.data.events.every((event) => event.endpointExecutesCommand === false));
+  } finally {
+    await sseWaiter.close();
+    sseController.abort();
+  }
 } finally {
   server.kill();
 }

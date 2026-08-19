@@ -26,6 +26,8 @@ composition "HoloShell Browser Terminal Coupling" {
     visibleTerminalLaunchFlag: "-OperatorTerminal"
     sessionEndpoint: "GET /api/operator-terminal/session"
     terminalEventsEndpoint: "GET /api/operator-terminal/events"
+    terminalEventsStreamPushEndpoint: "GET /api/operator-terminal/events/stream"
+    terminalEventsStreamPushTransport: "sse"
     terminalEventLog: ".tmp/holoshell/operator-terminal-events.jsonl"
     terminalReportEndpoint: "POST /api/operator-terminal/report"
     guardedExecuteEndpoint: "POST /api/operator-terminal/execute"

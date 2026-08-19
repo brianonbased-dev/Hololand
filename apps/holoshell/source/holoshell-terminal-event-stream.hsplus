@@ -15,6 +15,8 @@ composition "HoloShell Terminal Event Stream" {
     adapterScript: "scripts/holoshell-terminal-event-stream.mjs"
     runnerScript: "scripts/holoshell-terminal-runner.mjs"
     sessionEndpoint: "GET /api/operator-terminal/events"
+    eventsStreamPushEndpoint: "GET /api/operator-terminal/events/stream"
+    eventsStreamPushTransport: "sse"
     sourceReceipt: ".tmp/holoshell/operator-terminal.json"
     eventLog: ".tmp/holoshell/operator-terminal-events.jsonl"
     defaultMode: "append_only_native_lifecycle_projection"
@@ -141,6 +143,19 @@ composition "HoloShell Terminal Event Stream" {
 
   policy "ReadOnlyEventProjection" {
     appliesTo: ["GET /api/operator-terminal/events", "operator_terminal_receipt_projection"]
+    endpointExecutesCommand: false
+    destructiveActionsTaken: false
+    desktopAutomationExecuted: false
+    mutationRequiresSeparateConsentToken: true
+    receiptRequired: true
+  }
+
+  policy "EventStreamPushSupplementsPolling" {
+    appliesTo: ["GET /api/operator-terminal/events/stream", "browser_run_cards", "terminal_evidence_refresh"]
+    transport: "sse"
+    pushEndpoint: "GET /api/operator-terminal/events/stream"
+    readModel: "GET /api/operator-terminal/events"
+    browserPollingRemainsFallback: true
     endpointExecutesCommand: false
     destructiveActionsTaken: false
     desktopAutomationExecuted: false

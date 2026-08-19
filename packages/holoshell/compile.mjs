@@ -1844,6 +1844,58 @@ const runtimeScript = `  <script>
         if (document.visibilityState === 'visible') _rehydrateTerminalSessionFromServer();
       });
     }
+    var TERMINAL_EVENT_LABELS = {
+      'run.started': 'Terminal run started',
+      'stdout.chunk': 'Terminal stdout',
+      'stderr.chunk': 'Terminal stderr',
+      'artifact.detected': 'Terminal artifact',
+      'approval.required': 'Terminal approval required',
+      'run.exited': 'Terminal run exited',
+      'receipt.written': 'Terminal receipt written'
+    };
+    function _labelForTerminalEvent(evt) {
+      return TERMINAL_EVENT_LABELS[evt.nativeEventKind] || (evt.label ? String(evt.label) : 'Terminal event');
+    }
+    function _toneForTerminalEvent(evt) {
+      var severity = String(evt.severity || '').toLowerCase();
+      if (severity === 'error') return 'blocked';
+      if (severity === 'attention') return 'attention';
+      if (evt.nativeEventKind === 'run.exited') return (evt.exitCode === 0 && !evt.timedOut) ? 'ready' : 'blocked';
+      if (evt.nativeEventKind === 'receipt.written' || evt.nativeEventKind === 'artifact.detected') return 'ready';
+      return 'neutral';
+    }
+    function _renderTerminalEvent(evt) {
+      if (!evt || !evt.nativeEventKind) return;
+      var lines = [];
+      if (evt.summary) lines.push(String(evt.summary).slice(0, 240));
+      if (evt.redactedText) lines.push(String(evt.redactedText).replace(/\s+/g, ' ').trim().slice(0, 240));
+      if (evt.nativeEventKind === 'run.exited') {
+        lines.push('exit code: ' + (evt.exitCode === null || evt.exitCode === undefined ? 'unknown' : evt.exitCode) + (evt.timedOut ? ' (timed out)' : ''));
+      }
+      if (evt.label) lines.push('command: ' + evt.label);
+      lines.push('permission: ' + (evt.permissionEnvelope || 'read_only'));
+      _appendTurnCard(_labelForTerminalEvent(evt), lines, _toneForTerminalEvent(evt), 'terminal_event', { chatId: 'terminal' });
+    }
+    var _terminalEventSource = null;
+    function _startTerminalEventStreamPush() {
+      // Push transport for live terminal run cards (P0 gap-matrix: "Native terminal event
+      // stream"). This SUPPLEMENTS _startTerminalSessionEvidencePolling(), which stays on
+      // as the fallback if EventSource is unavailable or the connection drops and cannot
+      // reconnect — this never replaces the safety net, only adds a faster live path.
+      if (typeof window.EventSource !== 'function') return;
+      try {
+        if (_terminalEventSource) _terminalEventSource.close();
+        _terminalEventSource = new EventSource('/api/operator-terminal/events/stream');
+        _terminalEventSource.addEventListener('events', function(e) {
+          try {
+            var data = JSON.parse(e.data);
+            (data.events || []).forEach(_renderTerminalEvent);
+          } catch (err) { /* malformed push payload — poll fallback still covers state */ }
+        });
+      } catch (err) {
+        /* EventSource construction failed — the 30s poll remains the source of truth */
+      }
+    }
     function _inspectOperatorTerminalSession() {
       fetch('/api/operator-terminal/session', { cache: 'no-store' })
         .then(function(r) { return r.json(); })
@@ -2953,6 +3005,7 @@ const runtimeScript = `  <script>
           loadCockpitCapsule();
           _rehydrateTerminalSessionFromServer();
           _startTerminalSessionEvidencePolling();
+          _startTerminalEventStreamPush();
           loadImprovementRuns();
         });
     }

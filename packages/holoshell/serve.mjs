@@ -122,6 +122,15 @@ const OPERATOR_TERMINAL_READONLY_EXECUTION_DIR =
   join(HOLOSHELL_TMP_DIR, 'operator-terminal-readonly-execution');
 const OPERATOR_TERMINAL_REFRESH_COMMAND = 'node scripts/holoshell-operator-terminal.mjs --agent --json';
 const OPERATOR_TERMINAL_FRESHNESS_MS = Number(process.env.HOLOSHELL_OPERATOR_TERMINAL_FRESHNESS_MS || 5 * 60 * 1000);
+// Push transport for the P0 gap-matrix item ("Native terminal event stream"): the browser
+// opens ONE long-lived connection instead of re-polling every 30000ms. Internally this still
+// re-derives the event stream on a short server-side tick (cheap: reads the append-only
+// .jsonl log), but from the browser's perspective new events arrive pushed, not polled.
+const OPERATOR_TERMINAL_EVENTS_STREAM_ENDPOINT = 'GET /api/operator-terminal/events/stream';
+const OPERATOR_TERMINAL_SSE_TICK_MS = Number(process.env.HOLOSHELL_OPERATOR_TERMINAL_SSE_TICK_MS || 1000);
+const OPERATOR_TERMINAL_SSE_HEARTBEAT_MS = Number(process.env.HOLOSHELL_OPERATOR_TERMINAL_SSE_HEARTBEAT_MS || 15000);
+const OPERATOR_TERMINAL_SSE_MAX_CONNECTION_MS =
+  Number(process.env.HOLOSHELL_OPERATOR_TERMINAL_SSE_MAX_CONNECTION_MS || 10 * 60 * 1000);
 const OPERATOR_TERMINAL_GUARDED_EXECUTE_MAX_AGE_MS =
   Number(process.env.HOLOSHELL_OPERATOR_TERMINAL_GUARDED_EXECUTE_MAX_AGE_MS || 10 * 60 * 1000);
 const OPERATOR_TERMINAL_APPROVED_ADAPTER_STDIO_LIMIT = 4000;
@@ -4198,6 +4207,89 @@ function buildOperatorTerminalEventStream({ append = true } = {}) {
   });
 }
 
+// Slice the events strictly after `lastEventId` in log order. Falls back to the full
+// list if the id is unknown (fresh connection, or the log was rotated/truncated).
+function operatorTerminalEventsAfter(events, lastEventId) {
+  if (!lastEventId || !Array.isArray(events)) return events || [];
+  const index = events.findIndex((event) => event.eventId === lastEventId);
+  return index === -1 ? events : events.slice(index + 1);
+}
+
+// GET /api/operator-terminal/events/stream — Server-Sent Events push adapter.
+// Replaces the browser's 30000ms poll-and-diff loop with one held-open connection:
+// an initial `snapshot` event carries the full current event stream, then an `events`
+// event fires whenever appendTerminalEvents() (real subprocess lifecycle events from
+// scripts/holoshell-terminal-runner.mjs, or receipt-derived events) advances the log.
+// The read model underneath (buildOperatorTerminalEventStream) is unchanged and is the
+// same one GET /api/operator-terminal/events already serves — this route only adds a
+// transport that pushes instead of waiting to be asked.
+function handleOperatorTerminalEventStreamSSE(req, res) {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream; charset=utf-8',
+    'Cache-Control': 'no-cache, no-transform',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'X-Accel-Buffering': 'no',
+  });
+  if (typeof res.flushHeaders === 'function') res.flushHeaders();
+
+  let closed = false;
+  let lastEventId = '';
+
+  function sendEvent(eventName, payload) {
+    if (closed) return;
+    res.write(`event: ${eventName}\n`);
+    res.write(`data: ${JSON.stringify(payload)}\n\n`);
+  }
+
+  function tick(isFirst) {
+    if (closed) return;
+    let stream;
+    try {
+      stream = buildOperatorTerminalEventStream({ append: true });
+    } catch (err) {
+      sendEvent('error', { error: String(err?.message || err).slice(0, 300) });
+      return;
+    }
+    if (isFirst) {
+      sendEvent('snapshot', stream);
+      lastEventId = stream.latestEventId || '';
+      return;
+    }
+    if (stream.latestEventId && stream.latestEventId !== lastEventId) {
+      const freshEvents = operatorTerminalEventsAfter(stream.events, lastEventId);
+      lastEventId = stream.latestEventId;
+      sendEvent('events', {
+        schemaVersion: stream.schemaVersion,
+        sessionId: stream.sessionId,
+        eventCount: stream.eventCount,
+        latestEventId: stream.latestEventId,
+        events: freshEvents,
+      });
+    }
+  }
+
+  tick(true);
+  const tickTimer = setInterval(() => tick(false), OPERATOR_TERMINAL_SSE_TICK_MS);
+  const heartbeatTimer = setInterval(() => {
+    if (!closed) res.write(':heartbeat\n\n');
+  }, OPERATOR_TERMINAL_SSE_HEARTBEAT_MS);
+  const maxDurationTimer = setTimeout(() => {
+    if (!closed) res.end();
+  }, OPERATOR_TERMINAL_SSE_MAX_CONNECTION_MS);
+
+  function cleanup() {
+    if (closed) return;
+    closed = true;
+    clearInterval(tickTimer);
+    clearInterval(heartbeatTimer);
+    clearTimeout(maxDurationTimer);
+  }
+  req.on('close', cleanup);
+  res.on('close', cleanup);
+  res.on('error', cleanup);
+}
+
 function terminalRunCardsFromCommands(commands, { terminalStatus, receiptHash }) {
   const runCards = commands.map((command) => {
     const endpointStagesGuardedExecutionReceipt = operatorTerminalCommandCanStageGuardedExecution(command, {
@@ -4312,6 +4404,7 @@ function buildOperatorTerminalSession() {
       browserSessionStateEndpoint: 'GET/POST /api/browser-session/state?sessionId=:sessionId',
       operatorTerminalSessionEndpoint: 'GET /api/operator-terminal/session',
       operatorTerminalEventsEndpoint: 'GET /api/operator-terminal/events',
+      operatorTerminalEventsStreamEndpoint: OPERATOR_TERMINAL_EVENTS_STREAM_ENDPOINT,
       operatorTerminalGuardedExecuteEndpoint: 'POST /api/operator-terminal/execute',
       operatorTerminalApprovedAdapterExecuteEndpoint: 'POST /api/operator-terminal/run-approved',
       operatorTerminalReadOnlyAdapterExecuteEndpoint: 'POST /api/operator-terminal/run-readonly',
@@ -4337,6 +4430,8 @@ function buildOperatorTerminalSession() {
       eventStreamAdapter: 'scripts/holoshell-terminal-event-stream.mjs',
       launcher: 'scripts/brittney-studio-launch.ps1',
       eventStreamEndpoint: 'GET /api/operator-terminal/events',
+      eventStreamPushEndpoint: OPERATOR_TERMINAL_EVENTS_STREAM_ENDPOINT,
+      eventStreamPushTransport: 'sse',
       guardedExecuteEndpoint: 'POST /api/operator-terminal/execute',
       guardedExecuteReceipt: OPERATOR_TERMINAL_GUARDED_EXECUTE_RECEIPT,
       guardedExecuteSchema: OPERATOR_TERMINAL_GUARDED_EXECUTE_SCHEMA,
@@ -4408,6 +4503,13 @@ function buildOperatorTerminalSession() {
       terminalEvidenceUpstreamSource: terminalEventStream.upstreamSource,
       terminalEvidenceUpstreamStatus: terminalEventStream.upstreamContractStatus,
       terminalEvidencePollIntervalMs: 30000,
+      // Additive: the push transport (SSE) that supersedes the 30s poll above for
+      // browsers that keep the connection open. terminalEvidenceStreamStatus/
+      // terminalEvidencePollIntervalMs are left as-is above — they describe the
+      // still-live polling fallback, not a claim that push doesn't exist.
+      terminalEvidenceEventStreamPushEndpoint: OPERATOR_TERMINAL_EVENTS_STREAM_ENDPOINT,
+      terminalEvidenceEventStreamPushTransport: 'sse',
+      terminalEvidenceEventStreamPushStatus: 'available',
       evidenceLedgerStatus: receiptObserved ? 'available' : 'needs_terminal_receipt',
       rehydrateFrom: ['localStorage', 'GET /api/browser-session/state?sessionId=:sessionId', 'GET /api/cockpit/capsule', 'GET /api/operator-terminal/session', 'GET /api/operator-terminal/events'],
       browserRefreshMayResetTruth: false,
@@ -4920,6 +5022,7 @@ function buildLiveStatusSnapshot() {
       operatorTerminalSessionEndpoint: 'GET /api/operator-terminal/session',
       operatorTerminalReportEndpoint: 'POST /api/operator-terminal/report',
       operatorTerminalEventsEndpoint: 'GET /api/operator-terminal/events',
+      operatorTerminalEventsStreamEndpoint: OPERATOR_TERMINAL_EVENTS_STREAM_ENDPOINT,
       operatorTerminalGuardedExecuteEndpoint: 'POST /api/operator-terminal/execute',
       operatorTerminalApprovedAdapterExecuteEndpoint: 'POST /api/operator-terminal/run-approved',
       operatorTerminalReadOnlyAdapterExecuteEndpoint: 'POST /api/operator-terminal/run-readonly',
@@ -4968,6 +5071,7 @@ function buildLiveStatusSnapshot() {
       'browser_terminal_coupling',
       'operator_terminal_session',
       'operator_terminal_event_stream',
+      'operator_terminal_event_stream_push',
       'native_terminal_event_stream',
       'operator_terminal_run_cards',
       'operator_terminal_guarded_execute_receipts',
@@ -6781,6 +6885,11 @@ async function handleRequest(req, res) {
 
   if (req.method === 'GET' && path === '/api/operator-terminal/events') {
     respond(res, buildOperatorTerminalEventStream({ append: true }));
+    return;
+  }
+
+  if (req.method === 'GET' && path === '/api/operator-terminal/events/stream') {
+    handleOperatorTerminalEventStreamSSE(req, res);
     return;
   }
 
