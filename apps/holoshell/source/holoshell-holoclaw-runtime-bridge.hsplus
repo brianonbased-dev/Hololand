@@ -4,6 +4,33 @@
 // HoloClaw agent runtime. HoloClaw replaces OpenClaw/NemoClaw at the runtime
 // and product layer; those names may appear only as competitor/replacement
 // references, never as runtime backends.
+//
+// "NemoClaw" resolved 2026-08-19 (board task task_1787097759441_wjrp,
+// idea-run-26): it is a real product, not a placeholder or typo. NVIDIA
+// NemoClaw is NVIDIA's official open-source security/sandbox stack --
+// Nemotron models + the NVIDIA OpenShell sandbox runtime + network/policy
+// control, Apache 2.0, github.com/NVIDIA/NemoClaw -- for running agents,
+// including OpenClaw, Hermes, and LangChain Deep Agents, more safely.
+// Announced at GTC 2026-03-16 (nvidianews.nvidia.com/news/nvidia-announces-
+// nemoclaw). It is NOT a second peer runtime alongside OpenClaw; it is
+// NVIDIA's hardened, single-command-install distribution OF OpenClaw (and
+// other agent frameworks), not an independent competing agent product.
+// OpenClaw itself (formerly "clawdbot") is Peter Steinberger's real
+// open-source autonomous agent -- messaging-app UI, self-writes its own
+// skills via ClawHub, Apache 2.0, 369k+ GitHub stars by May 2026. Read
+// together, this policy's pairing already made sense at authoring time
+// (git blame: both names introduced together in 93908a7, 2026-06-29): the
+// two off-the-shelf shortcuts a HoloClaw implementer could reach for
+// instead of building HoloClaw's own native runtime were the raw community
+// runtime (OpenClaw) or NVIDIA's hardened wrapper of that same runtime
+// (NemoClaw) -- this policy excludes both as runtime backends, deliberately,
+// not two unrelated competitors that happen to rhyme.
+// Sourcing note: confirmed via direct fetch of nvidianews.nvidia.com and
+// github.com/NVIDIA/NemoClaw (both post-date this research pass's model
+// training data; no authenticity red flags on either -- standard NVIDIA
+// press boilerplate/trademarks, real org-repo structure/governance).
+// Third-party domains that also surfaced in search (nemoclaw.sh,
+// nemoclawai.io) were NOT relied on as sources.
 
 composition "HoloShell HoloClaw Runtime Bridge" {
   config {
