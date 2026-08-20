@@ -270,9 +270,79 @@ async function runOllamaChat(model: string, request: BrittneyChatRequest): Promi
   };
 }
 
-async function startOllamaCompatibilityGateway(model: string): Promise<void> {
+/**
+ * HoloLlama is our own serving layer and it speaks the OpenAI shape, not
+ * Ollama's. Measured 2026-08-20: llama-server is live on the Jetson behind the
+ * HoloLlama proxy at holojetson.local:18080, answering /v1/chat/completions in
+ * 0.6s — while this launcher asked it for /api/tags and got a 404. Two halves
+ * of our own stack that could not see each other, which is why Brittney could
+ * not start on a machine that had working inference the whole time.
+ */
+const HOLOLLAMA_HOST = process.env.HOLOLLAMA_HOST || process.env.HOLOSERVE_HOST || 'http://holojetson.local:18080';
+
+async function findHoloLlamaModel(): Promise<string | null> {
+  try {
+    const response = await fetch(`${HOLOLLAMA_HOST}/v1/models`, { signal: AbortSignal.timeout(6000) });
+    if (!response.ok) return null;
+    const data = await response.json() as { models?: Array<{ model?: string; name?: string }>; data?: Array<{ id?: string }> };
+    const first = data.models?.[0]?.model || data.models?.[0]?.name || data.data?.[0]?.id;
+    return first || null;
+  } catch {
+    return null;
+  }
+}
+
+async function runHoloLlamaChat(model: string, request: BrittneyChatRequest): Promise<{
+  content: string;
+  promptTokens: number;
+  completionTokens: number;
+}> {
+  const messages = Array.isArray(request.messages) && request.messages.length
+    ? request.messages
+    : [{ role: 'user' as const, content: 'Hello Brittney.' }];
+
+  const response = await fetch(`${HOLOLLAMA_HOST}/v1/chat/completions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model,
+      messages,
+      stream: false,
+      temperature: request.temperature ?? 0.2,
+      max_tokens: request.maxTokens ?? 512,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HoloLlama chat failed: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json() as {
+    choices?: Array<{ message?: { content?: string } }>;
+    usage?: { prompt_tokens?: number; completion_tokens?: number };
+  };
+
+  const content = data.choices?.[0]?.message?.content || '';
+  return {
+    content,
+    promptTokens: data.usage?.prompt_tokens || Math.ceil(JSON.stringify(messages).length / 4),
+    completionTokens: data.usage?.completion_tokens || Math.ceil(content.length / 4),
+  };
+}
+
+type BrittneyChatFn = (model: string, request: BrittneyChatRequest) => Promise<{
+  content: string;
+  promptTokens: number;
+  completionTokens: number;
+}>;
+
+async function startOllamaCompatibilityGateway(
+  model: string,
+  chat: BrittneyChatFn = runOllamaChat,
+  routeLabel = 'HoloLLama local compatibility route',
+): Promise<void> {
   console.log('🚀 Starting Brittney HoloLLama local compatibility gateway...');
-  console.log(`🧠 Primary inference: HoloLLama local compatibility route (${model})`);
+  console.log(`🧠 Primary inference: ${routeLabel} (${model})`);
   console.log('🛡️  Deprecated GGUF service bypassed to protect local GPU memory.');
   console.log(`🌐 URL: http://${BRITTNEY_HOST}:${BRITTNEY_PORT}`);
 
@@ -346,7 +416,7 @@ async function startOllamaCompatibilityGateway(model: string): Promise<void> {
 
       if (req.method === 'POST' && url.pathname === '/chat') {
         const request = await readJson(req) as BrittneyChatRequest;
-        const result = await runOllamaChat(model, request);
+        const result = await chat(model, request);
         sendJson(res, 200, {
           id: `ollama_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
           content: result.content,
@@ -364,7 +434,7 @@ async function startOllamaCompatibilityGateway(model: string): Promise<void> {
 
       if (req.method === 'POST' && url.pathname === '/v1/chat/completions') {
         const request = await readJson(req) as BrittneyChatRequest;
-        const result = await runOllamaChat(model, request);
+        const result = await chat(model, request);
         sendJson(res, 200, {
           id: `ollama_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
           object: 'chat.completion',
@@ -525,6 +595,18 @@ async function main() {
     return;
   }
   
+  // HoloLlama first: it is our own serving layer, and on this fleet it is the
+  // one that is actually running. Preferring a third party over our own stack
+  // is how Brittney stayed unstartable on a machine with live inference.
+  const holoLlamaModel = await findHoloLlamaModel();
+  if (holoLlamaModel) {
+    console.log(`✅ HoloLlama is serving: ${path.basename(holoLlamaModel)}`);
+    console.log(`   at ${HOLOLLAMA_HOST}`);
+    console.log('');
+    await startOllamaCompatibilityGateway(holoLlamaModel, runHoloLlamaChat, 'HoloLlama');
+    return;
+  }
+
   // Find GGUF model
   const ollamaModel = await findOllamaBrittneyModel();
   if (ollamaModel) {
@@ -545,9 +627,14 @@ async function main() {
     console.log('   Preferred setup: set BRITTNEY_MODEL_PATH, BRITTNEY_MODEL_ROOT,');
     console.log('   HOLOLAND_MODEL_ROOT, or HOLOLAND_ARTIFACT_MODEL_ROOT to an artifact-lane path.');
     console.log('');
-    console.log('   Download the model:');
-    console.log('   npm run brittney:download');
+    console.log(`   Also tried HoloLlama at ${HOLOLLAMA_HOST} — no answer.`);
+    console.log('   Point HOLOLLAMA_HOST at a live HoloLlama or HoloServe and no local');
+    console.log('   weights are needed at all.');
     console.log('');
+    // This used to advise `npm run brittney:download`. No such command has ever
+    // existed in this package, so the one helpful line in this message sent the
+    // reader to a dead end. Verified 2026-08-20 against package.json.
+
     process.exit(1);
   }
   
