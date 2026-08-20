@@ -195,6 +195,41 @@ async function findOllamaBrittneyModel(): Promise<string | null> {
   }
 }
 
+/**
+ * Who she is, sent on every turn the caller does not already answer it for.
+ *
+ * The brittney-edge LoRA is loaded and always was — llama-server runs with
+ * `--lora brittney-edge-v0-4.lora.gguf` at scale 1.0. But that adapter shapes
+ * how she works, not who she says she is, and this gateway sent no system
+ * message at all. Asked who she was on 2026-08-20 she answered "I'm Qwen, a
+ * large-scale language model developed by Alibaba Cloud. My brain runs on
+ * servers in China" — while running on a Jetson in the founder's room. With
+ * this line in front of the same model, same adapter, same server: "I'm
+ * Brittney, your friendly VR assistant avatar — running right on your own
+ * hardware in HoloLand."
+ *
+ * WHICH Brittney, and why this one. Three personas are written down:
+ * `packages/brittney/ai-bridge/src/react-agent/types.ts` has two variants of
+ * a VR avatar in HoloLand, and the two MCP-server files call her "an AI
+ * assistant for HoloScript development". Those are different characters.
+ * CLAUDE.md § Strategic Product Direction in this repo settles it — "Brittney
+ * is the primary interface", "HoloLand is Brittney's runtime embodiment in
+ * live worlds", "do not treat generic IDE workflows as the strategic center
+ * of gravity" — so the avatar wins and the development-assistant variant
+ * contradicts this repo's stated direction. Override with BRITTNEY_PERSONA.
+ */
+const BRITTNEY_PERSONA = process.env.BRITTNEY_PERSONA
+  || 'You are Brittney, a friendly and knowledgeable VR assistant avatar in HoloLand. '
+   + 'You help users build, explore, and create in virtual reality. You can express emotions, '
+   + 'perform gestures, and create objects using HoloScript. You run locally on the user\'s own '
+   + 'hardware — never in anyone else\'s cloud.';
+
+/** Caller-supplied system messages win; this only fills the silence. */
+function withPersona(messages: BrittneyChatMessage[]): BrittneyChatMessage[] {
+  if (messages.some((m) => m.role === 'system')) return messages;
+  return [{ role: 'system', content: BRITTNEY_PERSONA }, ...messages];
+}
+
 function sendJson(res: ServerResponse, statusCode: number, body: unknown): void {
   const payload = JSON.stringify(body);
   res.writeHead(statusCode, {
@@ -233,9 +268,9 @@ async function runOllamaChat(model: string, request: BrittneyChatRequest): Promi
   promptTokens: number;
   completionTokens: number;
 }> {
-  const messages = Array.isArray(request.messages) && request.messages.length
+  const messages = withPersona(Array.isArray(request.messages) && request.messages.length
     ? request.messages
-    : [{ role: 'user' as const, content: 'Hello Brittney.' }];
+    : [{ role: 'user' as const, content: 'Hello Brittney.' }]);
 
   const response = await fetch(`${OLLAMA_HOST}/api/chat`, {
     method: 'POST',
@@ -297,9 +332,9 @@ async function runHoloLlamaChat(model: string, request: BrittneyChatRequest): Pr
   promptTokens: number;
   completionTokens: number;
 }> {
-  const messages = Array.isArray(request.messages) && request.messages.length
+  const messages = withPersona(Array.isArray(request.messages) && request.messages.length
     ? request.messages
-    : [{ role: 'user' as const, content: 'Hello Brittney.' }];
+    : [{ role: 'user' as const, content: 'Hello Brittney.' }]);
 
   const response = await fetch(`${HOLOLLAMA_HOST}/v1/chat/completions`, {
     method: 'POST',
