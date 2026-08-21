@@ -1,0 +1,146 @@
+/**
+ * HoloShell Asset Folder To Playable Shard Room
+ *
+ * Visible room concept for:
+ * "Turn this local folder into a playable HoloLand shard, verify it works,
+ * and show what changed without mutating my source files."
+ */
+
+composition "HoloShell Asset Folder To Playable Shard Room" {
+  environment {
+    backgroundColor: "#101316"
+    ambient_light: 0.6
+    shadows: true
+  }
+
+  template "ShardPanel" {
+    @billboard
+    @anchor
+    geometry: "plane"
+    scale: [1.46, 0.58, 0.08]
+    material: {
+      color: "#172026"
+      emissive: "#263842"
+      emissiveIntensity: 0.18
+      transparent: true
+      opacity: 0.95
+    }
+  }
+
+  template "CustodyToken" {
+    @glowing
+    @collidable
+    geometry: "sphere"
+    scale: [0.16, 0.16, 0.16]
+    material: { color: "#6ee7d8" }
+  }
+
+  object "HumanJob" using "ShardPanel" {
+    position: [0, 2.45, -3.05]
+    label: "Make these files into a playable shard"
+    properties: {
+      humanJob: "pick a local asset folder, generate a playable HoloLand shard preview, validate it, stage import approval, and keep source files unchanged"
+      defaultPromise: "scan and preview first; runtime import, publish, overwrite, and delete require approval"
+      sourceBoundary: "HoloScript owns reusable asset custody, shard admission, validation, and receipt primitives; HoloLand renders the creator room"
+    }
+  }
+
+  object "SourceFolderGate" using "ShardPanel" {
+    position: [-4.4, 1.55, -1.35]
+    label: "Source folder"
+    properties: {
+      visible: ["folder_basename", "file_count", "privacy_class", "path_fingerprint", "blocked_file_count"]
+      hidden: ["absolute_path", "host_username", "credential_like_filenames"]
+      failureState: "folder missing, too many files, symlink skipped, source path leaked"
+    }
+  }
+
+  object "AssetClassificationCloud" using "ShardPanel" {
+    position: [-2.2, 1.55, -1.35]
+    label: "Asset classification"
+    properties: {
+      kinds: ["model", "image", "audio", "media", "source", "manifest", "unknown", "blocked"]
+      reads: "relative path, extension, size, hash status, blocked reason"
+      failureState: "unsupported file, credential-like file, large hash skipped, unknown kind"
+    }
+  }
+
+  object "PlayableShardDraft" using "ShardPanel" {
+    position: [0, 1.55, -1.35]
+    label: "Playable draft"
+    properties: {
+      outputs: ["preview .holo", "asset proxy objects", "spawn anchor", "approval gate", "receipt stack"]
+      sourceNative: true
+      failureState: "preview does not parse, no playable root, asset proxies not launchable"
+    }
+  }
+
+  object "ValidationAndReplay" using "ShardPanel" {
+    position: [2.2, 1.55, -1.35]
+    label: "Validation and replay"
+    properties: {
+      checks: ["HoloScript parse", "public graph redaction", "source mutation false", "approval nonce", "runtime import receipt"]
+      replayInputs: ["folder_fingerprint", "asset_hashes", "preview_hash", "approval_id", "import_receipt_hash"]
+      failureState: "hosted graph cannot see local path, replay hash drift, stale approval"
+    }
+  }
+
+  object "ImportAndRollback" using "ShardPanel" {
+    position: [4.4, 1.55, -1.35]
+    label: "Import and rollback"
+    properties: {
+      guardedMutations: ["write_runtime_manifest", "write_runtime_shard_source", "open_preview", "publish_to_world"]
+      breakGlass: ["overwrite_existing_shard", "delete_source_assets", "publish_publicly", "use_cloud_account"]
+      rollback: "delete generated runtime files; source folder is not changed"
+    }
+  }
+
+  object "ReadOnlyScanToken" using "CustodyToken" {
+    position: [-3.3, 0.76, 0.08]
+    label: "read-only scan"
+    properties: {
+      receiptKind: "asset_folder_custody_receipt"
+      allowed: ["resolve_folder", "list_files", "hash_files", "classify_files"]
+    }
+  }
+
+  object "PreviewToken" using "CustodyToken" {
+    position: [-1.1, 0.76, 0.08]
+    label: "preview generated"
+    properties: {
+      receiptKind: "shard_preview_validation_receipt"
+      writes: [".tmp/holoshell/shard-preview.holo", ".tmp/holoshell/shard-workflow-latest.json"]
+    }
+  }
+
+  object "ApprovalToken" using "CustodyToken" {
+    position: [1.1, 0.76, 0.08]
+    material: { color: "#e0af68" }
+    label: "import approval"
+    properties: {
+      receiptKind: "asset_shard_import_approval_receipt"
+      nonceBound: true
+      guardedExecute: true
+    }
+  }
+
+  object "ImportedShardToken" using "CustodyToken" {
+    position: [3.3, 0.76, 0.08]
+    material: { color: "#9ece6a" }
+    label: "runtime shard"
+    properties: {
+      receiptKind: "asset_shard_import_receipt"
+      sourceAssetsMutated: false
+      rollbackKind: "runtime_generated_files_only"
+    }
+  }
+
+  object "AssetShardTimeline" {
+    @anchor
+    geometry: "cube"
+    position: [0, 0.2, 0.14]
+    scale: [7.8, 0.08, 0.14]
+    color: "#5f6b72"
+    label: "timeline: choose folder -> scan -> classify -> block secrets -> generate preview -> validate -> stage approval -> import runtime copy -> replay -> rollback"
+  }
+}

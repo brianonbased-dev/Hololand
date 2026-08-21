@@ -1,0 +1,147 @@
+// HoloShell Cloud Drive Permission Cleanup Room
+//
+// Visible deterministic wrapper for:
+// "Clean up shared cloud-drive access, prove what is exposed, revoke only what
+// I approve, and show residual access or rollback limits."
+
+composition "HoloShell Cloud Drive Permission Cleanup Room" {
+  metadata {
+    title: "Cloud Drive Permission Cleanup"
+    product: "HoloShell"
+    sourceLayer: "HoloScript"
+    workflow: "cloud-drive-permission-cleanup"
+    behavior_source: "experiments/holoshell-human-os-frontier/cloud-drive-permission-cleanup-policy.hsplus"
+    pipeline_source: "experiments/holoshell-human-os-frontier/cloud-drive-permission-cleanup-pipeline.hs"
+    upstream_receipt: "HoloShellCloudPermissionCleanupReceipt"
+  }
+
+  environment {
+    theme: "holo_os_cloud_custody"
+    render_mode: "desktop_spatial"
+    ambient_light: 0.6
+    receipt_underlay: true
+  }
+
+  state {
+    providerBoundary: "unknown"
+    inventoryState: "not_started"
+    exposureState: "unknown"
+    approvalState: "none"
+    revocationState: "not_started"
+    residualAccessCount: 0
+    readyToClaimClean: false
+  }
+
+  template "CloudGate" {
+    type: "permission_cleanup_gate"
+    mesh: "rounded_panel"
+    material: "liquid_glass"
+    color: "#17202a"
+    active_color: "#73daca"
+    warning_color: "#e0af68"
+    blocked_color: "#f7768e"
+    inspectable: true
+    receipt_required: true
+  }
+
+  object "HumanOutcome" using "CloudGate" {
+    label: "Who can see or edit my cloud files?"
+    gate_id: "cloud_permission_cleanup_outcome"
+    position: [0, 2.25, -2.7]
+    scale: [3.35, 0.72, 0.08]
+    status_binding: "exposureState"
+    plain_language: "Inventory shared folders and links, show risk, revoke only approved access, and prove what remains."
+  }
+
+  object "ProviderAccountGate" using "CloudGate" {
+    label: "Provider and account"
+    gate_id: "provider_account"
+    receipt: "PermissionSubjectReceipt"
+    failure_states: ["wrong_account", "work_account_policy_unknown", "expired_session", "unknown_provider"]
+    position: [-3.35, 1.15, -1.25]
+    scale: [1.55, 0.62, 0.08]
+  }
+
+  object "SharedInventoryGate" using "CloudGate" {
+    label: "Shared inventory"
+    gate_id: "shared_inventory"
+    receipt: "CloudShareInventoryReceipt"
+    failure_states: ["inventory_incomplete", "provider_page_changed", "folder_skipped", "private_path_leak"]
+    position: [-1.12, 1.15, -1.25]
+    scale: [1.7, 0.62, 0.08]
+  }
+
+  object "ExposureDiffGate" using "CloudGate" {
+    label: "Exposure diff"
+    gate_id: "exposure_diff"
+    receipt: "CloudExposureDiffReceipt"
+    failure_states: ["public_link", "external_editor", "inherited_access", "unknown_group", "domain_wide_access"]
+    position: [1.12, 1.15, -1.25]
+    scale: [1.7, 0.62, 0.08]
+  }
+
+  object "ApprovalAndRevokeGate" using "CloudGate" {
+    label: "Approve revoke"
+    gate_id: "approval_revoke"
+    receipt: "PermissionRevocationReceipt"
+    failure_states: ["no_fresh_approval", "bulk_revoke_requested", "owner_transfer", "delete_or_move_requested"]
+    position: [3.35, 1.15, -1.25]
+    scale: [1.55, 0.62, 0.08]
+  }
+
+  object "ResidualAccessShelf" {
+    type: "receipt_shelf"
+    label: "Residual access"
+    mesh: "cube"
+    material: "hologram"
+    color: "#e0af68"
+    position: [-1.35, 0.25, 0.3]
+    scale: [1.95, 0.12, 0.4]
+    count_binding: "residualAccessCount"
+    inspectable: true
+  }
+
+  object "CleanClaimToken" {
+    type: "receipt_token"
+    label: "Cloud permissions cleaned"
+    mesh: "sphere"
+    material: "hologram"
+    radius: 0.18
+    color: "#73daca"
+    position: [1.35, 0.25, 0.3]
+    visible_when: "readyToClaimClean"
+    receipt_required: true
+  }
+
+  object "CleanupTimeline" {
+    type: "timeline"
+    label: "account -> inventory -> exposure diff -> approval -> revoke -> verify -> residual access -> replay"
+    mesh: "cube"
+    material: "hologram"
+    color: "#6a7282"
+    position: [0, -0.22, 1.05]
+    scale: [5.9, 0.08, 0.12]
+    receipt_required: true
+  }
+
+  logic {
+    on_enter {
+      emit "holoshell_cloud_permission_cleanup_loaded"
+    }
+
+    action consume_inventory(receipt) {
+      state.providerBoundary = receipt.provider
+      state.inventoryState = receipt.status
+      state.exposureState = receipt.exposureState
+      state.residualAccessCount = receipt.residualAccessCount
+      emit "holoshell_cloud_permission_inventory_consumed"
+    }
+
+    action consume_revocation(receipt) {
+      state.approvalState = receipt.freshApproval == true ? "fresh" : "missing"
+      state.revocationState = receipt.revokeVerified == true ? "verified" : "pending"
+      state.readyToClaimClean = receipt.readyToClaimClean == true && receipt.residualAccessCount == 0
+      emit "holoshell_cloud_permission_revocation_consumed"
+    }
+  }
+}

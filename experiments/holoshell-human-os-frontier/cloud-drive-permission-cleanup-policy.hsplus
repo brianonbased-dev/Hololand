@@ -1,0 +1,145 @@
+// HoloShell cloud-drive permission cleanup policy and state machine.
+
+composition "HoloShellCloudDrivePermissionCleanupPolicy" {
+  state CloudPermissionCleanupState {
+    workflow: "cloud-drive-permission-cleanup"
+    status: "idle"
+    provider: "unknown"
+    accountBoundary: "unknown"
+    inventoryReceiptWritten: false
+    publicLinksFound: 0
+    externalEditorsFound: 0
+    inheritedAccessFound: 0
+    residualAccessCount: 0
+    bulkMutationRequested: false
+    deleteOrMoveRequested: false
+    rawCredentialCaptured: false
+    hiddenAutomationUsed: false
+    readyToClaimClean: false
+  }
+
+  template "CloudPermissionCleanupReceiptContract" {
+    receiptType: "HoloShellCloudPermissionCleanupReceipt"
+    schemaVersion: "hololand.holoshell.cloud-permission-cleanup.v0.1.0"
+    providerAccountReceiptRequired: true
+    sharedInventoryReceiptRequired: true
+    exposureDiffReceiptRequired: true
+    revokeApprovalReceiptRequired: true
+    verificationReceiptRequired: true
+    residualAccessReceiptRequired: true
+    rawCredentialCaptureAllowed: false
+    hiddenAutomationAllowed: false
+  }
+
+  policy "ReadOnlyShareDiscovery" {
+    permissionEnvelope: "read_only"
+    appliesTo: [
+      "detect_provider_account",
+      "read_shared_file_inventory",
+      "read_link_state",
+      "read_group_membership_label",
+      "read_inherited_permission_chain",
+      "calculate_exposure_diff",
+      "stage_revoke_plan"
+    ]
+  }
+
+  policy "GuardedShareRevocation" {
+    permissionEnvelope: "guarded_execute"
+    requiresFreshUserGesture: true
+    appliesTo: [
+      "revoke_public_link",
+      "remove_external_viewer",
+      "remove_external_editor",
+      "disable_domain_link",
+      "write_revocation_receipt",
+      "verify_provider_state"
+    ]
+  }
+
+  policy "BreakGlassCloudMutation" {
+    permissionEnvelope: "break_glass"
+    appliesTo: [
+      "delete_cloud_file",
+      "move_cloud_file",
+      "transfer_owner",
+      "remove_owner",
+      "bulk_revoke_without_item_review",
+      "change_org_policy"
+    ]
+  }
+
+  state_machine "CloudPermissionCleanupWorkflow" {
+    initial: "idle"
+    states: [
+      "idle",
+      "account_confirmed",
+      "inventory_written",
+      "exposure_classified",
+      "approval_required",
+      "revocation_running",
+      "verification_written",
+      "clean",
+      "residual_access_warning",
+      "blocked"
+    ]
+    transition "confirm_account" { from: "idle", to: "account_confirmed" }
+    transition "write_inventory" { from: "account_confirmed", to: "inventory_written" }
+    transition "classify_exposure" { from: "inventory_written", to: "exposure_classified" }
+    transition "require_approval" { from: "exposure_classified", to: "approval_required" }
+    transition "run_revocation" { from: "approval_required", to: "revocation_running" }
+    transition "verify_provider_state" { from: "revocation_running", to: "verification_written" }
+    transition "claim_clean" { from: "verification_written", to: "clean" }
+    transition "warn_residual" { from: "verification_written", to: "residual_access_warning" }
+    transition "block" { from: "*", to: "blocked" }
+  }
+
+  role "CodexHardwareAgent" {
+    owns: ["local_receipts", "provider_page_witness", "command_replay", "redacted_evidence"]
+  }
+
+  role "HoloShellCustodian" {
+    owns: ["approval_nonce", "risk_classification", "residual_access_summary", "rollback_limits"]
+  }
+
+  role "HoloScriptSubstrate" {
+    owns: ["receipt_validator", "permission_scope_policy", "trust_ledger_adapter", "replay_contract"]
+  }
+
+  role "HoloLandProductAgent" {
+    owns: ["permission_cleanup_room", "exposure_objects", "brittney_explanation", "safe_next_action"]
+  }
+
+  action classifyRisk(exposure) {
+    if (exposure.linkVisibility == "public") return "public_link"
+    if (exposure.role == "editor" && exposure.subjectBoundary == "external") return "external_editor"
+    if (exposure.inherited == true) return "inherited_access"
+    if (exposure.subjectKind == "unknown_group") return "unknown_group"
+    return "review"
+  }
+
+  action mayRevoke(plan) {
+    if (plan.freshApproval != true) return false
+    if (plan.bulkMutationRequested == true) return false
+    if (plan.deleteOrMoveRequested == true) return false
+    if (plan.rawCredentialCaptured == true) return false
+    if (plan.hiddenAutomationUsed == true) return false
+    return true
+  }
+
+  action consumeCleanupReceipt(receipt) {
+    CloudPermissionCleanupState.status = receipt.status
+    CloudPermissionCleanupState.provider = receipt.provider
+    CloudPermissionCleanupState.accountBoundary = receipt.accountBoundary
+    CloudPermissionCleanupState.inventoryReceiptWritten = receipt.inventoryReceiptWritten
+    CloudPermissionCleanupState.publicLinksFound = receipt.publicLinksFound
+    CloudPermissionCleanupState.externalEditorsFound = receipt.externalEditorsFound
+    CloudPermissionCleanupState.inheritedAccessFound = receipt.inheritedAccessFound
+    CloudPermissionCleanupState.residualAccessCount = receipt.residualAccessCount
+    CloudPermissionCleanupState.bulkMutationRequested = receipt.bulkMutationRequested
+    CloudPermissionCleanupState.deleteOrMoveRequested = receipt.deleteOrMoveRequested
+    CloudPermissionCleanupState.rawCredentialCaptured = receipt.rawCredentialCaptured
+    CloudPermissionCleanupState.hiddenAutomationUsed = receipt.hiddenAutomationUsed
+    CloudPermissionCleanupState.readyToClaimClean = receipt.readyToClaimClean
+  }
+}

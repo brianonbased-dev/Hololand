@@ -1,0 +1,197 @@
+// HoloShell asset-folder to playable-shard policy and state machine.
+
+composition "HoloShellAssetFolderPlayableShardPolicy" {
+  state AssetShardState {
+    selectedWorkflow: "asset-folder-playable-shard"
+    sourceFolderName: "unknown"
+    folderPrivacyClass: "local_private"
+    assetCount: 0
+    blockedAssetCount: 0
+    previewGenerated: false
+    previewValidated: false
+    approvalCount: 0
+    runtimeImportExecuted: false
+    sourceAssetsMutated: false
+    replayReady: false
+    receiptsCaptured: 0
+    currentLane: "codex-hardware"
+    blockers: []
+  }
+
+  template "PermissionEnvelope" {
+    readOnly: true
+    guardedExecute: false
+    breakGlass: false
+    receiptRequired: true
+    humanVisible: true
+  }
+
+  template "AssetFolderCustodyReceipt" {
+    receiptType: "asset_folder_custody_receipt"
+    folderFingerprintRequired: true
+    relativePathsOnlyInPublicGraph: true
+    sourceMutationAllowed: false
+    blockedAssetGateRequired: true
+    replayable: true
+  }
+
+  template "AssetShardImportReceipt" {
+    receiptType: "asset_shard_import_receipt"
+    shardIdRequired: true
+    approvalIdRequired: true
+    approvalNonceRequired: true
+    previewHashRequired: true
+    runtimeManifestRequired: true
+    sourceAssetsMutatedMustBeFalse: true
+    rollbackPathsRequired: true
+  }
+
+  policy "ReadOnlyAssetCustody" using "PermissionEnvelope" {
+    readOnly: true
+    guardedExecute: false
+    breakGlass: false
+    appliesTo: [
+      "resolve_asset_folder",
+      "list_asset_files",
+      "classify_asset_files",
+      "hash_asset_files",
+      "detect_secret_like_files",
+      "write_private_path_receipt"
+    ]
+  }
+
+  policy "GuardedShardStaging" using "PermissionEnvelope" {
+    readOnly: false
+    guardedExecute: true
+    breakGlass: false
+    appliesTo: [
+      "write_tmp_preview_holo",
+      "write_tmp_workflow_receipt",
+      "validate_preview_source",
+      "mint_import_approval",
+      "write_runtime_manifest",
+      "write_runtime_shard_source",
+      "open_imported_shard_preview"
+    ]
+  }
+
+  policy "BreakGlassShardMutation" using "PermissionEnvelope" {
+    readOnly: false
+    guardedExecute: true
+    breakGlass: true
+    appliesTo: [
+      "overwrite_existing_shard",
+      "delete_source_assets",
+      "publish_publicly",
+      "use_cloud_account",
+      "charge_payment",
+      "grant_world_write_authority"
+    ]
+  }
+
+  state_machine "AssetShardWorkflow" {
+    initial: "idle"
+    states: [
+      "idle",
+      "folder_selected",
+      "assets_scanned",
+      "assets_classified",
+      "blocked",
+      "preview_generated",
+      "preview_validated",
+      "approval_required",
+      "approved",
+      "runtime_imported",
+      "replay_ready",
+      "filed"
+    ]
+    transition "select_folder" { from: "idle", to: "folder_selected" }
+    transition "scan" { from: "folder_selected", to: "assets_scanned" }
+    transition "classify" { from: "assets_scanned", to: "assets_classified" }
+    transition "block" { from: "*", to: "blocked" }
+    transition "generate_preview" { from: "assets_classified", to: "preview_generated" }
+    transition "validate_preview" { from: "preview_generated", to: "preview_validated" }
+    transition "require_approval" { from: "preview_validated", to: "approval_required" }
+    transition "approve" { from: "approval_required", to: "approved" }
+    transition "import_runtime_copy" { from: "approved", to: "runtime_imported" }
+    transition "seal_replay" { from: "runtime_imported", to: "replay_ready" }
+    transition "file_task" { from: "replay_ready", to: "filed" }
+  }
+
+  role "CodexHardware" {
+    laneId: "codex-hardware"
+    owns: ["local_file_scan", "hashing", "preview_validation", "hardware_receipts", "process_custody"]
+  }
+
+  role "HoloShellPolicyAgent" {
+    laneId: "holoshell-policy"
+    owns: ["permission_classification", "approval_packet", "rollback_limits", "human_explanation"]
+  }
+
+  role "HoloScriptSubstrateAgent" {
+    laneId: "holoscript-substrate"
+    owns: ["asset_folder_custody_receipt", "shard_admission_validator", "local_graph_adapter_gap"]
+  }
+
+  role "HoloLandProductAgent" {
+    laneId: "hololand-product"
+    owns: ["creator_room", "shard_preview_surface", "runtime_import_ux", "frontier_creator_kiosk"]
+  }
+
+  action classifyOperation(operation) {
+    if (operation.kind in BreakGlassShardMutation.appliesTo) {
+      AssetShardState.approvalCount = AssetShardState.approvalCount + 1
+      return "break_glass_shard_mutation"
+    }
+    if (operation.kind in GuardedShardStaging.appliesTo) {
+      return "guarded_shard_staging"
+    }
+    return "read_only_asset_custody"
+  }
+
+  action recordAssetFolderCustody(receipt) {
+    AssetShardState.receiptsCaptured = AssetShardState.receiptsCaptured + 1
+    AssetShardState.sourceFolderName = receipt.summary.folderName
+    AssetShardState.assetCount = receipt.summary.assetCount
+    AssetShardState.blockedAssetCount = receipt.summary.blockedAssetCount
+    AssetShardState.sourceAssetsMutated = receipt.summary.sourceAssetsMutated
+    emit("holoshell:asset_shard:folder_custody", {
+      workflow: AssetShardState.selectedWorkflow,
+      lane: AssetShardState.currentLane,
+      folderName: AssetShardState.sourceFolderName,
+      assets: AssetShardState.assetCount,
+      blockedAssets: AssetShardState.blockedAssetCount,
+      sourceAssetsMutated: AssetShardState.sourceAssetsMutated,
+      receiptHash: receipt.witness.receiptHash
+    })
+  }
+
+  action recordImportReceipt(receipt) {
+    AssetShardState.receiptsCaptured = AssetShardState.receiptsCaptured + 1
+    AssetShardState.runtimeImportExecuted = receipt.summary.runtimeMutationExecuted
+    AssetShardState.sourceAssetsMutated = receipt.summary.sourceAssetsMutated
+    AssetShardState.replayReady = receipt.summary.status == "completed"
+    emit("holoshell:asset_shard:import_receipt", {
+      workflow: AssetShardState.selectedWorkflow,
+      shardId: receipt.summary.shardId,
+      runtimeImportExecuted: AssetShardState.runtimeImportExecuted,
+      sourceAssetsMutated: AssetShardState.sourceAssetsMutated,
+      replayReady: AssetShardState.replayReady,
+      receiptPath: receipt.output.receiptPath
+    })
+  }
+
+  action blockOn(reason, evidencePath, ownerSurface) {
+    AssetShardWorkflow.transition("block")
+    AssetShardState.blockers.push({
+      reason: reason,
+      evidencePath: evidencePath,
+      ownerSurface: ownerSurface
+    })
+    emit("holoshell:asset_shard:blocker", {
+      reason: reason,
+      evidencePath: evidencePath,
+      ownerSurface: ownerSurface
+    })
+  }
+}
