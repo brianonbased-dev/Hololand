@@ -288,6 +288,70 @@
       box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.18), 0 0 46px color-mix(in srgb, #ffd66e 48%, transparent);
     }
 
+    /* ── Daimon companion presence (D.053 slice 5) ─────────────────────
+       The owner's own companion, distinct from Brittney: an unnamed soft
+       orb while accumulating (recognition, not onboarding), whose color
+       follows the affect_state expression zones. */
+    .daimon-presence {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.09);
+    }
+    .daimon-title {
+      font-size: 15px;
+      margin: 0 0 2px;
+      letter-spacing: 0.02em;
+    }
+    .daimon-orb {
+      --daimon-color: #8fb7c9;
+      position: relative;
+      width: 58px;
+      height: 58px;
+      min-height: 58px;
+      padding: 0;
+      border-radius: 50%;
+      border: 1px solid color-mix(in srgb, var(--daimon-color) 55%, white 10%);
+      background: radial-gradient(circle at 42% 34%, rgba(255, 255, 255, 0.22), transparent 46%),
+        color-mix(in srgb, var(--daimon-color) 26%, transparent);
+      box-shadow: 0 0 26px color-mix(in srgb, var(--daimon-color) 38%, transparent);
+      isolation: isolate;
+    }
+    .daimon-orb .daimon-core {
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 45% 38%, color-mix(in srgb, var(--daimon-color) 88%, white 22%), color-mix(in srgb, var(--daimon-color) 62%, transparent));
+      animation: daimon-breathe 5.2s ease-in-out infinite;
+    }
+    .daimon-orb .daimon-aura {
+      position: absolute;
+      inset: -7px;
+      border-radius: 50%;
+      border: 1px solid color-mix(in srgb, var(--daimon-color) 34%, transparent);
+      opacity: 0.75;
+    }
+    .daimon-orb[data-phase="accumulating"] .daimon-core { opacity: 0.72; }
+    .daimon-orb[data-phase="manifested"] .daimon-core { opacity: 1; animation-duration: 3.6s; }
+    .daimon-orb[data-expression="neutral"] { --daimon-color: #8fb7c9; }
+    .daimon-orb[data-expression="warm"] { --daimon-color: #ffb37f; }
+    .daimon-orb[data-expression="delight"] { --daimon-color: #ffd166; }
+    .daimon-orb[data-expression="concern"] { --daimon-color: #7f9cf5; }
+    .daimon-orb[data-expression="quiet"] { --daimon-color: #9a8fc9; }
+    .daimon-orb:focus-visible {
+      outline: 3px solid #ffd66e;
+      outline-offset: 6px;
+    }
+    @keyframes daimon-breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.07); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .daimon-orb .daimon-core { animation: none; }
+    }
+
     .avatar-aura,
     .avatar-voice-ring,
     .avatar-runtime,
@@ -1458,6 +1522,17 @@
             <p class="mini" id="brittneyRuntimeLine">Runtime avatar inside the shell.</p>
           </div>
         </div>
+        <div class="daimon-presence" aria-label="Your companion presence">
+          <button class="daimon-orb" id="daimonPresence" type="button" data-phase="accumulating" data-expression="neutral" aria-label="Your companion presence, accumulating" aria-describedby="daimonPresenceStatus">
+            <span class="daimon-aura" aria-hidden="true"></span>
+            <span class="daimon-core" aria-hidden="true"></span>
+          </button>
+          <span class="sr-only" id="daimonPresenceStatus" aria-live="polite">Companion presence loading.</span>
+          <div>
+            <h2 class="daimon-title" id="daimonTitle">Companion</h2>
+            <p class="mini" id="daimonPresenceLine">Not named yet. Learning you.</p>
+          </div>
+        </div>
         <div class="conversation" id="conversation">
           <div class="message">The desktop is HoloLand now. I can open programs, gather files, call agents, and reshape the shell around the work.</div>
           <div class="message user">Brittney, open terminal, start a sovereign room marathon for local-tagged tasks, open a browser, and play lofi music on YouTube.</div>
@@ -1543,6 +1618,7 @@
     const feed = window.HOLOSHELL_LIVE_FEED || {};
     const standaloneReadinessEvidence = window.HOLOSHELL_READINESS_EVIDENCE || {};
     const standaloneAvatarFeed = window.HOLOSHELL_BRITTNEY_AVATAR || {};
+    const standaloneDaimonFeed = window.HOLOSHELL_DAIMON_AVATAR || {};
     const standaloneTurnFeed = window.HOLOSHELL_BRITTNEY_TURN || {};
     const standaloneHardwareActionFeed = window.HOLOSHELL_HARDWARE_ACTION || {};
     const standaloneProgramRegistryFeed = window.HOLOSHELL_PROGRAM_REGISTRY || {};
@@ -2066,6 +2142,36 @@
     function brittneyAvatarRuntime() {
       const avatar = brittneyAvatarFeed();
       return avatar.runtime || {};
+    }
+
+    function daimonPresenceFeed() {
+      return feed.feeds?.daimonAvatar?.summary ? feed.feeds.daimonAvatar : standaloneDaimonFeed;
+    }
+
+    function daimonPresenceSummary() {
+      return daimonPresenceFeed().summary || {};
+    }
+
+    function renderDaimonPresence(overrides = {}) {
+      const orb = document.getElementById("daimonPresence");
+      if (!orb) return;
+      const summary = daimonPresenceSummary();
+      const presence = daimonPresenceFeed().presence || {};
+      const phase = overrides.phase || summary.phase || presence.phase || "accumulating";
+      const expression = overrides.expression || summary.expression || presence.expression || "neutral";
+      const named = presence.named === true;
+      const runtimeCount = summary.runtimeTraitCount ?? 0;
+      const registeredCount = summary.registeredTraitCount ?? 7;
+      orb.dataset.phase = phase;
+      orb.dataset.expression = expression;
+      // Recognition, not onboarding: no name is shown until she manifests.
+      document.getElementById("daimonTitle").textContent = named && presence.displayName ? presence.displayName : "Companion";
+      const line = phase === "manifested"
+        ? `Here with you. ${expression} expression; ${runtimeCount} of ${registeredCount} traits live.`
+        : `Not named yet. Learning you — ${expression}; ${runtimeCount} of ${registeredCount} traits live.`;
+      document.getElementById("daimonPresenceLine").textContent = line;
+      orb.setAttribute("aria-label", `Your companion presence, ${phase}. Expression ${expression}.`);
+      document.getElementById("daimonPresenceStatus").textContent = `Companion presence ${summary.daimonStatus || "unknown"}; ${phase} phase; ${expression} expression.`;
     }
 
     function brittneyLatestTurn() {
@@ -4218,6 +4324,14 @@
     }
 
     document.getElementById("brittneyAvatar").addEventListener("click", () => activateBrittneyAvatar("avatar"));
+    document.getElementById("daimonPresence").addEventListener("click", () => {
+      // Slice 5: presence only. The conversation loop routes through
+      // holo_daemon_turn in a later slice; for now the click is an honest
+      // acknowledgment, not a fake chat.
+      renderDaimonPresence({ expression: "warm" });
+      document.getElementById("daimonPresenceStatus").textContent = "Your companion noticed you. The conversation loop arrives with the voice slice.";
+      window.setTimeout(() => renderDaimonPresence(), 2400);
+    });
     document.getElementById("networkGuard").addEventListener("click", () => {
       const object = shellObjects().find((item) => item.id === "network-reality");
       if (object) selectObject(object);
@@ -4261,6 +4375,7 @@
     setupVoiceInput();
     refreshControlDaemonHealth();
     renderBrittneyAvatar();
+    renderDaimonPresence();
     renderBubbles();
     renderControlLane();
     renderDock();

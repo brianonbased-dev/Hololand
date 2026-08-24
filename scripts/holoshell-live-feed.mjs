@@ -242,7 +242,7 @@ function runReceiptTrustState(receipt) {
   return 'unknown';
 }
 
-function createTimeline({ inventory, surfaceMap, goldCodebaseBridge, wildHoloScript, formatInventory, founderBootPreview, founderHost, nativeWrapper, startupIntegration, userShellProjection, developmentalEnvironment, lanes, processHealth, networkReality, networkFreshness, networkChangeEvents, networkSentinelService, serviceSupervisor, desktopBridgeStatus, legacyAppReality, mcpCustodyContract, mcpUpstreamHandoff, osUiCapture, programRegistry, readinessEvidence, fleetReadiness, shellObjects, brittneyAvatar, brittneyTurn, brittneyContext, operatorBrief, operatingTurn, founderCommand, founderEvidenceDemo, receiptControl, agentDispatch, laptopReasoningBridge, laptopReasoningResult, grokBuild, grokHeartbeat, hardwareAction, hardwareApproval, accountTaskCustody, packageCustody, trustLedger, workflow, sovereignRoomMarathon, workflowApproval, workflowIntentGate, shardWorkflow, shardImportApproval, shardImport, runReceipts, pilotReceipts }) {
+function createTimeline({ inventory, surfaceMap, goldCodebaseBridge, wildHoloScript, formatInventory, founderBootPreview, founderHost, nativeWrapper, startupIntegration, userShellProjection, developmentalEnvironment, lanes, processHealth, networkReality, networkFreshness, networkChangeEvents, networkSentinelService, serviceSupervisor, desktopBridgeStatus, legacyAppReality, mcpCustodyContract, mcpUpstreamHandoff, osUiCapture, programRegistry, readinessEvidence, fleetReadiness, shellObjects, brittneyAvatar, daimonAvatar, brittneyTurn, brittneyContext, operatorBrief, operatingTurn, founderCommand, founderEvidenceDemo, receiptControl, agentDispatch, laptopReasoningBridge, laptopReasoningResult, grokBuild, grokHeartbeat, hardwareAction, hardwareApproval, accountTaskCustody, packageCustody, trustLedger, workflow, sovereignRoomMarathon, workflowApproval, workflowIntentGate, shardWorkflow, shardImportApproval, shardImport, runReceipts, pilotReceipts }) {
   const timeline = [];
   const now = new Date().toISOString();
 
@@ -680,6 +680,19 @@ function createTimeline({ inventory, surfaceMap, goldCodebaseBridge, wildHoloScr
     });
   }
 
+  if (daimonAvatar?.summary) {
+    timeline.push({
+      id: 'daimon-presence',
+      kind: 'daimon_avatar',
+      title: `Companion presence ${daimonAvatar.summary.daimonStatus || 'unknown'}`,
+      detail: `${daimonAvatar.summary.phase || 'accumulating'} phase; ${daimonAvatar.summary.expression || 'neutral'} expression; ${daimonAvatar.summary.runtimeTraitCount || 0}/${daimonAvatar.summary.registeredTraitCount || 7} traits live.`,
+      trustState: daimonAvatar.summary.daimonStatus === 'face-contract-ready' ? 'verified' : 'partial',
+      generatedAt: daimonAvatar.generatedAt || now,
+      receiptType: 'hololand.holoshell.daimon-avatar.v0.1.0',
+      source: 'scripts/holoshell-brittney-avatar.mjs',
+    });
+  }
+
   if (brittneyTurn?.summary) {
     timeline.push({
       id: brittneyTurn.turnId || 'brittney-turn',
@@ -1092,6 +1105,7 @@ function createFeed(args) {
   const fleetReadiness = readJson(path.join(tmpDir, 'fleet-readiness-evidence.json'), {});
   const shellObjects = readJson(path.join(tmpDir, 'shell-objects.json'), {});
   const brittneyAvatar = readJson(path.join(tmpDir, 'brittney-avatar.json'), {});
+  const daimonAvatar = readJson(path.join(tmpDir, 'daimon-avatar.json'), {});
   const brittneyTurn = readJson(path.join(tmpDir, 'brittney-turn-latest.json'), {});
   const brittneyContext = readJson(path.join(tmpDir, 'brittney-context.json'), {});
   const operatorBrief = readJson(path.join(tmpDir, 'operator-brief.json'), {});
@@ -1158,6 +1172,7 @@ function createFeed(args) {
     fleetReadiness,
     shellObjects,
     brittneyAvatar,
+    daimonAvatar,
     brittneyTurn,
     brittneyContext,
     operatorBrief,
@@ -1568,6 +1583,10 @@ function createFeed(args) {
       brittneyEmotion: brittneyAvatar?.summary?.emotion || 'attentive',
       brittneyVoiceState: brittneyAvatar?.summary?.voiceState || 'ready',
       brittneyRuntimeRoute: brittneyAvatar?.summary?.ollamaHostKind || 'unknown',
+      daimonStatus: daimonAvatar?.summary?.daimonStatus || 'unknown',
+      daimonPhase: daimonAvatar?.summary?.phase || 'accumulating',
+      daimonExpression: daimonAvatar?.summary?.expression || 'neutral',
+      daimonRuntimeTraitCount: daimonAvatar?.summary?.runtimeTraitCount || 0,
       brittneyLastTurnStatus: brittneyTurn?.summary?.status || 'unknown',
       brittneyLastTurnRuntimeStatus: brittneyTurn?.summary?.runtimeStatus || 'unknown',
       brittneyRuntimeEventCount: brittneyTurn?.summary?.eventCount || 0,
@@ -1847,6 +1866,7 @@ function createFeed(args) {
       fleetReadiness,
       shellObjects,
       brittneyAvatar,
+      daimonAvatar,
       brittneyTurn,
       brittneyContext,
       operatorBrief,

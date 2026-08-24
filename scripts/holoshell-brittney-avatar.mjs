@@ -4,10 +4,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SCHEMA_VERSION = 'hololand.holoshell.brittney-avatar.v0.1.0';
+const DAIMON_SCHEMA_VERSION = 'hololand.holoshell.daimon-avatar.v0.1.0';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_HOLOSCRIPT_ROOT = process.env.HOLOSCRIPT_REPO || path.resolve(REPO_ROOT, '..', 'HoloScript');
 const DEFAULT_OUTPUT = path.join('.tmp', 'holoshell', 'brittney-avatar.json');
 const DEFAULT_JS_OUTPUT = path.join('.tmp', 'holoshell', 'brittney-avatar.js');
+const DEFAULT_DAIMON_OUTPUT = path.join('.tmp', 'holoshell', 'daimon-avatar.json');
+const DEFAULT_DAIMON_JS_OUTPUT = path.join('.tmp', 'holoshell', 'daimon-avatar.js');
 const DEFAULT_TMP = path.join('.tmp', 'holoshell');
 
 function parseArgs(argv) {
@@ -18,6 +21,8 @@ function parseArgs(argv) {
     tmpDir: DEFAULT_TMP,
     output: DEFAULT_OUTPUT,
     jsOutput: DEFAULT_JS_OUTPUT,
+    daimonOutput: DEFAULT_DAIMON_OUTPUT,
+    daimonJsOutput: DEFAULT_DAIMON_JS_OUTPUT,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -28,6 +33,8 @@ function parseArgs(argv) {
     else if (arg === '--tmp-dir') args.tmpDir = argv[++index];
     else if (arg === '--output') args.output = argv[++index];
     else if (arg === '--js-output') args.jsOutput = argv[++index];
+    else if (arg === '--daimon-output') args.daimonOutput = argv[++index];
+    else if (arg === '--daimon-js-output') args.daimonJsOutput = argv[++index];
     else if (arg === '--help' || arg === '-h') {
       printHelp();
       process.exit(0);
@@ -286,6 +293,147 @@ function buildManifest(args) {
   };
 }
 
+function traitNamesFromCategorySource(source) {
+  const names = [];
+  const re = /'([a-z][a-z0-9_]*)'/g;
+  let match;
+  while ((match = re.exec(source)) !== null) names.push(match[1]);
+  return names;
+}
+
+function expressionZonesFromTraitSource(source) {
+  const zones = [];
+  const re = /\{ name: '([a-z]+)',[^}]*color: '(#[0-9a-f]{6})' \}/g;
+  let match;
+  while ((match = re.exec(source)) !== null) zones.push({ name: match[1], color: match[2] });
+  return zones;
+}
+
+function buildDaimonManifest(args) {
+  // The daimon is the OWNER'S companion face (D.053), not Brittney: Brittney
+  // is the field, the daimon is the per-soul presence that draws from it
+  // (apps/holoshell/docs/BRITTNEY_FIELD_AND_USER_DAEMONS.md +
+  // DAIMON_COMPANION_EMBODIMENT.md). This manifest carries the face CONTRACT
+  // presence; live affect state arrives when the runtime loop is wired
+  // (stateSource marks that honestly). The raw ownerScopeKey never appears
+  // in any manifest — owner-scoped privacy is the fold's hardest rule.
+  const holoscriptRoot = path.resolve(args.holoscriptRoot);
+
+  const composition = fileAnchor(holoscriptRoot, 'compositions/daimon-embodiment.holo');
+  const brain = fileAnchor(holoscriptRoot, 'compositions/daimon-brain.hsplus');
+  const rfc = fileAnchor(holoscriptRoot, 'proposals/daimon-embodiment-trait-family.md');
+  const presenceRuntime = fileAnchor(
+    holoscriptRoot,
+    'packages/core/src/traits/CompanionPresenceTrait.ts'
+  );
+  const affectRuntime = fileAnchor(holoscriptRoot, 'packages/core/src/traits/AffectStateTrait.ts');
+  const categoryAnchor = fileAnchor(
+    holoscriptRoot,
+    'packages/core/src/traits/constants/companionship.ts'
+  );
+  const faceContract = fileAnchor(
+    holoscriptRoot,
+    'packages/core/src/daemon/ConversationDaemon.ts'
+  );
+
+  const categorySource = readText(holoscriptRoot, 'packages/core/src/traits/constants/companionship.ts');
+  const affectSource = readText(holoscriptRoot, 'packages/core/src/traits/AffectStateTrait.ts');
+  const registeredTraits = traitNamesFromCategorySource(categorySource);
+  const expressionZones = expressionZonesFromTraitSource(affectSource);
+
+  const runtimeTraits = [
+    { name: 'companion_presence', runtime: presenceRuntime.present },
+    { name: 'affect_state', runtime: affectRuntime.present },
+  ];
+  const runtimeTraitCount = runtimeTraits.filter((t) => t.runtime).length;
+  const daimonStatus =
+    composition.present && categoryAnchor.present && runtimeTraitCount === 2
+      ? 'face-contract-ready'
+      : 'partial';
+
+  return {
+    schemaVersion: DAIMON_SCHEMA_VERSION,
+    generatedAt: new Date().toISOString(),
+    sourceAnchors: {
+      holoshellRoutingDoc: 'apps/holoshell/docs/DAIMON_COMPANION_EMBODIMENT.md',
+      holoshellPrototype: 'apps/holoshell/prototype/local-capability-room.html',
+      holoscriptRoot,
+      composition,
+      brain,
+      rfc,
+      presenceRuntime,
+      affectRuntime,
+      categoryAnchor,
+      faceContract,
+    },
+    presence: {
+      id: 'daimon-companion-presence',
+      // Recognition, not onboarding: before the emergence threshold the
+      // presence is UNNAMED. The owner names her by knowing her, not in a
+      // settings panel. displayName stays honest until phase=manifested.
+      displayName: null,
+      phase: 'accumulating',
+      attention: 'idle',
+      named: false,
+      ownerBinding: 'unbound-preview',
+      stateSource: 'contract-static',
+      visualForm: 'soft_orb_presence',
+      expression: 'neutral',
+      expressionZones,
+      registeredTraits,
+      runtimeTraits,
+    },
+    accessibility: {
+      keyboardReachable: true,
+      screenReaderReachable: true,
+      ariaRole: 'button',
+      ariaLabel: 'Your companion presence (accumulating)',
+      liveRegion: 'polite',
+      reducedMotionAware: true,
+      focusAction: 'open_conversation',
+    },
+    privacy: {
+      ownerScopeKeyInManifest: false,
+      transcriptDestination: 'owner-corpus-only',
+      note: 'Companion conversations feed only the owner corpus; never relay exam, prompt genome, or shared training sets (fold ruling section 3).',
+    },
+    actions: [
+      { id: 'focus_presence', permissionEnvelope: 'read_only', receiptRequired: true },
+      { id: 'open_conversation', permissionEnvelope: 'read_only', receiptRequired: true },
+      { id: 'explain_receipts', permissionEnvelope: 'read_only', receiptRequired: true },
+    ],
+    summary: {
+      daimonStatus,
+      phase: 'accumulating',
+      expression: 'neutral',
+      named: false,
+      registeredTraitCount: registeredTraits.length,
+      runtimeTraitCount,
+      expressionZoneCount: expressionZones.length,
+      compositionPresent: composition.present,
+      brainPresent: brain.present,
+      secretFree: true,
+    },
+  };
+}
+
+function assertDaimonSelfTest(manifest) {
+  const failures = [];
+  if (manifest.schemaVersion !== DAIMON_SCHEMA_VERSION) failures.push('daimon schemaVersion mismatch');
+  if (!manifest.summary.compositionPresent) failures.push('expected compositions/daimon-embodiment.holo anchor');
+  if (manifest.summary.runtimeTraitCount < 2) failures.push('expected companion_presence + affect_state runtime anchors');
+  if (manifest.summary.registeredTraitCount < 7) failures.push('expected 7 registered companionship traits');
+  if (manifest.presence.named !== false || manifest.presence.displayName !== null) {
+    failures.push('accumulating presence must be unnamed (recognition, not onboarding)');
+  }
+  if (JSON.stringify(manifest).includes('ownerScopeKey":"')) failures.push('manifest must not carry a raw ownerScopeKey');
+  if (!manifest.accessibility.keyboardReachable) failures.push('presence must be keyboard reachable');
+  if (!manifest.actions.some((action) => action.id === 'open_conversation')) failures.push('missing open_conversation action');
+  if (failures.length) {
+    throw new Error(`Daimon self-test failed:\n- ${failures.join('\n- ')}`);
+  }
+}
+
 function writeJson(filePath, data) {
   const resolved = resolveRepoPath(filePath);
   mkdirSync(path.dirname(resolved), { recursive: true });
@@ -293,11 +441,11 @@ function writeJson(filePath, data) {
   return resolved;
 }
 
-function writeBrowserBootstrap(filePath, manifest) {
+function writeBrowserBootstrap(filePath, manifest, globalName = 'HOLOSHELL_BRITTNEY_AVATAR') {
   const resolved = resolveRepoPath(filePath);
   mkdirSync(path.dirname(resolved), { recursive: true });
   const payload = JSON.stringify(manifest, null, 2).replace(/<\/script/gi, '<\\/script');
-  writeFileSync(resolved, `window.HOLOSHELL_BRITTNEY_AVATAR = ${payload};\n`, 'utf8');
+  writeFileSync(resolved, `window.${globalName} = ${payload};\n`, 'utf8');
   return resolved;
 }
 
@@ -325,10 +473,20 @@ try {
   const manifest = buildManifest(args);
   const output = writeJson(args.output, manifest);
   const jsOutput = writeBrowserBootstrap(args.jsOutput, manifest);
-  if (args.selfTest) assertSelfTest(manifest);
+  const daimonManifest = buildDaimonManifest(args);
+  const daimonOutput = writeJson(args.daimonOutput, daimonManifest);
+  const daimonJsOutput = writeBrowserBootstrap(
+    args.daimonJsOutput,
+    daimonManifest,
+    'HOLOSHELL_DAIMON_AVATAR'
+  );
+  if (args.selfTest) {
+    assertSelfTest(manifest);
+    assertDaimonSelfTest(daimonManifest);
+  }
 
   if (args.json) {
-    console.log(JSON.stringify(manifest, null, 2));
+    console.log(JSON.stringify({ brittney: manifest, daimon: daimonManifest }, null, 2));
   } else {
     console.log(`HoloShell Brittney avatar: ${output}`);
     console.log(`HoloShell Brittney avatar bootstrap: ${jsOutput}`);
@@ -336,6 +494,10 @@ try {
     console.log(`Avatar: ${manifest.summary.avatarStatus}`);
     console.log(`Emotion: ${manifest.summary.emotion}`);
     console.log(`Route: ${manifest.summary.ollamaHostKind}`);
+    console.log(`HoloShell daimon presence: ${daimonOutput}`);
+    console.log(`HoloShell daimon bootstrap: ${daimonJsOutput}`);
+    console.log(`Daimon: ${daimonManifest.summary.daimonStatus}`);
+    console.log(`Daimon phase: ${daimonManifest.summary.phase}; expression: ${daimonManifest.summary.expression}`);
   }
 } catch (error) {
   console.error(`holoshell-brittney-avatar failed: ${error.message}`);
