@@ -8,6 +8,13 @@ This file is the Codex/open-agent entrypoint for the HoloLand repository.
 2. `docs/AGENT_HOLOSCRIPT_TOOLING.md`
 3. `docs/HOLOSCRIPT_SOURCE_CONTRACT.md`
 4. `docs/specs/HOLOLAND_FRONTIER_NORTH_STAR.md` when product direction matters
+5. This store’s window: [`docs/storefront/local.md`](docs/storefront/local.md)
+6. Breezeway / user vehicle: `C:/holo-dev/ai-ecosystem/docs/handbooks/holon-storefront.md`
+
+This repo is **apps and worlds**. Language changes belong in
+`C:\holo-dev\HoloRepo\HoloScript`. Team board:
+`C:\holo-dev\ai-ecosystem`. Do not open `C:\holo` as the daily editor.
+Map: `C:\holo-dev\WHERE-TO-OPEN.md`.
 
 ## Operating Posture
 
